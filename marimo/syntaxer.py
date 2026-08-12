@@ -26,45 +26,14 @@ def _(text_area):
 
 
 @app.cell
-def _(analyze_passage, text_area):
-    def analyze(psg):
-        if text_area.value:
-            return analyze_passage(psg)
-        else:
-            return None, None
-
-
-    return (analyze,)
-
-
-@app.cell
 def _():
     return
 
 
-@app.cell
-def _():
+@app.cell(hide_code=True)
+def _(mo, ref):
+    mo.md( "> " + ref.reasoning)
     return
-
-
-@app.cell
-def _():
-    return
-
-
-@app.cell
-def _(analyze, text_area):
-    passage = ''
-    if text_area.value:
-        passage = text_area.value
-        toks, ref = analyze(passage)
-    return passage, ref, toks
-
-
-@app.cell
-def _(ref, tokengraph_to_mermaid):
-    diagram, mermaid_warnings = tokengraph_to_mermaid(ref.tokengraph)
-    return (diagram,)
 
 
 @app.cell
@@ -74,29 +43,46 @@ def _(diagram, mo):
 
 
 @app.cell
-def _(passage):
-    passage
-    return
-
-
-@app.cell
 def _(toks):
     toks
     return
 
 
-@app.cell
-def _(ref):
-    ref
+@app.cell(hide_code=True)
+def _(mo):
+    mo.Html("<hr/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>")
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    # All the set up
+    # Implementation
     """)
     return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    ## Analysis
+    """)
+    return
+
+
+@app.cell
+def _(analyze_passage, text_area):
+    passage = ''
+    if text_area.value:
+        passage = text_area.value
+        toks, ref = analyze_passage(passage)
+    return ref, toks
+
+
+@app.cell
+def _(ref, tokengraph_to_mermaid):
+    diagram, mermaid_warnings = tokengraph_to_mermaid(ref.tokengraph)
+    return (diagram,)
 
 
 @app.cell(hide_code=True)
@@ -116,7 +102,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    ## Config
+    ## Imports
     """)
     return
 
@@ -135,6 +121,25 @@ def _():
     from dotenv import load_dotenv
 
     return (load_dotenv,)
+
+
+@app.cell
+def _(Path):
+    import sys
+
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+
+    from arsgrammatica import print_analysis, analyze_passage, tokengraph_to_mermaid
+
+    return analyze_passage, tokengraph_to_mermaid
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    ## Configuration of LM
+    """)
+    return
 
 
 @app.cell
@@ -191,17 +196,6 @@ def _(dspy, getenv):
 def _(configure_lm):
     configure_lm()
     return
-
-
-@app.cell
-def _(Path):
-    import sys
-
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-
-    from arsgrammatica import print_analysis, analyze_passage, tokengraph_to_mermaid
-
-    return analyze_passage, tokengraph_to_mermaid
 
 
 if __name__ == "__main__":
