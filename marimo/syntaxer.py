@@ -25,18 +25,13 @@ def _(text_area):
     return
 
 
-@app.cell
-def _():
-    return
-
-
 @app.cell(hide_code=True)
 def _(mo, ref):
     mo.md( "> " + ref.reasoning)
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(diagram, mo):
     mo.mermaid(diagram)
     return
