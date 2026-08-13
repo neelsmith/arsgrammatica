@@ -175,6 +175,132 @@ _NUMERAL_ANSWER = {
 }
  
  
+# ---------------------------------------------------------------------------
+# "principes Albanorum in patres, ut ea quoque pars rei publicae cresceret, legit."
+#   t0 principes  t1 Albanorum  t2 in     t3 patres    t4 ,
+#   t5 ut         t6 ea         t7 quoque t8 pars      t9 rei
+#   t10 publicae  t11 cresceret t12 ,     t13 legit    t14 .
+#
+# syntax_model.md's own worked example for the *independent* vs *dependent*
+# syntactic_type distinction: "legit is an independent verbal expression,
+# and cresceret is dependent (introduced by the subordinating conjunction
+# ut)" -- and, in the same sentence, for *transitive active* (legit) vs
+# *intransitive* (cresceret) semantic_type. Both syntactic types and both
+# of these semantic types are already exercised elsewhere (unit_verb_
+# hercules_cum), but this fixture ties coverage directly to the spec's own
+# example sentence for this distinction, not just to any sentence that
+# happens to produce the right values.
+# ---------------------------------------------------------------------------
+ 
+_SYNTACTIC_TYPE_ANSWER = {
+    "reasoning": (
+        "legit is the independent main verb (transitive active, 'he "
+        "chose'), with principes Albanorum as its direct object and in "
+        "patres as an adverbial phrase (patres as in's object of "
+        "preposition); cresceret is the dependent verb of the ut-clause "
+        "(intransitive, 'might grow'), linked to ut as its unit verb, with "
+        "pars as its subject."
+    ),
+    "verbalunits": [
+        {"id": "t11", "syntactic_type": "dependent", "semantic_type": "intransitive"},
+        {"id": "t13", "syntactic_type": "independent", "semantic_type": "transitive active"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "principes", "tokentype": "lexical", "lemma": "princeps",
+         "relatedtoken1": "t13", "relationship1": "direct object"},
+        {"id": "t1", "token": "Albanorum", "tokentype": "lexical", "lemma": "Albanus"},
+        {"id": "t2", "token": "in", "tokentype": "lexical", "lemma": "in",
+         "relatedtoken1": "t13", "relationship1": "adverbial"},
+        {"id": "t3", "token": "patres", "tokentype": "lexical", "lemma": "pater",
+         "relatedtoken1": "t2", "relationship1": "object of preposition"},
+        {"id": "t4", "token": ",", "tokentype": "punctuation"},
+        {"id": "t5", "token": "ut", "tokentype": "lexical", "lemma": "ut",
+         "relatedtoken1": "t13", "relationship1": "subordinating conjunction"},
+        {"id": "t6", "token": "ea", "tokentype": "lexical", "lemma": "is"},
+        {"id": "t7", "token": "quoque", "tokentype": "lexical", "lemma": "quoque"},
+        {"id": "t8", "token": "pars", "tokentype": "lexical", "lemma": "pars",
+         "relatedtoken1": "t11", "relationship1": "subject"},
+        {"id": "t9", "token": "rei", "tokentype": "lexical", "lemma": "res"},
+        {"id": "t10", "token": "publicae", "tokentype": "lexical", "lemma": "publicus"},
+        {"id": "t11", "token": "cresceret", "tokentype": "lexical", "lemma": "cresco",
+         "verbalunitid": "t11", "relatedtoken1": "t5", "relationship1": "unit verb"},
+        {"id": "t12", "token": ",", "tokentype": "punctuation"},
+        {"id": "t13", "token": "legit", "tokentype": "lexical", "lemma": "lego",
+         "verbalunitid": "t13"},
+        {"id": "t14", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+ 
+ 
+# ---------------------------------------------------------------------------
+# "urbs a Romulo condita est."
+#   t0 urbs  t1 a  t2 Romulo  t3 condita  t4 est  t5 .
+#
+# syntax_model.md's own worked example for *transitive passive*
+# semantic_type: "the compound verb condita est is transitive passive."
+# Also the spec's own worked example for the *agent* relation: a/ab plus
+# an ablative introduces the agent of a passive verb. Per the compound-
+# perfect-passive rule ("use the id of the form of sum"), the verbal
+# expression and every relation into it (subject, agent) anchor on est
+# (t4), not condita (t3) -- condita itself gets no relation of its own.
+# ---------------------------------------------------------------------------
+ 
+_TRANSITIVE_PASSIVE_ANSWER = {
+    "reasoning": (
+        "condita est is a compound perfect passive verbal expression, "
+        "anchored at the id of est (the form of sum) per the compound-form "
+        "rule; urbs is its subject; a introduces the agent of the passive "
+        "verb, with Romulo as a's object of preposition."
+    ),
+    "verbalunits": [
+        {"id": "t4", "syntactic_type": "independent", "semantic_type": "transitive passive"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "urbs", "tokentype": "lexical", "lemma": "urbs",
+         "relatedtoken1": "t4", "relationship1": "subject"},
+        {"id": "t1", "token": "a", "tokentype": "lexical", "lemma": "a",
+         "relatedtoken1": "t4", "relationship1": "agent"},
+        {"id": "t2", "token": "Romulo", "tokentype": "lexical", "lemma": "Romulus",
+         "relatedtoken1": "t1", "relationship1": "object of preposition"},
+        {"id": "t3", "token": "condita", "tokentype": "lexical", "lemma": "condo"},
+        {"id": "t4", "token": "est", "tokentype": "lexical", "lemma": "sum",
+         "verbalunitid": "t4"},
+        {"id": "t5", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+ 
+ 
+# ---------------------------------------------------------------------------
+# "Etruria erat vicina."
+#   t0 Etruria  t1 erat  t2 vicina  t3 .
+#
+# syntax_model.md's own worked example for *linking verb* semantic_type:
+# "the verb erat is a linking verb." vicina is erat's predicate adjective;
+# the current relation scheme has no documented relation for predicate
+# complements, so vicina gets none -- per "Incomplete status", same
+# treatment as other unrelated modifiers elsewhere in this file.
+# ---------------------------------------------------------------------------
+ 
+_LINKING_VERB_ANSWER = {
+    "reasoning": (
+        "erat is a linking verb (copula) joining its subject Etruria to "
+        "the predicate adjective vicina; vicina itself has no relation in "
+        "the current scheme, which doesn't yet cover predicate complements."
+    ),
+    "verbalunits": [
+        {"id": "t1", "syntactic_type": "independent", "semantic_type": "linking verb"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Etruria", "tokentype": "lexical", "lemma": "Etruria",
+         "relatedtoken1": "t1", "relationship1": "subject"},
+        {"id": "t1", "token": "erat", "tokentype": "lexical", "lemma": "sum",
+         "verbalunitid": "t1"},
+        {"id": "t2", "token": "vicina", "tokentype": "lexical", "lemma": "vicinus"},
+        {"id": "t3", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+ 
+ 
 GOLD_EXAMPLES = [
     GoldExample(
         slug="unit_verb_hercules_cum",
@@ -207,11 +333,38 @@ GOLD_EXAMPLES = [
         tags=["numeral", "subject", "adverbial", "object of preposition"],
         canned_answer=_NUMERAL_ANSWER,
     ),
+    GoldExample(
+        slug="syntactic_type_legit_cresceret",
+        passage="principes Albanorum in patres, ut ea quoque pars rei publicae cresceret, legit.",
+        tags=[
+            "independent",
+            "dependent",
+            "transitive active",
+            "intransitive",
+            "unit verb",
+            "subordinating conjunction",
+            "subject",
+            "direct object",
+            "adverbial",
+            "object of preposition",
+        ],
+        canned_answer=_SYNTACTIC_TYPE_ANSWER,
+    ),
+    GoldExample(
+        slug="semantic_type_transitive_passive_urbs_condita",
+        passage="urbs a Romulo condita est.",
+        tags=["transitive passive", "agent", "subject", "object of preposition"],
+        canned_answer=_TRANSITIVE_PASSIVE_ANSWER,
+    ),
+    GoldExample(
+        slug="semantic_type_linking_verb_etruria_vicina",
+        passage="Etruria erat vicina.",
+        tags=["linking verb", "subject"],
+        canned_answer=_LINKING_VERB_ANSWER,
+    ),
     # Next up (see test_coverage.py's failure for the authoritative list):
-    #   - "agent" + "object of preposition" via a passive + a/ab phrase
     #   - "relative pronoun" via an antecedent example
     #   - "attributive" (vs. "adverbial") via a noun-modifying prepositional phrase
     #   - a relatedtoken2/relationship2 overflow case (relative pronoun that is
     #     also a subject/object/object-of-preposition)
-    #   - "linking verb" + "transitive passive" verbal-expression semantic types
 ]
