@@ -103,7 +103,11 @@ In the first phase of implementing our syntax model, we will record the followin
 
 ### Noun relations
 
+Traditional grammatical analyses typically conflate syntax and semantics: this model hews narrowly to syntax. In describing the syntactic role of nouns that are not directly tied to verbs as subject, predicate or object, or to prepositions as their objects, we prefer to identify their relationship to other tokens in terms of case function.
 
+- *genitive*: when a noun in the genitive depends on another noun, we cateogorize its relationship type as *genitive* (without semantic distinctions such as "possessive" or "partitive"). Example: in the sentence *hic filius erat regis*, the token *regis* is in the genitive, and relates to *filius*. We use the ID of *filius* as its `relation1`, with `genitive` as its value for `relationship1`.
+- *dative*: dative relationships can be linked to verbs or nouns. In the sentence *audeat deinde talia alius, nisi in hunc insigne iam documentum mortalibus dedero*, the dative noun *mortalibus* relates to the verb *dedero*. *mortalibus* will have the id of *dedero* as its `relation1` with a value of `dative` for `relationship1`.
+- *ablative*: ablative relationships can be linked to verbs or nouns. In the sentence *omnia ferro flammaque miscet*, the two ablative tokens *ferro* and *flamma* both relate to the verb token *miscet* and will have the ID of *miscet* as their `relation1` with the value `ablative` for `relationship1`.
 
 
 
