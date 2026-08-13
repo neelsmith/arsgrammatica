@@ -113,7 +113,7 @@ Traditional grammatical analyses typically conflate syntax and semantics: this m
 
 ## Incomplete status
 
-This describes only the principal syntactic relationships analyzed. Therefore not all tokens will have a value for *relation1* and *relationship1* in the current implmentation.
+This describes the most important principal syntactic relationships to be analyzed, but is still incomplete. Therefore not all tokens will have a value for *relation1* and *relationship1* in the current implmentation.
 
 
 ### TBA
