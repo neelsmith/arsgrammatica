@@ -15,7 +15,7 @@ This draft describes a first, partial implementation of the scheme.
 
 1. *Every finite verb* constitutes a verbal expression. Latin finite verbs include the compound forms of the perfect and pluperfect tenses (composed of a past participle plus a form of *sum*) as well as conjugated verbs forms identifiable by tense-mood-voice-person-number. 
 2. *Infinitives* constitute a verbal expression when they are part of an expression in indirect speech.
-3. *Participles* 
+3. *Participles* constitute a verbal expression when they have a *predicate* sense rather than purely *attributive* sense. For example, in the sentence *gloria est consentiens laus bonorum*, the participle *consentiens* has an attributive sense with *laus*, "universal praise": this is *not* a verbal expression. But in the sentence *Anco regnante Lucumo, vir inpiger ac divitiis potens, Romam commigravit* the participle *regnante* has a predicate sense with *Anco* "while Ancus was reigning..."
 
 In this scheme, verbal expressions are classified according to:
 
@@ -43,18 +43,16 @@ The text of the passage must be tokenized, and each token classified as one of:
 
 ### Syntactic relations among tokens
 
-In the first phase of implementing our syntax model, we will record the following set of relations among tokens:
+In the first phase of implementing our syntax model, we will record the following set of relations among tokens.
+
+
+#### Verbs and their principal construction
 
 - verb of an independent clause: the `relation1` of independent verbs has the special value `root` which must not be used as identifier for any token. Its 'relationship1` value is `unit verb`. Example: in *arma virumque cano*, *cano* is an independent verb with `relation1` value `root`, and `relationship1` value `unit verb`.
 
-
-
 - multi-word compound verb forms in the passive: the conjugated form of *sum* will be taken as the verb of the verbal unit. The associated participle will relate to the form of *sum* as its *auxiliary*. Example: in *urbs condita est* with token ids `t1`, `t2` and `t3`, the participle *condita* has for its `relation1` the value `t3` (*est*), and for `relationship1`, *auxiliary*.
 
-
-
-- verb of a dependent clause: the verb of a dependent clause must be related to a subordinating word, either a subordinating conjunction or a relative pronoun. *relatedtoken1* will be the ID of the conjunction of pronoun, and the value of *relationship1* will be *unit verb*.  In the sentence  *Hercules cum gregem perlustrasset, pergit ad proximam speluncam*, the verb *perlustrasset* is releated to the subordinating conjunction *cum* with the value of `unit verb` for `relationship1`.
-
+- verb of a dependent clause: the verb of a dependent clause must be related to a subordinating word, either a subordinating conjunction or a relative pronoun. *relation1* will be the ID of the conjunction of pronoun, and the value of *relationship1* will be *unit verb*.  In the sentence  *Hercules cum gregem perlustrasset, pergit ad proximam speluncam*, the verb *perlustrasset* is releated to the subordinating conjunction *cum* with the value of `unit verb` for `relationship1`.
 
 - agent of passive verbs: if a passive verb includes an expression for agent using *a* or *ab* plus a nominal expression in the ablative, *a* or *ab* should have the passive verb token as *relation1* and *agent* as the value of *relationship1*. The noun or pronoun constructed with *a/ab* should have the id of *a/ab* as its *relation1* and *object of preposition* as its*relationship1* value. Example: if *urbs a Romulo condita est* is tokenized with the IDs `t1`, `t2`...`t5`, then `t2` (*a*) will have a `relation1` of `t5` (*est*), and `relationship1` of `agent`. The token *Romulo* will be related to `t2` as a normal `object of preposition` (see below).
 
@@ -66,7 +64,6 @@ In the first phase of implementing our syntax model, we will record the followin
 | cum | t2 | t5 | subordinating conjunction |
 | perlustrasset | t4 |  t2 | unit verb |
 | pergit | t5 | | |
-
 
 
 - relative pronouns: *relation1* will be the ID of its antecedent, and *relationship1* will be *relative pronoun*. Example: here is a partial extract from an analysis of the sentence *Latini, cum quibus ictum foedus erat, sustulerant animos.*
@@ -83,22 +80,39 @@ In the first phase of implementing our syntax model, we will record the followin
 | animos | t10 | t9 | direct object | | 
 
 
+- noun or pronoun serving as the subject of a verbal expression: *relation1* will be the id of the token of the verb. If it is a compound verb form in the perfect passive system, this should be the id of the form of *sum*. The value of *relation1ship* will be *subject*.
+
+- noun or pronoun functioning as direct object of a verbal expression: *relation1* will be the id of the token of the verb. If it is a compound verb form in the perfect passive system, this should be the id of the form of *sum*. The value of *relation1ship* will be *direct object*.
+
+- noun or pronoun functioning as the predicate of a linking verb: *relation1* will be the id of the token of the verb. If it is a compound verb form in the perfect passive system, this should be the id of the form of *sum*. The value of *relationship1* will be *predicate*. Example: In the sentence *Lucumo Demarati Corinthii filius erat*, *Lucumo* is the subject of the linking verb *erat*, and *filius* is the predicate.
 
 
-- noun or pronoun serving as the subject of a verbal expression: *relatedtoken1* will be the id of the token of the verb. If it is a compound verb form in the perfect passive system, this should be the id of the form of *sum*. The value of *relation1* will be *subject*.
+
+#### Adjectives, adverbs, prepositional phrases
 
 
+- adjectives: if an adjective is used as a substantive, it is treated as a noun or pronoun. When it describes a noun, it has the noun's id as its `relation1`, and `adjectival` as its `relationship1`. In the sentence *Lucumo superfuit patri bonorum omnium heres*, the adjective *omnium* will have the id of *bonorum* as its `relation1` and the `relationship1` value will be `adjectival`. The token `bonorum` will be treated as a noun (see below).
 
-- noun or pronoun functioning as direct object of a verbal expression: *relatedtoken1* will be the id of the token of the verb. If it is a compound verb form in the perfect passive system, this should be the id of the form of *sum*. The value of *relation1* will be *direct object*.
+- adverbs: adverbs have the id of the verb they modify as `relation1`, with `relationship1` value `adverbial`. In the sentence *ad Ianiculum forte ventum erat*, the adverb *forte* will take the id of `erat` for `relation1` with `relationship1` value `adverbial`.  `ventum` will also be related to `erat` but with `relationship1` value `auxiliary`.
 
 - prepositional phrases: prepositional phrases either stand in an adverbial relation to a verbal expression or in an attributive relation to a nominal expression. 
+   - attributive to a noun: in the phrase *pugna ad Cannas*, "the battle near Cannae," the prepositional phrase *ad Cannas* is attributive. *ad* will have as *relation1* the id of *pugna*, and its *relationship1* will be *attributive*. (*Cannas* will be the object of the preposition, see below.)
+   - adverbial related to a verb: in the sentence *statua Atti in comitio in gradibus ipsis ad laevam curiae fuit*, the three prepositional phrases *in comitio*, *in gradibus ipsis* and *ad laevam curiae* will each each have for `relation1` the id of the verb *fuit*, with the `relationship1` value `adverbial`.
 
 
 
+### Noun relations
 
-(In "The man in the red coat walked down the street", "in the red coat" is an attributive expression describing "The man", while "down the street" is an adverbial expression modifying "walked." ) The preposition should have the ID of the corresponding verb or noun expression for *relation1* and the value of *relationship1* should be *adverbial* or *attributive*. The noun or pronoun governed by the preposition should have the value *object of preposition*. The same values will be used for *relation2* and *relationship2* of relative pronouns.
+
+
 
 
 ## Incomplete status
 
 This describes only the principal syntactic relationships analyzed. Therefore not all tokens will have a value for *relation1* and *relationship1* in the current implmentation.
+
+
+### TBA
+
+- gerunds and gerundives
+
