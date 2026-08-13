@@ -1,8 +1,6 @@
 # Overview
 
-This repository hosts a python package leveraging language models using `dspy` to analyze the syntax of passages of Latin.
-
-The unique analytical scheme is specific to Latin, and is documented here.
+This repository hosts a python package leveraging language models with `dspy` to analyze the syntax of passages of Latin. The unique analytical scheme is specific to Latin, and is documented here.
 
 
 
@@ -20,9 +18,10 @@ This draft describes a first, partial implementation of the scheme.
 
 "Verbal expressions" are subject-verb ideas that most frequently correspond to clauses in an English translation. (Of course in Latin the subject may be implicit where that is not possible in English.) Every *finite verb* constitutes a verbal expression. Latin finite verbs include the compound forms of the perfect and pluperfect tenses (composed of a past participle plus a form of *sum*) as well as conjugated forms identifiable by tense-mood-voice-person-number. In addition, *infinitives* constitute a verbal expression when they are part of an expression in indirect speech.
 
-In this scheme, verbal expressions are classified according to their *syntactic type*, as either *independent* (also called "main" or "principal") verbs or *dependent* ("subordinate" or "secondary") verbs, and by their *semantic type* as *transitive active*, *transitive passive*, *intransitive* or a *linking verb*.
+In this scheme, verbal expressions are classified according to:
 
-
+1. their *syntactic type*, as either *independent* (also called "main" or "principal") verbs or *dependent* ("subordinate" or "secondary") verbs. For example, in the sentence *principes Albanorum in patres, ut ea quoque pars rei publicae cresceret, legit* the verb *legit* is an *independent* verbal expression, and *cresceret* is dependent (introduced by the subordinating conjunction *ut*).
+2. by their *semantic type* ,as *transitive active*, *transitive passive*, *intransitive* or a *linking verb*. In the sentence *principes Albanorum in patres, ut ea quoque pars rei publicae cresceret, legit*m the verb *legit* is *transitive active*; and *cresceret* is *intransitive*. In *urbs a Romulo condita est*, the compound verb *condita est* is *transitive passive*.  In the sentence *Etruria erat vicina*, the verb *erat* is a *linking verb*.
 
 
 ## Token-level table of dependencies
