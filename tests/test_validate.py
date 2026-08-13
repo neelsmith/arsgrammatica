@@ -8,7 +8,8 @@ rather than defining its own fixture.
 import dspy
 from dspy.utils.dummies import DummyLM
  
-from arsgrammatica import analyze, validate, tokenize
+from arsgrammatica import analyze, validate
+from conftest import tokens_from_canned_answer
 from fixtures.gold_examples import GOLD_EXAMPLES
  
  
@@ -31,8 +32,9 @@ def test_bad_answer_is_caught():
     }
  
     dspy.configure(lm=DummyLM([bad_answer]))
-    tokens = tokenize(base.passage)
+    tokens = tokens_from_canned_answer(base.canned_answer)
     result = analyze(passage=base.passage, tokens=tokens)
  
     problems = validate(tokens, result)
     assert problems, "expected validate() to catch the bogus id 't99', but it found nothing"
+ 

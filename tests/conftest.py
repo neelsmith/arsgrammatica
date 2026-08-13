@@ -15,8 +15,27 @@ import pytest
 from dotenv import load_dotenv
 from dspy.utils.dummies import DummyLM
  
-from arsgrammatica import analyze, tokenize
+from arsgrammatica import analyze
+from arsgrammatica.models import Token
 from arsgrammatica.segmentation_dspy import segment_sources
+ 
+ 
+def tokens_from_canned_answer(canned_answer):
+    """Build a Token list directly from a canned_answer's own tokengraph,
+    rather than from a separate tokenizer.
+ 
+    Gold fixtures already specify each token's id and surface text via
+    their tokengraph entries (id, token) -- that's the authoritative
+    source now that there's no deterministic tokenize() to derive tokens
+    from independently. Reusing it here also guarantees the token list
+    handed to analyze() always agrees with the canned answer, by
+    construction, which a separately-hand-tokenized passage string
+    couldn't promise.
+    """
+    return [
+        Token(id=entry["id"], text=entry["token"])
+        for entry in canned_answer["tokengraph"]
+    ]
  
  
 def run_gold_example(example):
@@ -26,7 +45,7 @@ def run_gold_example(example):
     Returns (tokens, result) -- the same pair analyze_passage() returns.
     """
     dspy.configure(lm=DummyLM([example.canned_answer]))
-    tokens = tokenize(example.passage)
+    tokens = tokens_from_canned_answer(example.canned_answer)
     result = analyze(passage=example.passage, tokens=tokens)
     return tokens, result
  

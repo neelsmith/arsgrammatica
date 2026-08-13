@@ -1,4 +1,3 @@
-
 """
 Pydantic models describing the two structures from notes.md:
  
@@ -30,12 +29,12 @@ class CitedText(BaseModel):
 class Token(BaseModel):
     """A single pre-segmented token with a stable id.
  
-    `citation` is optional so this model still works unchanged for the
-    older, citation-free callers (tokenizer.py's deterministic tokenize(),
-    and any test fixture built from a bare passage string) -- it is only
-    ever populated by the citation-aware segmentation stage
-    (segmentation_dspy.py), which knows which CitedText source unit each
-    token came from."""
+    `citation` is optional so this model still works for citation-free
+    callers -- e.g. a test fixture built directly from a canned tokengraph,
+    with no CitedText source at all -- as well as for the citation-aware
+    segmentation stage (segmentation_dspy.py), which is the only thing that
+    actually populates it, knowing which CitedText source unit each token
+    came from."""
  
     id: str = Field(description="Stable token id, globally unique and sequential across the whole input, e.g. 't0', 't1', ...")
     text: str = Field(description="The token's surface text, exactly as it appears in the source.")

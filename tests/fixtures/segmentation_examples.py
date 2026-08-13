@@ -11,12 +11,10 @@ prove a real LM produces that answer -- see test_segmentation_live.py for
 that half of the picture, which hits the actual configured LM instead of
 DummyLM and is skipped by default (opt in with `pytest -m live`).
  
-These three examples are exactly the gaps test_tokenizer.py's xfail tests
-named against the old deterministic tokenizer: false-positive enclitic
-splitting on real words, the genuinely context-dependent -ne case, and
-abbreviation recognition. tokenizer.py's tests stay as they are (they still
-correctly describe tokenizer.py's own, still-existing limitations) -- these
-are the same scenarios, now specified for the new pipeline instead.
+These three examples are exactly the gaps the old deterministic tokenizer
+(tokenizer.py, since retired) got wrong: false-positive enclitic splitting
+on real words, the genuinely context-dependent -ne case, and abbreviation
+recognition. Same scenarios, now specified for the new pipeline instead.
 """
  
 from dataclasses import dataclass
@@ -119,3 +117,4 @@ SEGMENTATION_EXAMPLES = [
         },
     ),
 ]
+ 

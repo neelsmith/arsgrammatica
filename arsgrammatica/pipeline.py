@@ -64,3 +64,27 @@ def combined_tokengraph(results) -> list:
     for result in results:
         combined.extend(result.tokengraph)
     return combined
+ 
+ 
+def analyze_passage(passage: str, citation: str = "") -> Tuple[List[Sentence], list]:
+    """Convenience wrapper for the common case of a single string rather
+    than a list of citation-labeled CitedText sources -- kept here so
+    existing callers (syntaxer_main.py, the marimo notebook) have a
+    one-string entry point rather than needing to build a CitedText list
+    themselves for the ordinary case of one passage from one source.
+ 
+    Wraps `passage` as one CitedText (using `citation` if given, else an
+    empty string -- fine for callers that don't track citations) and runs
+    it through analyze_sources(). Returns (sentences, results) -- the exact
+    same shape analyze_sources() returns, one entry per sentence
+    segmentation finds in `passage`, in order.
+ 
+    `passage` may contain any number of sentences: each is segmented and
+    analyzed successively, same as if you'd called analyze_sources() with
+    one CitedText yourself. (An earlier version of this function raised
+    ValueError on multi-sentence input and returned a single (tokens,
+    result) pair for exactly one sentence; callers written against that
+    contract need to change to unpack (sentences, results) and iterate.)
+    """
+    return analyze_sources([CitedText(citation=citation, text=passage)])
+ 
