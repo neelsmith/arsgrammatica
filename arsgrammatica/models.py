@@ -1,5 +1,5 @@
 """
-Pydantic models describing the two structures from notes.md:
+Pydantic models describing the two structures from syntax_model.md:
 
 1. A list of VerbalExpression entries (the "table of verbal expressions").
 2. A list of TokenAnalysis entries (the "token-level table of dependencies").
@@ -23,7 +23,7 @@ class Token(BaseModel):
 
 
 class VerbalExpression(BaseModel):
-    """One entry in the table of verbal expressions (notes.md, 'Table of
+    """One entry in the table of verbal expressions (syntax_model.md, 'Table of
     verbal expressions'). Every finite verb is a verbal expression; so is
     an infinitive when it is part of indirect speech."""
 
@@ -43,7 +43,7 @@ class VerbalExpression(BaseModel):
     ] = Field(description="The verb's semantic/voice type.")
 
 
-# The relation labels documented in notes.md ("Token-level table of
+# The relation labels documented in syntax_model.md ("Token-level table of
 # dependencies"). Keep relationship1 and relationship2 restricted to the
 # same set of labels, since the scheme uses relation2/relationship2 as an
 # overflow slot when relation1/relationship1 is already occupied (e.g. a
@@ -62,8 +62,8 @@ RelationLabel = Literal[
 
 
 class TokenAnalysis(BaseModel):
-    """One entry per token in the dependency graph (notes.md, 'Token-level
-    table of dependencies'). Per notes.md's 'Incomplete status' section, not
+    """One entry per token in the dependency graph (syntax_model.md, 'Token-level
+    table of dependencies'). Per syntax_model.md's 'Incomplete status' section, not
     every token will have a relation -- leave the relatedtoken*/relationship*
     fields unset when none of the documented relations apply."""
 

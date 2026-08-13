@@ -1,7 +1,7 @@
 """
 Gold-annotated example sentences for arsgrammatica's test suite.
  
-Each GoldExample pairs a Latin passage with a hand-written, notes.md-correct
+Each GoldExample pairs a Latin passage with a hand-written, syntax_model.md-correct
 `canned_answer` -- the same dict shape dspy.utils.dummies.DummyLM expects,
 and the same shape a dspy.Example's outputs will eventually take if these
 feed a GEPA trainset later. `tags` names the relation(s)/construction the
@@ -30,7 +30,7 @@ class GoldExample:
 #   t0 Hercules  t1 cum  t2 gregem  t3 perlustrasset  t4 ,
 #   t5 pergit    t6 ad   t7 proximam  t8 speluncam    t9 .
 #
-# notes.md's own worked example for "unit verb" / "subordinating
+# syntax_model.md's own worked example for "unit verb" / "subordinating
 # conjunction". Moved here unchanged from the original test_pipeline.py.
 # ---------------------------------------------------------------------------
  

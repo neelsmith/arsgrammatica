@@ -1,5 +1,5 @@
 """
-DSPy program that analyzes the syntax of a Latin passage according to the scheme documented in notes.md: a table of verbal expressions, plus a token-level dependency graph.
+DSPy program that analyzes the syntax of a Latin passage according to the scheme documented in syntax_model.md: a table of verbal expressions, plus a token-level dependency graph.
 
 Pipeline:
   1. tokenize()   -- deterministically segments the passage into tokens with fixed ids (see tokenizer.py).

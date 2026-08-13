@@ -1,5 +1,5 @@
 """arsgrammatica: a DSPy program analyzing the syntax of Latin passages
-according to the scheme documented in notes.md.
+according to the scheme documented in syntax_model.md.
 """
 
 from .models import Token, VerbalExpression, TokenAnalysis, RelationLabel

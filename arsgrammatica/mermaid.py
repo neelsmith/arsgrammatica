@@ -8,7 +8,7 @@ latin_syntax_dspy.analyze_passage) as a Mermaid flowchart.
   pair on a token becomes a labelled edge from that token to the related
   token.
 
-(These are the fields notes.md calls `relation1`/`relationship1` and
+(These are the fields syntax_model.md calls `relation1`/`relationship1` and
 `relation2`/`relationship2` -- in models.py the "relation" side is named
 `relatedtoken*` to make clear it holds a token id, not the relation label.)
 

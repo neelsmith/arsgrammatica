@@ -2,7 +2,7 @@
 
 A DSPy program that analyzes a Latin passage into two structures: a table of
 verbal expressions, and a token-by-token dependency graph. The analytic
-scheme itself is documented in `notes.md`.
+scheme itself is documented in `syntax_model.md`.
 
 ## Files
 
@@ -14,7 +14,7 @@ scheme itself is documented in `notes.md`.
     splitting (`virumque` → `virum` + `que`) and praenomen abbreviations
     (`M.` stays one token).
   - `models.py` — pydantic models for `Token`, `VerbalExpression`, and
-    `TokenAnalysis`, matching the fields and relation labels from `notes.md`.
+    `TokenAnalysis`, matching the fields and relation labels from `syntax_model.md`.
   - `latin_syntax_dspy.py` — the DSPy signature and the `analyze_passage()` /
     `print_analysis()` functions you'll actually call.
   - `mermaid.py` — turns a `tokengraph` into a Mermaid flowchart: one node
@@ -105,7 +105,7 @@ together after you change something, without spending API calls.
 
 ## Extending the scheme
 
-`notes.md` says the current relation set is partial. To add a new relation:
+`syntax_model.md` says the current relation set is partial. To add a new relation:
 
 1. Add the new label to `RelationLabel` in `arsgrammatica/models.py`.
 2. Describe when to use it in `SyntaxAnalysis`'s docstring in
