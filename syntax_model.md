@@ -28,7 +28,9 @@ In this scheme, verbal expressions are classified according to:
 
 ### Tokenization
 
-The passage of Latin must be tokenized, and each token classified as one of:
+The textual content of Latin passages with citation references may be analyzed; the analyzing program will keep track of the citation. 
+
+The text of the passage must be tokenized, and each token classified as one of:
 
 -  a *punctuation* token. Example: "." in the phrase *arma virumque cano*
 -  an *enclitic* token. Example: the enclitic *que* in the phrase *arma virumque cano.* Tokenization of enclitics must consider the context. Example: in the phrase, *aequa ratione imperat*, the string *ratione* is a single lexical token (noun in the ablative singular); in the phrase *ratione docet?*, the string *ratione* represents the enclitic token *ne* (question words) with the lexical token *ratio* (noun in the nominative singular).
@@ -42,24 +44,60 @@ The passage of Latin must be tokenized, and each token classified as one of:
 
 ### Syntactic relations among tokens
 
-In the first phase of implementing our syntax model, we will record a limited set of relations among tokens:
+In the first phase of implementing our syntax model, we will record the following set of relations among tokens:
 
-
-- agent of passive verbs: if a passive verb includes an expression for agent using *a* or *ab* plus a nominal expression in the ablative, *a* or *ab* should have the passive verb token as *relation1* and *agent* as the value of *relationship1*. The noun or pronoun constructed with *a/ab* should have the id of *a/ab* as its *relation1* and *object of preposition* as its*relationship1* value.
-- verb of a dependent clause: the verb of an dependent clause must be related to a subordniating word, either a subordinating conjunction or a relative pronoun. *relatedtoken1* will be the ID of the conjunction of pronoun, and the value of *relationship1* will be *unit verb*. 
-In the sentence  *Hercules cum gregem perlustrasset, pergit ad proximam speluncam*, the verb *perlustrasset* is releated to the subordinating conjunction *cum* as its unit verb.
-- subordinating conjunctions: *relation1* will be the ID of the verb in their governing (superior clause), and the *relationship1* will be *subordinating conjunction*. In the sentence  *Hercules cum gregem perlustrasset, pergit ad proximam speluncam*, the  conjunction *cum* is releated as a 
-subordinating conjunction to the main verb *pergit*.
-- relative pronouns: *relation1* will be the ID of its antecedent, and *relationship1* will be *relative pronoun*. 
-In *laboris praemium petam, ut me a conspectu malorum, 
-quae nostra tot per annos vidit aetas, avertam.* the relatie pronoun *quae* will have the ID of *malorum* as its antecedent.
-- noun or pronoun serving as the subject of a verbal expression: *relatedtoken1* will be the id of the token of the verb. If it is a compound verb form in the perfect passive system, this should be the id of the form of *sum*. The value of *relation1* will be *subject*. The same values will be used for *relation2* and *relationship2* of relative pronouns.
+- verb of an independent clause: the `relation1` of independent verbs has the special value `root` which must not be used as identifier for any token. Its 'relationship1` value is `unit verb`. Example: in *arma virumque cano*, *cano* is an independent verb with `relation1` value `root`, and `relationship1` value `unit verb`.
 
 
 
-- noun or pronoun functioning as direct object of a verbal expression: *relatedtoken1* will be the id of the token of the verb. If it is a compound verb form in the perfect passive system, this should be the id of the form of *sum*. The value of *relation1* will be *direct object*. The same values will be used for *relation2* and *relationship2* of relative pronouns.
+- multi-word compound verb forms in the passive: the conjugated form of *sum* will be taken as the verb of the verbal unit. The associated participle will relate to the form of *sum* as its *auxiliary*. Example: in *urbs condita est* with token ids `t1`, `t2` and `t3`, the participle *condita* has for its `relation1` the value `t3` (*est*), and for `relationship1`, *auxiliary*.
 
-- prepositional phrases: prepositional phrases either stand in an adverbial relation to a verbal expression or in an attributive relation to a nominal expression. (In "The man in the red coat walked down the street", "in the red coat" is an attributive expression describing "The man", while "down the street" is an adverbial expression modifying "walked." ) The preposition should have the ID of the corresponding verb or noun expression for *relation1* and the value of *relationship1* should be *adverbial* or *attributive*. The noun or pronoun governed by the preposition should have the value *object of preposition*. The same values will be used for *relation2* and *relationship2* of relative pronouns.
+
+
+- verb of a dependent clause: the verb of a dependent clause must be related to a subordinating word, either a subordinating conjunction or a relative pronoun. *relatedtoken1* will be the ID of the conjunction of pronoun, and the value of *relationship1* will be *unit verb*.  In the sentence  *Hercules cum gregem perlustrasset, pergit ad proximam speluncam*, the verb *perlustrasset* is releated to the subordinating conjunction *cum* with the value of `unit verb` for `relationship1`.
+
+
+- agent of passive verbs: if a passive verb includes an expression for agent using *a* or *ab* plus a nominal expression in the ablative, *a* or *ab* should have the passive verb token as *relation1* and *agent* as the value of *relationship1*. The noun or pronoun constructed with *a/ab* should have the id of *a/ab* as its *relation1* and *object of preposition* as its*relationship1* value. Example: if *urbs a Romulo condita est* is tokenized with the IDs `t1`, `t2`...`t5`, then `t2` (*a*) will have a `relation1` of `t5` (*est*), and `relationship1` of `agent`. The token *Romulo* will be related to `t2` as a normal `object of preposition` (see below).
+
+
+- subordinating conjunctions: *relation1* will be the ID of the verb in their governing (superior clause), and the *relationship1* will be *subordinating conjunction*. In the sentence  *Hercules cum gregem perlustrasset, pergit ad proximam speluncam*, the  conjunction *cum* is releated as a subordinating conjunction to the main verb *pergit*.  Here's a partial extract of the relations resulting from this sentence:
+
+| ID | token | relation1 | relationship1 |
+| --- | --- | --- | --- |
+| cum | t2 | t5 | subordinating conjunction |
+| perlustrasset | t4 |  t2 | unit verb |
+| pergit | t5 | | |
+
+
+
+- relative pronouns: *relation1* will be the ID of its antecedent, and *relationship1* will be *relative pronoun*. Example: here is a partial extract from an analysis of the sentence *Latini, cum quibus ictum foedus erat, sustulerant animos.*
+
+
+| ID | token | relation1 | relationship1 | relation2 | relationship2 |
+| --- | --- | --- | --- | --- | --- |
+| Latini | t1 | t9 | subject | | |
+| cum | t3 | | | | | 
+| quibus | t4 | t1 | relative pronoun | t3 | object of preposition |
+| ictum | t5 | t7 | auxiliary | | |
+| erat | t7 | t4 | unit verb | | |
+| sustulerant | t9 | | | 
+| animos | t10 | t9 | direct object | | 
+
+
+
+
+- noun or pronoun serving as the subject of a verbal expression: *relatedtoken1* will be the id of the token of the verb. If it is a compound verb form in the perfect passive system, this should be the id of the form of *sum*. The value of *relation1* will be *subject*.
+
+
+
+- noun or pronoun functioning as direct object of a verbal expression: *relatedtoken1* will be the id of the token of the verb. If it is a compound verb form in the perfect passive system, this should be the id of the form of *sum*. The value of *relation1* will be *direct object*.
+
+- prepositional phrases: prepositional phrases either stand in an adverbial relation to a verbal expression or in an attributive relation to a nominal expression. 
+
+
+
+
+(In "The man in the red coat walked down the street", "in the red coat" is an attributive expression describing "The man", while "down the street" is an adverbial expression modifying "walked." ) The preposition should have the ID of the corresponding verb or noun expression for *relation1* and the value of *relationship1* should be *adverbial* or *attributive*. The noun or pronoun governed by the preposition should have the value *object of preposition*. The same values will be used for *relation2* and *relationship2* of relative pronouns.
 
 
 ## Incomplete status
