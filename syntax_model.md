@@ -2,12 +2,7 @@
 
 This repository hosts a python package leveraging language models with `dspy` to analyze the syntax of passages of Latin. The unique analytical scheme is specific to Latin, and is documented here.
 
-
-
-
-
 In this scheme, analysis of a passage of Latin is expressed in two related structures:
-
 
 - a list of verbal expressions, generally corresponding to clauses in an English translation
 - a token-level table capturing principal relations in a dependency graph
@@ -16,7 +11,11 @@ This draft describes a first, partial implementation of the scheme.
 
 ## Table of verbal expressions
 
-"Verbal expressions" are subject-verb ideas that most frequently correspond to clauses in an English translation. (Of course in Latin the subject may be implicit where that is not possible in English.) Every *finite verb* constitutes a verbal expression. Latin finite verbs include the compound forms of the perfect and pluperfect tenses (composed of a past participle plus a form of *sum*) as well as conjugated forms identifiable by tense-mood-voice-person-number. In addition, *infinitives* constitute a verbal expression when they are part of an expression in indirect speech.
+"Verbal expressions" are subject-verb ideas that most frequently correspond to clauses in an English translation. (Of course in Latin the subject may be implicit where that is not possible in English.) This scheme identifies three constructions as verbal expressions:
+
+1. *Every finite verb* constitutes a verbal expression. Latin finite verbs include the compound forms of the perfect and pluperfect tenses (composed of a past participle plus a form of *sum*) as well as conjugated verbs forms identifiable by tense-mood-voice-person-number. 
+2. *Infinitives* constitute a verbal expression when they are part of an expression in indirect speech.
+3. *Participles* 
 
 In this scheme, verbal expressions are classified according to:
 
