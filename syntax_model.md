@@ -1,6 +1,14 @@
 # Overview
 
-This program analyzes the syntax of passages of Latin in a unique scheme documented here. In this scheme, analysis of a passage of Latin is expressed in two related structures:
+This repository hosts a python package leveraging language models using `dspy` to analyze the syntax of passages of Latin.
+
+The unique analytical scheme is specific to Latin, and is documented here.
+
+
+
+
+
+In this scheme, analysis of a passage of Latin is expressed in two related structures:
 
 
 - a list of verbal expressions, generally corresponding to clauses in an English translation
@@ -19,7 +27,21 @@ In this scheme, verbal expressions are classified according to their *syntactic 
 
 ## Token-level table of dependencies
 
-The passage of Latin must be tokenized, and each token classified as a *puncutation* token, a *lexical* token, an *enclitic* token (such as the enclitic *que* in the phrase *arma virumque cano*), a *numeral* written numerically (e.g., while *X* could be a numeric token, *decem* is a lexical token) or a *praenomen*, including its punctuating period (like *M.* in the phrase *M. Agrippa fecit*).
+### Tokenization
+
+The passage of Latin must be tokenized, and each token classified as one of:
+
+-  a *punctuation* token. Example: "." in the phrase *arma virumque cano*
+-  an *enclitic* token. Example: the enclitic *que* in the phrase *arma virumque cano.* Tokenization of enclitics must consider the context. Example: in the phrase, *aequa ratione imperat*, the string *ratione* is a single lexical token (noun in the ablative singular); in the phrase *ratione docet?*, the string *ratione* represents the enclitic token *ne* (question words) with the lexical token *ratio* (noun in the nominative singular).
+-  a *lexical* token. Example: the tokens *arma*, *virum* and *cano* in the phrase *arma virumque cano.*
+- a *praenomen*, including its punctuating period. Example: *M.* in the phrase *M. Agrippa L. f. cos. tertium fecit*
+- other *abbreviation*, including its period. Example: *f.* and *cos.* in the the phrase *M. Agrippa L. f. cos. tertium fecit*
+- a *numeral* written numerically. Example: *XXV* in the phrase *hiberna aberant ab eo milia passuum XXV*
+
+
+
+
+### Syntactic relations among tokens
 
 In the first phase of implementing our syntax model, we will record a limited set of relations among tokens:
 

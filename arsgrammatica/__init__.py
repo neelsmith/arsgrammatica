@@ -1,8 +1,8 @@
 """arsgrammatica: a DSPy program analyzing the syntax of Latin passages
 according to the scheme documented in syntax_model.md.
 """
-
-from .models import Token, VerbalExpression, TokenAnalysis, RelationLabel
+ 
+from .models import Token, CitedText, Sentence, VerbalExpression, TokenAnalysis, RelationLabel
 from .tokenizer import tokenize
 from .mermaid import tokengraph_to_mermaid
 from .latin_syntax_dspy import (
@@ -12,9 +12,13 @@ from .latin_syntax_dspy import (
     validate,
     print_analysis,
 )
-
+from .segmentation_dspy import SegmentPassage, segment_sources
+from .pipeline import analyze_sources, combined_tokengraph
+ 
 __all__ = [
     "Token",
+    "CitedText",
+    "Sentence",
     "VerbalExpression",
     "TokenAnalysis",
     "RelationLabel",
@@ -25,4 +29,8 @@ __all__ = [
     "analyze_passage",
     "validate",
     "print_analysis",
+    "SegmentPassage",
+    "segment_sources",
+    "analyze_sources",
+    "combined_tokengraph",
 ]
