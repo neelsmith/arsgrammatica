@@ -1,13 +1,20 @@
 # arsgrammatica
 
+> See [release history](https://github.com/neelsmith/arsgrammatica/blob/main/releases.md)
 
-The story started [here](https://neelsmith.github.io/GreekAndLatinSyntax/) in 2023. Here's [a Julia package](https://neelsmith.github.io/GreekSyntax.jl/stable/annotations/) that implemented this model.
+`arsgrammatica` is a python package leveraging LLMs with [dspy](https://dspy.ai) to analyze the syntax of passages of Latin.
+
+It offers an alternative analytic scheme to [Universal Dependencies](https://universaldependencies.org), designed to describe Latin syntax in familiar terms that are convenient for research and teaching.
 
 
-## Testing
 
-- `pytest` to run all.
-- `pytest -v` for per-test names instead of dots. 
-- `pytest tests/test_gold_examples.py` to run just one file. 
-- `pytest -k agent` to run only tests matching a substring (handy once you've got fixtures named like agent_passive_roma_condita). 
-- `pytest --collect-only` if you just want to see what it discovered without running anything.
+## Using `arsgrammatica`
+
+See [USAGE.md](https://github.com/neelsmith/arsgrammatica/blob/main/USAGE.md)
+
+## Background
+
+- Some initial work from 2023 on [an alternative to universal dependencies](https://neelsmith.github.io/GreekAndLatinSyntax/) in 2023. 
+- A [Julia package](https://neelsmith.github.io/GreekSyntax.jl/stable/annotations/) implementing the alternative model.
+
+
