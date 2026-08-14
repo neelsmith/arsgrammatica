@@ -3,5 +3,5 @@ scratch/
 .venv/
 __pycache__/
 __marimo__/
-
+.DS_Store
 
