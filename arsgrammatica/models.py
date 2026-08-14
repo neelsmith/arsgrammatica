@@ -1,5 +1,5 @@
 """
-Pydantic models describing the two structures from notes.md:
+Pydantic models describing the two structures from syntax_model.md:
  
 1. A list of VerbalExpression entries (the "table of verbal expressions").
 2. A list of TokenAnalysis entries (the "token-level table of dependencies").
@@ -58,49 +58,99 @@ class Sentence(BaseModel):
  
  
 class VerbalExpression(BaseModel):
-    """One entry in the table of verbal expressions (notes.md, 'Table of
-    verbal expressions'). Every finite verb is a verbal expression; so is
-    an infinitive when it is part of indirect speech."""
+    """One entry in the table of verbal expressions (syntax_model.md, 'Table
+    of verbal expressions'). Three constructions count as a verbal
+    expression: finite verbs, infinitives (when part of indirect speech),
+    and participles (when they have a *predicate* sense -- e.g. an
+    ablative-absolute-like "Anco regnante...", 'while Ancus was reigning'
+    -- rather than a purely *attributive* sense, like an ordinary adjective,
+    e.g. "consentiens laus", 'universal praise': that case is NOT a verbal
+    expression at all).
+ 
+    Each construction has its own set of allowed `syntactic_type` values:
+    a finite verb is 'independent', 'dependent', 'direct quote' (occurring
+    in directly quoted speech, e.g. "est" in `"Tuum est," inquit,`), or
+    'aside' (a verbal expression that interrupts the surrounding syntax,
+    e.g. "dixerim" in "pace dixerim deum"); an infinitive anchoring an
+    indirect statement is always 'indirect statement'. syntax_model.md
+    doesn't specify a dedicated syntactic_type value for participles --
+    this codebase's convention is to use 'dependent' for a predicate
+    participle's verbal expression, since a circumstantial participle /
+    ablative absolute functions like a subordinate clause; flag it if you
+    intended something else."""
  
     id: str = Field(
         description=(
-            "The token id (from the input `tokens` list) of the finite verb or "
-            "infinitive that anchors this verbal expression. For a compound "
-            "perfect/pluperfect passive form (participle + sum), use the id of "
-            "the form of *sum*."
+            "The token id (from the input `tokens` list) of the finite verb, "
+            "infinitive, or predicate-sense participle that anchors this "
+            "verbal expression. For a compound perfect/pluperfect passive or "
+            "future-infinitive form (participle + a form of *sum*), use the id "
+            "of the form of *sum*."
         )
     )
-    syntactic_type: Literal["independent", "dependent"] = Field(
-        description="'independent' (main/principal) or 'dependent' (subordinate/secondary)."
+    syntactic_type: Literal[
+        "independent", "dependent", "direct quote", "aside", "indirect statement"
+    ] = Field(
+        description=(
+            "For a finite verb: 'independent' (main/principal), 'dependent' "
+            "(subordinate/secondary), 'direct quote' (occurring in directly "
+            "quoted speech), or 'aside' (interrupts the surrounding syntax). "
+            "For an infinitive anchoring an indirect statement: 'indirect "
+            "statement'. For a predicate-sense participle: 'dependent' (this "
+            "codebase's convention; syntax_model.md doesn't specify)."
+        )
     )
     semantic_type: Literal[
         "transitive active", "transitive passive", "intransitive", "linking verb"
     ] = Field(description="The verb's semantic/voice type.")
  
  
-# The relation labels documented in notes.md ("Token-level table of
+# The relation labels documented in syntax_model.md ("Token-level table of
 # dependencies"). Keep relationship1 and relationship2 restricted to the
 # same set of labels, since the scheme uses relation2/relationship2 as an
 # overflow slot when relation1/relationship1 is already occupied (e.g. a
 # relative pronoun that is also a clause's subject).
+#
+# "auxiliary", "predicate", "adjectival", "genitive", "dative", and
+# "ablative" were added when syntax_model.md grew its noun-relations
+# section and the participle/auxiliary rules for compound verb forms.
+# "direct quote" and "aside" link a direct-quote or aside verbal
+# expression back to the verb of the clause it interrupts. "circumstantial
+# participle" and "ablative absolute" were added for participial verbal
+# expressions: the participle points to the noun/pronoun it agrees with
+# via "circumstantial participle"; if that noun doesn't otherwise fit into
+# the surrounding clause (a true ablative absolute), the noun points back
+# out to the main verb via "ablative absolute" instead of taking a normal
+# noun relation.
 RelationLabel = Literal[
     "unit verb",
     "subordinating conjunction",
     "relative pronoun",
     "subject",
     "direct object",
+    "predicate",
     "agent",
+    "auxiliary",
     "object of preposition",
     "adverbial",
     "attributive",
+    "adjectival",
+    "genitive",
+    "dative",
+    "ablative",
+    "direct quote",
+    "aside",
+    "circumstantial participle",
+    "ablative absolute",
 ]
  
  
 class TokenAnalysis(BaseModel):
-    """One entry per token in the dependency graph (notes.md, 'Token-level
-    table of dependencies'). Per notes.md's 'Incomplete status' section, not
-    every token will have a relation -- leave the relatedtoken*/relationship*
-    fields unset when none of the documented relations apply."""
+    """One entry per token in the dependency graph (syntax_model.md,
+    'Token-level table of dependencies'). Per syntax_model.md's 'Incomplete
+    status' section, not every token will have a relation -- leave the
+    relatedtoken*/relationship* fields unset when none of the documented
+    relations apply."""
  
     id: str = Field(description="Must match the id of the corresponding entry in the input `tokens` list.")
     token: str = Field(description="The token's surface text; should match the `text` of the input token with this id.")
@@ -112,7 +162,15 @@ class TokenAnalysis(BaseModel):
         description="If this token anchors a verbal expression in `verbalunits`, repeat its own id here; otherwise omit.",
     )
  
-    relatedtoken1: Optional[str] = Field(default=None, description="Token id this token relates to (primary relation).")
+    relatedtoken1: Optional[str] = Field(
+        default=None,
+        description=(
+            "Token id this token relates to (primary relation). For an "
+            "INDEPENDENT verb's own 'unit verb' relation, use the special "
+            "sentinel string 'root' instead of a token id -- 'root' is "
+            "reserved and must never be assigned as an actual token's id."
+        ),
+    )
     relationship1: Optional[RelationLabel] = Field(default=None, description="The primary relation type, if any.")
  
     relatedtoken2: Optional[str] = Field(default=None, description="Token id this token relates to (secondary relation, used when relation1 is already occupied).")
