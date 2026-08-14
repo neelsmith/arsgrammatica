@@ -1,6 +1,6 @@
 # arsgrammatica
 
-> See [release history](https://github.com/neelsmith/arsgrammatica/blob/main/releases.md)
+> *See [release history](https://github.com/neelsmith/arsgrammatica/blob/main/releases.md)*.
 
 `arsgrammatica` is a python package leveraging LLMs with [dspy](https://dspy.ai) to analyze the syntax of passages of Latin.
 
