@@ -57,7 +57,12 @@ In the first phase of implementing our syntax model, we will record the followin
 
 - verb of an independent clause: the `relation1` of independent verbs has the special value `root` which must not be used as identifier for any token. Its 'relationship1` value is `unit verb`. Example: in *arma virumque cano*, *cano* is an independent verb with `relation1` value `root`, and `relationship1` value `unit verb`.
 
-- verbs in direct quotes and asides: the `relation1` will be the ID of the verb of the governing clause (independent or dependent), with values of `direct quote` and `aside` respectively. 
+- verbs in direct quotes: the `relation1` will be the ID of the verb of the governing verbal expression, with a value of `direct quote` for `relationship1`. Example of direct quote: in *'hanc ego aram' inquit 'Pudicitiae plebeiae dedico'*, the verbal unit anchored to `dedico` is direct speech subordinate to *inquit*. The token *dedico* will therefore have the id of *inquit* for its `relation1`, with `direct quote` as its `relationship1`.
+
+- verbs in asides: the `relation1` will be the ID of the verb of the governing verbal expression, with a value of  `aside` for `relationship1`. Example: in the sentence *Sp. Nautius — Octavium Maecium quidam eum tradunt — cum auxiliaribus cohortibus erat.* the verbal expression anchored to *tradunt* is an aside, interrupting the verbal expression with *erat*. The token *tradunt* will have the ID of *erat* for `relation1` with a value of  `aside` for `relationship1`. 
+
+
+- infinitives in indirect statement: the 'relation1` will the the ID of the verb of the governing verbal expression, with the value `indirect statement` for `relationship1`. Example: in *id philtrum esse dixit*, the token *esse* will have the ID of *dixit* for its `relation1` with `indirect statement` for `relationship1`.
 
 - multi-word compound verb forms in the perfect passive of future infinitive: the conjugated form of *sum* will be taken as the verb of the verbal unit. The associated participle will relate to the form of *sum* as its `auxiliary`. Examples: in *urbs condita est* with token ids `t1`, `t2` and `t3`, the participle *condita* has for its `relation1` the value `t3` (*est*), and for `relationship1`, *auxiliary*. In the sentence *facturum enim se fuisse dixit*, the token *facturum* will have the ID of *fuisse* as its `relation1` value, with a `relationship1` value of `auxiliary`.
 

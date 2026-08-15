@@ -57,10 +57,14 @@ its own.
 """
  
 import html
-from typing import Dict, List
+from typing import Dict, List, Optional, Tuple
  
 from .models import TokenAnalysis
-from .verbal_units import assign_verbal_units, assign_verbal_unit_colors
+from .verbal_units import (
+    assign_verbal_units,
+    assign_verbal_unit_colors,
+    compute_subordination_depths,
+)
  
 # "Brackets of various kinds" -- parentheses, square brackets, and curly
 # braces. Extend these two sets together if other bracket styles (e.g.
@@ -174,15 +178,40 @@ def tokengraph_to_html(tokengraph: List[TokenAnalysis]) -> str:
     """
     assignment = assign_verbal_units(tokengraph)
     colors, _warnings = assign_verbal_unit_colors(tokengraph, assignment=assignment)
- 
+    return _tokens_to_html(tokengraph, assignment, colors)
+
+
+def _tokens_to_html(
+    tokens: List[TokenAnalysis],
+    assignment: Dict[str, Optional[str]],
+    colors: Dict[str, Tuple[str, str, str]],
+) -> str:
+    """Shared rendering core behind tokengraph_to_html() and
+    tokengraph_to_depth_html(): join `tokens` into one HTML string with the
+    same spacing/escaping/quote-pairing rules as tokengraph_to_text(), plus
+    lexical-token color spans, given an already-computed verbal-unit
+    `assignment` and `colors` mapping. Taking these as parameters (rather
+    than deriving them from `tokens` itself) is what lets
+    tokengraph_to_depth_html() render one depth-block's tokens at a time
+    while every block still uses the exact same unit-to-color mapping as
+    the whole passage, instead of each block re-deriving its own (which
+    could disagree if a block happens to contain only some of a unit's
+    tokens).
+
+    Quote-pairing state (which occurrence of a `"`/`'` is opening vs.
+    closing) resets at the start of `tokens` -- correct for a whole
+    tokengraph, but means a quoted span literally split across two depth
+    blocks would have its quote parity reset at the block boundary. Not a
+    case any current gold fixture exercises.
+    """
     quote_counts: Dict[str, int] = {}
     pieces: List[str] = []
     previous_class = None
- 
-    for tok in tokengraph:
+
+    for tok in tokens:
         cls = _classify(tok, quote_counts)
         rendered = html.escape(tok.token)
- 
+
         if tok.tokentype == "lexical":
             unit_id = assignment.get(tok.id)
             color = colors.get(unit_id) if unit_id is not None else None
@@ -192,7 +221,7 @@ def tokengraph_to_html(tokengraph: List[TokenAnalysis]) -> str:
                     f'<span style="background-color: {fill}; color: {text_color};">'
                     f"{rendered}</span>"
                 )
- 
+
         if not pieces:
             pieces.append(rendered)
         elif cls in (_LEFT, _ENCLITIC):
@@ -204,7 +233,107 @@ def tokengraph_to_html(tokengraph: List[TokenAnalysis]) -> str:
                 pieces.append(rendered)
             else:
                 pieces.append(" " + rendered)
- 
+
         previous_class = cls
- 
+
     return "".join(pieces)
+
+
+# Left-margin indent per level of subordination depth, in
+# tokengraph_to_depth_html()'s default rendering -- purely a CSS layout
+# value, tunable per call via that function's `indent_em` parameter.
+_DEFAULT_DEPTH_INDENT_EM = 2.0
+
+
+def tokengraph_to_depth_html(
+    tokengraph: List[TokenAnalysis],
+    indent_em: float = _DEFAULT_DEPTH_INDENT_EM,
+) -> Tuple[str, List[str]]:
+    """Render `tokengraph` as HTML illustrating each verbal expression's
+    *depth of subordination* (see verbal_units.compute_subordination_
+    depths()): tokens are assembled sequentially exactly as
+    tokengraph_to_html() does -- same spacing, escaping, and verbal-unit
+    color highlighting -- but grouped into consecutive-run "blocks" by
+    which verbal unit each token belongs to (per assign_verbal_units()),
+    each rendered as its own <div> indented by a CSS margin-left of
+    `depth * indent_em` em -- 0 for an independent clause, 1 for a clause
+    it introduces (a dependent clause, a direct quote, an aside, a
+    circumstantial participle/ablative absolute, or -- now that indirect-
+    statement infinitives carry their own governing-verb relation -- an
+    indirect statement too), 2 for a verbal expression THAT one in turn
+    introduces, and so on. All layout is CSS (margin-left/margin-bottom on
+    each block's <div>) -- no table or nested-list structure is used to
+    produce the indentation.
+
+    Block boundaries follow assign_verbal_units()'s token-to-unit
+    assignment, with one adjustment: an **enclitic** token never starts a
+    new block, even when its own assignment differs from the block
+    currently open (see tests/test_rendering.py's coordinating-conjunction
+    word-order-mismatch case for exactly this -- an enclitic coordinating
+    conjunction like "-que" can resolve to a DIFFERENT verbal unit than the
+    word it's orthographically glued to, e.g. in "Hermionenque", and
+    starting a new block there would split one Latin word across two
+    <div>s). A token with no verbal-unit assignment at all (None --
+    typically punctuation, or a token syntax_model.md doesn't document a
+    relation for) likewise never starts a new block; it folds into
+    whichever block is currently open, so a stray comma or postpositive
+    particle doesn't fragment the layout. Leading tokens before the first
+    resolvable verbal-unit token (rare) default to depth 0.
+
+    Note that a circumstantial-participle/ablative-absolute noun (e.g.
+    "Anco" in "Anco regnante...", or "eum" in "Eum advenientem...")
+    resolves, per assign_verbal_units()'s own established convention, to
+    whatever unit ITS OWN relation reaches -- typically the outer clause --
+    while the participle itself is its own singleton unit; this means a
+    circumstantial-participle phrase renders as the noun staying in the
+    outer clause's block and the bare participle as its own one-word
+    indented block, rather than the whole phrase indenting together. That
+    follows directly from the noun's own documented relation (it fits into
+    the surrounding clause, or points at the main verb as an ablative
+    absolute) and isn't specific to this function.
+
+    A verbal expression whose depth couldn't be resolved (see
+    compute_subordination_depths()) renders at depth 0 rather than
+    raising, with a warning explaining why -- the same "degrade visibly,
+    don't crash" convention tokengraph_to_mermaid() uses.
+
+    Returns (html, warnings), combining assign_verbal_unit_colors()'s
+    warnings (colors repeating past 8 verbal units) and
+    compute_subordination_depths()'s (an unresolved governing verbal
+    expression).
+    """
+    assignment = assign_verbal_units(tokengraph)
+    colors, color_warnings = assign_verbal_unit_colors(tokengraph, assignment=assignment)
+    depths, depth_warnings = compute_subordination_depths(tokengraph)
+    warnings = color_warnings + depth_warnings
+
+    blocks = []
+    for tok in tokengraph:
+        unit_id = assignment.get(tok.id)
+        starts_new_block = (
+            unit_id is not None
+            and tok.tokentype != "enclitic"
+            and (not blocks or blocks[-1][0] != unit_id)
+        )
+        if starts_new_block:
+            blocks.append((unit_id, []))
+        elif not blocks:
+            # Leading token(s) with no verbal-unit assignment yet (or a
+            # leading enclitic, in principle) -- open a placeholder block
+            # rather than crashing on an empty blocks list below.
+            blocks.append((None, []))
+        blocks[-1][1].append(tok)
+
+    lines = []
+    for unit_id, block_tokens in blocks:
+        depth = depths.get(unit_id) if unit_id is not None else 0
+        if depth is None:
+            depth = 0
+        block_html = _tokens_to_html(block_tokens, assignment, colors)
+        margin_left = depth * indent_em
+        lines.append(
+            f'<div style="margin-left: {margin_left}em; margin-bottom: 0.35em;">'
+            f"{block_html}</div>"
+        )
+
+    return "\n".join(lines), warnings

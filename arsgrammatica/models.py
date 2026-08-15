@@ -119,7 +119,12 @@ class VerbalExpression(BaseModel):
 # "ablative" were added when syntax_model.md grew its noun-relations
 # section and the participle/auxiliary rules for compound verb forms.
 # "direct quote" and "aside" link a direct-quote or aside verbal
-# expression back to the verb of the clause it interrupts. "circumstantial
+# expression back to the verb of the clause it interrupts; "indirect
+# statement" does the same for an indirect-statement infinitive, linking
+# it back to the verb that governs it (the verb of saying/thinking/
+# perceiving it depends on) -- all three reuse their verbal expression's
+# own syntactic_type value as the relationship label, the same convention.
+# "circumstantial
 # participle" and "ablative absolute" were added for participial verbal
 # expressions: the participle points to the noun/pronoun it agrees with
 # via "circumstantial participle"; if that noun doesn't otherwise fit into
@@ -151,6 +156,7 @@ RelationLabel = Literal[
     "ablative",
     "direct quote",
     "aside",
+    "indirect statement",
     "circumstantial participle",
     "ablative absolute",
     "coordinating conjunction",

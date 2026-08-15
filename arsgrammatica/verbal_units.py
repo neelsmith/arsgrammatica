@@ -220,3 +220,127 @@ def assign_verbal_unit_colors(
         for i, unit_id in enumerate(unit_order)
     }
     return colors, warnings
+
+
+def compute_subordination_depths(
+    tokengraph: List[TokenAnalysis],
+) -> Tuple[Dict[str, Optional[int]], List[str]]:
+    """Compute each verbal expression's *depth of subordination*: the
+    number of verbal expressions it is removed from an independent ("root")
+    clause. An independent verb is depth 0; a verb it introduces (a
+    dependent clause, a direct quote, an aside) is depth 1; a verbal
+    expression THAT verb in turn introduces (e.g. an indirect statement
+    inside a dependent clause) is depth 2; and so on.
+
+    A "verbal expression" here is any token that anchors one -- i.e. any
+    token with `verbalunitid` set to its own id (the same convention
+    `assign_verbal_units()` relies on). For each anchor, this function
+    finds its *parent* anchor -- the verbal expression it's subordinate to
+    -- by following the anchor's own relatedtoken1 (falling back to
+    relatedtoken2), through as many intermediate non-anchor tokens as
+    necessary, until it lands on another anchor. This one chase handles
+    every documented case uniformly, without needing to special-case by
+    relationship label, because they all eventually resolve to another
+    anchor via forward pointers already in the graph:
+
+    - unit verb (independent): relatedtoken1 == 'root' -> no parent, depth 0.
+    - unit verb (dependent): relatedtoken1 -> a subordinating conjunction or
+      relative pronoun (not itself an anchor) -> ITS relatedtoken1 -> the
+      superior verb (a conjunction) or an antecedent noun (a relative
+      pronoun), the latter requiring one more hop through the noun's own
+      relation to reach the verb it depends on.
+    - direct quote / aside / indirect statement: relatedtoken1 -> the verb
+      of the clause it interrupts, is framed by, or (for an indirect-
+      statement infinitive) governs it, directly (no intermediate token).
+    - circumstantial participle: relatedtoken1 -> the noun/pronoun it
+      agrees with (not itself an anchor) -> that noun's own relation,
+      either its normal role in the surrounding clause (one more hop to a
+      verb) or, for a true ablative absolute, 'ablative absolute' pointing
+      directly at the main verb.
+
+    Returns `({anchor id: depth or None}, warnings)`. A depth of `None`
+    means the chase from that anchor never reached another anchor (a
+    malformed or genuinely disconnected verbal expression -- e.g. an
+    indirect-statement infinitive predating this convention, with no
+    relatedtoken1 of its own at all) or a cycle was detected; `warnings`
+    names which anchor(s) and why, mirroring `tokengraph_to_mermaid()`'s
+    warnings-list convention rather than raising.
+    """
+    by_id = {tok.id: tok for tok in tokengraph}
+    anchor_ids = {tok.id for tok in tokengraph if tok.verbalunitid == tok.id}
+
+    warnings: List[str] = []
+
+    def chase(token_id: str, visited: set) -> Optional[str]:
+        """Follow relatedtoken1 (then relatedtoken2) forward from
+        `token_id`, returning the first anchor id reached, or None if the
+        chain dead-ends or cycles before reaching one. `token_id` itself
+        counts as a hit if it's already an anchor (the direct-link cases:
+        direct quote, aside, indirect statement)."""
+        if token_id in visited:
+            return None
+        visited.add(token_id)
+        if token_id in anchor_ids:
+            return token_id
+        tok = by_id.get(token_id)
+        if tok is None:
+            return None
+        for field in ("relatedtoken1", "relatedtoken2"):
+            target = getattr(tok, field)
+            if target is None or target == "root":
+                continue
+            result = chase(target, visited)
+            if result is not None:
+                return result
+        return None
+
+    def parent_of(anchor_id: str) -> Optional[str]:
+        tok = by_id[anchor_id]
+        for field in ("relatedtoken1", "relatedtoken2"):
+            target = getattr(tok, field)
+            if target is None or target == "root":
+                continue
+            result = chase(target, visited=set())
+            if result is not None and result != anchor_id:
+                return result
+        return None
+
+    depths: Dict[str, Optional[int]] = {}
+    in_progress: set = set()
+
+    def depth_of(anchor_id: str) -> Optional[int]:
+        if anchor_id in depths:
+            return depths[anchor_id]
+        tok = by_id[anchor_id]
+        if tok.relatedtoken1 == "root":
+            depths[anchor_id] = 0
+            return 0
+
+        if anchor_id in in_progress:
+            warnings.append(
+                f"cycle detected resolving the governing verbal expression "
+                f"for {anchor_id!r} -- leaving its depth (and its parent's) "
+                f"unresolved"
+            )
+            return None
+        in_progress.add(anchor_id)
+
+        parent = parent_of(anchor_id)
+        if parent is None:
+            warnings.append(
+                f"could not find a governing verbal expression for "
+                f"{anchor_id!r} -- leaving its depth unresolved"
+            )
+            result = None
+        else:
+            parent_depth = depth_of(parent)
+            result = None if parent_depth is None else parent_depth + 1
+
+        in_progress.discard(anchor_id)
+        depths[anchor_id] = result
+        return result
+
+    for anchor_id in anchor_ids:
+        depth_of(anchor_id)
+
+    return depths, warnings

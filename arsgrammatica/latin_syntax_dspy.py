@@ -74,6 +74,20 @@ class SyntaxAnalysis(dspy.Signature):
           subordinate to, with relationship1 = 'subordinating conjunction'
           for a conjunction, or relatedtoken1 -> its antecedent's id with
           relationship1 = 'relative pronoun' for a relative pronoun.
+        - indirect statement (governing verb): an infinitive anchoring an
+          indirect-statement verbal expression ALSO has relatedtoken1 ->
+          the id of the verb that governs the indirect statement (the verb
+          of saying/thinking/perceiving it depends on), relationship1 =
+          'indirect statement' -- matching its own syntactic type, the same
+          convention 'direct quote' and 'aside' verbal expressions use
+          below. There's no separate subordinating-word token to point at
+          first (a Latin accusative-and-infinitive construction has no
+          equivalent of English 'that'), so the infinitive points directly
+          at its governing verb, rather than via a conjunction/pronoun
+          intermediary the way a dependent finite verb's 'unit verb'
+          relation does. In a compound future-infinitive form (participle +
+          a form of 'sum'), this relation belongs on the form of 'sum' that
+          anchors the verbal expression, same as any other relation into it.
         - coordinating conjunction: when a coordinating conjunction (e.g.
           'et', '-que') joins a pair of adjectives, nouns, or prepositional
           phrases, it has relatedtoken1 -> the id of the first joined
