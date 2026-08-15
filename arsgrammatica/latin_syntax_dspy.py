@@ -112,7 +112,22 @@ class SyntaxAnalysis(dspy.Signature):
           does, treat it like any other adverb: relatedtoken1 -> the verb
           or (if there is none, e.g. a verbless exclamation) the nearest
           token it emphasizes, relationship1 = 'adverbial', not
-          'coordinating conjunction'.
+          'coordinating conjunction'. IMPORTANT: when the conjunction joins
+          two independent verbs, BOTH still get their own `verbalunits`
+          entry and their own relatedtoken1 = 'root'/relationship1 = 'unit
+          verb' -- this doesn't change just because one of them (usually
+          the second) also governs further subordinate structure of its
+          own (a dependent clause, an indirect statement, etc). A verb
+          that governs an indirect statement or introduces a further
+          clause is NOT thereby demoted to a mere "framing verb" for what
+          follows -- it is still, independently, one of the two
+          coordinated root verbs, and needs its own entry exactly like the
+          first one. Example: in "...dedit et id philtrum esse dixit.",
+          dedit and dixit are both independent verbs coordinated by et;
+          dixit ALSO governs the indirect statement anchored at esse
+          ('id philtrum esse'), but that does not exempt dixit itself from
+          getting relatedtoken1 = 'root', relationship1 = 'unit verb', and
+          its own entry in `verbalunits` -- exactly as if it stood alone.
         - direct quote / aside: a verbal expression of syntactic type
           'direct quote' or 'aside' has relatedtoken1 -> the id of the verb
           of the clause it interrupts or is framed by, relationship1 =

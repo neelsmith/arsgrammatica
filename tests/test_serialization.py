@@ -1,0 +1,400 @@
+"""
+Tests for arsgrammatica/serialization.py's write_analyses()/read_analyses().
+
+Covers: a full round trip (object equality, and a second write producing
+byte-identical output) across sentences with and without citations, every
+kind of optional field (None, the 'root' sentinel, the relatedtoken2/
+relationship2 overflow slot); every warning write_analyses() can return;
+every malformed-file error read_analyses() can raise; and a round trip
+built directly from real gold fixtures for realistic coverage of the
+scheme's relation shapes.
+"""
+
+import pytest
+
+from arsgrammatica.models import Sentence, Token, TokenAnalysis, VerbalExpression
+from arsgrammatica.serialization import read_analyses, write_analyses
+from fixtures.gold_examples import GOLD_EXAMPLES
+
+
+def _tokengraph_for(slug):
+    example = next(e for e in GOLD_EXAMPLES if e.slug == slug)
+    return [TokenAnalysis(**tok) for tok in example.canned_answer["tokengraph"]]
+
+
+def _verbalunits_for(slug):
+    example = next(e for e in GOLD_EXAMPLES if e.slug == slug)
+    return [VerbalExpression(**vu) for vu in example.canned_answer["verbalunits"]]
+
+
+def _sentence_from_tokengraph(tokengraph, citation=None):
+    """Build a single Sentence spanning every token in `tokengraph`, in
+    order, with a uniform citation (None by default, matching how the gold
+    fixtures -- built directly from canned tokengraphs, not through
+    segmentation_dspy.py -- never populate Token.citation)."""
+    return Sentence(
+        tokens=[Token(id=tok.id, text=tok.token, citation=citation) for tok in tokengraph]
+    )
+
+
+# ---------------------------------------------------------------------------
+# Round trip
+# ---------------------------------------------------------------------------
+
+
+def _two_sentence_fixture():
+    """A hand-built two-sentence, two-citation-state passage covering: a
+    citation on every token, a sentence with no citation at all, an
+    enclitic with the relatedtoken2/relationship2 coordinating-conjunction
+    overflow, the 'root' sentinel, and a dependent verb's ordinary
+    relation -- deliberately not reusing a single gold fixture so the test
+    also exercises multiple sentences/citations in one file."""
+    s1_tokens = [
+        Token(id="t0", text="Arma", citation="Aeneid 1.1"),
+        Token(id="t1", text="virum", citation="Aeneid 1.1"),
+        Token(id="t2", text="que", citation="Aeneid 1.1"),
+        Token(id="t3", text="cano", citation="Aeneid 1.1"),
+        Token(id="t4", text=".", citation="Aeneid 1.1"),
+    ]
+    s2_tokens = [
+        Token(id="t5", text="Hercules"),
+        Token(id="t6", text="cum"),
+        Token(id="t7", text="perlustrasset"),
+        Token(id="t8", text="pergit"),
+        Token(id="t9", text="."),
+    ]
+    sentences = [Sentence(tokens=s1_tokens), Sentence(tokens=s2_tokens)]
+
+    tokengraph = [
+        TokenAnalysis(id="t0", token="Arma", tokentype="lexical", lemma="arma",
+                      relatedtoken1="t3", relationship1="direct object"),
+        TokenAnalysis(id="t1", token="virum", tokentype="lexical", lemma="vir",
+                      relatedtoken1="t3", relationship1="direct object"),
+        TokenAnalysis(id="t2", token="que", tokentype="enclitic",
+                      relatedtoken1="t0", relationship1="coordinating conjunction",
+                      relatedtoken2="t1", relationship2="coordinating conjunction"),
+        TokenAnalysis(id="t3", token="cano", tokentype="lexical", lemma="cano",
+                      verbalunitid="t3", relatedtoken1="root", relationship1="unit verb"),
+        TokenAnalysis(id="t4", token=".", tokentype="punctuation"),
+        TokenAnalysis(id="t5", token="Hercules", tokentype="lexical", lemma="Hercules",
+                      relatedtoken1="t8", relationship1="subject"),
+        TokenAnalysis(id="t6", token="cum", tokentype="lexical", lemma="cum",
+                      relatedtoken1="t8", relationship1="subordinating conjunction"),
+        TokenAnalysis(id="t7", token="perlustrasset", tokentype="lexical", lemma="perlustro",
+                      verbalunitid="t7", relatedtoken1="t6", relationship1="unit verb"),
+        TokenAnalysis(id="t8", token="pergit", tokentype="lexical", lemma="pergo",
+                      verbalunitid="t8", relatedtoken1="root", relationship1="unit verb"),
+        TokenAnalysis(id="t9", token=".", tokentype="punctuation"),
+    ]
+
+    verbalunits = [
+        VerbalExpression(id="t3", syntactic_type="independent", semantic_type="transitive active"),
+        VerbalExpression(id="t7", syntactic_type="dependent", semantic_type="transitive active"),
+        VerbalExpression(id="t8", syntactic_type="independent", semantic_type="intransitive"),
+    ]
+    return sentences, verbalunits, tokengraph
+
+
+def test_round_trip_preserves_every_object_exactly(tmp_path):
+    sentences, verbalunits, tokengraph = _two_sentence_fixture()
+    path = tmp_path / "analysis.txt"
+
+    warnings = write_analyses(sentences, verbalunits, tokengraph, str(path))
+    assert warnings == []
+
+    got_tokengraph, got_verbalunits, got_sentences = read_analyses(str(path))
+    assert got_tokengraph == tokengraph
+    assert got_verbalunits == verbalunits
+    assert got_sentences == sentences
+
+
+def test_round_tripped_data_writes_byte_identical_output(tmp_path):
+    """Writing the objects read_analyses() reconstructs should reproduce
+    the exact same file -- the whole point of a *deterministic*
+    serialization."""
+    sentences, verbalunits, tokengraph = _two_sentence_fixture()
+    path1 = tmp_path / "first.txt"
+    path2 = tmp_path / "second.txt"
+
+    write_analyses(sentences, verbalunits, tokengraph, str(path1))
+    got_tokengraph, got_verbalunits, got_sentences = read_analyses(str(path1))
+    write_analyses(got_sentences, got_verbalunits, got_tokengraph, str(path2))
+
+    assert path1.read_text() == path2.read_text()
+
+
+def test_file_contents_match_the_documented_format(tmp_path):
+    sentences, verbalunits, tokengraph = _two_sentence_fixture()
+    path = tmp_path / "analysis.txt"
+    write_analyses(sentences, verbalunits, tokengraph, str(path))
+
+    text = path.read_text()
+    assert "#!sentences" in text
+    assert "#!verbal_units" in text
+    assert "#!tokens" in text
+    assert "context_begin|first_token|context_end|last_token" in text
+    assert "context|token|syntactic_type|semantic_type" in text
+    assert (
+        "context|id|tokentype|text|lemma|verbalunit|"
+        "related1|relationship1|related2|relationship2"
+    ) in text
+    # The 'root' sentinel is written verbatim, not as an empty field.
+    assert "|t3|lexical|cano|cano|t3|root|unit verb||" in text
+    # A citation-free sentence's rows have an empty leading context column.
+    assert "|t5|lexical|Hercules|Hercules||t8|subject||" in text
+
+
+@pytest.mark.parametrize(
+    "slug",
+    [
+        "unit_verb_hercules_cum",
+        "relative_pronoun_latini_cum_quibus",
+        "aside_equidem_pace_dixerim",
+        "indirect_statement_facturum_fuisse_dixit",
+        "coordinating_conjunction_dedit_et_dixit_esse",
+        "depth_taurum_cum_quo_concubuit",
+    ],
+    ids=lambda s: s,
+)
+def test_round_trip_against_real_gold_fixtures(tmp_path, slug):
+    """Realistic coverage: every documented relation shape currently in
+    gold_examples.py, run through an actual write/read round trip rather
+    than a hand-built minimal example."""
+    tokengraph = _tokengraph_for(slug)
+    verbalunits = _verbalunits_for(slug)
+    sentences = [_sentence_from_tokengraph(tokengraph)]
+
+    path = tmp_path / "analysis.txt"
+    warnings = write_analyses(sentences, verbalunits, tokengraph, str(path))
+    assert warnings == []
+
+    got_tokengraph, got_verbalunits, got_sentences = read_analyses(str(path))
+    assert got_tokengraph == tokengraph
+    assert got_verbalunits == verbalunits
+    assert got_sentences == sentences
+
+
+def test_empty_lists_round_trip_to_an_empty_but_valid_file(tmp_path):
+    path = tmp_path / "empty.txt"
+    warnings = write_analyses([], [], [], str(path))
+    assert warnings == []
+
+    tokengraph, verbalunits, sentences = read_analyses(str(path))
+    assert tokengraph == []
+    assert verbalunits == []
+    assert sentences == []
+
+
+# ---------------------------------------------------------------------------
+# write_analyses() warnings
+# ---------------------------------------------------------------------------
+
+
+def test_warns_when_a_token_is_not_covered_by_any_sentence(tmp_path):
+    tokengraph = [
+        TokenAnalysis(id="t0", token="foo", tokentype="lexical", verbalunitid="t0",
+                      relatedtoken1="root", relationship1="unit verb"),
+    ]
+    verbalunits = [VerbalExpression(id="t0", syntactic_type="independent", semantic_type="intransitive")]
+    path = tmp_path / "uncovered.txt"
+
+    warnings = write_analyses([], verbalunits, tokengraph, str(path))
+    assert any("t0" in w and "not found among the given sentences" in w for w in warnings)
+    # Still written, with an empty context rather than raising.
+    got_tokengraph, got_verbalunits, _ = read_analyses(str(path))
+    assert got_tokengraph == tokengraph
+    assert got_verbalunits == verbalunits
+
+
+def test_warns_when_a_sentence_is_not_contiguous_in_the_tokengraph(tmp_path):
+    tokengraph = [
+        TokenAnalysis(id="t0", token="a", tokentype="lexical"),
+        TokenAnalysis(id="t2", token="c", tokentype="lexical"),  # t1 missing here
+        TokenAnalysis(id="t1", token="b", tokentype="lexical"),
+    ]
+    sentences = [Sentence(tokens=[Token(id="t0", text="a"), Token(id="t1", text="b")])]
+    path = tmp_path / "noncontiguous.txt"
+
+    warnings = write_analyses(sentences, [], tokengraph, str(path))
+    assert any(
+        "sentence at index 0" in w and "not a contiguous" in w for w in warnings
+    )
+
+
+def test_raises_on_an_empty_sentence(tmp_path):
+    with pytest.raises(ValueError, match="no tokens"):
+        write_analyses([Sentence(tokens=[])], [], [], str(tmp_path / "bad.txt"))
+
+
+def test_raises_on_a_pipe_character_in_a_field(tmp_path):
+    tokengraph = [TokenAnalysis(id="t0", token="a|b", tokentype="lexical")]
+    with pytest.raises(ValueError, match=r"\|"):
+        write_analyses([], [], tokengraph, str(tmp_path / "bad.txt"))
+
+
+def test_raises_on_a_newline_in_a_field(tmp_path):
+    tokengraph = [TokenAnalysis(id="t0", token="a", tokentype="lexical", lemma="a\nb")]
+    with pytest.raises(ValueError, match="newline"):
+        write_analyses([], [], tokengraph, str(tmp_path / "bad.txt"))
+
+
+# ---------------------------------------------------------------------------
+# read_analyses() errors
+# ---------------------------------------------------------------------------
+
+_TOKENS_HEADER = (
+    "context|id|tokentype|text|lemma|verbalunit|"
+    "related1|relationship1|related2|relationship2"
+)
+
+
+def _write_raw(tmp_path, name, content):
+    path = tmp_path / name
+    path.write_text(content)
+    return str(path)
+
+
+def test_missing_block_raises(tmp_path):
+    content = f"#!tokens\n{_TOKENS_HEADER}\nctx|t0|lexical|a||||||\n"
+    path = _write_raw(tmp_path, "missing.txt", content)
+    with pytest.raises(ValueError, match="missing required block"):
+        read_analyses(path)
+
+
+def test_duplicate_block_raises(tmp_path):
+    content = (
+        f"#!tokens\n{_TOKENS_HEADER}\n"
+        "#!tokens\n" + _TOKENS_HEADER + "\n"
+        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
+    )
+    path = _write_raw(tmp_path, "dup.txt", content)
+    with pytest.raises(ValueError, match="duplicate block label"):
+        read_analyses(path)
+
+
+def test_wrong_header_raises(tmp_path):
+    content = (
+        "#!tokens\nwrong|header\n"
+        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
+    )
+    path = _write_raw(tmp_path, "badheader.txt", content)
+    with pytest.raises(ValueError, match="expected header"):
+        read_analyses(path)
+
+
+def test_wrong_column_count_raises(tmp_path):
+    content = (
+        f"#!tokens\n{_TOKENS_HEADER}\nctx|t0|lexical|a\n"
+        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
+    )
+    path = _write_raw(tmp_path, "badcols.txt", content)
+    with pytest.raises(ValueError, match="expected 10"):
+        read_analyses(path)
+
+
+def test_data_before_any_block_label_raises(tmp_path):
+    content = "some stray line\n#!tokens\n" + _TOKENS_HEADER + "\n"
+    path = _write_raw(tmp_path, "stray.txt", content)
+    with pytest.raises(ValueError, match="before any"):
+        read_analyses(path)
+
+
+def test_verbal_units_referencing_unknown_token_id_raises(tmp_path):
+    content = (
+        f"#!tokens\n{_TOKENS_HEADER}\nctx|t0|lexical|a||||||\n"
+        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        "ctx|t99|independent|intransitive\n"
+        "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
+    )
+    path = _write_raw(tmp_path, "unknownvu.txt", content)
+    with pytest.raises(ValueError, match="t99"):
+        read_analyses(path)
+
+
+def test_sentences_referencing_unknown_token_id_raises(tmp_path):
+    content = (
+        f"#!tokens\n{_TOKENS_HEADER}\nctx|t0|lexical|a||||||\n"
+        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
+        "ctx|t0|ctx|t99\n"
+    )
+    path = _write_raw(tmp_path, "unknownsent.txt", content)
+    with pytest.raises(ValueError, match="not found in the #!tokens block"):
+        read_analyses(path)
+
+
+def test_sentence_context_mismatch_raises(tmp_path):
+    content = (
+        f"#!tokens\n{_TOKENS_HEADER}\nAeneid 1.1|t0|lexical|a||||||\n"
+        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
+        "WRONG|t0|Aeneid 1.1|t0\n"
+    )
+    path = _write_raw(tmp_path, "mismatch.txt", content)
+    with pytest.raises(ValueError, match="does not match"):
+        read_analyses(path)
+
+
+def test_sentence_first_after_last_raises(tmp_path):
+    content = (
+        f"#!tokens\n{_TOKENS_HEADER}\n"
+        "ctx|t0|lexical|a||||||\n"
+        "ctx|t1|lexical|b||||||\n"
+        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
+        "ctx|t1|ctx|t0\n"
+    )
+    path = _write_raw(tmp_path, "reversed.txt", content)
+    with pytest.raises(ValueError, match="comes after"):
+        read_analyses(path)
+
+
+def test_duplicate_token_id_raises(tmp_path):
+    content = (
+        f"#!tokens\n{_TOKENS_HEADER}\n"
+        "ctx|t0|lexical|a||||||\n"
+        "ctx|t0|lexical|b||||||\n"
+        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
+    )
+    path = _write_raw(tmp_path, "dupid.txt", content)
+    with pytest.raises(ValueError, match="duplicate token id"):
+        read_analyses(path)
+
+
+def test_blocks_may_appear_in_any_order(tmp_path):
+    content = (
+        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        "Aeneid 1.1|t0|independent|intransitive\n"
+        "#!tokens\n" + _TOKENS_HEADER + "\n"
+        "Aeneid 1.1|t0|lexical|foo||t0|root|unit verb||\n"
+        "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
+        "Aeneid 1.1|t0|Aeneid 1.1|t0\n"
+    )
+    path = _write_raw(tmp_path, "reordered.txt", content)
+    tokengraph, verbalunits, sentences = read_analyses(path)
+    assert len(tokengraph) == 1
+    assert len(verbalunits) == 1
+    assert len(sentences) == 1
+    assert sentences[0].tokens == [Token(id="t0", text="foo", citation="Aeneid 1.1")]
+
+
+def test_blank_lines_between_blocks_are_tolerated(tmp_path):
+    content = (
+        f"#!tokens\n{_TOKENS_HEADER}\n"
+        "Aeneid 1.1|t0|lexical|foo||t0|root|unit verb||\n"
+        "\n\n"
+        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        "Aeneid 1.1|t0|independent|intransitive\n"
+        "\n"
+        "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
+        "Aeneid 1.1|t0|Aeneid 1.1|t0\n"
+    )
+    path = _write_raw(tmp_path, "blank.txt", content)
+    tokengraph, verbalunits, sentences = read_analyses(path)
+    assert len(tokengraph) == 1
+    assert len(verbalunits) == 1
+    assert len(sentences) == 1

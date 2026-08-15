@@ -344,3 +344,96 @@ def compute_subordination_depths(
         depth_of(anchor_id)
 
     return depths, warnings
+
+
+def find_unanchored_coordinated_verbs(tokengraph: List[TokenAnalysis]) -> List[str]:
+    """Heuristic sanity check for a specific, observed live-LM mistake: a
+    coordinating conjunction that pairs two verbal expressions (see
+    latin_syntax_dspy.py's docstring) is supposed to leave BOTH conjuncts
+    anchoring their own verbal unit -- each with its own `verbalunitid`
+    (and its own `verbalunits` entry). In practice, the LM sometimes drops
+    this for the second conjunct, especially when that verb also governs
+    further subordinate structure of its own (a dependent clause, an
+    indirect statement) -- see gold_examples.py's
+    coordinating_conjunction_dedit_et_dixit_esse fixture for a real example
+    (dixit, coordinated with dedit via "et" AND governing its own indirect
+    statement, came back from a live model with no verbalunitid at all).
+
+    This is NOT the same kind of check as validate() (referential id
+    integrity) or compute_subordination_depths()'s warnings (a resolvable-
+    but-broken relation graph) -- both of those only catch a problem if
+    the tokengraph is already self-inconsistent. This function catches a
+    tokengraph that's perfectly well-formed and internally consistent, but
+    still probably WRONG, by looking for an asymmetry a correct analysis
+    should never produce.
+
+    The heuristic: find every "coordinating conjunction" token that uses
+    BOTH relatedtoken1 and relatedtoken2 (the two-conjunct pairing case --
+    see that relation's own note about the one-sided, sentence-initial
+    exception, which this deliberately ignores since there's only one
+    conjunct to check there). For each such pair, if EXACTLY ONE of the
+    two joined tokens is a recognized verbal-unit anchor (`verbalunitid`
+    set to its own id) and the other is not, that asymmetry is flagged: if
+    the conjunction is genuinely pairing two nouns/adjectives/
+    prepositional phrases, NEITHER side would be an anchor; if it's
+    correctly pairing two verbal expressions, BOTH sides would be. Only
+    the lopsided case -- one anchored, one not -- is unusual enough to be
+    worth a human look.
+
+    Returns a list of warning strings (empty if nothing looks suspicious),
+    the same "degrade visibly, don't raise" convention every other
+    warnings-returning function in this codebase uses. This is a
+    heuristic, not a guarantee: it can only flag the asymmetry itself, not
+    confirm the unanchored side really was meant to be a verb, so a clean
+    result here isn't a substitute for validate() or a human read of the
+    analysis -- and a flagged result deserves a look rather than an
+    automatic "fix," since guessing the right verbalunitid/relation back
+    in could just as easily paper over a different, unrelated mistake.
+    """
+    by_id = {tok.id: tok for tok in tokengraph}
+    anchor_ids = {tok.id for tok in tokengraph if tok.verbalunitid == tok.id}
+
+    warnings: List[str] = []
+    seen_pairs = set()
+
+    for tok in tokengraph:
+        if not (
+            tok.relatedtoken1 is not None
+            and tok.relatedtoken1 != "root"
+            and tok.relationship1 == "coordinating conjunction"
+            and tok.relatedtoken2 is not None
+            and tok.relatedtoken2 != "root"
+            and tok.relationship2 == "coordinating conjunction"
+        ):
+            continue
+
+        pair = (tok.relatedtoken1, tok.relatedtoken2)
+        if pair in seen_pairs:
+            continue
+        seen_pairs.add(pair)
+
+        first_id, second_id = pair
+        first_anchored = first_id in anchor_ids
+        second_anchored = second_id in anchor_ids
+        if first_anchored == second_anchored:
+            # Both anchored (a correctly paired pair of verbs) or neither
+            # (almost certainly a noun/adjective/prepositional-phrase
+            # pair) -- either way, not the asymmetry this check looks for.
+            continue
+
+        anchored_id, unanchored_id = (
+            (first_id, second_id) if first_anchored else (second_id, first_id)
+        )
+        anchored_text = by_id[anchored_id].token if anchored_id in by_id else anchored_id
+        unanchored_text = by_id[unanchored_id].token if unanchored_id in by_id else unanchored_id
+        warnings.append(
+            f"{tok.id} ({tok.token!r}) coordinates {anchored_id} "
+            f"({anchored_text!r}), which anchors its own verbal unit, with "
+            f"{unanchored_id} ({unanchored_text!r}), which does not -- if "
+            "this conjunction is meant to join two verbal expressions "
+            "(rather than a noun/adjective/prepositional-phrase pair), "
+            f"{unanchored_id} is likely missing its own verbalunitid and "
+            "'unit verb'/'root' (or dependent-clause) relation."
+        )
+
+    return warnings
