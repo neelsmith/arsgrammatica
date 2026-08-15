@@ -139,6 +139,22 @@ def test_praenomen_and_numeral_get_normal_spacing():
     assert tokengraph_to_text(tg) == "M. Tullius XXV."
  
  
+def test_abbreviation_gets_normal_spacing():
+    """"abbreviation" (distinct from "praenomen" -- see syntax_model.md's
+    tokenization section, e.g. "f." for filius, "cos." for consul) gets the
+    same normal spacing as any other non-enclitic, non-punctuation token."""
+    tg = [
+        _tok("t0", "M.", "praenomen"),
+        _tok("t1", "Agrippa", "lexical"),
+        _tok("t2", "L.", "praenomen"),
+        _tok("t3", "f.", "abbreviation"),
+        _tok("t4", "cos.", "abbreviation"),
+        _tok("t5", "fecit", "lexical"),
+        _tok("t6", ".", "punctuation"),
+    ]
+    assert tokengraph_to_text(tg) == "M. Agrippa L. f. cos. fecit."
+ 
+ 
 def test_empty_tokengraph_returns_empty_string():
     assert tokengraph_to_text([]) == ""
  

@@ -27,17 +27,11 @@ Every token is classified as one of:
   ever. The default for punctuation -- periods, commas, semicolons,
   hyphens, and closing parentheses/brackets -- and also the second quote
   of a quote pair.
-- **normal** (lexical, numeral, praenomen, and -- if `models.py`'s
-  `TokenAnalysis.tokentype` ever grows this value -- abbreviation): gets a
-  space before it, UNLESS the immediately preceding token was
-  right-joining, in which case it attaches directly with no space. Because
-  this case is implemented as "anything that isn't enclitic or
-  punctuation," no code change is needed here if `tokentype` gains an
-  `"abbreviation"` value later (see models.py's TokenAnalysis -- that
-  value isn't in the current Literal, only "praenomen" is, even though
-  syntax_model.md's own tokenization scheme documents abbreviations as
-  their own thing; this function is already forward-compatible with that
-  gap closing).
+- **normal** (lexical, numeral, praenomen, and abbreviation): gets a space
+  before it, UNLESS the immediately preceding token was right-joining, in
+  which case it attaches directly with no space. Implemented as "anything
+  that isn't enclitic or punctuation," so this also covers any future
+  tokentype value without needing a code change here.
  
 **Enclitic tokens are a fourth case not given a rule in the original
 request**, handled here by inference rather than left undefined: an
@@ -104,8 +98,8 @@ def _classify(tok: TokenAnalysis, quote_counts: Dict[str, int]) -> str:
         # not called out above all default to left-joining.
         return _LEFT
  
-    # lexical, numeral, praenomen, and any future tokentype not covered
-    # above (e.g. "abbreviation") all get the same "normal" spacing rule.
+    # lexical, numeral, praenomen, abbreviation, and any future tokentype
+    # not covered above all get the same "normal" spacing rule.
     return _NORMAL
  
  
@@ -152,12 +146,13 @@ def tokengraph_to_html(tokengraph: List[TokenAnalysis]) -> str:
     Mermaid diagram color each verbal unit identically.
  
     Only tokens with `tokentype == "lexical"` get wrapped: punctuation,
-    enclitics, numerals, and praenomens are emitted as plain (escaped) text
-    even though `assign_verbal_units()` assigns every token, including
-    punctuation, to whichever unit its relations resolve to -- this function
-    just doesn't turn that assignment into a span for anything but lexical
-    tokens, per the request it was built for. A lexical token belonging to
-    no verbal unit (assignment is `None`, e.g. a bare accusative of place)
+    enclitics, numerals, praenomens, and abbreviations are emitted as plain
+    (escaped) text even though `assign_verbal_units()` assigns every token,
+    including punctuation, to whichever unit its relations resolve to --
+    this function just doesn't turn that assignment into a span for
+    anything but lexical tokens, per the request it was built for. A
+    lexical token belonging to no verbal unit (assignment is `None`, e.g. a
+    bare accusative of place)
     is left unwrapped too, as is a lexical token whose unit happens to have
     no non-punctuation member at all and so never got a color slot from
     `assign_verbal_unit_colors()` (should not occur in practice, since a
