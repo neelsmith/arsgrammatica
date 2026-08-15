@@ -10,11 +10,13 @@ It offers an alternative analytic scheme to [Universal Dependencies](https://uni
 
 ## Using `arsgrammatica`
 
-See
+
 
 - [USAGE.md](https://github.com/neelsmith/arsgrammatica/blob/main/USAGE.md)
 - [TESTING.md](https://github.com/neelsmith/arsgrammatica/blob/main/TESTING.md)
 - [OPTIMIZING.md](https://github.com/neelsmith/arsgrammatica/blob/main/OPTIMIZING.md)
+
+See the [project issue tracker](https://github.com/neelsmith/arsgrammatica/issues) for known gaps and work in progress.
 
 
 ## Background
