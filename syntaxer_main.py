@@ -51,11 +51,17 @@ if __name__ == "__main__":
         default="arma virumque cano.",
         help="Latin passage to analyze (defaults to the built-in sample).",
     )
+    parser.add_argument(
+        "--citation",
+        default="",
+        help="Optional citation label for the passage (e.g. 'urn:cts:latinLit:phi0690:1.1'), "
+             "recorded on every token via Token.citation. Defaults to no citation.",
+    )
     args = parser.parse_args()
  
     _configure_lm()
     #loadollama()
-    sentences, results = analyze_passage(args.passage)
+    sentences, results = analyze_passage(args.passage, citation=args.citation)
  
     for i, (sentence, result) in enumerate(zip(sentences, results), start=1):
         if len(sentences) > 1:

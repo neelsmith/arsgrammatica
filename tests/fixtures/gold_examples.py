@@ -74,20 +74,28 @@ _HERCULES_ANSWER = {
 # "arma virumque cano."
 #   t0 arma  t1 virum  t2 que  t3 cano  t4 .
 #
-# syntax_model.md's own worked example for the *enclitic* token type:
-# "the enclitic que in the phrase arma virumque cano." virumque splits into
-# virum (lexical) + que (enclitic). que itself gets no relation -- the
-# scheme has no documented relation type for a connective enclitic, per
-# "Incomplete status". cano is also syntax_model.md's own worked example
-# for the "root" convention: "cano is an independent verb with relation1
-# value root, and relationship1 value unit verb."
+# syntax_model.md's own worked example for the *enclitic* token type: "the
+# enclitic que in the phrase arma virumque cano." virumque splits into
+# virum (lexical) + que (enclitic). cano is also syntax_model.md's own
+# worked example for the "root" convention: "cano is an independent verb
+# with relation1 value root, and relationship1 value unit verb."
+#
+# que is ALSO syntax_model.md's own worked example for *coordinating
+# conjunction* joining a pair of nouns: "in arma virumque cano, the
+# conjunction que will have the ids of arma and virum for relation1 and
+# relation2, and coordinating conjunction for both relationship1 and
+# relationship2." (Previously que was left with no relation at all --
+# "the scheme has no documented relation type for a connective enclitic" --
+# that was true before this revision added "coordinating conjunction".)
 # ---------------------------------------------------------------------------
  
 _ENCLITIC_ANSWER = {
     "reasoning": (
         "cano is the independent main verb (transitive active, 'I sing'), "
         "with the sentinel relation1 'root'; arma and virum -- joined by "
-        "the enclitic -que ('and') -- are both its direct objects."
+        "the enclitic -que ('and') -- are both its direct objects, and que "
+        "itself is a coordinating conjunction relating the pair of them to "
+        "each other (relation1 -> arma, relation2 -> virum)."
     ),
     "verbalunits": [
         {"id": "t3", "syntactic_type": "independent", "semantic_type": "transitive active"},
@@ -97,7 +105,9 @@ _ENCLITIC_ANSWER = {
          "relatedtoken1": "t3", "relationship1": "direct object"},
         {"id": "t1", "token": "virum", "tokentype": "lexical", "lemma": "vir",
          "relatedtoken1": "t3", "relationship1": "direct object"},
-        {"id": "t2", "token": "que", "tokentype": "enclitic"},
+        {"id": "t2", "token": "que", "tokentype": "enclitic",
+         "relatedtoken1": "t0", "relationship1": "coordinating conjunction",
+         "relatedtoken2": "t1", "relationship2": "coordinating conjunction"},
         {"id": "t3", "token": "cano", "tokentype": "lexical", "lemma": "cano",
          "verbalunitid": "t3", "relatedtoken1": "root", "relationship1": "unit verb"},
         {"id": "t4", "token": ".", "tokentype": "punctuation"},
@@ -106,37 +116,47 @@ _ENCLITIC_ANSWER = {
  
  
 # ---------------------------------------------------------------------------
-# "M. Tullius epistulam scripsit."
-#   t0 M.  t1 Tullius  t2 epistulam  t3 scripsit  t4 .
+# "M. Agrippa L. f. cos. tertium fecit."
+#   t0 M.  t1 Agrippa  t2 L.  t3 f.  t4 cos.  t5 tertium  t6 fecit  t7 .
 #
-# Adapted from syntax_model.md's *praenomen* example ("M. Agrippa L. f. cos.
-# tertium fecit") -- trimmed to just the praenomen "M." and dropped "L. f.
-# cos.", which are *abbreviation* tokens. TokenAnalysis.tokentype doesn't
-# have an "abbreviation" value yet (syntax_model.md documents it, models.py
-# hasn't caught up), so a fixture using "f."/"cos." would fail to validate
-# against the current model -- that's a separate gap, not this one. M. gets
-# no relation of its own: the scheme has no documented relation type for a
-# praenomen's link to the name it precedes.
+# syntax_model.md's own worked example (the Pantheon's actual dedicatory
+# inscription), now given in full: "M." and "L." are *praenomen* tokens
+# (abbreviated first names, Marcus and Lucius); "f." (filius, "son [of]")
+# and "cos." (consul) are *abbreviation* tokens -- syntax_model.md documents
+# these as two distinct token types. A previous revision of this fixture had
+# to trim the sentence down to just "M. Tullius epistulam scripsit." because
+# TokenAnalysis.tokentype had no "abbreviation" value yet; that gap is now
+# closed in models.py, so this fixture uses the real sentence. None of "M.",
+# "L.", "f.", or "cos." gets a relation of its own: the scheme has no
+# documented relation type linking a praenomen or other abbreviation to the
+# name/title it modifies.
 # ---------------------------------------------------------------------------
  
-_PRAENOMEN_ANSWER = {
+_PRAENOMEN_ABBREVIATION_ANSWER = {
     "reasoning": (
-        "scripsit is the independent main verb (transitive active), with "
-        "the sentinel relation1 'root'; Tullius (with the praenomen M.) is "
-        "its subject, epistulam its direct object."
+        "fecit is the independent main verb ('he built/made', transitive "
+        "active -- its direct object, the building itself, is understood "
+        "from context and left implicit, as is typical of a dedicatory "
+        "inscription), with the sentinel relation1 'root'. Agrippa (M. "
+        "Agrippa L. f. cos., 'Marcus Agrippa, son of Lucius, consul') is "
+        "its subject; tertium ('for the third time', modifying his term as "
+        "consul) is adverbial, modifying fecit."
     ),
     "verbalunits": [
-        {"id": "t3", "syntactic_type": "independent", "semantic_type": "transitive active"},
+        {"id": "t6", "syntactic_type": "independent", "semantic_type": "transitive active"},
     ],
     "tokengraph": [
         {"id": "t0", "token": "M.", "tokentype": "praenomen"},
-        {"id": "t1", "token": "Tullius", "tokentype": "lexical", "lemma": "Tullius",
-         "relatedtoken1": "t3", "relationship1": "subject"},
-        {"id": "t2", "token": "epistulam", "tokentype": "lexical", "lemma": "epistula",
-         "relatedtoken1": "t3", "relationship1": "direct object"},
-        {"id": "t3", "token": "scripsit", "tokentype": "lexical", "lemma": "scribo",
-         "verbalunitid": "t3", "relatedtoken1": "root", "relationship1": "unit verb"},
-        {"id": "t4", "token": ".", "tokentype": "punctuation"},
+        {"id": "t1", "token": "Agrippa", "tokentype": "lexical", "lemma": "Agrippa",
+         "relatedtoken1": "t6", "relationship1": "subject"},
+        {"id": "t2", "token": "L.", "tokentype": "praenomen"},
+        {"id": "t3", "token": "f.", "tokentype": "abbreviation"},
+        {"id": "t4", "token": "cos.", "tokentype": "abbreviation"},
+        {"id": "t5", "token": "tertium", "tokentype": "lexical", "lemma": "tertium",
+         "relatedtoken1": "t6", "relationship1": "adverbial"},
+        {"id": "t6", "token": "fecit", "tokentype": "lexical", "lemma": "facio",
+         "verbalunitid": "t6", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t7", "token": ".", "tokentype": "punctuation"},
     ],
 }
  
@@ -928,6 +948,296 @@ _ATTRIBUTIVE_ANSWER = {
 }
  
  
+# ---------------------------------------------------------------------------
+# "Aequa ratione imperat."
+#   t0 Aequa  t1 ratione  t2 imperat  t3 .
+#
+# syntax_model.md's revised *enclitic* section's own worked example for
+# context-dependent tokenization: "in the phrase aequa ratione imperat, the
+# string ratione is a single lexical token (noun in the ablative singular)."
+# Pairs with enclitic_context_ratione_interrogative_docet below, which
+# tokenizes the identical surface string "ratione" differently (split into
+# a lexical token plus an enclitic) because there the context is different --
+# together the two fixtures exercise the point of the doc's example: the
+# same string cannot be tokenized correctly without considering context.
+# ---------------------------------------------------------------------------
+ 
+_ENCLITIC_CONTEXT_ABLATIVE_ANSWER = {
+    "reasoning": (
+        "imperat is the independent main verb ('he commands/rules', "
+        "intransitive), with the sentinel relation1 'root'. ratione is a "
+        "single lexical token here -- the ablative singular of ratio, "
+        "'by/with method' -- related to imperat as an ablative of manner; "
+        "aequa ('fair, even-handed') is adjectival, modifying ratione."
+    ),
+    "verbalunits": [
+        {"id": "t2", "syntactic_type": "independent", "semantic_type": "intransitive"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Aequa", "tokentype": "lexical", "lemma": "aequus",
+         "relatedtoken1": "t1", "relationship1": "adjectival"},
+        {"id": "t1", "token": "ratione", "tokentype": "lexical", "lemma": "ratio",
+         "relatedtoken1": "t2", "relationship1": "ablative"},
+        {"id": "t2", "token": "imperat", "tokentype": "lexical", "lemma": "impero",
+         "verbalunitid": "t2", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t3", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+ 
+ 
+# ---------------------------------------------------------------------------
+# "Ratione docet?"
+#   t0 Ratio  t1 ne  t2 docet  t3 ?
+#
+# syntax_model.md's revised *enclitic* section's other half of the same
+# worked example: "in the phrase ratione docet?, the string ratione
+# represents the enclitic token ne (question words) with the lexical token
+# ratio (noun in the nominative singular)." The identical surface string
+# "ratione" as enclitic_context_ablative_aequa above tokenizes differently
+# here -- split into lexical "Ratio" (capitalized, since it's the sentence-
+# initial token) plus the interrogative enclitic "ne" -- because the
+# nominative-subject-of-a-question reading applies instead of the ablative-
+# of-manner reading. "ne" gets no relation of its own, matching the
+# connective enclitic "que"'s convention elsewhere in these fixtures: the
+# scheme has no documented relation type for an enclitic.
+# ---------------------------------------------------------------------------
+ 
+_ENCLITIC_CONTEXT_INTERROGATIVE_ANSWER = {
+    "reasoning": (
+        "docet is the independent main verb of a yes/no question ('does "
+        "[he/she] teach?', transitive active -- its direct object is left "
+        "implicit), with the sentinel relation1 'root'. Ratio -- split from "
+        "the interrogative enclitic -ne, which attaches to the first word "
+        "of the question -- is docet's subject."
+    ),
+    "verbalunits": [
+        {"id": "t2", "syntactic_type": "independent", "semantic_type": "transitive active"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Ratio", "tokentype": "lexical", "lemma": "ratio",
+         "relatedtoken1": "t2", "relationship1": "subject"},
+        {"id": "t1", "token": "ne", "tokentype": "enclitic"},
+        {"id": "t2", "token": "docet", "tokentype": "lexical", "lemma": "doceo",
+         "verbalunitid": "t2", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t3", "token": "?", "tokentype": "punctuation"},
+    ],
+}
+ 
+ 
+# ---------------------------------------------------------------------------
+# "Quisque officium suum fecit."
+#   t0 Quisque  t1 officium  t2 suum  t3 fecit  t4 .
+#
+# syntax_model.md's revised *enclitic* section's other worked example:
+# tokenization "must also recognize the small number of frequently occurring
+# words that have incorporated an original historic enclitic into a single
+# lexical item such as quisque (and its compounds), or plerusque... forms
+# such as quisque, cuique and quemque must all be treated a single lexical
+# token." Quisque here is NOT split into qui + que -- unlike the connective
+# enclitic in enclitic_arma_virumque_cano, this word's -que is not tokenized
+# separately at all.
+# ---------------------------------------------------------------------------
+ 
+_ENCLITIC_INCORPORATED_QUISQUE_ANSWER = {
+    "reasoning": (
+        "fecit is the independent main verb (transitive active), with the "
+        "sentinel relation1 'root'. Quisque ('each person') is a single "
+        "lexical token -- not split into qui + que, since it has "
+        "incorporated its historic enclitic into one indeclinable-looking "
+        "lexical item -- and is fecit's subject; officium is its direct "
+        "object; suum ('his own') is adjectival, modifying officium."
+    ),
+    "verbalunits": [
+        {"id": "t3", "syntactic_type": "independent", "semantic_type": "transitive active"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Quisque", "tokentype": "lexical", "lemma": "quisque",
+         "relatedtoken1": "t3", "relationship1": "subject"},
+        {"id": "t1", "token": "officium", "tokentype": "lexical", "lemma": "officium",
+         "relatedtoken1": "t3", "relationship1": "direct object"},
+        {"id": "t2", "token": "suum", "tokentype": "lexical", "lemma": "suus",
+         "relatedtoken1": "t1", "relationship1": "adjectival"},
+        {"id": "t3", "token": "fecit", "tokentype": "lexical", "lemma": "facio",
+         "verbalunitid": "t3", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t4", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+ 
+ 
+# ---------------------------------------------------------------------------
+# "Ille noluit, Hermionenque ab Oreste adduxit."
+#   t0 ille  t1 fidem  t2 suam  t3 infirmare  t4 noluit  t5 ,
+#   t6 Hermionen  t7 que  t8 ab  t9 Oreste  t10 adduxit  t11 .
+#
+# syntax_model.md's own worked example for *coordinating conjunction*
+# joining two VERBAL EXPRESSIONS, and specifically its word-order caveat:
+# "in ille fidem suam infirmare noluit, Hermionenque ab Oreste adduxit, the
+# two verbal expressions with noluit and adduxit are joined by que, even
+# though the enclitic que is physically attached to Hermionen, the direct
+# object of adduxit." So que's relations point to noluit and adduxit (the
+# two verbs), NOT to Hermionen or anything else nearby.
+#
+# fidem, suam, and infirmare are deliberately left without relations here:
+# infirmare is a bare complementary infinitive (not part of an indirect
+# statement), so per the "Table of verbal expressions" section it isn't a
+# verbal expression at all, and the scheme documents no relation for a
+# nominal object of a non-indirect-statement infinitive (a real gap, same
+# spirit as "enim" being left bare in indirect_statement_facturum_fuisse_
+# dixit) -- so fidem is left unrelated too. suam would be adjectival to
+# fidem in principle, but is likewise left unrelated here since it
+# modifies a token (fidem) that itself isn't otherwise connected to
+# anything in this graph; nothing about the "coordinating conjunction"
+# revision requires resolving that gap.
+# ---------------------------------------------------------------------------
+ 
+_COORDINATING_CONJUNCTION_VERBS_ANSWER = {
+    "reasoning": (
+        "noluit and adduxit are both independent main verbs (roots), "
+        "coordinated by que -- physically attached to Hermionen (adduxit's "
+        "direct object) as 'Hermionenque', but que's own relations point "
+        "to the two VERBS it joins, not to Hermionen. ille is noluit's "
+        "subject; noluit itself takes no nominal object (its complement, "
+        "infirmare, is a bare complementary infinitive, not an indirect- "
+        "statement verbal expression, so it and its own object fidem are "
+        "left unrelated, a documented gap). Hermionen is adduxit's direct "
+        "object; ab Oreste ('away from Orestes') is an adverbial "
+        "prepositional phrase modifying adduxit."
+    ),
+    "verbalunits": [
+        {"id": "t4", "syntactic_type": "independent", "semantic_type": "intransitive"},
+        {"id": "t10", "syntactic_type": "independent", "semantic_type": "transitive active"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Ille", "tokentype": "lexical", "lemma": "ille",
+         "relatedtoken1": "t4", "relationship1": "subject"},
+        {"id": "t1", "token": "fidem", "tokentype": "lexical", "lemma": "fides"},
+        {"id": "t2", "token": "suam", "tokentype": "lexical", "lemma": "suus"},
+        {"id": "t3", "token": "infirmare", "tokentype": "lexical", "lemma": "infirmo"},
+        {"id": "t4", "token": "noluit", "tokentype": "lexical", "lemma": "nolo",
+         "verbalunitid": "t4", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t5", "token": ",", "tokentype": "punctuation"},
+        {"id": "t6", "token": "Hermionen", "tokentype": "lexical", "lemma": "Hermione",
+         "relatedtoken1": "t10", "relationship1": "direct object"},
+        {"id": "t7", "token": "que", "tokentype": "enclitic",
+         "relatedtoken1": "t4", "relationship1": "coordinating conjunction",
+         "relatedtoken2": "t10", "relationship2": "coordinating conjunction"},
+        {"id": "t8", "token": "ab", "tokentype": "lexical", "lemma": "ab",
+         "relatedtoken1": "t10", "relationship1": "adverbial"},
+        {"id": "t9", "token": "Oreste", "tokentype": "lexical", "lemma": "Orestes",
+         "relatedtoken1": "t8", "relationship1": "object of preposition"},
+        {"id": "t10", "token": "adduxit", "tokentype": "lexical", "lemma": "adduco",
+         "verbalunitid": "t10", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t11", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+ 
+ 
+# ---------------------------------------------------------------------------
+# "Sed re cognita, iussu Cereris Triptolemo regnum dedit."
+#   t0 sed  t1 re  t2 cognita  t3 ,  t4 iussu  t5 Cereris  t6 Triptolemo
+#   t7 regnum  t8 dedit  t9 .
+#
+# syntax_model.md's own worked example for a coordinating conjunction that
+# opens a new sentence with no explicit preceding verb: "sed introduces the
+# entire verbal expression with dedit, but we do not mark any implied
+# relation to a preceding expression. sed will have the ID of dedit for
+# relation1, with relationship1 as coordinating conjunction" -- so sed gets
+# ONLY relatedtoken1/relationship1, no relatedtoken2/relationship2 at all
+# (contrast the paired cases above, which always set both).
+#
+# Also folds in an ablative absolute ("re cognita", "the matter having
+# been looked into") for good measure, reusing already-covered relations.
+# ---------------------------------------------------------------------------
+ 
+_COORDINATING_CONJUNCTION_SENTENCE_INITIAL_ANSWER = {
+    "reasoning": (
+        "dedit is the independent main verb (transitive active), root. "
+        "sed is a coordinating conjunction introducing this whole "
+        "sentence -- relatedtoken1 -> dedit only, since there's no "
+        "explicit verb to its left to pair it with, and we don't invent an "
+        "implied link to a preceding sentence. re cognita is an ablative "
+        "absolute ('the matter having been looked into'): cognita relates "
+        "to re as circumstantial participle, and re -- otherwise "
+        "unconnected to the rest of the sentence -- relates back to dedit "
+        "as ablative absolute. iussu ('by command') is ablative, "
+        "modifying dedit; Cereris is genitive, depending on iussu; "
+        "Triptolemo is dative, and regnum is the direct object, both of "
+        "dedit."
+    ),
+    "verbalunits": [
+        {"id": "t2", "syntactic_type": "dependent", "semantic_type": "transitive passive"},
+        {"id": "t8", "syntactic_type": "independent", "semantic_type": "transitive active"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Sed", "tokentype": "lexical", "lemma": "sed",
+         "relatedtoken1": "t8", "relationship1": "coordinating conjunction"},
+        {"id": "t1", "token": "re", "tokentype": "lexical", "lemma": "res",
+         "relatedtoken1": "t8", "relationship1": "ablative absolute"},
+        {"id": "t2", "token": "cognita", "tokentype": "lexical", "lemma": "cognosco",
+         "verbalunitid": "t2", "relatedtoken1": "t1", "relationship1": "circumstantial participle"},
+        {"id": "t3", "token": ",", "tokentype": "punctuation"},
+        {"id": "t4", "token": "iussu", "tokentype": "lexical", "lemma": "iussus",
+         "relatedtoken1": "t8", "relationship1": "ablative"},
+        {"id": "t5", "token": "Cereris", "tokentype": "lexical", "lemma": "Ceres",
+         "relatedtoken1": "t4", "relationship1": "genitive"},
+        {"id": "t6", "token": "Triptolemo", "tokentype": "lexical", "lemma": "Triptolemus",
+         "relatedtoken1": "t8", "relationship1": "dative"},
+        {"id": "t7", "token": "regnum", "tokentype": "lexical", "lemma": "regnum",
+         "relatedtoken1": "t8", "relationship1": "direct object"},
+        {"id": "t8", "token": "dedit", "tokentype": "lexical", "lemma": "do",
+         "verbalunitid": "t8", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t9", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+ 
+ 
+# ---------------------------------------------------------------------------
+# "Tu quoque, Brute, fili mi, et tu?"
+#   t0 Tu  t1 quoque  t2 ,  t3 Brute  t4 ,  t5 fili  t6 mi  t7 ,
+#   t8 et  t9 tu  t10 ?
+#
+# syntax_model.md's own worked example for the "et" ambiguity: "the word et
+# can be used as a conjunction or adverbially ('even', 'also')! ... the
+# token et is functioning as an adverb, not a conjunction and will have the
+# last lexical token tu as its relation1, with the relationship1 value
+# adverbial." A verbless exclamation (no finite verb at all -- verbalunits
+# is empty here), so quoque, Brute, and fili all have no verb to attach to
+# either and are left unrelated (direct address / apposition aren't
+# documented relations -- see latin_syntax_dspy.py's "apposition ... isn't
+# covered"); mi is still adjectival to fili, since that relation doesn't
+# require a verb.
+# ---------------------------------------------------------------------------
+ 
+_COORDINATING_CONJUNCTION_ET_AS_ADVERB_ANSWER = {
+    "reasoning": (
+        "This exclamation has no finite verb at all (verbalunits is "
+        "empty). et here is NOT a coordinating conjunction -- there's "
+        "nothing for it to coordinate -- but the adverb 'even/also', "
+        "relatedtoken1 -> tu (the last lexical token), relationship1 "
+        "'adverbial', per syntax_model.md's own disambiguation note. Tu, "
+        "quoque, Brute, and fili (direct address / apposition, not "
+        "documented relations) are left unrelated; mi is adjectival, "
+        "modifying fili."
+    ),
+    "verbalunits": [],
+    "tokengraph": [
+        {"id": "t0", "token": "Tu", "tokentype": "lexical", "lemma": "tu"},
+        {"id": "t1", "token": "quoque", "tokentype": "lexical", "lemma": "quoque"},
+        {"id": "t2", "token": ",", "tokentype": "punctuation"},
+        {"id": "t3", "token": "Brute", "tokentype": "lexical", "lemma": "Brutus"},
+        {"id": "t4", "token": ",", "tokentype": "punctuation"},
+        {"id": "t5", "token": "fili", "tokentype": "lexical", "lemma": "filius"},
+        {"id": "t6", "token": "mi", "tokentype": "lexical", "lemma": "meus",
+         "relatedtoken1": "t5", "relationship1": "adjectival"},
+        {"id": "t7", "token": ",", "tokentype": "punctuation"},
+        {"id": "t8", "token": "et", "tokentype": "lexical", "lemma": "et",
+         "relatedtoken1": "t9", "relationship1": "adverbial"},
+        {"id": "t9", "token": "tu", "tokentype": "lexical", "lemma": "tu"},
+        {"id": "t10", "token": "?", "tokentype": "punctuation"},
+    ],
+}
+ 
+ 
 GOLD_EXAMPLES = [
     GoldExample(
         slug="unit_verb_hercules_cum",
@@ -945,14 +1255,14 @@ GOLD_EXAMPLES = [
     GoldExample(
         slug="enclitic_arma_virumque_cano",
         passage="arma virumque cano.",
-        tags=["enclitic", "direct object"],
+        tags=["enclitic", "direct object", "coordinating conjunction (pair of nouns)"],
         canned_answer=_ENCLITIC_ANSWER,
     ),
     GoldExample(
-        slug="praenomen_m_tullius_scripsit",
-        passage="M. Tullius epistulam scripsit.",
-        tags=["praenomen", "subject", "direct object"],
-        canned_answer=_PRAENOMEN_ANSWER,
+        slug="praenomen_abbreviation_m_agrippa_cos",
+        passage="M. Agrippa L. f. cos. tertium fecit.",
+        tags=["praenomen", "abbreviation", "subject", "adverbial"],
+        canned_answer=_PRAENOMEN_ABBREVIATION_ANSWER,
     ),
     GoldExample(
         slug="numeral_hiberna_aberant_xxv",
@@ -1080,14 +1390,69 @@ GOLD_EXAMPLES = [
         tags=["attributive", "object of preposition", "predicate", "linking verb", "subject"],
         canned_answer=_ATTRIBUTIVE_ANSWER,
     ),
+    GoldExample(
+        slug="enclitic_context_ablative_aequa_ratione",
+        passage="Aequa ratione imperat.",
+        tags=["enclitic (context-dependent tokenization, non-split case)",
+              "ablative", "adjectival", "intransitive"],
+        canned_answer=_ENCLITIC_CONTEXT_ABLATIVE_ANSWER,
+    ),
+    GoldExample(
+        slug="enclitic_context_interrogative_ratione_docet",
+        passage="Ratione docet?",
+        tags=["enclitic (context-dependent tokenization, split case)",
+              "subject", "transitive active"],
+        canned_answer=_ENCLITIC_CONTEXT_INTERROGATIVE_ANSWER,
+    ),
+    GoldExample(
+        slug="enclitic_incorporated_quisque_officium",
+        passage="Quisque officium suum fecit.",
+        tags=["enclitic (historically incorporated, never split)",
+              "subject", "direct object", "adjectival", "transitive active"],
+        canned_answer=_ENCLITIC_INCORPORATED_QUISQUE_ANSWER,
+    ),
+    GoldExample(
+        slug="coordinating_conjunction_verbs_ille_hermionenque",
+        passage="Ille fidem suam infirmare noluit, Hermionenque ab Oreste adduxit.",
+        tags=["coordinating conjunction (pair of verbal expressions, "
+              "word-order mismatch)", "subject", "direct object",
+              "adverbial", "object of preposition", "intransitive",
+              "transitive active"],
+        canned_answer=_COORDINATING_CONJUNCTION_VERBS_ANSWER,
+    ),
+    GoldExample(
+        slug="coordinating_conjunction_sentence_initial_sed_dedit",
+        passage="Sed re cognita, iussu Cereris Triptolemo regnum dedit.",
+        tags=["coordinating conjunction (sentence-initial, one-sided)",
+              "circumstantial participle", "ablative absolute", "ablative",
+              "genitive", "dative", "direct object", "dependent",
+              "transitive passive", "transitive active"],
+        canned_answer=_COORDINATING_CONJUNCTION_SENTENCE_INITIAL_ANSWER,
+    ),
+    GoldExample(
+        slug="coordinating_conjunction_et_as_adverb_tu_brute",
+        passage="Tu quoque, Brute, fili mi, et tu?",
+        tags=["coordinating conjunction (disambiguation: et as adverb, "
+              "not conjunction)", "adjectival"],
+        canned_answer=_COORDINATING_CONJUNCTION_ET_AS_ADVERB_ANSWER,
+    ),
     # RelationLabel coverage is complete -- every documented relation has at
     # least one tagged example, including the relatedtoken2/relationship2
-    # overflow pattern and the newest additions (circumstantial participle,
-    # ablative absolute, direct quote, aside). VerbalExpression.syntactic_type
-    # coverage is also complete: independent, dependent, direct quote, aside,
-    # and indirect statement all have a tagged example. Still open (see
-    # test_coverage.py for the authoritative list): gerunds and gerundives
-    # (syntax_model.md's own "TBA" section) have no gold example yet, since
-    # the scheme doesn't document how to analyze them.
+    # overflow pattern, "coordinating conjunction" (which uses relation1 AND
+    # relation2 for two ends of the same relation, not as an overflow slot --
+    # see enclitic_arma_virumque_cano for the paired-nouns case, the two new
+    # coordinating_conjunction_* fixtures above for the paired-verbs,
+    # sentence-initial, and et-as-adverb cases), and the newest additions
+    # (circumstantial participle, ablative absolute, direct quote, aside).
+    # VerbalExpression.syntactic_type coverage is also complete: independent,
+    # dependent, direct quote, aside, and indirect statement all have a
+    # tagged example. TokenAnalysis.tokentype coverage is also complete,
+    # including "abbreviation" (see praenomen_abbreviation_m_agrippa_cos) and
+    # the enclitic-tokenization nuances syntax_model.md's tokenization
+    # section documents: a context-dependent split ("ratione") and a word
+    # that has incorporated its historic enclitic and must never be split
+    # ("quisque" and its compounds). Still open (see test_coverage.py for the
+    # authoritative list): gerunds and gerundives (syntax_model.md's own
+    # "TBA" section) have no gold example yet, since the scheme doesn't
+    # document how to analyze them.
 ]
- 

@@ -74,6 +74,31 @@ class SyntaxAnalysis(dspy.Signature):
           subordinate to, with relationship1 = 'subordinating conjunction'
           for a conjunction, or relatedtoken1 -> its antecedent's id with
           relationship1 = 'relative pronoun' for a relative pronoun.
+        - coordinating conjunction: when a coordinating conjunction (e.g.
+          'et', '-que') joins a pair of adjectives, nouns, or prepositional
+          phrases, it has relatedtoken1 -> the id of the first joined
+          token, relatedtoken2 -> the id of the second, with BOTH
+          relationship1 and relationship2 = 'coordinating conjunction' (not
+          an overflow slot here -- this is the one relation that genuinely
+          uses relatedtoken1 and relatedtoken2 for two ends of the same
+          relation at once). When it joins two verbal expressions instead,
+          relatedtoken1/relatedtoken2 are the ids of the two verbs (or, for
+          an infinitive/participle-anchored verbal expression, the id that
+          anchors it) rather than of nearby nouns -- go by which verbal
+          expression the conjunction functionally introduces, NOT by which
+          token it happens to be adjacent to or (for an enclitic like
+          '-que') physically attached to; those can differ (e.g. an
+          enclitic conjunction attached to the second clause's direct
+          object still relates the two VERBS, not the object). If the
+          conjunction opens an entirely new sentence with no explicit verb
+          to its left to pair with, set only relatedtoken1/relationship1 (->
+          the verb it introduces); do not invent a link to an implied
+          preceding clause. 'et' specifically can also function as a plain
+          adverb ('even', 'also') rather than a conjunction -- when it
+          does, treat it like any other adverb: relatedtoken1 -> the verb
+          or (if there is none, e.g. a verbless exclamation) the nearest
+          token it emphasizes, relationship1 = 'adverbial', not
+          'coordinating conjunction'.
         - direct quote / aside: a verbal expression of syntactic type
           'direct quote' or 'aside' has relatedtoken1 -> the id of the verb
           of the clause it interrupts or is framed by, relationship1 =

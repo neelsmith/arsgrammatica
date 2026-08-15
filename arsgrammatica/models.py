@@ -107,9 +107,13 @@ class VerbalExpression(BaseModel):
  
 # The relation labels documented in syntax_model.md ("Token-level table of
 # dependencies"). Keep relationship1 and relationship2 restricted to the
-# same set of labels, since the scheme uses relation2/relationship2 as an
-# overflow slot when relation1/relationship1 is already occupied (e.g. a
-# relative pronoun that is also a clause's subject).
+# same set of labels. relation2/relationship2 is usually an overflow slot,
+# used only when relation1/relationship1 is already occupied by something
+# else (e.g. a relative pronoun that is also a clause's subject) --
+# "coordinating conjunction" is the one exception: a coordinating
+# conjunction genuinely uses BOTH relation1 and relation2 at once, one for
+# each half of the pair it joins, with relationship1 AND relationship2 both
+# set to "coordinating conjunction" (see that value's own note below).
 #
 # "auxiliary", "predicate", "adjectival", "genitive", "dative", and
 # "ablative" were added when syntax_model.md grew its noun-relations
@@ -121,7 +125,14 @@ class VerbalExpression(BaseModel):
 # via "circumstantial participle"; if that noun doesn't otherwise fit into
 # the surrounding clause (a true ablative absolute), the noun points back
 # out to the main verb via "ablative absolute" instead of taking a normal
-# noun relation.
+# noun relation. "coordinating conjunction" joins a pair of nouns,
+# adjectives, prepositional phrases, or verbal expressions: the conjunction
+# has BOTH relation1 -> the first joined token's id and relation2 -> the
+# second's, both labelled "coordinating conjunction" -- except when the
+# conjunction opens a new sentence with no explicit token to its left to
+# pair with, in which case only relation1/relationship1 is set (see
+# latin_syntax_dspy.py's docstring for the full set of cases, including the
+# word-order caveat and the "et" adverb-vs-conjunction ambiguity).
 RelationLabel = Literal[
     "unit verb",
     "subordinating conjunction",
@@ -142,6 +153,7 @@ RelationLabel = Literal[
     "aside",
     "circumstantial participle",
     "ablative absolute",
+    "coordinating conjunction",
 ]
  
  
@@ -154,7 +166,17 @@ class TokenAnalysis(BaseModel):
  
     id: str = Field(description="Must match the id of the corresponding entry in the input `tokens` list.")
     token: str = Field(description="The token's surface text; should match the `text` of the input token with this id.")
-    tokentype: Literal["lexical", "enclitic", "punctuation", "numeral", "praenomen"]
+    tokentype: Literal[
+        "lexical", "enclitic", "punctuation", "numeral", "praenomen", "abbreviation"
+    ] = Field(
+        description=(
+            "'praenomen' is specifically an abbreviated Roman first name "
+            "(e.g. 'M.' for Marcus), including its period; 'abbreviation' is "
+            "any other abbreviation, including its period (e.g. 'f.' for "
+            "filius, 'cos.' for consul) -- syntax_model.md's tokenization "
+            "section documents these as two distinct token types, not one."
+        )
+    )
  
     lemma: Optional[str] = Field(default=None, description="Dictionary headword, for lexical tokens. Omit for punctuation.")
     verbalunitid: Optional[str] = Field(
