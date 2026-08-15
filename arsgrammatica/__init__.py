@@ -8,6 +8,7 @@ from .verbal_units import (
     assign_verbal_units,
     assign_verbal_unit_colors,
     compute_subordination_depths,
+    find_unanchored_coordinated_verbs,
 )
 from .rendering import tokengraph_to_text, tokengraph_to_html, tokengraph_to_depth_html
 from .latin_syntax_dspy import (
@@ -18,7 +19,8 @@ from .latin_syntax_dspy import (
 )
 from .segmentation_dspy import SegmentPassage, segment_sources
 from .pipeline import analyze_passage, analyze_sources, combined_tokengraph
- 
+from .serialization import write_analyses, read_analyses
+
 __all__ = [
     "Token",
     "CitedText",
@@ -30,6 +32,7 @@ __all__ = [
     "assign_verbal_units",
     "assign_verbal_unit_colors",
     "compute_subordination_depths",
+    "find_unanchored_coordinated_verbs",
     "tokengraph_to_text",
     "tokengraph_to_html",
     "tokengraph_to_depth_html",
@@ -42,4 +45,6 @@ __all__ = [
     "segment_sources",
     "analyze_sources",
     "combined_tokengraph",
+    "write_analyses",
+    "read_analyses",
 ]

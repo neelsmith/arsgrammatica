@@ -21,6 +21,12 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
+def _(citation_context, mo, urnbase):
+    mo.hstack([urnbase, citation_context], justify="start")
+    return
+
+
+@app.cell(hide_code=True)
 def _(text_area):
     text_area
     return
@@ -44,7 +50,7 @@ def _(vuhtml):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(indentpsg):
     indentpsg
     return
@@ -79,13 +85,13 @@ def _(mo):
 
 
 @app.cell
-def _(analyze_passage, text_area):
+def _(analyze_passage, citation_context, text_area, urnbase):
     # Analyze text passage:
     passage = ''
     sentences, results = [], []
     if text_area.value:
         passage = text_area.value
-        sentences, results = analyze_passage(passage)
+        sentences, results = analyze_passage(passage, citation = urnbase.value + citation_context.value)
     return results, sentences
 
 
@@ -105,7 +111,19 @@ def _(sentences):
 
 @app.cell
 def _(finaltokens):
-    finaltokens
+    finaltokens[0]
+    return
+
+
+@app.cell
+def _(results):
+    results[0]
+    return
+
+
+@app.cell
+def _(sentences):
+    sentences[0]
     return
 
 
@@ -130,10 +148,15 @@ def _(finaltokens, mo, tokengraph_to_html):
 
 
 @app.cell
+def _(mo):
+    citation_context = mo.ui.text(placeholder="urn:cts:latinLit:....", label="*Passage*:")
+    return (citation_context,)
+
+
+@app.cell
 def _(finaltokens, mo, tokengraph_to_depth_html):
     indenthtml, indentwarnings = tokengraph_to_depth_html(finaltokens)
     indentpsg = mo.Html("<b><i>Indented by verbal unit</i></b>: " + indenthtml)
-
     return (indentpsg,)
 
 
@@ -143,6 +166,12 @@ def _(mo):
     ## UI
     """)
     return
+
+
+@app.cell
+def _(mo):
+    urnbase = mo.ui.text(value="urn:cts:latinLit:stoa1263.stoa001.hc:", label="*Base URN*:")
+    return (urnbase,)
 
 
 @app.cell

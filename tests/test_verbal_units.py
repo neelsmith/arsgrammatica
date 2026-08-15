@@ -12,7 +12,11 @@ verbal_units.py's module docstring for the reasoning.
 import pytest
  
 from arsgrammatica.models import TokenAnalysis
-from arsgrammatica.verbal_units import assign_verbal_units, compute_subordination_depths
+from arsgrammatica.verbal_units import (
+    assign_verbal_units,
+    compute_subordination_depths,
+    find_unanchored_coordinated_verbs,
+)
 from fixtures.gold_examples import GOLD_EXAMPLES
  
  
@@ -267,3 +271,86 @@ def test_cycle_in_relations_leaves_depth_unresolved_with_warning():
     depths, warnings = compute_subordination_depths(tokengraph)
     assert depths == {"t0": None, "t1": None}
     assert len(warnings) >= 1
+
+
+
+# ---------------------------------------------------------------------------
+# find_unanchored_coordinated_verbs()
+# ---------------------------------------------------------------------------
+
+
+def test_correctly_coordinated_verbs_produce_no_warning():
+    """noluit and adduxit are both anchors of their own verbal unit --
+    symmetric, so nothing to flag."""
+    tokengraph = _tokengraph("coordinating_conjunction_verbs_ille_hermionenque")
+    assert find_unanchored_coordinated_verbs(tokengraph) == []
+
+
+def test_coordinated_nouns_produce_no_warning():
+    """arma and virum (joined by the enclitic que) are both ordinary nouns
+    -- neither is a verbal-unit anchor, which is the OTHER symmetric case
+    (not a mistake): the heuristic must not mistake a noun/adjective pair
+    for a broken verb pair."""
+    tokengraph = _tokengraph("enclitic_arma_virumque_cano")
+    assert find_unanchored_coordinated_verbs(tokengraph) == []
+
+
+def test_sentence_initial_one_sided_coordination_produces_no_warning():
+    """sed's own relation1 points only at dedit (the sentence-initial,
+    one-sided case -- see that relation's own documented exception); with
+    no second conjunct to compare against, this must not crash or flag
+    anything."""
+    tokengraph = _tokengraph("coordinating_conjunction_sentence_initial_sed_dedit")
+    assert find_unanchored_coordinated_verbs(tokengraph) == []
+
+
+def test_correct_dedit_et_dixit_fixture_produces_no_warning():
+    tokengraph = _tokengraph("coordinating_conjunction_dedit_et_dixit_esse")
+    assert find_unanchored_coordinated_verbs(tokengraph) == []
+
+
+def test_flags_a_coordinated_verb_that_lost_its_own_anchor():
+    """Simulates the real live-LM mistake this function exists to catch:
+    take the correct dedit/dixit fixture and strip dixit's own anchor
+    (verbalunitid, and its 'root'/'unit verb' relation) -- exactly what a
+    live model actually produced for this sentence -- and confirm the
+    asymmetry (dedit still anchored, dixit no longer) is flagged, naming
+    both the conjunction and the token that lost its anchor."""
+    tokengraph = _tokengraph("coordinating_conjunction_dedit_et_dixit_esse")
+    for tok in tokengraph:
+        if tok.id == "t20":
+            tok.verbalunitid = None
+            tok.relatedtoken1 = None
+            tok.relationship1 = None
+
+    warnings = find_unanchored_coordinated_verbs(tokengraph)
+    assert len(warnings) == 1
+    assert "t16" in warnings[0]  # et, the conjunction
+    assert "t15" in warnings[0]  # dedit, still correctly anchored
+    assert "t20" in warnings[0]  # dixit, the one that lost its anchor
+
+
+def test_both_sides_anchored_but_neither_actually_verbs_is_not_flagged():
+    """The heuristic only looks at anchoring symmetry, not part of speech --
+    if BOTH sides of a coordinating-conjunction pair happen to be anchors
+    (whatever they are), that's the same shape as a correct verb pairing,
+    so nothing is flagged. This documents that the check is a heuristic,
+    not a guarantee: it can't independently confirm the pair really is
+    verbs, only that the anchoring pattern isn't the specific asymmetry
+    the real bug produced."""
+    tokengraph = [
+        TokenAnalysis(
+            id="t0", token="a", tokentype="lexical", verbalunitid="t0",
+            relatedtoken1="root", relationship1="unit verb",
+        ),
+        TokenAnalysis(
+            id="t1", token="et", tokentype="lexical",
+            relatedtoken1="t0", relationship1="coordinating conjunction",
+            relatedtoken2="t2", relationship2="coordinating conjunction",
+        ),
+        TokenAnalysis(
+            id="t2", token="b", tokentype="lexical", verbalunitid="t2",
+            relatedtoken1="root", relationship1="unit verb",
+        ),
+    ]
+    assert find_unanchored_coordinated_verbs(tokengraph) == []
