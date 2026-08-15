@@ -28,20 +28,31 @@ def _(text_area):
 
 @app.cell(hide_code=True)
 def _(mo, results):
-    mo.md("\n\n".join(f"> {result.reasoning}" for result in results))
+    mo.md("**Discussion**:\n\n" + "\n\n".join(f"> {result.reasoning}" for result in results))
+    return
+
+
+@app.cell(hide_code=True)
+def _(psghtml):
+    psghtml
+    return
+
+
+@app.cell(hide_code=True)
+def _(vuhtml):
+    vuhtml
+    return
+
+
+@app.cell
+def _(indentpsg):
+    indentpsg
     return
 
 
 @app.cell(hide_code=True)
 def _(diagram, mo):
     mo.mermaid(diagram)
-    return
-
-
-@app.cell
-def _(sentences):
-    tokens = [tok for sentence in sentences for tok in sentence.tokens]
-    tokens
     return
 
 
@@ -81,14 +92,43 @@ def _(analyze_passage, text_area):
 @app.cell
 def _(combined_tokengraph, results, tokengraph_to_mermaid):
     # Compose Mermaid diagram:
-    diagram, mermaid_warnings = tokengraph_to_mermaid(combined_tokengraph(results))
-    return (diagram,)
+    finaltokens = combined_tokengraph(results)
+    diagram, mermaid_warnings = tokengraph_to_mermaid(finaltokens)
+    return diagram, finaltokens
 
 
 @app.cell
-def _(diagram):
-    diagram
+def _(sentences):
+    tokens = [tok for sentence in sentences for tok in sentence.tokens]
     return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    ## Format output display
+    """)
+    return
+
+
+@app.cell
+def _(finaltokens, mo, tokengraph_to_text):
+    psghtml = mo.Html("<b><i>Passage</i></b>: " + tokengraph_to_text(finaltokens))
+    return (psghtml,)
+
+
+@app.cell
+def _(finaltokens, mo, tokengraph_to_html):
+    vuhtml = mo.Html("<b><i>Highlighted by verbal unit</i></b>: " + tokengraph_to_html(finaltokens))
+    return (vuhtml,)
+
+
+@app.cell
+def _(finaltokens, mo, tokengraph_to_depth_html):
+    indenthtml, indentwarnings = tokengraph_to_depth_html(finaltokens)
+    indentpsg = mo.Html("<b><i>Indented by verbal unit</i></b>: " + indenthtml)
+
+    return (indentpsg,)
 
 
 @app.cell(hide_code=True)
@@ -136,9 +176,16 @@ def _(Path):
  
     sys.path.insert(0, str(Path(__file__).parent.parent))
  
-    from arsgrammatica import print_analysis, analyze_passage, tokengraph_to_mermaid, combined_tokengraph
+    from arsgrammatica import print_analysis, analyze_passage, tokengraph_to_mermaid, combined_tokengraph, tokengraph_to_html, tokengraph_to_text, tokengraph_to_depth_html
 
-    return analyze_passage, combined_tokengraph, tokengraph_to_mermaid
+    return (
+        analyze_passage,
+        combined_tokengraph,
+        tokengraph_to_depth_html,
+        tokengraph_to_html,
+        tokengraph_to_mermaid,
+        tokengraph_to_text,
+    )
 
 
 @app.cell(hide_code=True)

@@ -88,7 +88,7 @@ _HERCULES_ANSWER = {
 # "the scheme has no documented relation type for a connective enclitic" --
 # that was true before this revision added "coordinating conjunction".)
 # ---------------------------------------------------------------------------
- 
+
 _ENCLITIC_ANSWER = {
     "reasoning": (
         "cano is the independent main verb (transitive active, 'I sing'), "
@@ -131,7 +131,7 @@ _ENCLITIC_ANSWER = {
 # documented relation type linking a praenomen or other abbreviation to the
 # name/title it modifies.
 # ---------------------------------------------------------------------------
- 
+
 _PRAENOMEN_ABBREVIATION_ANSWER = {
     "reasoning": (
         "fecit is the independent main verb ('he built/made', transitive "
@@ -488,19 +488,31 @@ _CIRCUMSTANTIAL_PARTICIPLE_ANSWER = {
 # as its relation1 value, with a relationship1 value of auxiliary." se
 # (accusative subject of the infinitive) and enim (a postpositive particle,
 # not covered) follow the general subject rule and "Incomplete status"
-# respectively. syntax_model.md doesn't specify a token-level relation
-# linking an indirect-statement infinitive back to its governing verb (only
-# direct-quote/aside verbs get one explicitly), so fuisse gets none here.
+# respectively.
+#
+# fuisse ALSO now has its own relatedtoken1 -> dixit, relationship1 =
+# "indirect statement" -- syntax_model.md's revision giving indirect-
+# statement infinitives their own governing-verb relation, matching its
+# own syntactic_type value the same way "direct quote" and "aside" verbal
+# expressions already do for their own governing/framing verb. An AcI
+# infinitive has no separate conjunction/pronoun token to point at first
+# (unlike a dependent finite verb's "unit verb" relation), so it points
+# directly at the verb of saying/thinking that governs it. This is what
+# makes verbal_units.compute_subordination_depths() able to resolve
+# fuisse's depth (1, one level below dixit's 0) -- previously there was no
+# relation here at all to chase.
 # ---------------------------------------------------------------------------
- 
+
 _INDIRECT_STATEMENT_ANSWER = {
     "reasoning": (
         "dixit is the independent main verb (root, transitive active). "
         "fuisse anchors the compound future-infinitive verbal expression "
         "('facturum...fuisse', indirect statement, transitive active), "
-        "with facturum relating to it as auxiliary and se as its "
-        "accusative subject. enim is left unrelated (a postpositive "
-        "particle, not covered)."
+        "with facturum relating to it as auxiliary, se as its accusative "
+        "subject, and its own relatedtoken1 -> dixit (relationship1 "
+        "'indirect statement', matching its own syntactic type) as the "
+        "verb that governs the indirect statement. enim is left unrelated "
+        "(a postpositive particle, not covered)."
     ),
     "verbalunits": [
         {"id": "t3", "syntactic_type": "indirect statement", "semantic_type": "transitive active"},
@@ -513,7 +525,7 @@ _INDIRECT_STATEMENT_ANSWER = {
         {"id": "t2", "token": "se", "tokentype": "lexical", "lemma": "se",
          "relatedtoken1": "t3", "relationship1": "subject"},
         {"id": "t3", "token": "fuisse", "tokentype": "lexical", "lemma": "sum",
-         "verbalunitid": "t3"},
+         "verbalunitid": "t3", "relatedtoken1": "t4", "relationship1": "indirect statement"},
         {"id": "t4", "token": "dixit", "tokentype": "lexical", "lemma": "dico",
          "verbalunitid": "t4", "relatedtoken1": "root", "relationship1": "unit verb"},
         {"id": "t5", "token": ".", "tokentype": "punctuation"},
@@ -578,8 +590,16 @@ _DIRECT_QUOTE_ANSWER = {
 # source's em-dashes, for the same reason as the direct-quote fixture
 # above. nos (an emphatic pronoun alongside eos, of uncertain construction)
 # is left unrelated, per "Incomplete status".
+#
+# esse ALSO now has its own relatedtoken1 -> spero, relationship1 =
+# "indirect statement" (the same governing-verb convention added to
+# indirect_statement_facturum_fuisse_dixit above) -- worth having here
+# specifically because this sentence has THREE verbal expressions
+# (spero/dixerim/esse), so which one esse's governor is isn't obvious by
+# elimination the way it would be with only two: esse belongs to spero's
+# "I hope that..." construction, not to dixerim's parenthetical aside.
 # ---------------------------------------------------------------------------
- 
+
 _ASIDE_ANSWER = {
     "reasoning": (
         "spero is the independent main verb (root, transitive active), "
@@ -591,7 +611,11 @@ _ASIDE_ANSWER = {
         "its accusative subject, iam adverbial and populi Romani beneficio "
         "('by the kindness of the Roman people') ablative, all modifying "
         "esse; populi is genitive, depending on beneficio, with Romani "
-        "adjectival, modifying populi. nos is left unrelated."
+        "adjectival, modifying populi. nos is left unrelated. esse's own "
+        "relatedtoken1 -> spero (relationship1 'indirect statement', "
+        "matching its own syntactic type) identifies spero, not dixerim, "
+        "as the verb governing the indirect statement -- 'I hope that...', "
+        "not part of the aside."
     ),
     "verbalunits": [
         {"id": "t3", "syntactic_type": "aside", "semantic_type": "transitive active"},
@@ -621,7 +645,7 @@ _ASIDE_ANSWER = {
         {"id": "t11", "token": "beneficio", "tokentype": "lexical", "lemma": "beneficium",
          "relatedtoken1": "t12", "relationship1": "ablative"},
         {"id": "t12", "token": "esse", "tokentype": "lexical", "lemma": "sum",
-         "verbalunitid": "t12"},
+         "verbalunitid": "t12", "relatedtoken1": "t13", "relationship1": "indirect statement"},
         {"id": "t13", "token": "spero", "tokentype": "lexical", "lemma": "spero",
          "verbalunitid": "t13", "relatedtoken1": "root", "relationship1": "unit verb"},
         {"id": "t14", "token": ".", "tokentype": "punctuation"},
@@ -946,8 +970,8 @@ _ATTRIBUTIVE_ANSWER = {
         {"id": "t5", "token": ".", "tokentype": "punctuation"},
     ],
 }
- 
- 
+
+
 # ---------------------------------------------------------------------------
 # "Aequa ratione imperat."
 #   t0 Aequa  t1 ratione  t2 imperat  t3 .
@@ -961,7 +985,7 @@ _ATTRIBUTIVE_ANSWER = {
 # together the two fixtures exercise the point of the doc's example: the
 # same string cannot be tokenized correctly without considering context.
 # ---------------------------------------------------------------------------
- 
+
 _ENCLITIC_CONTEXT_ABLATIVE_ANSWER = {
     "reasoning": (
         "imperat is the independent main verb ('he commands/rules', "
@@ -983,8 +1007,8 @@ _ENCLITIC_CONTEXT_ABLATIVE_ANSWER = {
         {"id": "t3", "token": ".", "tokentype": "punctuation"},
     ],
 }
- 
- 
+
+
 # ---------------------------------------------------------------------------
 # "Ratione docet?"
 #   t0 Ratio  t1 ne  t2 docet  t3 ?
@@ -1001,7 +1025,7 @@ _ENCLITIC_CONTEXT_ABLATIVE_ANSWER = {
 # connective enclitic "que"'s convention elsewhere in these fixtures: the
 # scheme has no documented relation type for an enclitic.
 # ---------------------------------------------------------------------------
- 
+
 _ENCLITIC_CONTEXT_INTERROGATIVE_ANSWER = {
     "reasoning": (
         "docet is the independent main verb of a yes/no question ('does "
@@ -1022,8 +1046,8 @@ _ENCLITIC_CONTEXT_INTERROGATIVE_ANSWER = {
         {"id": "t3", "token": "?", "tokentype": "punctuation"},
     ],
 }
- 
- 
+
+
 # ---------------------------------------------------------------------------
 # "Quisque officium suum fecit."
 #   t0 Quisque  t1 officium  t2 suum  t3 fecit  t4 .
@@ -1037,7 +1061,7 @@ _ENCLITIC_CONTEXT_INTERROGATIVE_ANSWER = {
 # enclitic in enclitic_arma_virumque_cano, this word's -que is not tokenized
 # separately at all.
 # ---------------------------------------------------------------------------
- 
+
 _ENCLITIC_INCORPORATED_QUISQUE_ANSWER = {
     "reasoning": (
         "fecit is the independent main verb (transitive active), with the "
@@ -1062,8 +1086,8 @@ _ENCLITIC_INCORPORATED_QUISQUE_ANSWER = {
         {"id": "t4", "token": ".", "tokentype": "punctuation"},
     ],
 }
- 
- 
+
+
 # ---------------------------------------------------------------------------
 # "Ille noluit, Hermionenque ab Oreste adduxit."
 #   t0 ille  t1 fidem  t2 suam  t3 infirmare  t4 noluit  t5 ,
@@ -1089,7 +1113,7 @@ _ENCLITIC_INCORPORATED_QUISQUE_ANSWER = {
 # anything in this graph; nothing about the "coordinating conjunction"
 # revision requires resolving that gap.
 # ---------------------------------------------------------------------------
- 
+
 _COORDINATING_CONJUNCTION_VERBS_ANSWER = {
     "reasoning": (
         "noluit and adduxit are both independent main verbs (roots), "
@@ -1130,8 +1154,8 @@ _COORDINATING_CONJUNCTION_VERBS_ANSWER = {
         {"id": "t11", "token": ".", "tokentype": "punctuation"},
     ],
 }
- 
- 
+
+
 # ---------------------------------------------------------------------------
 # "Sed re cognita, iussu Cereris Triptolemo regnum dedit."
 #   t0 sed  t1 re  t2 cognita  t3 ,  t4 iussu  t5 Cereris  t6 Triptolemo
@@ -1148,7 +1172,7 @@ _COORDINATING_CONJUNCTION_VERBS_ANSWER = {
 # Also folds in an ablative absolute ("re cognita", "the matter having
 # been looked into") for good measure, reusing already-covered relations.
 # ---------------------------------------------------------------------------
- 
+
 _COORDINATING_CONJUNCTION_SENTENCE_INITIAL_ANSWER = {
     "reasoning": (
         "dedit is the independent main verb (transitive active), root. "
@@ -1189,8 +1213,8 @@ _COORDINATING_CONJUNCTION_SENTENCE_INITIAL_ANSWER = {
         {"id": "t9", "token": ".", "tokentype": "punctuation"},
     ],
 }
- 
- 
+
+
 # ---------------------------------------------------------------------------
 # "Tu quoque, Brute, fili mi, et tu?"
 #   t0 Tu  t1 quoque  t2 ,  t3 Brute  t4 ,  t5 fili  t6 mi  t7 ,
@@ -1207,7 +1231,7 @@ _COORDINATING_CONJUNCTION_SENTENCE_INITIAL_ANSWER = {
 # covered"); mi is still adjectival to fili, since that relation doesn't
 # require a verb.
 # ---------------------------------------------------------------------------
- 
+
 _COORDINATING_CONJUNCTION_ET_AS_ADVERB_ANSWER = {
     "reasoning": (
         "This exclamation has no finite verb at all (verbalunits is "
@@ -1236,6 +1260,125 @@ _COORDINATING_CONJUNCTION_ET_AS_ADVERB_ANSWER = {
         {"id": "t10", "token": "?", "tokentype": "punctuation"},
     ],
 }
+# ---------------------------------------------------------------------------
+# "Taurum cum quo Pasiphae concubuit ex Creta insula Mycenis uiuum adduxit."
+#   t0 Taurum  t1 cum  t2 quo  t3 Pasiphae  t4 concubuit  t5 ex  t6 Creta
+#   t7 insula  t8 Mycenis  t9 uiuum  t10 adduxit  t11 .
+#
+# The user's own worked example for verbal_units.compute_subordination_
+# depths() and rendering.tokengraph_to_depth_html(): two verbal expressions,
+# anchored at concubuit (dependent, introduced by the relative pronoun quo)
+# and adduxit (independent, root). Structurally identical to
+# relative_pronoun_latini_cum_quibus above -- quo is simultaneously the
+# relative pronoun linking back to its antecedent Taurum (relatedtoken1) and
+# cum's object of preposition (relatedtoken2), and cum itself is adverbial,
+# modifying concubuit -- reused here specifically because it's the
+# depth/HTML-viz worked example, not because the relation shapes are new.
+#
+# insula is ex's object of preposition ("from the island..."), with Creta
+# adjectival to it ("...of Crete", the same "genitive-ish noun treated as
+# adjectival" convention predicate_lucumo_demarati_corinthii_filius uses for
+# "Corinthii"); uiuum is adjectival to Taurum ("brought back alive"). Mycenis
+# (locative-by-form "to Mycenae", a plurale-tantum place name) is left
+# unrelated, the same "bare accusative/locative of place, not covered" gap
+# Romam gets in participle_predicate_anco_regnante.
+# ---------------------------------------------------------------------------
+
+_DEPTH_TAURUM_CONCUBUIT_ANSWER = {
+    "reasoning": (
+        "adduxit is the independent main verb (root, transitive active), "
+        "with Taurum as its direct object and uiuum adjectival to Taurum "
+        "('brought back alive'); ex is adverbial, modifying adduxit, "
+        "governing insula as its object of preposition, with Creta "
+        "adjectival to insula ('the island of Crete'). Mycenis is left "
+        "unrelated (locative-by-form place name, not covered). concubuit "
+        "anchors a dependent verbal expression (intransitive: 'with whom "
+        "Pasiphae lay'), linked to quo as its unit verb; quo is "
+        "simultaneously the relative pronoun linking back to its "
+        "antecedent Taurum and cum's object of preposition; cum is "
+        "adverbial, modifying concubuit; Pasiphae is concubuit's subject."
+    ),
+    "verbalunits": [
+        {"id": "t4", "syntactic_type": "dependent", "semantic_type": "intransitive"},
+        {"id": "t10", "syntactic_type": "independent", "semantic_type": "transitive active"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Taurum", "tokentype": "lexical", "lemma": "taurus",
+         "relatedtoken1": "t10", "relationship1": "direct object"},
+        {"id": "t1", "token": "cum", "tokentype": "lexical", "lemma": "cum",
+         "relatedtoken1": "t4", "relationship1": "adverbial"},
+        {"id": "t2", "token": "quo", "tokentype": "lexical", "lemma": "qui",
+         "relatedtoken1": "t0", "relationship1": "relative pronoun",
+         "relatedtoken2": "t1", "relationship2": "object of preposition"},
+        {"id": "t3", "token": "Pasiphae", "tokentype": "lexical", "lemma": "Pasiphae",
+         "relatedtoken1": "t4", "relationship1": "subject"},
+        {"id": "t4", "token": "concubuit", "tokentype": "lexical", "lemma": "concumbo",
+         "verbalunitid": "t4", "relatedtoken1": "t2", "relationship1": "unit verb"},
+        {"id": "t5", "token": "ex", "tokentype": "lexical", "lemma": "ex",
+         "relatedtoken1": "t10", "relationship1": "adverbial"},
+        {"id": "t6", "token": "Creta", "tokentype": "lexical", "lemma": "Creta",
+         "relatedtoken1": "t7", "relationship1": "adjectival"},
+        {"id": "t7", "token": "insula", "tokentype": "lexical", "lemma": "insula",
+         "relatedtoken1": "t5", "relationship1": "object of preposition"},
+        {"id": "t8", "token": "Mycenis", "tokentype": "lexical", "lemma": "Mycenae"},
+        {"id": "t9", "token": "uiuum", "tokentype": "lexical", "lemma": "vivus",
+         "relatedtoken1": "t0", "relationship1": "adjectival"},
+        {"id": "t10", "token": "adduxit", "tokentype": "lexical", "lemma": "adduco",
+         "verbalunitid": "t10", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t11", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
+
+# ---------------------------------------------------------------------------
+# "Cum sciret se peccavisse, doluit."
+#   t0 Cum  t1 sciret  t2 se  t3 peccavisse  t4 ,  t5 doluit  t6 .
+#
+# A depth-TWO nesting fixture for compute_subordination_depths(): doluit is
+# independent (depth 0); sciret is a dependent verb introduced by cum
+# (depth 1, one level below doluit); peccavisse is an indirect-statement
+# infinitive governed by sciret itself, not by doluit (depth 2, one level
+# below sciret) -- exactly the "if the dependent clause introduces an
+# indirect statement, that will have depth 2" case the depth feature was
+# requested for, and the reason peccavisse's own relatedtoken1 has to point
+# at sciret rather than at doluit.
+# ---------------------------------------------------------------------------
+
+_DEPTH_TWO_CUM_SCIRET_PECCAVISSE_ANSWER = {
+    "reasoning": (
+        "doluit is the independent main verb (root, intransitive). sciret "
+        "anchors a dependent verbal expression (transitive active: 'since "
+        "he knew...'), linked to cum as its unit verb; cum is the "
+        "subordinating conjunction, relating back to doluit. peccavisse "
+        "anchors an indirect-statement verbal expression (intransitive: "
+        "'that he had sinned'), with se as its accusative subject, and its "
+        "own relatedtoken1 -> sciret (relationship1 'indirect statement', "
+        "matching its own syntactic type) identifying sciret -- not doluit "
+        "-- as the verb governing this indirect statement, since it's "
+        "sciret's object, nested one level deeper than sciret's own "
+        "cum-clause."
+    ),
+    "verbalunits": [
+        {"id": "t1", "syntactic_type": "dependent", "semantic_type": "transitive active"},
+        {"id": "t3", "syntactic_type": "indirect statement", "semantic_type": "intransitive"},
+        {"id": "t5", "syntactic_type": "independent", "semantic_type": "intransitive"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Cum", "tokentype": "lexical", "lemma": "cum",
+         "relatedtoken1": "t5", "relationship1": "subordinating conjunction"},
+        {"id": "t1", "token": "sciret", "tokentype": "lexical", "lemma": "scio",
+         "verbalunitid": "t1", "relatedtoken1": "t0", "relationship1": "unit verb"},
+        {"id": "t2", "token": "se", "tokentype": "lexical", "lemma": "se",
+         "relatedtoken1": "t3", "relationship1": "subject"},
+        {"id": "t3", "token": "peccavisse", "tokentype": "lexical", "lemma": "pecco",
+         "verbalunitid": "t3", "relatedtoken1": "t1", "relationship1": "indirect statement"},
+        {"id": "t4", "token": ",", "tokentype": "punctuation"},
+        {"id": "t5", "token": "doluit", "tokentype": "lexical", "lemma": "doleo",
+         "verbalunitid": "t5", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t6", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
  
  
 GOLD_EXAMPLES = [
@@ -1436,6 +1579,22 @@ GOLD_EXAMPLES = [
               "not conjunction)", "adjectival"],
         canned_answer=_COORDINATING_CONJUNCTION_ET_AS_ADVERB_ANSWER,
     ),
+    GoldExample(
+        slug="depth_taurum_cum_quo_concubuit",
+        passage="Taurum cum quo Pasiphae concubuit ex Creta insula Mycenis uiuum adduxit.",
+        tags=["unit verb", "relative pronoun", "object of preposition",
+              "adverbial", "subject", "direct object", "adjectival",
+              "dependent", "depth of subordination (1 level)"],
+        canned_answer=_DEPTH_TAURUM_CONCUBUIT_ANSWER,
+    ),
+    GoldExample(
+        slug="depth_two_cum_sciret_peccavisse_doluit",
+        passage="Cum sciret se peccavisse, doluit.",
+        tags=["subordinating conjunction", "unit verb", "subject",
+              "indirect statement", "dependent",
+              "depth of subordination (2 levels)"],
+        canned_answer=_DEPTH_TWO_CUM_SCIRET_PECCAVISSE_ANSWER,
+    ),
     # RelationLabel coverage is complete -- every documented relation has at
     # least one tagged example, including the relatedtoken2/relationship2
     # overflow pattern, "coordinating conjunction" (which uses relation1 AND
@@ -1456,3 +1615,4 @@ GOLD_EXAMPLES = [
     # "TBA" section) have no gold example yet, since the scheme doesn't
     # document how to analyze them.
 ]
+ 

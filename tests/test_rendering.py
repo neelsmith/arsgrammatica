@@ -13,13 +13,18 @@ covering verbal-unit span-wrapping, HTML escaping, and cross-checking that
 its colors match tokengraph_to_mermaid()'s.
 """
  
+import html
 import re
  
 import pytest
  
 from arsgrammatica.mermaid import tokengraph_to_mermaid
 from arsgrammatica.models import TokenAnalysis
-from arsgrammatica.rendering import tokengraph_to_text, tokengraph_to_html
+from arsgrammatica.rendering import (
+    tokengraph_to_text,
+    tokengraph_to_html,
+    tokengraph_to_depth_html,
+)
 from arsgrammatica.verbal_units import _VERBAL_UNIT_PALETTE
 from conftest import run_gold_example
 from fixtures.gold_examples import GOLD_EXAMPLES
@@ -137,8 +142,8 @@ def test_praenomen_and_numeral_get_normal_spacing():
         _tok("t3", ".", "punctuation"),
     ]
     assert tokengraph_to_text(tg) == "M. Tullius XXV."
- 
- 
+
+
 def test_abbreviation_gets_normal_spacing():
     """"abbreviation" (distinct from "praenomen" -- see syntax_model.md's
     tokenization section, e.g. "f." for filius, "cos." for consul) gets the
@@ -325,3 +330,137 @@ def test_html_colors_match_mermaid_colors_for_every_gold_example(example):
     actual_fills = [m[0] for m in _SPAN_RE.findall(html_out)]
  
     assert actual_fills == expected_fills, example.slug
+
+
+
+# ---------------------------------------------------------------------------
+# tokengraph_to_depth_html()
+# ---------------------------------------------------------------------------
+
+_DIV_RE = re.compile(
+    r'<div style="margin-left: ([0-9.]+)em; margin-bottom: 0\.35em;">(.*?)</div>'
+)
+
+
+def _tokengraph(slug):
+    example = next(e for e in GOLD_EXAMPLES if e.slug == slug)
+    return [TokenAnalysis(**tok) for tok in example.canned_answer["tokengraph"]]
+
+
+def test_depth_html_taurum_example_produces_three_blocks_at_expected_depths():
+    """The user's own worked example: taurum (level 0), cum quo Pasiphae
+    concubuit (level 1), ex Creta insula Mycenis uiuum adduxit (level 0) --
+    exactly three blocks, indented 0/1/0 levels."""
+    tokengraph = _tokengraph("depth_taurum_cum_quo_concubuit")
+    html_out, warnings = tokengraph_to_depth_html(tokengraph)
+    assert warnings == []
+
+    blocks = _DIV_RE.findall(html_out)
+    assert len(blocks) == 3
+
+    margins = [float(m) for m, _content in blocks]
+    assert margins == [0.0, 2.0, 0.0]
+
+    assert "Taurum" in blocks[0][1]
+    assert "adduxit" not in blocks[0][1]
+
+    for word in ("cum", "quo", "Pasiphae", "concubuit"):
+        assert word in blocks[1][1], word
+    assert "Taurum" not in blocks[1][1]
+    assert "adduxit" not in blocks[1][1]
+
+    for word in ("ex", "Creta", "insula", "Mycenis", "uiuum", "adduxit"):
+        assert word in blocks[2][1], word
+    assert "concubuit" not in blocks[2][1]
+
+
+def test_depth_html_enclitic_never_starts_a_new_block():
+    """"-que" in Hermionenque resolves (per assign_verbal_units()) to
+    noluit's verbal unit -- a DIFFERENT unit than Hermionen, which resolves
+    to adduxit's -- since que's own relation joins the two verbs, not the
+    noun it's glued to. Splitting the orthographic word "Hermionenque"
+    across two <div>s would be wrong, so the enclitic must stay in
+    whichever block "Hermionen" opened."""
+    tokengraph = _tokengraph("coordinating_conjunction_verbs_ille_hermionenque")
+    html_out, warnings = tokengraph_to_depth_html(tokengraph)
+    assert warnings == []
+
+    blocks = _DIV_RE.findall(html_out)
+    assert len(blocks) == 2
+
+    hermionen_block = next(content for _m, content in blocks if "Hermionen" in content)
+    assert "que" in hermionen_block
+    # Specifically adjacent, no intervening tag boundary -- que directly
+    # continues right after Hermionen's closing </span>.
+    assert "Hermionen</span>que" in hermionen_block
+
+
+def test_depth_html_custom_indent_scales_margins():
+    tokengraph = _tokengraph("unit_verb_hercules_cum")
+    html_out, _warnings = tokengraph_to_depth_html(tokengraph, indent_em=1.5)
+    blocks = _DIV_RE.findall(html_out)
+    margins = sorted({float(m) for m, _content in blocks})
+    assert margins == [0.0, 1.5]
+
+
+def test_depth_html_colors_match_tokengraph_to_html_for_the_same_passage():
+    """Splitting into per-block <div>s must not change which color a given
+    lexical token gets -- the whole point of sharing one precomputed
+    assignment/colors mapping (via _tokens_to_html()) between this function
+    and tokengraph_to_html()."""
+    tokengraph = _tokengraph("aside_equidem_pace_dixerim")
+    whole_html = tokengraph_to_html(tokengraph)
+    depth_html, _warnings = tokengraph_to_depth_html(tokengraph)
+
+    whole_fills = [m[0] for m in _SPAN_RE.findall(whole_html)]
+    depth_fills = [m[0] for m in _SPAN_RE.findall(depth_html)]
+    assert depth_fills == whole_fills
+
+
+def test_depth_html_leading_unassigned_token_opens_a_placeholder_depth_zero_block():
+    tg = [
+        _tok("t0", "unrelated", "lexical"),
+        _tok("t1", "puer", "lexical", relatedtoken1="t2", relationship1="subject"),
+        _tok("t2", "venit", "lexical", verbalunitid="t2", relatedtoken1="root", relationship1="unit verb"),
+    ]
+    html_out, warnings = tokengraph_to_depth_html(tg)
+    assert warnings == []
+    blocks = _DIV_RE.findall(html_out)
+    assert len(blocks) == 2
+    assert blocks[0][0] == "0.0"
+    assert "unrelated" in blocks[0][1]
+    assert "puer" in blocks[1][1] and "venit" in blocks[1][1]
+
+
+def test_depth_html_trailing_unassigned_token_folds_into_open_block():
+    tg = [
+        _tok("t0", "puer", "lexical", relatedtoken1="t1", relationship1="subject"),
+        _tok("t1", "venit", "lexical", verbalunitid="t1", relatedtoken1="root", relationship1="unit verb"),
+        _tok("t2", "heus", "lexical"),
+    ]
+    html_out, warnings = tokengraph_to_depth_html(tg)
+    assert warnings == []
+    blocks = _DIV_RE.findall(html_out)
+    assert len(blocks) == 1
+    assert "heus" in blocks[0][1]
+
+
+def test_depth_html_empty_tokengraph_returns_empty_string():
+    html_out, warnings = tokengraph_to_depth_html([])
+    assert html_out == ""
+    assert warnings == []
+
+
+@pytest.mark.parametrize("example", GOLD_EXAMPLES, ids=lambda e: e.slug)
+def test_depth_html_never_warns_and_covers_every_token_for_every_gold_example(example):
+    """Structural check across the whole fixture set, mirroring
+    test_html_colors_match_mermaid_colors_for_every_gold_example above:
+    every gold fixture should render with no warnings, and every token's
+    surface text (once HTML-escaped) should appear somewhere in the
+    output -- confirming no token silently gets dropped while blocks are
+    assembled."""
+    tokengraph = [TokenAnalysis(**tok) for tok in example.canned_answer["tokengraph"]]
+    html_out, warnings = tokengraph_to_depth_html(tokengraph)
+    assert warnings == [], f"{example.slug}: {warnings}"
+    for tok in tokengraph:
+        assert html.escape(tok.token) in html_out, f"{example.slug}: missing {tok.id}"

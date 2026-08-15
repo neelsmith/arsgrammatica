@@ -12,7 +12,7 @@ verbal_units.py's module docstring for the reasoning.
 import pytest
  
 from arsgrammatica.models import TokenAnalysis
-from arsgrammatica.verbal_units import assign_verbal_units
+from arsgrammatica.verbal_units import assign_verbal_units, compute_subordination_depths
 from fixtures.gold_examples import GOLD_EXAMPLES
  
  
@@ -138,3 +138,132 @@ def test_cycle_in_relations_does_not_infinite_loop():
     ]
     assignment = assign_verbal_units(tokengraph)
     assert assignment == {"t0": None, "t1": None}
+
+
+
+# ---------------------------------------------------------------------------
+# compute_subordination_depths()
+# ---------------------------------------------------------------------------
+
+
+def test_independent_verb_has_depth_zero():
+    """An independent verb's own relatedtoken1 is the 'root' sentinel,
+    which compute_subordination_depths() special-cases directly rather
+    than chasing a governing relation at all."""
+    tokengraph = _tokengraph("unit_verb_hercules_cum")
+    depths, warnings = compute_subordination_depths(tokengraph)
+    assert depths["t5"] == 0  # pergit, independent
+    assert warnings == []
+
+
+def test_dependent_verb_via_subordinating_conjunction_has_depth_one():
+    """perlustrasset's own relatedtoken1 points at cum (t1), which is not
+    itself an anchor -- chasing cum's own outgoing relation reaches pergit
+    (t5), the anchor one level up."""
+    tokengraph = _tokengraph("unit_verb_hercules_cum")
+    depths, warnings = compute_subordination_depths(tokengraph)
+    assert depths["t3"] == 1  # perlustrasset, dependent on pergit
+    assert warnings == []
+
+
+def test_dependent_verb_via_relative_pronoun_has_depth_one():
+    """erat's own relatedtoken1 points at quibus (t3), which points (via
+    relatedtoken1) at its antecedent Latini (t0), which in turn points at
+    sustulerant (t8) -- a two-hop chase through two non-anchor
+    intermediaries before reaching the governing anchor."""
+    tokengraph = _tokengraph("relative_pronoun_latini_cum_quibus")
+    depths, warnings = compute_subordination_depths(tokengraph)
+    assert depths["t8"] == 0  # sustulerant, independent
+    assert depths["t6"] == 1  # erat, dependent on sustulerant
+    assert warnings == []
+
+
+def test_direct_quote_and_aside_have_depth_one():
+    tokengraph = _tokengraph("direct_quote_tuum_est_inquit")
+    depths, warnings = compute_subordination_depths(tokengraph)
+    assert depths["t3"] == 0  # inquit, independent
+    assert depths["t1"] == 1  # est, direct quote framed by inquit
+    assert warnings == []
+
+    tokengraph = _tokengraph("aside_equidem_pace_dixerim")
+    depths, warnings = compute_subordination_depths(tokengraph)
+    assert depths["t13"] == 0  # spero, independent
+    assert depths["t3"] == 1  # dixerim, aside interrupting spero
+    # esse's own relatedtoken1 points at spero (t13) directly, NOT at
+    # dixerim (t3) -- the whole point of the fixture's own retrofit -- so
+    # esse sits at depth 1 too, a sibling of dixerim, not nested under it.
+    assert depths["t12"] == 1  # esse, indirect statement governed by spero
+    assert warnings == []
+
+
+def test_circumstantial_participle_and_ablative_absolute_have_depth_one():
+    tokengraph = _tokengraph("participle_predicate_anco_regnante")
+    depths, warnings = compute_subordination_depths(tokengraph)
+    assert depths["t4"] == 0  # commigravit, independent
+    assert depths["t1"] == 1  # regnante, ablative absolute
+    assert warnings == []
+
+    tokengraph = _tokengraph("circumstantial_participle_eum_advenientem")
+    depths, warnings = compute_subordination_depths(tokengraph)
+    assert depths["t4"] == 0  # accepere, independent
+    assert depths["t1"] == 1  # advenientem, circumstantial participle
+    assert warnings == []
+
+
+def test_indirect_statement_has_depth_one():
+    """fuisse's own relatedtoken1 -> dixit (the new relation this whole
+    feature depended on adding) makes its depth directly resolvable, one
+    level below the verb of saying that governs it."""
+    tokengraph = _tokengraph("indirect_statement_facturum_fuisse_dixit")
+    depths, warnings = compute_subordination_depths(tokengraph)
+    assert depths["t4"] == 0  # dixit, independent
+    assert depths["t3"] == 1  # fuisse, indirect statement governed by dixit
+    assert warnings == []
+
+
+def test_depth_two_nesting_through_a_dependent_clause():
+    """peccavisse is an indirect statement governed by sciret -- itself a
+    dependent verb one level below doluit -- so peccavisse sits two levels
+    below the root, not one: exactly the 'a dependent clause introduces an
+    indirect statement' case the feature was requested for."""
+    tokengraph = _tokengraph("depth_two_cum_sciret_peccavisse_doluit")
+    depths, warnings = compute_subordination_depths(tokengraph)
+    assert depths["t5"] == 0  # doluit, independent
+    assert depths["t1"] == 1  # sciret, dependent on doluit via cum
+    assert depths["t3"] == 2  # peccavisse, indirect statement governed by sciret
+    assert warnings == []
+
+
+def test_every_gold_example_anchor_resolves_with_no_warnings():
+    """Sanity check across the whole fixture set: every documented
+    governing-relation pattern (subordinating conjunction, relative
+    pronoun, direct quote, aside, circumstantial participle, ablative
+    absolute, indirect statement) should resolve cleanly, with no
+    unresolved anchors and no warnings -- a regression here would mean a
+    fixture's relation shape silently stopped being chase-able."""
+    for example in GOLD_EXAMPLES:
+        tokengraph = [TokenAnalysis(**tok) for tok in example.canned_answer["tokengraph"]]
+        depths, warnings = compute_subordination_depths(tokengraph)
+        assert warnings == [], f"{example.slug}: {warnings}"
+        assert all(v is not None for v in depths.values()), (
+            f"{example.slug}: unresolved depth in {depths}"
+        )
+
+
+def test_cycle_in_relations_leaves_depth_unresolved_with_warning():
+    """Two anchors whose own outgoing relations point only at each other
+    (no 'root' sentinel, no third party to break the cycle) must resolve
+    to None with an explanatory warning, not recurse forever."""
+    tokengraph = [
+        TokenAnalysis(
+            id="t0", token="a", tokentype="lexical", verbalunitid="t0",
+            relatedtoken1="t1", relationship1="unit verb",
+        ),
+        TokenAnalysis(
+            id="t1", token="b", tokentype="lexical", verbalunitid="t1",
+            relatedtoken1="t0", relationship1="unit verb",
+        ),
+    ]
+    depths, warnings = compute_subordination_depths(tokengraph)
+    assert depths == {"t0": None, "t1": None}
+    assert len(warnings) >= 1
