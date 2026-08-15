@@ -96,6 +96,22 @@ def test_circumstantial_participle_noun_keeps_its_own_clause_role():
     assert assignment["t1"] == "t1"  # advenientem -> itself (singleton unit)
  
  
+def test_apposition_does_not_disturb_verbal_unit_assignment():
+    """Apposition is not a "unit verb" relation, so it never triggers the
+    inner-clause wrinkle assign_verbal_units() applies to subordinating
+    conjunctions/relative pronouns -- an appositive and its dependent
+    genitive just chase forward through the noun they're apposed to,
+    landing in the same single verbal unit as everything else in this
+    one-clause sentence."""
+    tokengraph = _tokengraph("apposition_neptunus_aegeus_filius")
+    assignment = assign_verbal_units(tokengraph)
+    assert assignment["t4"] == "t14"  # filius (apposed to Aegeus) -> concubuerunt
+    assert assignment["t3"] == "t14"  # Pandionis (genitive on filius) -> concubuerunt
+    assert assignment["t11"] == "t14"  # filia (apposed to Aethra) -> concubuerunt
+    assert assignment["t10"] == "t14"  # Pitthei (genitive on filia) -> concubuerunt
+    assert assignment["t14"] == "t14"  # concubuerunt -> itself
+
+
 def test_direct_quote_and_aside_form_their_own_units_not_the_framing_verbs():
     """A direct-quote or aside verb's own outward relation names the verb
     it interrupts/is framed by -- but since it's itself a verbal-unit
@@ -235,6 +251,34 @@ def test_depth_two_nesting_through_a_dependent_clause():
     assert depths["t5"] == 0  # doluit, independent
     assert depths["t1"] == 1  # sciret, dependent on doluit via cum
     assert depths["t3"] == 2  # peccavisse, indirect statement governed by sciret
+    assert warnings == []
+
+
+def test_dependent_verb_via_interrogative_word_has_depth_one():
+    """quanta introduces an indirect question exactly like a subordinating
+    conjunction would -- syntax_model.md reuses that same relationship
+    label for it (relatedtoken1 -> audit, relationship1 'subordinating
+    conjunction'), so afficeretur (relatedtoken1 -> quanta, relationship1
+    'unit verb') resolves its depth via the identical chase a plain
+    subordinating conjunction gets, with no code changes needed."""
+    tokengraph = _tokengraph("indirect_question_theseus_audit_quanta")
+    depths, warnings = compute_subordination_depths(tokengraph)
+    assert depths["t1"] == 0  # audit, independent
+    assert depths["t5"] == 1  # afficeretur, dependent on audit via quanta
+    assert warnings == []
+
+
+def test_circumstantial_participle_preferred_over_attributive_reaches_depth_two():
+    """Regression check for the syntax_model.md 'prefer circumstantial when
+    uncertain' rule (using its own worked example): tinctas now anchors its
+    own circumstantial-participle verbal expression agreeing with sagittas,
+    which is itself sciret's direct object -- sciret already sits one level
+    below dedit, so tinctas, one hop further out, lands at depth 2."""
+    tokengraph = _tokengraph("coordinating_conjunction_dedit_et_dixit_esse")
+    depths, warnings = compute_subordination_depths(tokengraph)
+    assert depths["t15"] == 0  # dedit, independent
+    assert depths["t4"] == 1  # sciret, dependent on dedit via cum
+    assert depths["t9"] == 2  # tinctas, circumstantial participle agreeing with sagittas
     assert warnings == []
 
 

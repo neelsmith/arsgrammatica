@@ -54,7 +54,17 @@ class SyntaxAnalysis(dspy.Signature):
           'while Ancus was reigning') rather than a purely *attributive*
           sense (modifying a noun like an ordinary adjective, e.g.
           "consentiens laus", 'universal praise' -- NOT a verbal expression
-          at all). Use 'dependent' as its syntactic type.
+          at all). Use 'dependent' as its syntactic type. When it's
+          genuinely uncertain whether a given participle is attributive or
+          predicate/circumstantial, PREFER the circumstantial reading --
+          treat it as its own verbal expression rather than folding it into
+          an attributive relation. Example: in "ille moriens, cum sciret
+          sagittas hydrae Lernaeae felle tinctas quantam uim haberent
+          ueneni, sanguinem suum exceptum Deianirae dedit", both "moriens"
+          (agreeing with "ille") and "tinctas" (agreeing with "sagittas")
+          are treated as circumstantial participles, each anchoring its own
+          verbal expression, rather than as ordinary attributive
+          adjectives.
  
         Classify each verbal expression's semantic type too (transitive
         active/transitive passive/intransitive/linking verb).
@@ -74,6 +84,15 @@ class SyntaxAnalysis(dspy.Signature):
           subordinate to, with relationship1 = 'subordinating conjunction'
           for a conjunction, or relatedtoken1 -> its antecedent's id with
           relationship1 = 'relative pronoun' for a relative pronoun.
+          Indirect questions are treated as a kind of dependent clause: the
+          interrogative word introducing one (e.g. "quanta" in "Theseus
+          audit quanta calamitate ciuitas afficeretur") is treated the same
+          way as a subordinating conjunction -- it has relatedtoken1 -> the
+          id of the verb it introduces (here "audit"), relationship1 =
+          'subordinating conjunction' (no separate label for this case) --
+          while the dependent verb itself ("afficeretur") has relatedtoken1
+          -> the interrogative word's id ("quanta"), relationship1 = 'unit
+          verb', exactly like any other dependent clause.
         - indirect statement (governing verb): an infinitive anchoring an
           indirect-statement verbal expression ALSO has relatedtoken1 ->
           the id of the verb that governs the indirect statement (the verb
@@ -181,6 +200,19 @@ class SyntaxAnalysis(dspy.Signature):
           'ablative'). These are purely syntactic (case-function) labels,
           not semantic ones -- don't distinguish e.g. possessive vs.
           partitive genitive.
+        - apposition: when one noun stands in apposition to another, the
+          appositive has relatedtoken1 -> the id of the first (the noun it
+          restates or further identifies), relationship1 = 'apposition'. A
+          genitive depending on either noun still gets its own ordinary
+          'genitive' relation, pointing at whichever noun it actually
+          depends on -- apposition doesn't change that. Example: in
+          "Neptunus et Aegeus Pandionis filius...cum Aethra Pitthei
+          filia...", "filius" is in apposition to "Aegeus" (relatedtoken1
+          -> "Aegeus", relationship1 = 'apposition'), and "Pandionis" (the
+          genitive depending on "filius") has relatedtoken1 -> "filius",
+          relationship1 = 'genitive' -- and likewise "filia" is in
+          apposition to "Aethra", with "Pitthei" as a genitive depending on
+          "filia".
         - prepositional phrases: the preposition has relatedtoken1 -> the id
           of the verb (adverbial) or noun (attributive) it modifies,
           relationship1 = 'adverbial' or 'attributive'. The noun/pronoun it
@@ -195,8 +227,8 @@ class SyntaxAnalysis(dspy.Signature):
  
         Only assign relations described above. Leave relatedtoken/
         relationship fields unset for tokens with no relation of these
-        kinds -- not every token will have one (e.g. apposition and a bare
-        accusative of place aren't covered). Use only the token ids given in
+        kinds -- not every token will have one (e.g. a bare accusative of
+        place isn't covered). Use only the token ids given in
         the input `tokens` list, or the sentinel 'root', in your output;
         never invent new ids.
     """

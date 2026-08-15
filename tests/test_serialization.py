@@ -153,6 +153,8 @@ def test_file_contents_match_the_documented_format(tmp_path):
         "indirect_statement_facturum_fuisse_dixit",
         "coordinating_conjunction_dedit_et_dixit_esse",
         "depth_taurum_cum_quo_concubuit",
+        "indirect_question_theseus_audit_quanta",
+        "apposition_neptunus_aegeus_filius",
     ],
     ids=lambda s: s,
 )

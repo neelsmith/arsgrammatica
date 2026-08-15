@@ -1400,15 +1400,23 @@ _DEPTH_TWO_CUM_SCIRET_PECCAVISSE_ANSWER = {
 # anchor, esse is a depth-1 indirect statement governed by dixit (not
 # dedit), and moriens/sciret are each depth-1, both ultimately subordinate
 # to dedit (moriens as a circumstantial participle agreeing with Ille,
-# sciret as the dependent verb of the cum-clause) -- five verbal
-# expressions in one sentence, exercising every already-documented relation
-# at once plus the fix this fixture exists to lock in.
+# sciret as the dependent verb of the cum-clause) -- exercising every
+# already-documented relation at once plus the fix this fixture exists to
+# lock in.
 #
-# tinctas ("dipped [in gall]") and exceptum ("collected") are both
-# ATTRIBUTIVE perfect passive participles (not verbal expressions, per
-# participle_attributive_gloria_est_consentiens's convention) -- neither is
-# paired with a form of sum, so neither triggers the compound-verb-form
-# reading condita/facturum...fuisse get elsewhere.
+# tinctas ("[having been] dipped [in gall]") agrees with sagittas the same
+# way moriens agrees with Ille -- syntax_model.md now says explicitly (and
+# uses THIS sentence as its own worked example) that when it's uncertain
+# whether a participle is attributive or circumstantial, prefer the
+# circumstantial reading: tinctas is therefore its own verbal expression
+# (circumstantial participle, dependent, one level below sciret -- depth 2
+# overall) rather than a plain attributive adjective modifying sagittas, as
+# an earlier version of this fixture had it. exceptum ("collected") stays a
+# plain ATTRIBUTIVE perfect passive participle modifying sanguinem -- it
+# isn't ambiguous the way tinctas is, so the "prefer circumstantial" tie-
+# break doesn't apply to it. Neither tinctas nor exceptum is paired with a
+# form of sum, so neither triggers the compound-verb-form reading
+# condita/facturum...fuisse get elsewhere.
 # ---------------------------------------------------------------------------
 
 _COORDINATING_CONJUNCTION_DEDIT_ET_DIXIT_ANSWER = {
@@ -1421,22 +1429,26 @@ _COORDINATING_CONJUNCTION_DEDIT_ET_DIXIT_ANSWER = {
         "expression one level below dedit. cum introduces a dependent "
         "cum-clause anchored at sciret ('since he knew...'), also one "
         "level below dedit; sagittas is sciret's direct object, with "
-        "tinctas an attributive participle modifying it ('dipped'), felle "
-        "ablative (means) depending on tinctas, hydrae genitive depending "
-        "on felle, and Lernaeae adjectival, modifying hydrae. sanguinem is "
-        "dedit's direct object, with suum adjectival and exceptum an "
-        "attributive participle ('collected'), both modifying it; "
-        "Deianirae is dative, dedit's indirect object. dixit anchors its "
-        "own independent verbal unit -- the whole point of this fixture -- "
-        "governing its own indirect statement, esse ('id philtrum esse', "
-        "'that this was a love potion'), one level below dixit: id is "
-        "esse's accusative subject, philtrum its predicate, and esse's own "
-        "relatedtoken1 -> dixit (relationship1 'indirect statement') "
-        "identifies dixit, not dedit, as its governor."
+        "tinctas -- per the 'prefer circumstantial when uncertain' rule -- "
+        "its own circumstantial-participle verbal expression agreeing with "
+        "sagittas ('[which had been] dipped'), one level below sciret (so "
+        "two levels below dedit); felle is ablative (means) depending on "
+        "tinctas, hydrae genitive depending on felle, and Lernaeae "
+        "adjectival, modifying hydrae. sanguinem is dedit's direct object, "
+        "with suum adjectival and exceptum a plain attributive participle "
+        "('collected'), both modifying it; Deianirae is dative, dedit's "
+        "indirect object. dixit anchors its own independent verbal unit -- "
+        "the whole point of this fixture -- governing its own indirect "
+        "statement, esse ('id philtrum esse', 'that this was a love "
+        "potion'), one level below dixit: id is esse's accusative subject, "
+        "philtrum its predicate, and esse's own relatedtoken1 -> dixit "
+        "(relationship1 'indirect statement') identifies dixit, not dedit, "
+        "as its governor."
     ),
     "verbalunits": [
         {"id": "t1", "syntactic_type": "dependent", "semantic_type": "intransitive"},
         {"id": "t4", "syntactic_type": "dependent", "semantic_type": "transitive active"},
+        {"id": "t9", "syntactic_type": "dependent", "semantic_type": "transitive passive"},
         {"id": "t15", "syntactic_type": "independent", "semantic_type": "transitive active"},
         {"id": "t19", "syntactic_type": "indirect statement", "semantic_type": "linking verb"},
         {"id": "t20", "syntactic_type": "independent", "semantic_type": "transitive active"},
@@ -1460,7 +1472,7 @@ _COORDINATING_CONJUNCTION_DEDIT_ET_DIXIT_ANSWER = {
         {"id": "t8", "token": "felle", "tokentype": "lexical", "lemma": "fel",
          "relatedtoken1": "t9", "relationship1": "ablative"},
         {"id": "t9", "token": "tinctas", "tokentype": "lexical", "lemma": "tingo",
-         "relatedtoken1": "t5", "relationship1": "adjectival"},
+         "verbalunitid": "t9", "relatedtoken1": "t5", "relationship1": "circumstantial participle"},
         {"id": "t10", "token": ",", "tokentype": "punctuation"},
         {"id": "t11", "token": "sanguinem", "tokentype": "lexical", "lemma": "sanguis",
          "relatedtoken1": "t15", "relationship1": "direct object"},
@@ -1484,6 +1496,143 @@ _COORDINATING_CONJUNCTION_DEDIT_ET_DIXIT_ANSWER = {
         {"id": "t20", "token": "dixit", "tokentype": "lexical", "lemma": "dico",
          "verbalunitid": "t20", "relatedtoken1": "root", "relationship1": "unit verb"},
         {"id": "t21", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
+
+# ---------------------------------------------------------------------------
+# "Theseus audit quanta calamitate ciuitas afficeretur."
+#   t0 Theseus  t1 audit  t2 quanta  t3 calamitate  t4 ciuitas
+#   t5 afficeretur  t6 .
+#
+# syntax_model.md's own worked example for indirect questions, added when
+# the doc was revised to say indirect questions are treated as a kind of
+# dependent clause: the interrogative word (here "quanta") introduces the
+# dependent clause exactly the way a subordinating conjunction does, and is
+# in fact given that very relationship label ("subordinating conjunction")
+# rather than a dedicated one of its own -- reusing it needs no new
+# RelationLabel value and no change to assign_verbal_units()'s or
+# compute_subordination_depths()'s chase logic, since both are already
+# label-agnostic and only follow relatedtoken1/relatedtoken2 ids. quanta
+# also agrees adjectivally with calamitate ("how great [a] calamity"), so
+# it carries that as a secondary relation (relatedtoken2/relationship2),
+# the same overflow pattern relative_pronoun_latini_cum_quibus uses for a
+# relative pronoun with a second grammatical role of its own.
+# ---------------------------------------------------------------------------
+
+_INDIRECT_QUESTION_THESEUS_AUDIT_ANSWER = {
+    "reasoning": (
+        "audit is the independent main verb (transitive active, 'hears'), "
+        "with the sentinel relatedtoken1 'root'; Theseus is its subject. "
+        "The rest of the sentence is an indirect question -- 'how great a "
+        "calamity the state was afflicted with' -- treated as a dependent "
+        "clause: quanta, the interrogative adjective introducing it, has "
+        "relatedtoken1 -> audit (relationship1 'subordinating conjunction', "
+        "the same reuse a plain subordinating conjunction like 'cum' would "
+        "get), and also relatedtoken2 -> calamitate (relationship2 "
+        "'adjectival'), since quanta agrees with and modifies calamitate "
+        "within its own clause. afficeretur, the dependent verb this "
+        "interrogative introduces, has relatedtoken1 -> quanta "
+        "(relationship1 'unit verb'), exactly like any other dependent "
+        "verb pointing back at its subordinating word. calamitate is "
+        "ablative depending on afficeretur; ciuitas is afficeretur's "
+        "subject."
+    ),
+    "verbalunits": [
+        {"id": "t1", "syntactic_type": "independent", "semantic_type": "transitive active"},
+        {"id": "t5", "syntactic_type": "dependent", "semantic_type": "transitive passive"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Theseus", "tokentype": "lexical", "lemma": "Theseus",
+         "relatedtoken1": "t1", "relationship1": "subject"},
+        {"id": "t1", "token": "audit", "tokentype": "lexical", "lemma": "audio",
+         "verbalunitid": "t1", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t2", "token": "quanta", "tokentype": "lexical", "lemma": "quantus",
+         "relatedtoken1": "t1", "relationship1": "subordinating conjunction",
+         "relatedtoken2": "t3", "relationship2": "adjectival"},
+        {"id": "t3", "token": "calamitate", "tokentype": "lexical", "lemma": "calamitas",
+         "relatedtoken1": "t5", "relationship1": "ablative"},
+        {"id": "t4", "token": "ciuitas", "tokentype": "lexical", "lemma": "civitas",
+         "relatedtoken1": "t5", "relationship1": "subject"},
+        {"id": "t5", "token": "afficeretur", "tokentype": "lexical", "lemma": "afficio",
+         "verbalunitid": "t5", "relatedtoken1": "t2", "relationship1": "unit verb"},
+        {"id": "t6", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
+
+# ---------------------------------------------------------------------------
+# "Neptunus et Aegeus Pandionis filius in fano Mineruae cum Aethra Pitthei
+#  filia una nocte concubuerunt."
+#   t0 Neptunus  t1 et  t2 Aegeus  t3 Pandionis  t4 filius  t5 in  t6 fano
+#   t7 Mineruae  t8 cum  t9 Aethra  t10 Pitthei  t11 filia  t12 una
+#   t13 nocte  t14 concubuerunt  t15 .
+#
+# syntax_model.md's own worked example for the new "apposition" relation:
+# filius is in apposition to Aegeus, and filia is in apposition to Aethra,
+# each taking the id of the noun it's apposed to for relatedtoken1 and
+# 'apposition' for relationship1 -- while the genitives Pandionis and
+# Pitthei depend not on Aegeus/Aethra but on the appositives themselves
+# (filius/filia), unaffected by the apposition relation. Also exercises a
+# coordinating conjunction joining a pair of (compound) subjects, and two
+# prepositional phrases in an adverbial relation to the verb.
+# ---------------------------------------------------------------------------
+
+_APPOSITION_NEPTUNUS_AEGEUS_ANSWER = {
+    "reasoning": (
+        "concubuerunt is the independent main verb (intransitive, 'lay "
+        "together'), with the sentinel relatedtoken1 'root'. Neptunus and "
+        "Aegeus are its compound subject, coordinated by et (relatedtoken1 "
+        "-> Neptunus, relatedtoken2 -> Aegeus, both relationship "
+        "'coordinating conjunction'); filius is in apposition to Aegeus "
+        "('Aegeus, son of Pandion'), relatedtoken1 -> Aegeus, relationship1 "
+        "'apposition', and Pandionis is a genitive depending on filius (not "
+        "on Aegeus). 'in fano Mineruae' is a prepositional phrase modifying "
+        "the verb (adverbial): in -> concubuerunt, fano -> in (object of "
+        "preposition), Mineruae genitive depending on fano. 'cum Aethra "
+        "Pitthei filia' is likewise adverbial: cum -> concubuerunt, Aethra "
+        "-> cum (object of preposition); filia is in apposition to Aethra "
+        "('Aethra, daughter of Pittheus'), relatedtoken1 -> Aethra, "
+        "relationship1 'apposition', and Pitthei is a genitive depending on "
+        "filia (not on Aethra). una is adjectival, modifying nocte, which "
+        "is ablative (time when), depending on concubuerunt."
+    ),
+    "verbalunits": [
+        {"id": "t14", "syntactic_type": "independent", "semantic_type": "intransitive"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Neptunus", "tokentype": "lexical", "lemma": "Neptunus",
+         "relatedtoken1": "t14", "relationship1": "subject"},
+        {"id": "t1", "token": "et", "tokentype": "lexical", "lemma": "et",
+         "relatedtoken1": "t0", "relationship1": "coordinating conjunction",
+         "relatedtoken2": "t2", "relationship2": "coordinating conjunction"},
+        {"id": "t2", "token": "Aegeus", "tokentype": "lexical", "lemma": "Aegeus",
+         "relatedtoken1": "t14", "relationship1": "subject"},
+        {"id": "t3", "token": "Pandionis", "tokentype": "lexical", "lemma": "Pandion",
+         "relatedtoken1": "t4", "relationship1": "genitive"},
+        {"id": "t4", "token": "filius", "tokentype": "lexical", "lemma": "filius",
+         "relatedtoken1": "t2", "relationship1": "apposition"},
+        {"id": "t5", "token": "in", "tokentype": "lexical", "lemma": "in",
+         "relatedtoken1": "t14", "relationship1": "adverbial"},
+        {"id": "t6", "token": "fano", "tokentype": "lexical", "lemma": "fanum",
+         "relatedtoken1": "t5", "relationship1": "object of preposition"},
+        {"id": "t7", "token": "Mineruae", "tokentype": "lexical", "lemma": "Minerva",
+         "relatedtoken1": "t6", "relationship1": "genitive"},
+        {"id": "t8", "token": "cum", "tokentype": "lexical", "lemma": "cum",
+         "relatedtoken1": "t14", "relationship1": "adverbial"},
+        {"id": "t9", "token": "Aethra", "tokentype": "lexical", "lemma": "Aethra",
+         "relatedtoken1": "t8", "relationship1": "object of preposition"},
+        {"id": "t10", "token": "Pitthei", "tokentype": "lexical", "lemma": "Pittheus",
+         "relatedtoken1": "t11", "relationship1": "genitive"},
+        {"id": "t11", "token": "filia", "tokentype": "lexical", "lemma": "filia",
+         "relatedtoken1": "t9", "relationship1": "apposition"},
+        {"id": "t12", "token": "una", "tokentype": "lexical", "lemma": "unus",
+         "relatedtoken1": "t13", "relationship1": "adjectival"},
+        {"id": "t13", "token": "nocte", "tokentype": "lexical", "lemma": "nox",
+         "relatedtoken1": "t14", "relationship1": "ablative"},
+        {"id": "t14", "token": "concubuerunt", "tokentype": "lexical", "lemma": "concumbo",
+         "verbalunitid": "t14", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t15", "token": ".", "tokentype": "punctuation"},
     ],
 }
 
@@ -1707,11 +1856,30 @@ GOLD_EXAMPLES = [
         passage="Ille moriens, cum sciret sagittas hydrae Lernaeae felle tinctas, sanguinem suum exceptum Deianirae dedit et id philtrum esse dixit.",
         tags=["coordinating conjunction (pair of independent verbs, second "
               "also governs an indirect statement)", "circumstantial "
-              "participle", "subordinating conjunction", "unit verb",
+              "participle (prefer over attributive when uncertain)",
+              "subordinating conjunction", "unit verb",
               "indirect statement", "subject", "direct object", "dative",
               "genitive", "ablative", "adjectival", "predicate",
-              "dependent", "independent"],
+              "dependent", "independent", "depth of subordination (2 levels)"],
         canned_answer=_COORDINATING_CONJUNCTION_DEDIT_ET_DIXIT_ANSWER,
+    ),
+    GoldExample(
+        slug="indirect_question_theseus_audit_quanta",
+        passage="Theseus audit quanta calamitate ciuitas afficeretur.",
+        tags=["subordinating conjunction (interrogative word introducing "
+              "an indirect question, reuses the label)", "unit verb",
+              "adjectival", "ablative", "subject", "dependent",
+              "independent", "transitive active", "transitive passive",
+              "relatedtoken2/relationship2 overflow"],
+        canned_answer=_INDIRECT_QUESTION_THESEUS_AUDIT_ANSWER,
+    ),
+    GoldExample(
+        slug="apposition_neptunus_aegeus_filius",
+        passage="Neptunus et Aegeus Pandionis filius in fano Mineruae cum Aethra Pitthei filia una nocte concubuerunt.",
+        tags=["apposition", "genitive", "coordinating conjunction (pair of "
+              "nouns)", "adverbial", "object of preposition", "subject",
+              "adjectival", "ablative", "intransitive", "independent"],
+        canned_answer=_APPOSITION_NEPTUNUS_AEGEUS_ANSWER,
     ),
     # RelationLabel coverage is complete -- every documented relation has at
     # least one tagged example, including the relatedtoken2/relationship2
@@ -1719,16 +1887,18 @@ GOLD_EXAMPLES = [
     # relation2 for two ends of the same relation, not as an overflow slot --
     # see enclitic_arma_virumque_cano for the paired-nouns case, the two new
     # coordinating_conjunction_* fixtures above for the paired-verbs,
-    # sentence-initial, and et-as-adverb cases), and the newest additions
-    # (circumstantial participle, ablative absolute, direct quote, aside).
-    # VerbalExpression.syntactic_type coverage is also complete: independent,
-    # dependent, direct quote, aside, and indirect statement all have a
-    # tagged example. TokenAnalysis.tokentype coverage is also complete,
-    # including "abbreviation" (see praenomen_abbreviation_m_agrippa_cos) and
-    # the enclitic-tokenization nuances syntax_model.md's tokenization
-    # section documents: a context-dependent split ("ratione") and a word
-    # that has incorporated its historic enclitic and must never be split
-    # ("quisque" and its compounds). Still open (see test_coverage.py for the
+    # sentence-initial, and et-as-adverb cases), "apposition" (see
+    # apposition_neptunus_aegeus_filius), and "subordinating conjunction"'s
+    # reuse for the interrogative word introducing an indirect question
+    # (see indirect_question_theseus_audit_quanta). VerbalExpression.
+    # syntactic_type coverage is also complete: independent, dependent,
+    # direct quote, aside, and indirect statement all have a tagged
+    # example. TokenAnalysis.tokentype coverage is also complete, including
+    # "abbreviation" (see praenomen_abbreviation_m_agrippa_cos) and the
+    # enclitic-tokenization nuances syntax_model.md's tokenization section
+    # documents: a context-dependent split ("ratione") and a word that has
+    # incorporated its historic enclitic and must never be split ("quisque"
+    # and its compounds). Still open (see test_coverage.py for the
     # authoritative list): gerunds and gerundives (syntax_model.md's own
     # "TBA" section) have no gold example yet, since the scheme doesn't
     # document how to analyze them.
