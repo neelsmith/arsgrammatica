@@ -4,8 +4,8 @@ according to the scheme documented in syntax_model.md.
  
 from .models import Token, CitedText, Sentence, VerbalExpression, TokenAnalysis, RelationLabel
 from .mermaid import tokengraph_to_mermaid
-from .verbal_units import assign_verbal_units
-from .rendering import tokengraph_to_text
+from .verbal_units import assign_verbal_units, assign_verbal_unit_colors
+from .rendering import tokengraph_to_text, tokengraph_to_html
 from .latin_syntax_dspy import (
     SyntaxAnalysis,
     analyze,
@@ -24,7 +24,9 @@ __all__ = [
     "RelationLabel",
     "tokengraph_to_mermaid",
     "assign_verbal_units",
+    "assign_verbal_unit_colors",
     "tokengraph_to_text",
+    "tokengraph_to_html",
     "SyntaxAnalysis",
     "analyze",
     "analyze_passage",

@@ -36,11 +36,54 @@ no such reverse link exists does a token fall back to following its own
 relatedtoken1/relatedtoken2 chain forward.
 """
  
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
  
 from .models import TokenAnalysis
  
 _UNIT_VERB = "unit verb"
+ 
+# Categorical palette for coloring verbal units: 8 (fill, stroke, text)
+# triples, in a fixed order chosen so adjacent slots stay distinguishable
+# under color-vision deficiency as well as normal vision. Pastel-hued by
+# request: each `fill` is a light, low-saturation tint; `stroke` is that
+# same hue at full saturation (the vivid color a non-pastel categorical
+# palette would use), giving each swatch a colored outline instead of a
+# colored fill as its primary identity cue; `text` is black throughout --
+# every one of these fills has strong contrast against black (all comfortably
+# above the WCAG AA text threshold of 4.5:1, several above 10:1).
+#
+# Lives here (rather than in mermaid.py, where it originated) so every
+# consumer that wants "the same verbal-unit colors as the mermaid graph" --
+# currently mermaid.py's own node coloring and rendering.py's
+# tokengraph_to_html() -- shares one definition and one ordering rule
+# (assign_verbal_unit_colors(), below) instead of each re-deriving it and
+# risking drift.
+#
+# Pushing this light necessarily fails the dataviz skill's OKLCH lightness
+# ceiling (0.77 for a light surface) -- true pastel and that ceiling are
+# mutually exclusive, since the ceiling exists specifically to keep marks
+# from reading as washed-out. That gate was designed for un-labeled marks
+# (points, bars) where color alone carries identity; every node/span this
+# palette colors already carries its own visible text label, which is the
+# mitigation the skill itself prescribes for exactly this trade-off. What
+# was NOT relaxed: adjacent-pair separation. This ordering was tuned (see
+# scripts/validate_palette.js in Claude's dataviz skill) so it still clears
+# both the CVD separation target (worst adjacent ΔE 10.6, target ≥8) and
+# the normal-vision floor (worst adjacent ΔE 18.1, floor ≥15) -- the checks
+# that actually determine whether two colors can be told apart.
+# Cycles (mod 8) if a sentence has more than 8 verbal units -- see
+# assign_verbal_unit_colors(), which reports this as a warning rather than
+# silently repeating colors.
+_VERBAL_UNIT_PALETTE = [
+    ("#82bbff", "#2a78d6", "#000000"),  # blue
+    ("#ffa682", "#eb6834", "#000000"),  # orange
+    ("#70ffcc", "#1baf7a", "#000000"),  # aqua
+    ("#ffd170", "#eda100", "#000000"),  # yellow
+    ("#ff94bc", "#e87ba4", "#000000"),  # magenta
+    ("#7aff7a", "#008300", "#000000"),  # green
+    ("#a494ff", "#4a3aa7", "#000000"),  # violet
+    ("#ff9594", "#e34948", "#000000"),  # red
+]
  
  
 def assign_verbal_units(tokengraph: List[TokenAnalysis]) -> Dict[str, Optional[str]]:
@@ -118,3 +161,62 @@ def assign_verbal_units(tokengraph: List[TokenAnalysis]) -> Dict[str, Optional[s
         resolve(tid)
  
     return resolved
+ 
+ 
+def assign_verbal_unit_colors(
+    tokengraph: List[TokenAnalysis],
+    assignment: Optional[Dict[str, Optional[str]]] = None,
+) -> Tuple[Dict[str, Tuple[str, str, str]], List[str]]:
+    """Assign each verbal unit found in `tokengraph` a stable (fill, stroke,
+    text) triple from `_VERBAL_UNIT_PALETTE`, using the exact ordering rule
+    `tokengraph_to_mermaid()` uses for its node coloring -- so any other
+    caller wanting "the same colors as the mermaid graph" (currently
+    rendering.py's `tokengraph_to_html()`) gets an identical mapping without
+    re-deriving the rule itself.
+ 
+    Order is by first appearance of each verbal unit among tokengraph's
+    *non-punctuation* tokens, since those are the only tokens that become
+    mermaid nodes at all -- a verbal unit whose earliest token happens to be
+    punctuation (it can't be: punctuation tokens aren't assigned to a
+    verbal unit's anchor, but could in principle inherit one from a
+    relation) still gets ordered by its first non-punctuation member.
+ 
+    Pass `assignment` (the result of `assign_verbal_units(tokengraph)`) if
+    the caller already computed it, to avoid re-deriving it here; otherwise
+    it's computed internally.
+ 
+    Returns `({verbal unit id: (fill, stroke, text)}, warnings)` --
+    `warnings` holds one entry, with the same wording
+    `tokengraph_to_mermaid()` uses, if there are more distinct verbal units
+    than palette slots (colors repeat past the 8th unit). A verbal unit id
+    absent from the returned dict was never assigned to any non-punctuation
+    token -- callers should treat that the same as "no verbal unit" (no
+    coloring), same as `tokengraph_to_mermaid()` does.
+    """
+    if assignment is None:
+        assignment = assign_verbal_units(tokengraph)
+ 
+    non_punctuation_ids = {tok.id for tok in tokengraph if tok.tokentype != "punctuation"}
+ 
+    unit_order: List[str] = []
+    seen_units = set()
+    for tok in tokengraph:
+        if tok.id not in non_punctuation_ids:
+            continue
+        unit_id = assignment.get(tok.id)
+        if unit_id is not None and unit_id not in seen_units:
+            seen_units.add(unit_id)
+            unit_order.append(unit_id)
+ 
+    warnings: List[str] = []
+    if len(unit_order) > len(_VERBAL_UNIT_PALETTE):
+        warnings.append(
+            f"{len(unit_order)} verbal units but only {len(_VERBAL_UNIT_PALETTE)} "
+            "distinct colors -- colors repeat and may be ambiguous between units"
+        )
+ 
+    colors = {
+        unit_id: _VERBAL_UNIT_PALETTE[i % len(_VERBAL_UNIT_PALETTE)]
+        for i, unit_id in enumerate(unit_order)
+    }
+    return colors, warnings

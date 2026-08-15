@@ -28,7 +28,7 @@ reporting.
 from typing import List, Tuple
  
 from .models import TokenAnalysis
-from .verbal_units import assign_verbal_units
+from .verbal_units import assign_verbal_units, assign_verbal_unit_colors
  
 # Characters that need escaping inside a Mermaid quoted label.
 _LABEL_ESCAPES = {
@@ -44,41 +44,10 @@ def _escape_label(text: str) -> str:
     return text
  
  
-# Categorical palette for coloring verbal units: 8 (fill, stroke, text)
-# triples, in a fixed order chosen so adjacent slots stay distinguishable
-# under color-vision deficiency as well as normal vision. Pastel-hued by
-# request: each `fill` is a light, low-saturation tint; `stroke` is that
-# same hue at full saturation (the vivid color a non-pastel categorical
-# palette would use), giving each swatch a colored outline instead of a
-# colored fill as its primary identity cue; `text` is black throughout --
-# every one of these fills has strong contrast against black (all comfortably
-# above the WCAG AA text threshold of 4.5:1, several above 10:1).
-#
-# Pushing this light necessarily fails the dataviz skill's OKLCH lightness
-# ceiling (0.77 for a light surface) -- true pastel and that ceiling are
-# mutually exclusive, since the ceiling exists specifically to keep marks
-# from reading as washed-out. That gate was designed for un-labeled marks
-# (points, bars) where color alone carries identity; every node in this
-# diagram already carries its own visible text label, which is the
-# mitigation the skill itself prescribes for exactly this trade-off. What
-# was NOT relaxed: adjacent-pair separation. This ordering was tuned
-# (see scripts/validate_palette.js in Claude's dataviz skill) so it still
-# clears both the CVD separation target (worst adjacent ΔE 10.6, target
-# ≥8) and the normal-vision floor (worst adjacent ΔE 18.1, floor ≥15) --
-# the checks that actually determine whether two colors can be told apart.
-# Cycles (mod 8) if a sentence has more than 8 verbal units -- see
-# _VERBAL_UNIT_PALETTE's use in tokengraph_to_mermaid(), which reports this
-# as a warning rather than silently repeating colors.
-_VERBAL_UNIT_PALETTE = [
-    ("#82bbff", "#2a78d6", "#000000"),  # blue
-    ("#ffa682", "#eb6834", "#000000"),  # orange
-    ("#70ffcc", "#1baf7a", "#000000"),  # aqua
-    ("#ffd170", "#eda100", "#000000"),  # yellow
-    ("#ff94bc", "#e87ba4", "#000000"),  # magenta
-    ("#7aff7a", "#008300", "#000000"),  # green
-    ("#a494ff", "#4a3aa7", "#000000"),  # violet
-    ("#ff9594", "#e34948", "#000000"),  # red
-]
+# The verbal-unit color palette and the first-appearance ordering rule now
+# live in verbal_units.py (assign_verbal_unit_colors()), shared with
+# rendering.py's tokengraph_to_html() -- so both consumers assign identical
+# colors to the same verbal units instead of each maintaining its own copy.
  
  
 def tokengraph_to_mermaid(
@@ -146,37 +115,19 @@ def tokengraph_to_mermaid(
  
     if color_by_verbal_unit:
         assignment = assign_verbal_units(tokengraph)
+        colors, color_warnings = assign_verbal_unit_colors(tokengraph, assignment=assignment)
+        warnings.extend(color_warnings)
  
-        # Assign each distinct verbal unit id a stable palette slot, in the
-        # order its tokens first appear in `tokengraph` (reading order) --
-        # not dict/set iteration order, which isn't guaranteed to match.
-        unit_order: List[str] = []
-        seen_units = set()
-        for tok in tokengraph:
-            if tok.id not in node_ids:
-                continue
-            unit_id = assignment.get(tok.id)
-            if unit_id is not None and unit_id not in seen_units:
-                seen_units.add(unit_id)
-                unit_order.append(unit_id)
- 
-        if len(unit_order) > len(_VERBAL_UNIT_PALETTE):
-            warnings.append(
-                f"{len(unit_order)} verbal units but only {len(_VERBAL_UNIT_PALETTE)} "
-                "distinct colors -- colors repeat and may be ambiguous between units"
-            )
- 
-        if unit_order:
+        if colors:
             lines.append("")
             class_names = {}
-            for i, unit_id in enumerate(unit_order):
+            for i, (unit_id, (fill, stroke, text)) in enumerate(colors.items()):
                 class_name = f"vu{i}"
                 class_names[unit_id] = class_name
-                fill, stroke, text = _VERBAL_UNIT_PALETTE[i % len(_VERBAL_UNIT_PALETTE)]
                 lines.append(
                     f"    classDef {class_name} fill:{fill},stroke:{stroke},color:{text};"
                 )
-            for unit_id in unit_order:
+            for unit_id in colors:
                 member_ids = [
                     tok.id
                     for tok in tokengraph
