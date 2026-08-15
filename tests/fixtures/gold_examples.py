@@ -1379,8 +1379,115 @@ _DEPTH_TWO_CUM_SCIRET_PECCAVISSE_ANSWER = {
     ],
 }
 
- 
- 
+
+# ---------------------------------------------------------------------------
+# "Ille moriens, cum sciret sagittas hydrae Lernaeae felle tinctas, sanguinem
+#  suum exceptum Deianirae dedit et id philtrum esse dixit."
+#   t0 Ille  t1 moriens  t2 ,  t3 cum  t4 sciret  t5 sagittas  t6 hydrae
+#   t7 Lernaeae  t8 felle  t9 tinctas  t10 ,  t11 sanguinem  t12 suum
+#   t13 exceptum  t14 Deianirae  t15 dedit  t16 et  t17 id  t18 philtrum
+#   t19 esse  t20 dixit  t21 .
+#
+# Regression fixture for a real live-LM mistake (Nessus giving Deianira his
+# poisoned blood as a "love potion" -- Hyginus, Fabulae 36): dedit and dixit
+# are two coordinated INDEPENDENT verbs joined by et, exactly like
+# coordinating_conjunction_verbs_ille_hermionenque above, except dixit here
+# ALSO governs its own indirect statement (id philtrum esse) -- and a live
+# model run on this sentence gave dixit no verbalunitid at all (silently
+# dropping it from `verbalunits`), instead of anchoring its own independent
+# verbal unit at depth 0 the way dedit correctly did. This fixture pins down
+# the correct analysis: dedit and dixit are each their own root-depth
+# anchor, esse is a depth-1 indirect statement governed by dixit (not
+# dedit), and moriens/sciret are each depth-1, both ultimately subordinate
+# to dedit (moriens as a circumstantial participle agreeing with Ille,
+# sciret as the dependent verb of the cum-clause) -- five verbal
+# expressions in one sentence, exercising every already-documented relation
+# at once plus the fix this fixture exists to lock in.
+#
+# tinctas ("dipped [in gall]") and exceptum ("collected") are both
+# ATTRIBUTIVE perfect passive participles (not verbal expressions, per
+# participle_attributive_gloria_est_consentiens's convention) -- neither is
+# paired with a form of sum, so neither triggers the compound-verb-form
+# reading condita/facturum...fuisse get elsewhere.
+# ---------------------------------------------------------------------------
+
+_COORDINATING_CONJUNCTION_DEDIT_ET_DIXIT_ANSWER = {
+    "reasoning": (
+        "dedit and dixit are both independent main verbs (roots), "
+        "coordinated by et -- et's own relatedtoken1 -> dedit and "
+        "relatedtoken2 -> dixit, both relationship 'coordinating "
+        "conjunction'. Ille is dedit's subject; moriens is a circumstantial "
+        "participle agreeing with Ille ('while dying'), a dependent verbal "
+        "expression one level below dedit. cum introduces a dependent "
+        "cum-clause anchored at sciret ('since he knew...'), also one "
+        "level below dedit; sagittas is sciret's direct object, with "
+        "tinctas an attributive participle modifying it ('dipped'), felle "
+        "ablative (means) depending on tinctas, hydrae genitive depending "
+        "on felle, and Lernaeae adjectival, modifying hydrae. sanguinem is "
+        "dedit's direct object, with suum adjectival and exceptum an "
+        "attributive participle ('collected'), both modifying it; "
+        "Deianirae is dative, dedit's indirect object. dixit anchors its "
+        "own independent verbal unit -- the whole point of this fixture -- "
+        "governing its own indirect statement, esse ('id philtrum esse', "
+        "'that this was a love potion'), one level below dixit: id is "
+        "esse's accusative subject, philtrum its predicate, and esse's own "
+        "relatedtoken1 -> dixit (relationship1 'indirect statement') "
+        "identifies dixit, not dedit, as its governor."
+    ),
+    "verbalunits": [
+        {"id": "t1", "syntactic_type": "dependent", "semantic_type": "intransitive"},
+        {"id": "t4", "syntactic_type": "dependent", "semantic_type": "transitive active"},
+        {"id": "t15", "syntactic_type": "independent", "semantic_type": "transitive active"},
+        {"id": "t19", "syntactic_type": "indirect statement", "semantic_type": "linking verb"},
+        {"id": "t20", "syntactic_type": "independent", "semantic_type": "transitive active"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Ille", "tokentype": "lexical", "lemma": "ille",
+         "relatedtoken1": "t15", "relationship1": "subject"},
+        {"id": "t1", "token": "moriens", "tokentype": "lexical", "lemma": "morior",
+         "verbalunitid": "t1", "relatedtoken1": "t0", "relationship1": "circumstantial participle"},
+        {"id": "t2", "token": ",", "tokentype": "punctuation"},
+        {"id": "t3", "token": "cum", "tokentype": "lexical", "lemma": "cum",
+         "relatedtoken1": "t15", "relationship1": "subordinating conjunction"},
+        {"id": "t4", "token": "sciret", "tokentype": "lexical", "lemma": "scio",
+         "verbalunitid": "t4", "relatedtoken1": "t3", "relationship1": "unit verb"},
+        {"id": "t5", "token": "sagittas", "tokentype": "lexical", "lemma": "sagitta",
+         "relatedtoken1": "t4", "relationship1": "direct object"},
+        {"id": "t6", "token": "hydrae", "tokentype": "lexical", "lemma": "hydra",
+         "relatedtoken1": "t8", "relationship1": "genitive"},
+        {"id": "t7", "token": "Lernaeae", "tokentype": "lexical", "lemma": "Lernaeus",
+         "relatedtoken1": "t6", "relationship1": "adjectival"},
+        {"id": "t8", "token": "felle", "tokentype": "lexical", "lemma": "fel",
+         "relatedtoken1": "t9", "relationship1": "ablative"},
+        {"id": "t9", "token": "tinctas", "tokentype": "lexical", "lemma": "tingo",
+         "relatedtoken1": "t5", "relationship1": "adjectival"},
+        {"id": "t10", "token": ",", "tokentype": "punctuation"},
+        {"id": "t11", "token": "sanguinem", "tokentype": "lexical", "lemma": "sanguis",
+         "relatedtoken1": "t15", "relationship1": "direct object"},
+        {"id": "t12", "token": "suum", "tokentype": "lexical", "lemma": "suus",
+         "relatedtoken1": "t11", "relationship1": "adjectival"},
+        {"id": "t13", "token": "exceptum", "tokentype": "lexical", "lemma": "excipio",
+         "relatedtoken1": "t11", "relationship1": "adjectival"},
+        {"id": "t14", "token": "Deianirae", "tokentype": "lexical", "lemma": "Deianira",
+         "relatedtoken1": "t15", "relationship1": "dative"},
+        {"id": "t15", "token": "dedit", "tokentype": "lexical", "lemma": "do",
+         "verbalunitid": "t15", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t16", "token": "et", "tokentype": "lexical", "lemma": "et",
+         "relatedtoken1": "t15", "relationship1": "coordinating conjunction",
+         "relatedtoken2": "t20", "relationship2": "coordinating conjunction"},
+        {"id": "t17", "token": "id", "tokentype": "lexical", "lemma": "is",
+         "relatedtoken1": "t19", "relationship1": "subject"},
+        {"id": "t18", "token": "philtrum", "tokentype": "lexical", "lemma": "philtrum",
+         "relatedtoken1": "t19", "relationship1": "predicate"},
+        {"id": "t19", "token": "esse", "tokentype": "lexical", "lemma": "sum",
+         "verbalunitid": "t19", "relatedtoken1": "t20", "relationship1": "indirect statement"},
+        {"id": "t20", "token": "dixit", "tokentype": "lexical", "lemma": "dico",
+         "verbalunitid": "t20", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t21", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
+
 GOLD_EXAMPLES = [
     GoldExample(
         slug="unit_verb_hercules_cum",
@@ -1594,6 +1701,17 @@ GOLD_EXAMPLES = [
               "indirect statement", "dependent",
               "depth of subordination (2 levels)"],
         canned_answer=_DEPTH_TWO_CUM_SCIRET_PECCAVISSE_ANSWER,
+    ),
+    GoldExample(
+        slug="coordinating_conjunction_dedit_et_dixit_esse",
+        passage="Ille moriens, cum sciret sagittas hydrae Lernaeae felle tinctas, sanguinem suum exceptum Deianirae dedit et id philtrum esse dixit.",
+        tags=["coordinating conjunction (pair of independent verbs, second "
+              "also governs an indirect statement)", "circumstantial "
+              "participle", "subordinating conjunction", "unit verb",
+              "indirect statement", "subject", "direct object", "dative",
+              "genitive", "ablative", "adjectival", "predicate",
+              "dependent", "independent"],
+        canned_answer=_COORDINATING_CONJUNCTION_DEDIT_ET_DIXIT_ANSWER,
     ),
     # RelationLabel coverage is complete -- every documented relation has at
     # least one tagged example, including the relatedtoken2/relationship2
