@@ -20,6 +20,12 @@ Then:
 python3 syntaxer_main.py --passage "Gallia est omnis divisa in partes tres."
 ```
 
+`--citation` is an optional second argument giving a citation label for the passage (e.g. a CTS URN), recorded on every resulting token via `Token.citation`; it defaults to no citation if omitted:
+
+```bash
+python3 syntaxer_main.py --passage "Arma virumque canō." --citation "urn:cts:latinLit:phi0690:1.1"
+```
+
 `syntaxer_main.py` reads `API_BASE` / `MODEL` / `API_KEY` from `.env`, configures the LM, and prints the analysis.
 
 
@@ -69,25 +75,6 @@ tokengraph = combined_tokengraph(results)  # one flat list, spanning every sente
 
 `analyze_sources()` handles any number of sentences and citation units; sentence boundaries don't need to respect citation-unit boundaries (one sentence may span two source lines, as above), and every token still records which source unit it came from via `Token.citation`.
 
-## Visualizing results
-
-In the current version of `arsgrammatica`, you can generate mermaid diagrams from the token graph.
-
-`arsgrammatica` includes utilities
-```python
-from arsgrammatica import tokengraph_to_mermaid
-
-diagram, warnings = tokengraph_to_mermaid(result.tokengraph)
-print(diagram)
-```
-
-`diagram` is Mermaid `graph` syntax you can use anywhere that renders Mermaid (many Markdown viewers, mermaid.live, etc.). 
-
-`warnings` lists any edge that got skipped because it pointed at a punctuation token or an id missing from `tokengraph` — worth checking, since it usually traces back to a problem `validate()` already flagged. 
-
-`save_mermaid()` in `arsgrammatica/mermaid.py` (import it as
-`from arsgrammatica.mermaid import save_mermaid`) writes the diagram straight to a `.mmd` file if you'd rather not copy/paste from the terminal. 
-
 
 ## Files
 
@@ -98,7 +85,9 @@ print(diagram)
   - `latin_syntax_dspy.py` is the DSPy signature (`SyntaxAnalysis`) that takes a sentence's tokens and produces `verbalunits` + `tokengraph`, plus `validate()` and `print_analysis()`.
   - `pipeline.py` — ties the two stages together: `analyze_sources()` runs the full pipeline over citation-labeled input and analyzes every sentence it finds; `analyze_passage()` is the convenience wrapper for a single bare passage string; `combined_tokengraph()` concatenates results for diagramming.
   - `mermaid.py` — turns a `tokengraph` into a Mermaid flowchart: one node  per non-punctuation token, one labelled edge per
-    `relatedtoken1`/`relationship1` and `relatedtoken2`/`relationship2` pair.
+    `relatedtoken1`/`relationship1` and `relatedtoken2`/`relationship2` pair, colored by verbal unit (see `VISUALIZATION.md`).
+  - `verbal_units.py` — `assign_verbal_units()` partitions a `tokengraph` into the verbal units its own relations imply, purely from the existing graph structure (no extra LM call); used by `mermaid.py`'s coloring, and available standalone for anything else that wants the same clause grouping.
+  - `rendering.py` — `tokengraph_to_text()` reconstructs a continuous, readable plain-text string from a `tokengraph`, with correct spacing around punctuation, brackets, quote pairs, and enclitics (unlike a plain `" ".join(...)`, which would put a space before every token, including punctuation and enclitics -- e.g. rendering "virumque" as "virum que").
   - `__init__.py` — re-exports the public names above, so callers do `from arsgrammatica import ...` rather than reaching into submodules.
 - `tests/` — a pytest suite covering models, segmentation, analysis, validation, and coverage of the scheme's relation/type vocabulary.
 

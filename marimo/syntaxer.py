@@ -1,125 +1,135 @@
 import marimo
- 
+
 __generated_with = "0.23.16"
 app = marimo.App(width="medium")
- 
- 
+
+
 @app.cell(hide_code=True)
 def _():
     import marimo as mo
  
+
     return (mo,)
- 
- 
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
     # Analyze Latin syntax with a configured LM
     """)
     return
- 
- 
+
+
 @app.cell(hide_code=True)
 def _(text_area):
     text_area
     return
- 
- 
+
+
 @app.cell(hide_code=True)
 def _(mo, results):
     mo.md("\n\n".join(f"> {result.reasoning}" for result in results))
     return
- 
- 
+
+
 @app.cell(hide_code=True)
 def _(diagram, mo):
     mo.mermaid(diagram)
     return
- 
- 
+
+
 @app.cell
 def _(sentences):
     tokens = [tok for sentence in sentences for tok in sentence.tokens]
     tokens
     return
- 
- 
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.Html("<hr/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>")
     return
- 
- 
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
     # Implementation
     """)
     return
- 
- 
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
     ## Analysis
     """)
     return
- 
- 
+
+
 @app.cell
 def _(analyze_passage, text_area):
+    # Analyze text passage:
     passage = ''
     sentences, results = [], []
     if text_area.value:
         passage = text_area.value
         sentences, results = analyze_passage(passage)
     return results, sentences
- 
- 
+
+
 @app.cell
 def _(combined_tokengraph, results, tokengraph_to_mermaid):
+    # Compose Mermaid diagram:
     diagram, mermaid_warnings = tokengraph_to_mermaid(combined_tokengraph(results))
     return (diagram,)
- 
- 
+
+
+@app.cell
+def _(diagram):
+    diagram
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
     ## UI
     """)
     return
- 
- 
+
+
 @app.cell
 def _(mo):
     text_area = mo.ui.text_area(value = "ac plerique suam ipsi vitam narrare fiduciam potius morum quam adrogantiam arbitrati sunt, nec id Rutilio et Scauro citra fidem aut obtrectationi fuit: adeo virtutes isdem temporibus optime aestimantur, quibus facillime gignuntur. at nunc narraturo mihi vitam defuncti hominis venia opus fuit, quam non petissem incusaturus: tam saeva et infesta virtutibus tempora.", full_width=True, label="*Text to analyze*:").form()
     return (text_area,)
- 
- 
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
     ## Imports
     """)
     return
- 
- 
+
+
 @app.cell
 def _():
     import dspy
     import os
     from pathlib import Path
  
+
     return Path, dspy, os
- 
- 
+
+
 @app.cell
 def _():
     from dotenv import load_dotenv
- 
+
     return (load_dotenv,)
- 
- 
+
+
 @app.cell
 def _(Path):
     import sys
@@ -127,32 +137,32 @@ def _(Path):
     sys.path.insert(0, str(Path(__file__).parent.parent))
  
     from arsgrammatica import print_analysis, analyze_passage, tokengraph_to_mermaid, combined_tokengraph
- 
+
     return analyze_passage, combined_tokengraph, tokengraph_to_mermaid
- 
- 
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
     ## Configuration of LM
     """)
     return
- 
- 
+
+
 @app.cell
 def _(Path, load_dotenv):
     load_dotenv(dotenv_path=Path(__file__).parent.parent / ".env")
     return
- 
- 
+
+
 @app.cell
 def _(os):
     api_base = os.getenv("API_BASE")
     model = os.getenv("MODEL")
     api_key = os.getenv("API_KEY")
     return
- 
- 
+
+
 @app.cell
 def _(os):
     def getenv(name: str, fallback_name: str, default: str | None = None) -> str | None:
@@ -164,9 +174,10 @@ def _(os):
             return value
         return default
  
+
     return (getenv,)
- 
- 
+
+
 @app.cell
 def _(dspy, getenv):
     def configure_lm():
@@ -186,14 +197,15 @@ def _(dspy, getenv):
         dspy.configure(lm=lm)
         return lm
  
+
     return (configure_lm,)
- 
- 
+
+
 @app.cell
 def _(configure_lm):
     configure_lm()
     return
- 
- 
+
+
 if __name__ == "__main__":
     app.run()
