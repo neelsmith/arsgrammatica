@@ -1,22 +1,22 @@
 """
 Offline, LM-free tests for arsgrammatica/gepa_metric.py.
- 
+
 These don't touch dspy.GEPA or the network at all -- just the metric
 function itself, run against gold examples from fixtures/gold_examples.py
 and hand-built "predictions" (some perfect, some deliberately wrong), to
 confirm the score and feedback behave sensibly before ever spending a real
 LM call on an actual GEPA run.
 """
- 
+
 import dspy
 import pytest
- 
+
 from arsgrammatica.gepa_metric import syntax_metric
 from arsgrammatica.models import TokenAnalysis, VerbalExpression
 from conftest import tokens_from_canned_answer
 from fixtures.gold_examples import GOLD_EXAMPLES
- 
- 
+
+
 def _gold_example(slug):
     example = next(e for e in GOLD_EXAMPLES if e.slug == slug)
     tokens = tokens_from_canned_answer(example.canned_answer)
@@ -25,8 +25,8 @@ def _gold_example(slug):
     return dspy.Example(
         passage=example.passage, tokens=tokens, verbalunits=verbalunits, tokengraph=tokengraph
     ).with_inputs("passage", "tokens")
- 
- 
+
+
 def _pred_from(gold):
     """A dspy.Prediction that's a perfect copy of `gold`'s outputs -- the
     starting point for tests that then mutate one field to introduce a
@@ -36,8 +36,8 @@ def _pred_from(gold):
         verbalunits=[vu.model_copy() for vu in gold.verbalunits],
         tokengraph=[tok.model_copy() for tok in gold.tokengraph],
     )
- 
- 
+
+
 @pytest.mark.parametrize("example", GOLD_EXAMPLES, ids=lambda e: e.slug)
 def test_perfect_prediction_scores_one(example):
     gold = _gold_example(example.slug)
@@ -45,8 +45,8 @@ def test_perfect_prediction_scores_one(example):
     result = syntax_metric(gold, pred)
     assert result.score == pytest.approx(1.0), result.feedback
     assert "Perfect match" in result.feedback
- 
- 
+
+
 def test_missing_relation_is_penalized_and_named():
     gold = _gold_example("unit_verb_hercules_cum")
     pred = _pred_from(gold)
@@ -59,8 +59,8 @@ def test_missing_relation_is_penalized_and_named():
     assert result.score < 1.0
     assert "t0" in result.feedback
     assert "subject" in result.feedback
- 
- 
+
+
 def test_extra_hallucinated_relation_is_penalized_and_named():
     gold = _gold_example("unit_verb_hercules_cum")
     pred = _pred_from(gold)
@@ -73,8 +73,8 @@ def test_extra_hallucinated_relation_is_penalized_and_named():
     assert result.score < 1.0
     assert "t7" in result.feedback
     assert "unexpected relation" in result.feedback
- 
- 
+
+
 def test_relatedtoken_slot_swap_is_not_penalized():
     """relatedtoken1/relationship1 vs. relatedtoken2/relationship2 is an
     overflow slot (see models.py's RelationLabel comment) -- a prediction
@@ -88,8 +88,8 @@ def test_relatedtoken_slot_swap_is_not_penalized():
             tok.relationship1, tok.relationship2 = tok.relationship2, tok.relationship1
     result = syntax_metric(gold, pred)
     assert result.score == pytest.approx(1.0), result.feedback
- 
- 
+
+
 def test_wrong_syntactic_type_is_penalized_and_named():
     gold = _gold_example("syntactic_type_legit_cresceret")
     pred = _pred_from(gold)
@@ -100,8 +100,8 @@ def test_wrong_syntactic_type_is_penalized_and_named():
     assert result.score < 1.0
     assert "t11" in result.feedback
     assert "syntactic_type" in result.feedback
- 
- 
+
+
 def test_missing_verbal_expression_is_penalized_and_named():
     gold = _gold_example("semantic_type_transitive_passive_urbs_condita")
     pred = _pred_from(gold)
@@ -110,11 +110,31 @@ def test_missing_verbal_expression_is_penalized_and_named():
     assert result.score < 1.0
     assert "t4" in result.feedback
     assert "missing from verbalunits" in result.feedback
- 
- 
+
+
 def test_completely_empty_prediction_scores_zero():
     gold = _gold_example("unit_verb_hercules_cum")
     pred = dspy.Prediction(reasoning="(nothing)", verbalunits=[], tokengraph=[])
     result = syntax_metric(gold, pred)
     assert result.score == pytest.approx(0.0), result.feedback
-    
+
+
+def test_result_exposes_the_three_unblended_dimension_scores():
+    """score is a 0.2/0.5/0.3 blend of field_score/relation_score/vu_score
+    -- callers that want to know WHERE a prediction fell down (not just by
+    how much) should be able to read those three sub-scores directly off
+    the returned Prediction, without re-deriving them or parsing the
+    feedback string."""
+    gold = _gold_example("unit_verb_hercules_cum")
+    pred = _pred_from(gold)
+    for tok in pred.tokengraph:
+        if tok.id == "t0":
+            tok.relatedtoken1 = None
+            tok.relationship1 = None
+    result = syntax_metric(gold, pred)
+    assert result.field_score == pytest.approx(1.0)
+    assert result.relation_score < 1.0
+    assert result.vu_score == pytest.approx(1.0)
+    assert result.score == pytest.approx(
+        0.2 * result.field_score + 0.5 * result.relation_score + 0.3 * result.vu_score
+    )
