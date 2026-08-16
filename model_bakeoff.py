@@ -1,43 +1,83 @@
 """
-Compares SyntaxAnalysis's performance across several candidate task models
--- by default, a spread of openly-licensed, open-weight models available on
-Hugging Face -- to help decide which ones (if any) could realistically
-replace the Claude Opus model this program was developed against.
+Compares SyntaxAnalysis's performance across candidate task models -- by
+default, a spread of openly-licensed, open-weight models -- to help decide
+which ones (if any) could realistically replace the Claude Opus model this
+program was developed against.
 
 WHY THIS SCRIPT EXISTS
 -----------------------
-"Can model X run this program" is really two separate questions, and this
-script tries to answer both, per candidate:
+"Can model X run this program" turns out to be three separate questions,
+answered here as three STAGES per candidate (pick which to run with
+--stages):
 
-  1. Zero-shot: does the model do anything useful with the SAME
+  1. baseline (zero-shot): does the model do anything useful with the SAME
      instructions (SyntaxAnalysis's docstring) that were written and tuned
      against Opus, with no optimization of its own?
-  2. Optimized: if GEPA is allowed to rewrite the instructions specifically
-     for this model, how much of the gap (if any) closes?
+  2. gepa: if GEPA is allowed to rewrite the instructions specifically for
+     this model -- reading feedback on the model's OWN attempts and
+     proposing better wording -- how much of the gap closes?
+  3. bootstrap: if Opus itself is allowed to solve some of the training
+     passages (a "teacher"), and the verified-correct traces are attached
+     to the candidate's own prompt as worked few-shot examples -- rather
+     than just better-worded instructions -- how much closes?
 
-A model that's mediocre at (1) but closes most of the gap at (2) is a much
-better candidate than one that's mediocre at both -- the latter suggests a
-real capability ceiling, not just a prompting mismatch. Skip (2) entirely
-with --skip-gepa for a much cheaper first pass across every candidate
-before spending a GEPA budget on any of them.
+(1) vs. (2)/(3) separates "does this model already get it" from "can it be
+brought up to speed"; (2) vs. (3) separates two different ways of doing the
+bringing-up: GEPA only ever improves WORDING (the candidate still solves
+every example itself, even during optimization), while bootstrap-fewshot
+lets Opus actually DO some of the work up front and hands the candidate
+finished examples to pattern-match against. A model that's mediocre at (1)
+but closes most of the gap at (2) or (3) is a much better candidate than
+one that's mediocre at all three -- the latter suggests a real capability
+ceiling, not just a prompting mismatch.
+
+TWO PROVIDERS: HUGGING FACE (hosted) AND OLLAMA (local, one at a time)
+------------------------------------------------------------------------
+--provider huggingface (the default) routes each candidate through Hugging
+Face's Inference Providers layer -- see the CANDIDATE MODELS section below
+-- and can run several candidates in one process, one after another,
+since each is just an API call.
+
+--provider ollama is for models you pull and run locally with `ollama`.
+Realistically you can only have ONE model loaded in Ollama at a time, so
+this script's whole shape is built around that: it does not loop over
+several candidates in one invocation for this provider. Instead:
+
+    1. `ollama pull llama3.1:8b` (or whichever candidate), then make sure
+       `ollama serve` is running (or let `ollama run` start it).
+    2. `python model_bakeoff.py --provider ollama --candidates llama-3.1-8b`
+       -- scores THAT one candidate and MERGES the result into --out
+       (default model_bakeoff_results.csv), leaving every other row already
+       in that file untouched.
+    3. Stop that model, pull/load the next one, repeat step 2 with a
+       different --candidates label.
+
+Every invocation is a normal one-shot run, not a long-lived process -- the
+CSV file is what accumulates results across separate invocations (and
+across days). Re-running the same candidate/provider/stage combination
+overwrites just that row; every other row survives. --provider ollama
+requires --candidates to name EXACTLY one label (or --model/--label for an
+ad hoc one-off, see below) -- this script deliberately refuses to guess
+which model you currently have loaded.
 
 HELD-OUT EVALUATION
 --------------------
 optimize_gepa.py trains (and, since it passes no valset, also does Pareto
 tracking) against ALL of tests/fixtures/gold_examples.py's GOLD_EXAMPLES --
 a reasonable choice for tuning one model, but it makes cross-model
-comparison unreliable: a model's post-GEPA score would partly reflect how
-well its own optimized prompt fits the very examples it's judged on. This
-script instead holds out a fixed slice (HELD_OUT_SLUGS below) that NO
-candidate's GEPA run ever trains against -- every candidate is optimized
-against the same remaining trainset and scored against the same untouched
-held-out set, so scores are actually comparable across models. The
-held-out slice is deliberately stratified: a plain independent clause, a
-subordinating-conjunction and a relative-pronoun dependent clause, a
-coordinated-verb pair, an indirect statement, a circumstantial participle,
-a depth-2 nesting case, and the three newest relations (apposition,
-indirect question, complementary infinitive) -- so a low held-out score
-can be traced to a specific construction, not just "worse overall."
+comparison unreliable: a model's post-optimization score would partly
+reflect how well its own optimized prompt/demos fit the very examples it's
+judged on. This script instead holds out a fixed slice (HELD_OUT_SLUGS
+below) that NO candidate's gepa/bootstrap stage ever trains against --
+every candidate optimizes against the same remaining trainset and is
+scored against the same untouched held-out set, so scores are actually
+comparable across models and across stages. The held-out slice is
+deliberately stratified: a plain independent clause, a subordinating-
+conjunction and a relative-pronoun dependent clause, a coordinated-verb
+pair, an indirect statement, a circumstantial participle, a depth-2
+nesting case, and the three newest relations (apposition, indirect
+question, complementary infinitive) -- so a low held-out score can be
+traced to a specific construction, not just "worse overall."
 
 SUB-SCORES, NOT JUST THE BLENDED NUMBER
 -----------------------------------------
@@ -46,10 +86,11 @@ but also (see that module) the three dimensions it blends: field_score
 (tokentype/lemma/verbalunitid), relation_score (the actual dependency
 relations -- weighted highest, 0.5, since they're the heart of the
 scheme), and vu_score (verbal-expression classification). This script
-reports all three per candidate, since a model that nails field_score but
-collapses on relation_score is failing at multi-hop structural reasoning
-specifically -- a different (and probably less prompt-fixable) problem
-than a model that's just generally worse across the board.
+reports all three per candidate/stage, since a model that nails
+field_score but collapses on relation_score is failing at multi-hop
+structural reasoning specifically -- a different (and probably less
+prompt-fixable) problem than a model that's just generally worse across
+the board.
 
 WHAT THIS SCRIPT DOES NOT DO
 ------------------------------
@@ -58,44 +99,52 @@ WHAT THIS SCRIPT DOES NOT DO
   produces referentially-broken output (invented ids, reused 'root', etc.)
   will already show up as a low relation_score/field_score here, but if you
   want the malformed-output rate as its own number, run validate() over
-  each candidate's raw predictions yourself; it wasn't folded in here to
-  keep this script's scope to "what does syntax_metric already measure."
+  each candidate's raw predictions yourself.
+- It doesn't do real weight-level fine-tuning (dspy.BootstrapFinetune) --
+  the "bootstrap" stage attaches Opus-solved examples to the candidate's
+  PROMPT, it never touches the candidate's own weights. Fine-tuning needs
+  different infrastructure (a locally fine-tunable checkpoint, or a
+  provider with a real fine-tuning API) than either provider this script
+  supports.
 - It doesn't tune the CANDIDATES list to whatever's cheapest or fastest --
-  see the CANDIDATES section below for what's included and why, and treat
-  it as a starting point, not a fixed roster.
+  see the CANDIDATE MODELS section below for what's included and why, and
+  treat it as a starting point, not a fixed roster.
 
 CANDIDATE MODELS
 -----------------
-Every candidate below is specified as a litellm-style model string using
-the "huggingface/<org>/<repo>" convention (see
-https://docs.litellm.ai/docs/providers/huggingface and
-https://huggingface.co/docs/inference-providers) -- this routes through
-Hugging Face's own Inference Providers layer (which in turn dispatches to
-whichever backend -- Together, Fireworks, Sambanova, etc. -- actually
-serves that checkpoint), authenticated with a Hugging Face access token
-that has Inference Providers access. That's a DIFFERENT credential from
-the API_KEY/API_BASE this repo's other scripts use for the school's
-litellm proxy -- see HUGGINGFACE_API_KEY below.
+Each entry in CANDIDATES carries TWO possible model identifiers, one per
+provider:
 
-Model availability on Hugging Face's open-weight side moves fast (new
-generations supersede old ones every few months), and not every model
-listed on the Hub is actually being served by a free/serverless Inference
-Provider at any given moment -- treat CANDIDATES as a snapshot worth
-checking against https://huggingface.co/docs/inference-providers and each
-model's own Hub page before a real run, not a guarantee. Some entries
-below may need an explicit provider suffix
-("huggingface/together/org/repo") or a dedicated Inference Endpoint (set
-via that candidate's own api_base_env) instead of the bare "huggingface/"
-form, depending on how that checkpoint is currently being served.
+  - model         -- a litellm-style "huggingface/<org>/<repo>" string (see
+                     https://docs.litellm.ai/docs/providers/huggingface and
+                     https://huggingface.co/docs/inference-providers),
+                     used when --provider huggingface.
+  - ollama_model  -- the exact Ollama library pull tag (see
+                     https://ollama.com/library), used when --provider
+                     ollama, as "ollama_chat/<ollama_model>".
 
-Swap CANDIDATES for whatever's actually available and worth testing when
-you run this -- newer generations (e.g. later Qwen, Gemma, or DeepSeek
-releases than what's listed here) may well have shipped by the time you
-read this file.
+Model availability and naming move fast on both sides (new generations
+supersede old ones every few months, and Ollama's own tag conventions for
+a given release don't always match the Hugging Face repo name -- e.g. a
+"bare" tag like deepseek-r1:8b can silently repoint to a different base
+model between Ollama library updates). Treat CANDIDATES as a snapshot
+worth checking against https://huggingface.co/docs/inference-providers,
+each model's own HF Hub page, and `ollama list`/https://ollama.com/library
+before a real run, not a guarantee. Some Hugging Face entries below may
+need an explicit provider suffix ("huggingface/together/org/repo") or a
+dedicated Inference Endpoint (set via that candidate's own api_base_env)
+instead of the bare "huggingface/" form, depending on how that checkpoint
+is currently being served. The largest candidates here (70B/120B-class)
+are realistic mainly through --provider huggingface -- running them
+locally via Ollama needs serious hardware.
+
+If a model you want to test isn't in CANDIDATES at all (e.g. a specific
+Ollama tag/quantization you've already pulled), skip the catalog with
+--model/--label -- see USAGE below.
 
 ENVIRONMENT
 ------------
-Needs a Hugging Face access token in .env:
+--provider huggingface needs a Hugging Face access token in .env:
 
     HUGGINGFACE_API_KEY=hf_...
 
@@ -104,31 +153,52 @@ https://huggingface.co/settings/tokens). Some candidates may specify their
 own api_key_env/api_base_env if they need a different credential or a
 dedicated endpoint instead.
 
-GEPA's reflection model (the LM that reads syntax_metric's feedback and
-proposes better instructions) is kept FIXED across every candidate --
-defaulting to this repo's already-configured main model (Opus, via
-API_BASE/MODEL/API_KEY, same as optimize_gepa.py), not each small
-candidate reflecting on its own mistakes. The question this script answers
-is "can a good optimizer lift this model's score," not "can this model
-optimize itself" -- and GEPA's own docs recommend a strong reasoning model
-for reflection regardless of the task model being tuned. Override with
-REFLECTION_MODEL (and REFLECTION_API_BASE/REFLECTION_API_KEY if they
-differ), exactly like optimize_gepa.py.
+--provider ollama needs nothing in .env by default -- it talks to
+http://localhost:11434 (Ollama's default local address), no API key. Set
+OLLAMA_API_BASE in .env (or pass --ollama-api-base) to point at a
+different address (e.g. Ollama running on another machine on your
+network).
+
+The TEACHER model -- Opus, used by both the "gepa" stage (as GEPA's
+reflection_lm, reading feedback and proposing better instructions) and the
+"bootstrap" stage (actually solving training passages, whose verified
+output becomes the candidate's few-shot demos) -- is kept FIXED across
+every candidate and every provider, defaulting to this repo's already-
+configured main model (API_BASE/MODEL/API_KEY, same as optimize_gepa.py).
+The question these two stages answer is "can Opus lift this model's
+score," not "can this model teach/optimize itself" -- and GEPA's own docs
+recommend a strong reasoning model for reflection regardless of the task
+model being tuned. Override with REFLECTION_MODEL (and
+REFLECTION_API_BASE/REFLECTION_API_KEY if they differ), exactly like
+optimize_gepa.py.
 
 USAGE
 ------
-    python model_bakeoff.py --skip-gepa                  # cheap first pass: zero-shot only, every candidate
-    python model_bakeoff.py                               # zero-shot + --auto light GEPA pass, every candidate
-    python model_bakeoff.py --auto medium
-    python model_bakeoff.py --max-metric-calls 40
-    python model_bakeoff.py --candidates "llama-3.1-8b" "gpt-oss-20b"   # only these candidates
-    python model_bakeoff.py --min-baseline-to-optimize 0.3   # skip GEPA for candidates that can't clear 0.3 zero-shot
+Hugging Face, several candidates in one run:
+    python model_bakeoff.py --stages baseline                     # cheap first pass, every candidate
+    python model_bakeoff.py --stages baseline gepa bootstrap       # everything, every candidate
+    python model_bakeoff.py --candidates llama-3.1-8b gpt-oss-20b  # only these two
+    python model_bakeoff.py --min-baseline-to-optimize 0.3         # skip gepa/bootstrap below this baseline
+
+Ollama, one candidate per invocation (see TWO PROVIDERS above):
+    python model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages baseline
+    python model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages gepa bootstrap
+
+Ad hoc model not in CANDIDATES at all (either provider):
+    python model_bakeoff.py --provider ollama --model ollama_chat/llama3.1:8b-instruct-q8_0 --label llama-3.1-8b-q8
+
+Optimizer knobs:
+    python model_bakeoff.py --auto medium                          # gepa's (and miprov2's) budget preset
+    python model_bakeoff.py --max-metric-calls 40                  # exact gepa budget instead of --auto
+    python model_bakeoff.py --bootstrap-optimizer miprov2          # heavier alternative to bootstrap-fewshot
+    python model_bakeoff.py --max-bootstrapped-demos 4 --max-labeled-demos 4
+
     python model_bakeoff.py --out results.csv
 
-Expect this to make real API calls against whatever provider serves each
-candidate, plus the reflection model's calls (unless --skip-gepa). Start
-with --skip-gepa and a couple of candidates before running the full
-roster with GEPA enabled.
+Expect this to make real calls against whichever provider serves each
+candidate, plus the teacher model's calls (for gepa/bootstrap stages).
+Start with --stages baseline and one candidate before running more stages
+or more candidates.
 """
 
 import argparse
@@ -164,35 +234,37 @@ from arsgrammatica.models import TokenAnalysis, VerbalExpression
 # Candidate models
 # ---------------------------------------------------------------------------
 #
-# label            -- short name used in output and --candidates filtering
-# model             -- litellm-style model string
-# family / tier     -- for grouping/reading the report, not used functionally
-# notes             -- why this one's here
-# api_key_env       -- env var holding this candidate's API key (default:
-#                      HUGGINGFACE_API_KEY); override per-candidate if a
-#                      given checkpoint needs a different provider/token
-# api_base_env      -- optional env var for a custom api_base (a specific
-#                      Inference Providers route, or a dedicated Inference
-#                      Endpoint URL); omitted entries let litellm resolve
-#                      "huggingface/..." on its own
+# label            -- short name used in output, --candidates filtering, and
+#                      as the CSV's primary key (together with provider/stage)
+# model            -- litellm-style "huggingface/org/repo" string, used when
+#                      --provider huggingface
+# ollama_model     -- exact Ollama library pull tag, used (as
+#                      "ollama_chat/<ollama_model>") when --provider ollama
+# family / tier    -- for grouping/reading the report, not used functionally
+# notes            -- why this one's here / caveats worth knowing before running it
+# api_key_env      -- (huggingface only) env var holding this candidate's API
+#                      key (default: HUGGINGFACE_API_KEY); override per-
+#                      candidate if a given checkpoint needs a different token
+# api_base_env     -- (huggingface only) optional env var for a custom
+#                      api_base (a specific Inference Providers route, or a
+#                      dedicated Inference Endpoint URL)
 #
-# Chosen to span roughly 4B to 120B+ across several major open-weight
+# Chosen to span roughly 3B to 120B+ across several major open-weight
 # families, plus one reasoning-distilled model at the same size as its
 # plain counterpart (deepseek-r1-distill-llama-8b vs. llama-3.1-8b) to see
 # whether chain-of-thought distillation specifically helps on this kind of
 # multi-hop structural-reasoning task. Left out for now, but worth adding
-# once you've confirmed current Inference Providers availability: newer
-# generations in each family (e.g. later Qwen/Gemma/Mistral/DeepSeek
-# releases) that may have shipped since this file was written, and very
-# large frontier-scale open-weight MoE models (Llama 4 Maverick, DeepSeek
-# V3-class, Kimi K2-class, GLM-4-class) -- those are less "smaller model
-# I could plausibly self-host or run cheaply" and more "another frontier
-# lab's model," which is a different question than the one this script is
-# built to answer.
+# once you've confirmed current availability: newer generations in each
+# family that may have shipped since this file was written, and very large
+# frontier-scale open-weight MoE models (Llama 4 Maverick, DeepSeek V3/V4-
+# class, Kimi-class, GLM-class) -- those are less "smaller model I could
+# plausibly self-host or run cheaply" and more "another frontier lab's
+# model," a different question than the one this script answers.
 CANDIDATES = [
     dict(
         label="phi-4-mini",
         model="huggingface/microsoft/Phi-4-mini-instruct",
+        ollama_model="phi4-mini:3.8b",
         family="Microsoft Phi",
         tier="~4B",
         notes="Smallest candidate here -- a floor for 'can a tiny model do this at all'.",
@@ -200,6 +272,7 @@ CANDIDATES = [
     dict(
         label="llama-3.2-3b",
         model="huggingface/meta-llama/Llama-3.2-3B-Instruct",
+        ollama_model="llama3.2:3b",
         family="Meta Llama",
         tier="~3B",
         notes="Even smaller than phi-4-mini; mainly useful to confirm the floor rather than as a serious candidate.",
@@ -207,6 +280,7 @@ CANDIDATES = [
     dict(
         label="llama-3.1-8b",
         model="huggingface/meta-llama/Llama-3.1-8B-Instruct",
+        ollama_model="llama3.1:8b",
         family="Meta Llama",
         tier="~8B",
         notes="Widely used small-model baseline; lots of prior art on its structured-output behavior elsewhere.",
@@ -214,23 +288,30 @@ CANDIDATES = [
     dict(
         label="deepseek-r1-distill-llama-8b",
         model="huggingface/deepseek-ai/DeepSeek-R1-Distill-Llama-8B",
+        ollama_model="deepseek-r1:8b-llama-distill-q4_K_M",
         family="DeepSeek (R1 distill)",
         tier="~8B",
         notes="Same size as llama-3.1-8b -- a direct test of whether reasoning-distillation "
-              "specifically helps a multi-hop structural task like this one.",
+              "specifically helps a multi-hop structural task like this one. NOTE: on Ollama, the "
+              "BARE tag 'deepseek-r1:8b' has been repointed to a Qwen3-based checkpoint, not this "
+              "Llama-based distill -- the explicit '-llama-distill' suffix above is required to get "
+              "the model this label is actually about; double check against `ollama list`/the "
+              "library page before running.",
     ),
     dict(
         label="qwen-8b",
         model="huggingface/Qwen/Qwen2.5-7B-Instruct",
+        ollama_model="qwen2.5:7b",
         family="Alibaba Qwen",
         tier="~7B",
         notes="A third distinct family at the same rough tier as the two Llama-based 8B entries. "
-              "Check for a newer Qwen generation at this size before running -- Qwen's release "
-              "cadence is fast and this may already be superseded.",
+              "Qwen3 (ollama tag qwen3:8b) has since superseded Qwen2.5 as Ollama's featured series at "
+              "this size -- worth trying both if you want the current-generation comparison too.",
     ),
     dict(
         label="gpt-oss-20b",
         model="huggingface/openai/gpt-oss-20b",
+        ollama_model="gpt-oss:20b",
         family="OpenAI (open weights)",
         tier="~20B",
         notes="Apache-2.0, native reasoning-effort control -- worth comparing against the "
@@ -240,34 +321,46 @@ CANDIDATES = [
     dict(
         label="mistral-small-24b",
         model="huggingface/mistralai/Mistral-Small-3.2-24B-Instruct-2506",
+        ollama_model="mistral-small:24b-instruct-2501-q4_K_M",
         family="Mistral AI",
         tier="~24B",
-        notes="A fourth family, at a size tier between gpt-oss-20b and the 70B-class entries below.",
+        notes="A fourth family, between gpt-oss-20b and the 70B-class entries below. NOTE: Ollama's "
+              "library currently only carries 'Mistral Small 3' (2501), not the newer 3.2 (2506) the "
+              "HF-hosted entry above points at -- the two providers aren't testing quite the same "
+              "checkpoint here; treat any HF-vs-Ollama comparison for this label with that in mind.",
     ),
     dict(
         label="llama-3.3-70b",
         model="huggingface/meta-llama/Llama-3.3-70B-Instruct",
+        ollama_model="llama3.3:70b",
         family="Meta Llama",
         tier="~70B",
         notes="The largest dense (non-MoE) open-weight Llama generation available at this "
-              "writing; the natural 'how far does more scale get you' data point.",
+              "writing; the natural 'how far does more scale get you' data point. Needs serious "
+              "local hardware to run via --provider ollama.",
     ),
     dict(
         label="deepseek-r1-distill-llama-70b",
         model="huggingface/deepseek-ai/DeepSeek-R1-Distill-Llama-70B",
+        ollama_model="deepseek-r1:70b-llama-distill-q4_K_M",
         family="DeepSeek (R1 distill)",
         tier="~70B",
         notes="Reasoning distillation at 70B -- pairs with deepseek-r1-distill-llama-8b to "
-              "separate 'does distillation help' from 'does scale help'.",
+              "separate 'does distillation help' from 'does scale help'. Also realistic locally only "
+              "with serious hardware; the bare Ollama tag 'deepseek-r1:70b' currently still points at "
+              "this Llama-based distill (unlike the 8B bare tag), but the explicit suffix above is "
+              "kept for clarity/future-proofing -- verify before a real run either way.",
     ),
     dict(
         label="gpt-oss-120b",
         model="huggingface/openai/gpt-oss-120b",
+        ollama_model="gpt-oss:120b",
         family="OpenAI (open weights)",
         tier="~120B",
         notes="Largest candidate here. If even this doesn't close the gap with Opus on "
               "relation_score specifically, the ceiling is probably multi-hop structural "
-              "reasoning depth, not raw parameter count within the 'openly available' range.",
+              "reasoning depth, not raw parameter count within the 'openly available' range. "
+              "Realistic mainly via --provider huggingface.",
     ),
 ]
 
@@ -305,10 +398,10 @@ def _example_from(gold_example):
 
 def build_split():
     """Partition GOLD_EXAMPLES into (trainset, heldout) by slug membership
-    in HELD_OUT_SLUGS. Every candidate's GEPA run trains only on trainset;
-    every candidate (baseline AND optimized) is scored only on heldout, so
-    scores are comparable across candidates rather than each reflecting how
-    well it memorized its own training slice."""
+    in HELD_OUT_SLUGS. Every candidate's gepa/bootstrap stage trains only on
+    trainset; every candidate/stage is scored only on heldout, so scores are
+    comparable across candidates and across stages rather than each
+    reflecting how well it memorized its own training slice."""
     held_out = set(HELD_OUT_SLUGS)
     known = {e.slug for e in GOLD_EXAMPLES}
     missing = held_out - known
@@ -328,12 +421,46 @@ def build_split():
 # LM configuration
 # ---------------------------------------------------------------------------
 
-def _configure_candidate_lm(candidate):
-    """Build a dspy.LM for one candidate. Resolves the API key from the env
-    var the candidate names (default HUGGINGFACE_API_KEY), and an optional
-    api_base override from the env var its api_base_env names, if any --
-    letting litellm resolve the "huggingface/..." model string on its own
-    otherwise."""
+def _resolve_model_string(candidate, provider):
+    """The litellm-style model string to actually call for `candidate`
+    under `provider` -- an explicit "override_model" (from --model) always
+    wins regardless of provider; otherwise it's candidate["model"] for
+    huggingface or "ollama_chat/<candidate['ollama_model']>" for ollama."""
+    if candidate.get("override_model"):
+        return candidate["override_model"]
+    if provider == "ollama":
+        ollama_model = candidate.get("ollama_model")
+        if not ollama_model:
+            raise RuntimeError(
+                f"{candidate['label']!r} has no ollama_model entry in CANDIDATES -- add one "
+                "(check `ollama list`/https://ollama.com/library for the exact tag), or use "
+                "--model/--label for a one-off override."
+            )
+        return f"ollama_chat/{ollama_model}"
+    model = candidate.get("model")
+    if not model:
+        raise RuntimeError(
+            f"{candidate['label']!r} has no model entry in CANDIDATES for --provider huggingface."
+        )
+    return model
+
+
+def _configure_candidate_lm(candidate, provider, ollama_api_base):
+    """Build a dspy.LM for one candidate under one provider.
+
+    ollama: no API key needed (a local, unauthenticated daemon); api_base
+    defaults to ollama_api_base (see --ollama-api-base / OLLAMA_API_BASE).
+
+    huggingface: resolves the API key from the env var the candidate names
+    (default HUGGINGFACE_API_KEY), and an optional api_base override from
+    the env var its api_base_env names, if any -- letting litellm resolve
+    the "huggingface/..." model string on its own otherwise.
+    """
+    model_string = _resolve_model_string(candidate, provider)
+
+    if provider == "ollama":
+        return dspy.LM(model=model_string, api_base=ollama_api_base)
+
     api_key_env = candidate.get("api_key_env", "HUGGINGFACE_API_KEY")
     api_key = _env(api_key_env, api_key_env)
     if not api_key:
@@ -341,7 +468,7 @@ def _configure_candidate_lm(candidate):
             f"missing API key: set {api_key_env} in .env (a Hugging Face access token with "
             "Inference Providers access -- see https://huggingface.co/settings/tokens)"
         )
-    kwargs = dict(model=candidate["model"], api_key=api_key)
+    kwargs = dict(model=model_string, api_key=api_key)
     api_base_env = candidate.get("api_base_env")
     if api_base_env:
         api_base = _env(api_base_env, api_base_env)
@@ -350,13 +477,16 @@ def _configure_candidate_lm(candidate):
     return dspy.LM(**kwargs)
 
 
-def _configure_reflection_lm():
-    """The LM GEPA uses to read syntax_metric's feedback and propose better
-    instructions -- fixed across every candidate (see this file's module
-    docstring for why). Mirrors optimize_gepa.py's own
-    _configure_reflection_lm() exactly, defaulting to this repo's main
-    configured model (API_BASE/MODEL/API_KEY) unless REFLECTION_MODEL (and
-    optionally REFLECTION_API_BASE/REFLECTION_API_KEY) override it."""
+def _configure_teacher_lm():
+    """The strong model used to help every candidate, in two different
+    ways depending on which stage is running (see this file's module
+    docstring): as GEPA's reflection_lm for the "gepa" stage, and as the
+    program that actually solves training passages for the "bootstrap"
+    stage. Fixed across every candidate and provider. Mirrors
+    optimize_gepa.py's own _configure_reflection_lm() exactly, defaulting
+    to this repo's main configured model (API_BASE/MODEL/API_KEY) unless
+    REFLECTION_MODEL (and optionally REFLECTION_API_BASE/
+    REFLECTION_API_KEY) override it."""
     reflection_model = _env("REFLECTION_MODEL", "REFLECTION_MODEL", None) or _env("MODEL", "MODEL")
     api_base = _env("REFLECTION_API_BASE", "REFLECTION_API_BASE", None) or _env(
         "API_BASE", "API_BASE", "https://suarezai.holycross.edu/litellm"
@@ -364,7 +494,7 @@ def _configure_reflection_lm():
     api_key = _env("REFLECTION_API_KEY", "REFLECTION_API_KEY", None) or _env("API_KEY", "API_KEY")
     if not api_key:
         raise RuntimeError(
-            "Missing API key for the reflection LM. Set REFLECTION_API_KEY or API_KEY in .env."
+            "Missing API key for the teacher model. Set REFLECTION_API_KEY or API_KEY in .env."
         )
     return dspy.LM(model=reflection_model, api_base=api_base, api_key=api_key)
 
@@ -375,13 +505,13 @@ def _configure_reflection_lm():
 
 def _score_program(program, examples, lm):
     """Run `program` over every example under `lm` (scoped via
-    dspy.context, not a global dspy.configure(), so looping over many
-    candidates in one process never leaks one candidate's LM into the
-    next), scoring each with syntax_metric(). Returns aggregate stats:
-    mean/min/max of the blended score, the mean of each of the three
-    sub-scores, total wall-clock seconds, how many LM calls this made, and
-    total cost across those calls (None if the configured provider doesn't
-    report per-call cost -- not every litellm provider does).
+    dspy.context, not a global dspy.configure(), so this never leaks one
+    candidate's LM into the next), scoring each with syntax_metric().
+    Returns aggregate stats: mean/min/max of the blended score, the mean of
+    each of the three sub-scores, total wall-clock seconds, how many LM
+    calls this made, and total cost across those calls (None if the
+    configured provider doesn't report per-call cost -- Ollama never will,
+    since it's local; not every remote provider does either).
 
     A call that raises outright (a real model can fail a request entirely
     -- rate limit, timeout, output DSPy can't parse into the signature's
@@ -441,22 +571,161 @@ def _format_stats_line(stats):
 
 
 # ---------------------------------------------------------------------------
-# CSV output
+# Optimizer stages
+# ---------------------------------------------------------------------------
+
+def _run_gepa_stage(candidate, task_lm, teacher_lm, trainset, heldout, args):
+    """The 'gepa' stage: task_lm solves every example itself (both during
+    optimization and at final scoring); teacher_lm only ever reads
+    syntax_metric's feedback text and proposes better instructions for
+    task_lm to follow. Mirrors optimize_gepa.py's own GEPA setup."""
+    optimizer_kwargs = dict(
+        metric=syntax_metric,
+        reflection_lm=teacher_lm,
+        track_stats=True,
+        log_dir=str(Path(__file__).parent / "gepa_logs" / f"{candidate['label']}-gepa"),
+    )
+    if args.max_metric_calls is not None:
+        optimizer_kwargs["max_metric_calls"] = args.max_metric_calls
+    else:
+        optimizer_kwargs["auto"] = args.auto
+    gepa = dspy.GEPA(**optimizer_kwargs)
+
+    # A fresh ChainOfThought instance -- NOT the shared module-level
+    # `analyze` from latin_syntax_dspy.py -- so optimizing one candidate's
+    # prompt never clobbers another's or the shared instance the rest of
+    # the package uses.
+    student = dspy.ChainOfThought(SyntaxAnalysis)
+    with dspy.context(lm=task_lm):
+        optimized = gepa.compile(student=student, trainset=trainset)
+
+    return optimized, _score_program(optimized, heldout, task_lm)
+
+
+def _run_bootstrap_stage(candidate, task_lm, teacher_lm, trainset, heldout, args):
+    """The 'bootstrap' stage: teacher_lm (Opus) actually SOLVES some
+    training passages; only the ones syntax_metric confirms correct get
+    attached to the candidate's own program as few-shot demonstrations
+    (task_lm never has to solve a training example itself here, only the
+    held-out scoring examples afterward -- a different kind of help than
+    gepa's, see module docstring).
+
+    IMPORTANT wiring note (found by testing against DummyLM before trusting
+    this): dspy.BootstrapFewShot/MIPROv2 do NOT use whatever LM a `teacher`
+    program object happens to have bound via .set_lm() -- they read
+    dspy.settings.lm inside a `with dspy.context(**teacher_settings):`
+    block instead (see dspy/teleprompt/bootstrap.py's _bootstrap_one_
+    example). So the teacher's model is set via the constructor's
+    teacher_settings=dict(lm=teacher_lm) kwarg, not by pre-binding a
+    separate teacher program -- there's no need to build one at all; the
+    optimizer defaults to deep-copying the student as its teacher and runs
+    that copy under teacher_settings' LM regardless.
+    """
+    student = dspy.ChainOfThought(SyntaxAnalysis)
+
+    if args.bootstrap_optimizer == "miprov2":
+        # Wired per dspy/teleprompt/mipro_optimizer_v2.py's source: prompt_model
+        # is the model that proposes instructions (Opus, same as GEPA's
+        # reflection_lm), task_model is what's actually evaluated during the
+        # search (the candidate, via `with dspy.context(lm=self.task_model)`
+        # internally), and teacher_settings governs the demo-bootstrapping
+        # step exactly like BootstrapFewShot's does. NOTE: only the
+        # bootstrap-fewshot path above was smoke-tested end to end against
+        # DummyLM before shipping this script -- a full MIPROv2 trial loop
+        # needs far more canned responses than is practical to hand-build for
+        # that kind of check, so this path follows the documented API
+        # faithfully but start with --bootstrap-optimizer bootstrap-fewshot
+        # to validate your own setup first.
+        optimizer = dspy.MIPROv2(
+            metric=syntax_metric,
+            prompt_model=teacher_lm,
+            task_model=task_lm,
+            teacher_settings=dict(lm=teacher_lm),
+            max_bootstrapped_demos=args.max_bootstrapped_demos,
+            max_labeled_demos=args.max_labeled_demos,
+            auto=args.auto,
+            track_stats=True,
+            log_dir=str(Path(__file__).parent / "gepa_logs" / f"{candidate['label']}-miprov2"),
+        )
+        optimized = optimizer.compile(student=student, trainset=trainset)
+    else:
+        optimizer = dspy.BootstrapFewShot(
+            metric=syntax_metric,
+            teacher_settings=dict(lm=teacher_lm),
+            max_bootstrapped_demos=args.max_bootstrapped_demos,
+            max_labeled_demos=args.max_labeled_demos,
+            max_rounds=1,
+        )
+        optimized = optimizer.compile(student=student, trainset=trainset)
+
+    return optimized, _score_program(optimized, heldout, task_lm)
+
+
+# ---------------------------------------------------------------------------
+# CSV output (read-merge-write, so separate invocations accumulate results)
 # ---------------------------------------------------------------------------
 
 _CSV_FIELDS = [
-    "label", "model", "family", "tier", "stage",
+    "label", "provider", "model", "family", "tier", "stage",
     "n", "mean", "min", "max", "field_mean", "relation_mean", "vu_mean",
     "elapsed_s", "n_calls", "total_cost", "error",
 ]
 
+_STAGE_ORDER = {"baseline": 0, "gepa": 1, "bootstrap": 2, "skipped": 3}
 
-def _write_csv(rows, path):
+
+def _read_existing_rows(path):
+    """Every row already in `path`, keyed by (label, provider, stage) --
+    empty if the file doesn't exist yet. This is what makes separate
+    invocations (one per Ollama candidate you cycle through, or a
+    Hugging Face run days apart) accumulate into one results file instead
+    of each overwriting the last."""
+    p = Path(path)
+    if not p.exists():
+        return {}
+    with open(p, newline="") as f:
+        return {
+            (row.get("label"), row.get("provider"), row.get("stage")): row
+            for row in csv.DictReader(f)
+        }
+
+
+def _merge_and_write_csv(path, new_rows):
+    """Merge `new_rows` into whatever's already in `path` (by (label,
+    provider, stage) -- re-running the same combination overwrites just
+    that row) and rewrite the whole file, ordered by CANDIDATES' own order
+    (ad hoc/unknown labels sort last) then by stage."""
+    existing = _read_existing_rows(path)
+    for row in new_rows:
+        key = (row.get("label"), row.get("provider"), row.get("stage"))
+        existing[key] = {field: row.get(field) for field in _CSV_FIELDS}
+
+    label_order = {c["label"]: i for i, c in enumerate(CANDIDATES)}
+
+    def sort_key(item):
+        (label, _provider, stage), _row = item
+        return (label_order.get(label, len(CANDIDATES)), label, _STAGE_ORDER.get(stage, 99))
+
+    ordered = [row for _key, row in sorted(existing.items(), key=sort_key)]
     with open(path, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=_CSV_FIELDS)
         writer.writeheader()
-        for row in rows:
-            writer.writerow({field: row.get(field) for field in _CSV_FIELDS})
+        for row in ordered:
+            writer.writerow(row)
+
+
+def _existing_baseline_mean(path, label, provider):
+    """Look up a previously-recorded baseline mean for (label, provider) in
+    `path`, if any -- lets --stages gepa/bootstrap apply
+    --min-baseline-to-optimize even when baseline wasn't run THIS
+    invocation (e.g. you ran --stages baseline yesterday for this Ollama
+    candidate, and today just want --stages bootstrap). Returns None if
+    there's no recorded baseline to check."""
+    existing = _read_existing_rows(path)
+    row = existing.get((label, provider, "baseline"))
+    if row is None or row.get("mean") in (None, ""):
+        return None
+    return float(row["mean"])
 
 
 # ---------------------------------------------------------------------------
@@ -468,117 +737,200 @@ def main():
         description="Compare SyntaxAnalysis across candidate task models on a held-out gold-example slice."
     )
     parser.add_argument(
-        "--candidates", nargs="*", default=None, metavar="LABEL",
-        help="Only run candidates with these labels (default: every entry in CANDIDATES).",
+        "--provider", choices=["huggingface", "ollama"], default="huggingface",
+        help="Where candidates run (default: %(default)s). --provider ollama requires exactly one "
+             "candidate per invocation -- see this file's module docstring.",
     )
     parser.add_argument(
-        "--skip-gepa", action="store_true",
-        help="Only run the zero-shot baseline pass for every candidate -- a much cheaper first "
-             "filter before spending a GEPA budget on any of them.",
+        "--candidates", nargs="*", default=None, metavar="LABEL",
+        help="Only run candidates with these labels (default: every entry in CANDIDATES; "
+             "--provider ollama requires exactly one).",
+    )
+    parser.add_argument(
+        "--model", default=None,
+        help="Ad hoc override: a full litellm model string to run instead of anything in "
+             "CANDIDATES (e.g. 'ollama_chat/llama3.1:8b-instruct-q8_0'). Requires --label.",
+    )
+    parser.add_argument(
+        "--label", default=None,
+        help="Name for the --model ad hoc override, used in output and the results CSV.",
+    )
+    parser.add_argument(
+        "--stages", nargs="+", choices=["baseline", "gepa", "bootstrap"],
+        default=["baseline", "gepa", "bootstrap"],
+        help="Which stage(s) to run this invocation (default: all three). Run just 'baseline' "
+             "for a cheap first pass before spending a gepa/bootstrap budget.",
+    )
+    parser.add_argument(
+        "--bootstrap-optimizer", choices=["bootstrap-fewshot", "miprov2"], default="bootstrap-fewshot",
+        help="Which optimizer implements the 'bootstrap' stage (default: %(default)s -- cheaper and "
+             "the only one smoke-tested end to end here; miprov2 is heavier and also proposes new "
+             "instructions, not just demos).",
+    )
+    parser.add_argument(
+        "--max-bootstrapped-demos", type=int, default=3,
+        help="Max Opus-solved training examples attached as demos in the 'bootstrap' stage (default: %(default)s).",
+    )
+    parser.add_argument(
+        "--max-labeled-demos", type=int, default=3,
+        help="Max plain gold-labeled examples (no teacher solving needed) attached as demos in the "
+             "'bootstrap' stage (default: %(default)s).",
     )
     budget = parser.add_mutually_exclusive_group()
     budget.add_argument(
         "--auto", choices=["light", "medium", "heavy"], default="light",
-        help="dspy.GEPA's auto budget preset, applied per candidate (default: %(default)s). Ignored with --skip-gepa.",
+        help="Budget preset for the 'gepa' stage (and for 'bootstrap' when --bootstrap-optimizer "
+             "miprov2) (default: %(default)s).",
     )
     budget.add_argument(
         "--max-metric-calls", type=int, default=None,
-        help="Exact per-candidate GEPA call budget instead of --auto. Ignored with --skip-gepa.",
+        help="Exact call budget for the 'gepa' stage instead of --auto.",
     )
     parser.add_argument(
         "--min-baseline-to-optimize", type=float, default=0.0,
-        help="Skip a candidate's GEPA pass (but still report its baseline) if its zero-shot mean "
-             "score on the held-out set is below this threshold -- avoids spending a GEPA budget "
-             "on a model that can't even follow the output contract. Default: 0.0 (never skip).",
+        help="Skip a candidate's gepa/bootstrap stage (but still report its baseline, if run) if its "
+             "zero-shot mean score on the held-out set -- from this invocation, or from a previously "
+             "recorded row in --out if baseline wasn't run this time -- is below this threshold. "
+             "Default: 0.0 (never skip).",
+    )
+    parser.add_argument(
+        "--ollama-api-base", default=None,
+        help="Override Ollama's address (default: OLLAMA_API_BASE in .env, or http://localhost:11434).",
     )
     parser.add_argument(
         "--out", default="model_bakeoff_results.csv",
-        help="Where to write the full results table (default: %(default)s).",
+        help="Results file to merge into (default: %(default)s). Existing rows for other "
+             "candidates/providers/stages are preserved; a rerun of the same combination overwrites "
+             "just that row.",
     )
     args = parser.parse_args()
+
+    if args.model and not args.label:
+        raise SystemExit("--model requires --label (a name for this ad hoc candidate).")
+    if args.label and not args.model:
+        raise SystemExit("--label without --model has nothing to name -- did you mean --candidates?")
 
     trainset, heldout = build_split()
     print(
         f"{len(trainset)} training fixtures, {len(heldout)} held-out fixtures "
-        "(never used for any candidate's GEPA run).\n"
+        "(never used for any candidate's gepa/bootstrap stage).\n"
     )
 
-    candidates = CANDIDATES
-    if args.candidates:
-        wanted = set(args.candidates)
-        candidates = [c for c in CANDIDATES if c["label"] in wanted]
-        unknown = wanted - {c["label"] for c in candidates}
-        if unknown:
-            raise SystemExit(
-                f"Unknown candidate label(s): {sorted(unknown)} -- see CANDIDATES in this file "
-                "for valid labels."
-            )
+    if args.model:
+        candidates = [dict(
+            label=args.label, override_model=args.model,
+            family="ad hoc", tier="?", notes="one-off override via --model/--label",
+        )]
+    else:
+        candidates = CANDIDATES
+        if args.candidates:
+            wanted = set(args.candidates)
+            candidates = [c for c in CANDIDATES if c["label"] in wanted]
+            unknown = wanted - {c["label"] for c in candidates}
+            if unknown:
+                raise SystemExit(
+                    f"Unknown candidate label(s): {sorted(unknown)} -- see CANDIDATES in this file "
+                    "for valid labels, or use --model/--label for a one-off."
+                )
 
-    reflection_lm = None if args.skip_gepa else _configure_reflection_lm()
+    if args.provider == "ollama" and len(candidates) != 1:
+        raise SystemExit(
+            "--provider ollama needs exactly one candidate per invocation (only one model can "
+            f"realistically be loaded in Ollama at a time) -- got {len(candidates)}. Pass "
+            "--candidates <one label>, or --model/--label for an ad hoc one."
+        )
+
+    ollama_api_base = args.ollama_api_base or _env("OLLAMA_API_BASE", "OLLAMA_API_BASE", "http://localhost:11434")
+
+    needs_teacher = "gepa" in args.stages or "bootstrap" in args.stages
+    teacher_lm = _configure_teacher_lm() if needs_teacher else None
 
     rows = []
     for candidate in candidates:
-        print(f"=== {candidate['label']} ({candidate['model']}) ===")
+        model_label = f"{candidate['label']} [{args.provider}]"
+        print(f"=== {model_label} ===")
         try:
-            task_lm = _configure_candidate_lm(candidate)
+            task_lm = _configure_candidate_lm(candidate, args.provider, ollama_api_base)
+            resolved_model = _resolve_model_string(candidate, args.provider)
         except RuntimeError as exc:
             print(f"  skipped: {exc}\n")
-            rows.append(dict(candidate, stage="skipped", error=str(exc)))
+            rows.append(dict(
+                label=candidate["label"], provider=args.provider, model=candidate.get("model", ""),
+                family=candidate.get("family", ""), tier=candidate.get("tier", ""),
+                stage="skipped", error=str(exc),
+            ))
             continue
+        print(f"  model string: {resolved_model}")
 
-        baseline_program = dspy.ChainOfThought(SyntaxAnalysis)
-        baseline = _score_program(baseline_program, heldout, task_lm)
-        print(f"  baseline (zero-shot): {_format_stats_line(baseline)}")
-        for slug, problem in baseline["problems"].items():
-            print(f"    {slug}: {problem}")
-        rows.append(dict(candidate, stage="baseline", **{k: v for k, v in baseline.items() if k != "problems"}))
+        baseline_mean_for_gating = None
 
-        if args.skip_gepa:
-            print()
-            continue
+        if "baseline" in args.stages:
+            baseline_program = dspy.ChainOfThought(SyntaxAnalysis)
+            baseline = _score_program(baseline_program, heldout, task_lm)
+            print(f"  baseline (zero-shot): {_format_stats_line(baseline)}")
+            for slug, problem in baseline["problems"].items():
+                print(f"    {slug}: {problem}")
+            rows.append(dict(
+                candidate, provider=args.provider, model=resolved_model, stage="baseline",
+                **{k: v for k, v in baseline.items() if k != "problems"},
+            ))
+            baseline_mean_for_gating = baseline["mean"]
 
-        if baseline["mean"] < args.min_baseline_to_optimize:
+        if "gepa" in args.stages or "bootstrap" in args.stages:
+            if baseline_mean_for_gating is None:
+                baseline_mean_for_gating = _existing_baseline_mean(args.out, candidate["label"], args.provider)
+                if baseline_mean_for_gating is None and args.min_baseline_to_optimize > 0.0:
+                    print(
+                        "  no recorded baseline for this candidate/provider -- proceeding without "
+                        "the --min-baseline-to-optimize gate this invocation."
+                    )
+
+        gated_out = (
+            baseline_mean_for_gating is not None
+            and baseline_mean_for_gating < args.min_baseline_to_optimize
+        )
+        if gated_out and ("gepa" in args.stages or "bootstrap" in args.stages):
             print(
-                f"  baseline below --min-baseline-to-optimize ({args.min_baseline_to_optimize}) "
-                "-- skipping GEPA for this candidate.\n"
+                f"  baseline ({baseline_mean_for_gating:.3f}) below --min-baseline-to-optimize "
+                f"({args.min_baseline_to_optimize}) -- skipping gepa/bootstrap for this candidate.\n"
             )
             continue
 
-        optimizer_kwargs = dict(
-            metric=syntax_metric,
-            reflection_lm=reflection_lm,
-            track_stats=True,
-            log_dir=str(Path(__file__).parent / "gepa_logs" / candidate["label"]),
-        )
-        if args.max_metric_calls is not None:
-            optimizer_kwargs["max_metric_calls"] = args.max_metric_calls
-        else:
-            optimizer_kwargs["auto"] = args.auto
-        gepa = dspy.GEPA(**optimizer_kwargs)
+        if "gepa" in args.stages:
+            print("  running gepa stage -- this makes many real LM calls (task + teacher model)...")
+            optimized, stats = _run_gepa_stage(candidate, task_lm, teacher_lm, trainset, heldout, args)
+            print(f"  after gepa: {_format_stats_line(stats)}")
+            for slug, problem in stats["problems"].items():
+                print(f"    {slug}: {problem}")
+            rows.append(dict(
+                candidate, provider=args.provider, model=resolved_model, stage="gepa",
+                **{k: v for k, v in stats.items() if k != "problems"},
+            ))
+            out_path = Path(__file__).parent / f"optimized_{candidate['label']}_{args.provider}_gepa.json"
+            optimized.save(str(out_path))
+            print(f"  saved optimized program to {out_path.name}")
 
-        # A fresh ChainOfThought instance per candidate -- NOT the shared
-        # module-level `analyze` from latin_syntax_dspy.py -- so optimizing
-        # one candidate's prompt never clobbers another's, and this script
-        # never mutates the shared instance the rest of the package uses.
-        optimize_program = dspy.ChainOfThought(SyntaxAnalysis)
-        print("  running GEPA -- this makes many real LM calls (task + reflection model)...")
-        with dspy.context(lm=task_lm):
-            optimized = gepa.compile(student=optimize_program, trainset=trainset)
+        if "bootstrap" in args.stages:
+            print(
+                f"  running bootstrap stage ({args.bootstrap_optimizer}) -- Opus solves training "
+                "examples, task model only runs held-out scoring..."
+            )
+            optimized, stats = _run_bootstrap_stage(candidate, task_lm, teacher_lm, trainset, heldout, args)
+            print(f"  after bootstrap: {_format_stats_line(stats)}")
+            for slug, problem in stats["problems"].items():
+                print(f"    {slug}: {problem}")
+            rows.append(dict(
+                candidate, provider=args.provider, model=resolved_model, stage="bootstrap",
+                **{k: v for k, v in stats.items() if k != "problems"},
+            ))
+            out_path = Path(__file__).parent / f"optimized_{candidate['label']}_{args.provider}_bootstrap.json"
+            optimized.save(str(out_path))
+            print(f"  saved optimized program to {out_path.name}")
 
-        optimized_stats = _score_program(optimized, heldout, task_lm)
-        print(f"  after GEPA: {_format_stats_line(optimized_stats)}")
-        for slug, problem in optimized_stats["problems"].items():
-            print(f"    {slug}: {problem}")
-        rows.append(
-            dict(candidate, stage="optimized", **{k: v for k, v in optimized_stats.items() if k != "problems"})
-        )
+        print()
 
-        out_path = Path(__file__).parent / f"optimized_{candidate['label']}.json"
-        optimized.save(str(out_path))
-        print(f"  saved optimized program to {out_path.name}\n")
-
-    _write_csv(rows, args.out)
-    print(f"Full results written to {args.out}")
+    _merge_and_write_csv(args.out, rows)
+    print(f"Results merged into {args.out}")
 
 
 if __name__ == "__main__":
