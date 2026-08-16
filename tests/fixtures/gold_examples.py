@@ -1637,6 +1637,208 @@ _APPOSITION_NEPTUNUS_AEGEUS_ANSWER = {
 }
 
 
+# ---------------------------------------------------------------------------
+# "Amphion autem cum templum Apollinis expugnare vellet, ab Apolline
+#  sagittis est interfectus."
+#   t0 Amphion  t1 autem  t2 cum  t3 templum  t4 Apollinis  t5 expugnare
+#   t6 vellet  t7 ,  t8 ab  t9 Apolline  t10 sagittis  t11 est
+#   t12 interfectus  t13 .
+#
+# syntax_model.md's own worked example for the new "complementary
+# infinitive" relation: expugnare completes vellet's sense ('wanted to
+# storm') without itself becoming a separate verbal expression -- only
+# vellet (the dependent verb of the cum-clause) and est (the independent,
+# compound-perfect-passive main verb, 'was killed') anchor verbal units.
+# expugnare still takes its own direct object (templum) exactly as a
+# finite verb would. autem is a postpositive adversative particle with no
+# relation documented anywhere in syntax_model.md, so it's left unrelated
+# per the "Incomplete status" section, rather than guessing at a
+# coordinating-conjunction-like relation the doc doesn't actually specify
+# for it.
+# ---------------------------------------------------------------------------
+
+_COMPLEMENTARY_INFINITIVE_AMPHION_ANSWER = {
+    "reasoning": (
+        "est (with interfectus, its auxiliary participle) is the "
+        "independent main verb -- a compound perfect passive, 'was "
+        "killed' -- with the sentinel relatedtoken1 'root'; Amphion is its "
+        "subject, ab is the agent preposition (relatedtoken1 -> est, "
+        "relationship1 'agent'), Apolline is ab's object of preposition, "
+        "and sagittis is an ablative of means depending on est. autem is "
+        "left unrelated (no documented relation for a bare postpositive "
+        "particle). cum introduces the dependent cum-clause anchored at "
+        "vellet (relatedtoken1 -> est, relationship1 'subordinating "
+        "conjunction'); vellet in turn has relatedtoken1 -> cum, "
+        "relationship1 'unit verb'. expugnare completes vellet's sense "
+        "('wanted to storm') via the new 'complementary infinitive' "
+        "relation (relatedtoken1 -> vellet) -- it is NOT its own verbal "
+        "expression, unlike an indirect-statement infinitive -- and still "
+        "takes templum as its own direct object, with Apollinis a "
+        "genitive depending on templum."
+    ),
+    "verbalunits": [
+        {"id": "t6", "syntactic_type": "dependent", "semantic_type": "transitive active"},
+        {"id": "t11", "syntactic_type": "independent", "semantic_type": "transitive passive"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Amphion", "tokentype": "lexical", "lemma": "Amphion",
+         "relatedtoken1": "t11", "relationship1": "subject"},
+        {"id": "t1", "token": "autem", "tokentype": "lexical", "lemma": "autem"},
+        {"id": "t2", "token": "cum", "tokentype": "lexical", "lemma": "cum",
+         "relatedtoken1": "t11", "relationship1": "subordinating conjunction"},
+        {"id": "t3", "token": "templum", "tokentype": "lexical", "lemma": "templum",
+         "relatedtoken1": "t5", "relationship1": "direct object"},
+        {"id": "t4", "token": "Apollinis", "tokentype": "lexical", "lemma": "Apollo",
+         "relatedtoken1": "t3", "relationship1": "genitive"},
+        {"id": "t5", "token": "expugnare", "tokentype": "lexical", "lemma": "expugno",
+         "relatedtoken1": "t6", "relationship1": "complementary infinitive"},
+        {"id": "t6", "token": "vellet", "tokentype": "lexical", "lemma": "volo",
+         "verbalunitid": "t6", "relatedtoken1": "t2", "relationship1": "unit verb"},
+        {"id": "t7", "token": ",", "tokentype": "punctuation"},
+        {"id": "t8", "token": "ab", "tokentype": "lexical", "lemma": "ab",
+         "relatedtoken1": "t11", "relationship1": "agent"},
+        {"id": "t9", "token": "Apolline", "tokentype": "lexical", "lemma": "Apollo",
+         "relatedtoken1": "t8", "relationship1": "object of preposition"},
+        {"id": "t10", "token": "sagittis", "tokentype": "lexical", "lemma": "sagitta",
+         "relatedtoken1": "t11", "relationship1": "ablative"},
+        {"id": "t11", "token": "est", "tokentype": "lexical", "lemma": "sum",
+         "verbalunitid": "t11", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t12", "token": "interfectus", "tokentype": "lexical", "lemma": "interficio",
+         "relatedtoken1": "t11", "relationship1": "auxiliary"},
+        {"id": "t13", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
+
+# ---------------------------------------------------------------------------
+# "Dolere malum est."
+#   t0 Dolere  t1 malum  t2 est  t3 .
+#
+# syntax_model.md's own worked example for an infinitive used as an
+# ordinary noun (here, the subject of a linking verb) rather than anchoring
+# an indirect statement or completing another verb: dolere takes the plain
+# 'subject' relation, exactly as any noun subject would, and is NOT itself
+# a verbal expression -- only est is.
+# ---------------------------------------------------------------------------
+
+_INFINITIVE_AS_SUBJECT_DOLERE_MALUM_ANSWER = {
+    "reasoning": (
+        "est is a linking verb (copula), with the sentinel relatedtoken1 "
+        "'root'. dolere, an infinitive used as an ordinary noun (not part "
+        "of an indirect statement), is its subject -- relatedtoken1 -> "
+        "est, relationship1 'subject', the same relation any noun subject "
+        "would get, and dolere gets no `verbalunits` entry of its own. "
+        "malum is the predicate adjective agreeing with est's subject."
+    ),
+    "verbalunits": [
+        {"id": "t2", "syntactic_type": "independent", "semantic_type": "linking verb"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Dolere", "tokentype": "lexical", "lemma": "doleo",
+         "relatedtoken1": "t2", "relationship1": "subject"},
+        {"id": "t1", "token": "malum", "tokentype": "lexical", "lemma": "malus",
+         "relatedtoken1": "t2", "relationship1": "predicate"},
+        {"id": "t2", "token": "est", "tokentype": "lexical", "lemma": "sum",
+         "verbalunitid": "t2", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t3", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
+
+# ---------------------------------------------------------------------------
+# "Metapontus exiit ad Dianam Metapontinam ad sacrum faciendum."
+#   t0 Metapontus  t1 exiit  t2 ad  t3 Dianam  t4 Metapontinam  t5 ad
+#   t6 sacrum  t7 faciendum  t8 .
+#
+# syntax_model.md's own worked example for a gerundive: faciendum agrees
+# with sacrum exactly like an ordinary adjective (relationship1
+# 'adjectival') -- no new relation label, and no verbal-expression status
+# of its own. Also exercises two parallel prepositional phrases, both
+# adverbial to the main verb.
+# ---------------------------------------------------------------------------
+
+_GERUNDIVE_METAPONTUS_SACRUM_FACIENDUM_ANSWER = {
+    "reasoning": (
+        "exiit is the independent main verb (intransitive, 'went out'), "
+        "with the sentinel relatedtoken1 'root'; Metapontus is its "
+        "subject. 'ad Dianam Metapontinam' and 'ad sacrum faciendum' are "
+        "both prepositional phrases in an adverbial relation to exiit: "
+        "each ad has relatedtoken1 -> exiit, relationship1 'adverbial', "
+        "and Dianam/sacrum are each that ad's object of preposition. "
+        "Metapontinam is adjectival, modifying Dianam. faciendum, the "
+        "gerundive, is treated exactly like an ordinary adjective -- "
+        "relatedtoken1 -> sacrum, relationship1 'adjectival' -- rather "
+        "than anchoring a verbal expression of its own."
+    ),
+    "verbalunits": [
+        {"id": "t1", "syntactic_type": "independent", "semantic_type": "intransitive"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Metapontus", "tokentype": "lexical", "lemma": "Metapontus",
+         "relatedtoken1": "t1", "relationship1": "subject"},
+        {"id": "t1", "token": "exiit", "tokentype": "lexical", "lemma": "exeo",
+         "verbalunitid": "t1", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t2", "token": "ad", "tokentype": "lexical", "lemma": "ad",
+         "relatedtoken1": "t1", "relationship1": "adverbial"},
+        {"id": "t3", "token": "Dianam", "tokentype": "lexical", "lemma": "Diana",
+         "relatedtoken1": "t2", "relationship1": "object of preposition"},
+        {"id": "t4", "token": "Metapontinam", "tokentype": "lexical", "lemma": "Metapontinus",
+         "relatedtoken1": "t3", "relationship1": "adjectival"},
+        {"id": "t5", "token": "ad", "tokentype": "lexical", "lemma": "ad",
+         "relatedtoken1": "t1", "relationship1": "adverbial"},
+        {"id": "t6", "token": "sacrum", "tokentype": "lexical", "lemma": "sacrum",
+         "relatedtoken1": "t5", "relationship1": "object of preposition"},
+        {"id": "t7", "token": "faciendum", "tokentype": "lexical", "lemma": "facio",
+         "relatedtoken1": "t6", "relationship1": "adjectival"},
+        {"id": "t8", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
+
+# ---------------------------------------------------------------------------
+# "Ars bene disserendi magna est."
+#   t0 Ars  t1 bene  t2 disserendi  t3 magna  t4 est  t5 .
+#
+# syntax_model.md's own worked example for a gerund embedded in a full
+# sentence (the doc's own example, "ars bene disserendi", is a bare phrase
+# with no verb at all, so this fixture supplies "magna est" to make it a
+# complete, analyzable sentence): disserendi is a genitive noun depending
+# on ars, exactly like any other noun in the genitive -- no new relation
+# label. bene, an adverb, modifies disserendi the same way it would modify
+# a finite verb or infinitive, demonstrating that a gerund can still take
+# its own adverb.
+# ---------------------------------------------------------------------------
+
+_GERUND_ARS_BENE_DISSERENDI_ANSWER = {
+    "reasoning": (
+        "est is a linking verb (copula), with the sentinel relatedtoken1 "
+        "'root', joining its subject Ars to the predicate adjective magna. "
+        "disserendi, a gerund, is a genitive noun depending on Ars "
+        "(relatedtoken1 -> Ars, relationship1 'genitive') -- the same "
+        "relation any other genitive noun would get. bene, the adverb "
+        "modifying disserendi, has relatedtoken1 -> disserendi, "
+        "relationship1 'adverbial', showing the gerund can take its own "
+        "adverb like a finite verb or infinitive would."
+    ),
+    "verbalunits": [
+        {"id": "t4", "syntactic_type": "independent", "semantic_type": "linking verb"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Ars", "tokentype": "lexical", "lemma": "ars",
+         "relatedtoken1": "t4", "relationship1": "subject"},
+        {"id": "t1", "token": "bene", "tokentype": "lexical", "lemma": "bene",
+         "relatedtoken1": "t2", "relationship1": "adverbial"},
+        {"id": "t2", "token": "disserendi", "tokentype": "lexical", "lemma": "dissero",
+         "relatedtoken1": "t0", "relationship1": "genitive"},
+        {"id": "t3", "token": "magna", "tokentype": "lexical", "lemma": "magnus",
+         "relatedtoken1": "t4", "relationship1": "predicate"},
+        {"id": "t4", "token": "est", "tokentype": "lexical", "lemma": "sum",
+         "verbalunitid": "t4", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t5", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
+
 GOLD_EXAMPLES = [
     GoldExample(
         slug="unit_verb_hercules_cum",
@@ -1881,6 +2083,40 @@ GOLD_EXAMPLES = [
               "adjectival", "ablative", "intransitive", "independent"],
         canned_answer=_APPOSITION_NEPTUNUS_AEGEUS_ANSWER,
     ),
+    GoldExample(
+        slug="complementary_infinitive_amphion_expugnare_vellet",
+        passage="Amphion autem cum templum Apollinis expugnare vellet, ab Apolline sagittis est interfectus.",
+        tags=["complementary infinitive", "subordinating conjunction",
+              "unit verb", "direct object", "genitive", "agent",
+              "object of preposition", "ablative", "subject", "auxiliary",
+              "dependent", "independent", "transitive active",
+              "transitive passive"],
+        canned_answer=_COMPLEMENTARY_INFINITIVE_AMPHION_ANSWER,
+    ),
+    GoldExample(
+        slug="infinitive_as_subject_dolere_malum",
+        passage="Dolere malum est.",
+        tags=["infinitive used as a noun (subject, no verbal-expression "
+              "status)", "subject", "predicate", "unit verb", "linking "
+              "verb", "independent"],
+        canned_answer=_INFINITIVE_AS_SUBJECT_DOLERE_MALUM_ANSWER,
+    ),
+    GoldExample(
+        slug="gerundive_metapontus_sacrum_faciendum",
+        passage="Metapontus exiit ad Dianam Metapontinam ad sacrum faciendum.",
+        tags=["gerundive (treated as an ordinary adjective)", "adjectival",
+              "adverbial", "object of preposition", "subject", "unit verb",
+              "intransitive", "independent"],
+        canned_answer=_GERUNDIVE_METAPONTUS_SACRUM_FACIENDUM_ANSWER,
+    ),
+    GoldExample(
+        slug="gerund_ars_bene_disserendi",
+        passage="Ars bene disserendi magna est.",
+        tags=["gerund (treated as an ordinary noun, can take its own "
+              "adverb)", "genitive", "adverbial", "subject", "predicate",
+              "unit verb", "linking verb", "independent"],
+        canned_answer=_GERUND_ARS_BENE_DISSERENDI_ANSWER,
+    ),
     # RelationLabel coverage is complete -- every documented relation has at
     # least one tagged example, including the relatedtoken2/relationship2
     # overflow pattern, "coordinating conjunction" (which uses relation1 AND
@@ -1888,19 +2124,24 @@ GOLD_EXAMPLES = [
     # see enclitic_arma_virumque_cano for the paired-nouns case, the two new
     # coordinating_conjunction_* fixtures above for the paired-verbs,
     # sentence-initial, and et-as-adverb cases), "apposition" (see
-    # apposition_neptunus_aegeus_filius), and "subordinating conjunction"'s
+    # apposition_neptunus_aegeus_filius), "subordinating conjunction"'s
     # reuse for the interrogative word introducing an indirect question
-    # (see indirect_question_theseus_audit_quanta). VerbalExpression.
-    # syntactic_type coverage is also complete: independent, dependent,
-    # direct quote, aside, and indirect statement all have a tagged
-    # example. TokenAnalysis.tokentype coverage is also complete, including
-    # "abbreviation" (see praenomen_abbreviation_m_agrippa_cos) and the
-    # enclitic-tokenization nuances syntax_model.md's tokenization section
-    # documents: a context-dependent split ("ratione") and a word that has
-    # incorporated its historic enclitic and must never be split ("quisque"
-    # and its compounds). Still open (see test_coverage.py for the
-    # authoritative list): gerunds and gerundives (syntax_model.md's own
-    # "TBA" section) have no gold example yet, since the scheme doesn't
-    # document how to analyze them.
+    # (see indirect_question_theseus_audit_quanta), and "complementary
+    # infinitive" (see complementary_infinitive_amphion_expugnare_vellet).
+    # Two related constructions need no dedicated label at all and are
+    # exercised for documentation/regression value rather than
+    # test_coverage.py's sake: an infinitive used as an ordinary noun
+    # (infinitive_as_subject_dolere_malum) and gerunds/gerundives
+    # (gerund_ars_bene_disserendi, gerundive_metapontus_sacrum_faciendum),
+    # which simply reuse 'genitive'/'adverbial' and 'adjectival'
+    # respectively. VerbalExpression.syntactic_type coverage is also
+    # complete: independent, dependent, direct quote, aside, and indirect
+    # statement all have a tagged example. TokenAnalysis.tokentype coverage
+    # is also complete, including "abbreviation" (see
+    # praenomen_abbreviation_m_agrippa_cos) and the enclitic-tokenization
+    # nuances syntax_model.md's tokenization section documents: a
+    # context-dependent split ("ratione") and a word that has incorporated
+    # its historic enclitic and must never be split ("quisque" and its
+    # compounds).
 ]
  

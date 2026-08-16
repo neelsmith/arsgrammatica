@@ -155,6 +155,8 @@ def test_file_contents_match_the_documented_format(tmp_path):
         "depth_taurum_cum_quo_concubuit",
         "indirect_question_theseus_audit_quanta",
         "apposition_neptunus_aegeus_filius",
+        "complementary_infinitive_amphion_expugnare_vellet",
+        "gerund_ars_bene_disserendi",
     ],
     ids=lambda s: s,
 )

@@ -112,6 +112,40 @@ def test_apposition_does_not_disturb_verbal_unit_assignment():
     assert assignment["t14"] == "t14"  # concubuerunt -> itself
 
 
+def test_complementary_infinitive_and_infinitive_as_noun_are_not_anchors():
+    """A complementary infinitive (expugnare, completing vellet) and an
+    infinitive used as an ordinary noun (dolere, the subject of est) are
+    both NEW relation shapes syntax_model.md added, but neither makes its
+    token a verbal-unit anchor -- they resolve to whichever governing verb
+    they point at, exactly like a direct object or adverb would, with zero
+    changes needed to assign_verbal_units() itself."""
+    tokengraph = _tokengraph("complementary_infinitive_amphion_expugnare_vellet")
+    assignment = assign_verbal_units(tokengraph)
+    assert assignment["t5"] == "t6"  # expugnare -> vellet's own unit
+    assert all(tok.verbalunitid is None for tok in tokengraph if tok.id == "t5")
+
+    tokengraph = _tokengraph("infinitive_as_subject_dolere_malum")
+    assignment = assign_verbal_units(tokengraph)
+    assert assignment["t0"] == "t2"  # dolere -> est's unit
+    assert all(tok.verbalunitid is None for tok in tokengraph if tok.id == "t0")
+
+
+def test_gerund_and_gerundive_are_not_anchors():
+    """A gerund (disserendi) and a gerundive (faciendum) are both treated
+    as ordinary noun/adjective relations, not new verbal expressions --
+    each resolves to its governing verb's unit like any other dependent
+    token, with no verbalunitid of its own."""
+    tokengraph = _tokengraph("gerund_ars_bene_disserendi")
+    assignment = assign_verbal_units(tokengraph)
+    assert assignment["t2"] == "t4"  # disserendi (genitive on Ars) -> est's unit
+    assert all(tok.verbalunitid is None for tok in tokengraph if tok.id == "t2")
+
+    tokengraph = _tokengraph("gerundive_metapontus_sacrum_faciendum")
+    assignment = assign_verbal_units(tokengraph)
+    assert assignment["t7"] == "t1"  # faciendum (adjectival on sacrum) -> exiit's unit
+    assert all(tok.verbalunitid is None for tok in tokengraph if tok.id == "t7")
+
+
 def test_direct_quote_and_aside_form_their_own_units_not_the_framing_verbs():
     """A direct-quote or aside verb's own outward relation names the verb
     it interrupts/is framed by -- but since it's itself a verbal-unit
@@ -279,6 +313,19 @@ def test_circumstantial_participle_preferred_over_attributive_reaches_depth_two(
     assert depths["t15"] == 0  # dedit, independent
     assert depths["t4"] == 1  # sciret, dependent on dedit via cum
     assert depths["t9"] == 2  # tinctas, circumstantial participle agreeing with sagittas
+    assert warnings == []
+
+
+def test_complementary_infinitive_adds_no_extra_depth_hop():
+    """expugnare (the complementary infinitive) isn't an anchor, so it
+    never appears in compute_subordination_depths()'s output at all --
+    vellet's own relatedtoken1 points at cum, not at expugnare, so the
+    chase to est is exactly as short as an ordinary cum-clause's."""
+    tokengraph = _tokengraph("complementary_infinitive_amphion_expugnare_vellet")
+    depths, warnings = compute_subordination_depths(tokengraph)
+    assert depths["t11"] == 0  # est (interfectus), independent
+    assert depths["t6"] == 1  # vellet, dependent on est via cum
+    assert "t5" not in depths  # expugnare is not an anchor at all
     assert warnings == []
 
 

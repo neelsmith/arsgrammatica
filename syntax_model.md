@@ -62,7 +62,7 @@ In the first phase of implementing our syntax model, we will record the followin
 - verbs in asides: the `relation1` will be the ID of the verb of the governing verbal expression, with a value of  `aside` for `relationship1`. Example: in the sentence *Sp. Nautius — Octavium Maecium quidam eum tradunt — cum auxiliaribus cohortibus erat.* the verbal expression anchored to *tradunt* is an aside, interrupting the verbal expression with *erat*. The token *tradunt* will have the ID of *erat* for `relation1` with a value of  `aside` for `relationship1`. 
 
 
-- infinitives in indirect statement: the 'relation1` will the the ID of the verb of the governing verbal expression, with the value `indirect statement` for `relationship1`. Example: in *id philtrum esse dixit*, the token *esse* will have the ID of *dixit* for its `relation1` with `indirect statement` for `relationship1`.
+- infinitives in indirect statement: the 'relation1` will the the ID of the verb of the governing verbal expression, with the value `indirect statement` for `relationship1`. Example: in *id philtrum esse dixit*, the token *esse* will have the ID of *dixit* for its `relation1` with `indirect statement` for `relationship1`. 
 
 - multi-word compound verb forms in the perfect passive of future infinitive: the conjugated form of *sum* will be taken as the verb of the verbal unit. The associated participle will relate to the form of *sum* as its `auxiliary`. Examples: in *urbs condita est* with token ids `t1`, `t2` and `t3`, the participle *condita* has for its `relation1` the value `t3` (*est*), and for `relationship1`, *auxiliary*. In the sentence *facturum enim se fuisse dixit*, the token *facturum* will have the ID of *fuisse* as its `relation1` value, with a `relationship1` value of `auxiliary`.
 
@@ -103,6 +103,7 @@ In the first phase of implementing our syntax model, we will record the followin
 
 
 
+
 - noun or pronoun serving as the subject of a verbal expression: *relation1* will be the id of the token of the verb. If it is a compound verb form in the perfect passive system, this should be the id of the form of *sum*. The value of *relation1ship* will be *subject*.
 
 - noun or pronoun functioning as direct object of a verbal expression: *relation1* will be the id of the token of the verb. If it is a compound verb form in the perfect passive system, this should be the id of the form of *sum*. The value of *relation1ship* will be *direct object*.
@@ -110,6 +111,9 @@ In the first phase of implementing our syntax model, we will record the followin
 - noun or pronoun functioning as the predicate of a linking verb: *relation1* will be the id of the token of the verb. If it is a compound verb form in the perfect passive system, this should be the id of the form of *sum*. The value of *relationship1* will be *predicate*. Example: In the sentence *Lucumo Demarati Corinthii filius erat*, *Lucumo* is the subject of the linking verb *erat*, and *filius* is the predicate.
 
 
+- complementary infinitive: with verbs like *volo*, *incipio*, *audeo* or *licet*, *decet* (among others), infinitives essentially complete the idea of the principal verb. In this use, the infinitive token will use the id of the main verb as `relation1` with a value of `complementary infinitive` for `relationship1`. Example: in the sentence *Amphion autem cum templum Apollinis expugnare vellet, ab Apolline sagittis est interfectus.*, the infinitive *expugnare* stands in a complementary relation to *vellet*, and will have the ID of *vellet* as `relation1` with `complementary infinitive` for `relationship1`.
+
+- other infinitive constructions: the infinitive may also function as a noun, and in these constructions is recorded in the same way as any other. Example: in *dolere malum est*, the infinitive *dolere* is the subject of the verb *est*. It will therefore have the id of *est* as its `relation1` and a value of `subject` for `relationship1`. As in all infinitive constructions, the infinitive, like any other verbal form, may have objects; if a subject is explicitly given, it will be in the accusative.
 
 #### Adjectives, adverbs, prepositional phrases
 
@@ -123,6 +127,10 @@ In the first phase of implementing our syntax model, we will record the followin
    - adverbial related to a verb: in the sentence *statua Atti in comitio in gradibus ipsis ad laevam curiae fuit*, the three prepositional phrases *in comitio*, *in gradibus ipsis* and *ad laevam curiae* will each each have for `relation1` the id of the verb *fuit*, with the `relationship1` value `adverbial`.
 
 
+- gerundives: gerundives are adjective forms and can be related to a noun just like any other adjective. Example: in the sentence, *Metapontus exiit ad Dianam Metapontinam ad sacrum faciendum*, the gerundive *faciendum* is in agreement with the noun *sacrum*. It till have the ID of *sacrum* for `relation1` with a value of `adjectival` as its `relationship1`.
+
+Example: in the phrase *ars bene disserendi*, the gerund *disserendi* is a gentive noun related to *ars*. It will have the id of *ars* as `relation1` and `genitive` as the value of `relationship1`. As verbal forms, gerunds can have objects or take adverbs. *bene* in the precediong example is an adverb that will stand in relation to *disserendi* in an `adverbial` relationship, so will have the id of `disserendi` for `relaion1`, and `adverbial` as the value of `relationship1`.
+
 
 ### Noun relations
 
@@ -133,9 +141,9 @@ Traditional grammatical analyses typically conflate syntax and semantics: this m
 - *ablative*: ablative relationships can be linked to verbs or nouns. In the sentence *omnia ferro flammaque miscet*, the two ablative tokens *ferro* and *flamma* both relate to the verb token *miscet* and will have the ID of *miscet* as their `relation1` with the value `ablative` for `relationship1`.
 - apposition: when one noun stands in apposition to another, the appositve takes the id of the first noun as the value for `relation1`, and has `apposition` as the value for `relationship1`. Example: in the sentence *Neptunus et Aegeus Pandionis filius in fano Mineruae cum Aethra Pitthei filia una nocte concubuerunt*, the token *filius* is in apposition to *Aegeus* and takes the ID of *Aegeus* as `relation1` with `apposition` for `relationship1`. The genitive *Pandionis* depends on *filius* and will have the ID of *filius* for `relation1`, with `genitive` as `relationship1`. Similarly, *filia* is in apposition to *Aethra* and will have the id of *Aethra* for `relation1`, with `apposition` as `relationship1`. THe genitie *Pitthei* depends on *filia* and  will have the ID of *filia* for `relation1`, with `genitive` as `relationship1`. 
 
-## Incomplete status
 
-This describes the most important principal syntactic relationships to be analyzed, but is still incomplete. Therefore not all tokens will have a value for *relation1* and *relationship1* in the current implmentation.
+
+- gerunds: gerunds are noun forms, used in the oblique cases (where the infinitive could be used in the nominative). They can be related to the syntax of an expression like any other noun. Example: in the phrase *ars bene disserendi*, the gerund *disserendi* is a gentive noun related to *ars*. It will have the id of *ars* as `relation1` and `genitive` as the value of `relationship1`. As verbal forms, gerunds can have objects or take adverbs. *bene* in the precediong example is an adverb that will stand in relation to *disserendi* in an `adverbial` relationship, so will have the id of `disserendi` for `relaion1`, and `adverbial` as the value of `relationship1`.
 
 
 ### TBA

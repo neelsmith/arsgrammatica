@@ -107,6 +107,44 @@ class SyntaxAnalysis(dspy.Signature):
           relation does. In a compound future-infinitive form (participle +
           a form of 'sum'), this relation belongs on the form of 'sum' that
           anchors the verbal expression, same as any other relation into it.
+        - complementary infinitive: an infinitive that completes the sense
+          of a governing verb like 'volo', 'incipio', 'audeo', 'licet', or
+          'decet' (rather than reporting indirect speech) has relatedtoken1
+          -> the id of that governing verb, relationship1 = 'complementary
+          infinitive'. Unlike an indirect-statement infinitive, this does
+          NOT make the infinitive its own verbal expression -- it gets no
+          `verbalunits` entry of its own; the governing verb is still the
+          only verbal expression here. Example: in "Amphion...cum templum
+          Apollinis expugnare vellet...", "expugnare" completes "vellet"
+          (relatedtoken1 -> "vellet", relationship1 = 'complementary
+          infinitive'); "templum" is still "expugnare"'s own direct object,
+          exactly as if "expugnare" were a finite verb.
+        - infinitive used as a noun: an infinitive can also function as an
+          ordinary noun -- most often a verb's subject or object -- rather
+          than anchoring an indirect statement or completing another verb.
+          Treat it exactly like any other noun in that role: relatedtoken1
+          -> the verb it's the subject/object of, relationship1 = 'subject'
+          or 'direct object' as appropriate (no dedicated label, and again
+          no `verbalunits` entry of its own). Example: in "dolere malum
+          est", "dolere" has relatedtoken1 -> "est", relationship1 =
+          'subject'. Like any verbal form, an infinitive used this way can
+          still take its own object or adverb, related to it the same way
+          they'd relate to a finite verb.
+        - gerunds and gerundives: a gerundive is simply an adjective --
+          treat it exactly like one (relatedtoken1 -> the noun it agrees
+          with, relationship1 = 'adjectival'; see 'adjectival' below).
+          Example: in "...ad sacrum faciendum", "faciendum" (the gerundive)
+          has relatedtoken1 -> "sacrum", relationship1 = 'adjectival'. A
+          gerund is a noun -- the oblique-case form a verb takes where an
+          infinitive would be needed in the nominative -- so relate it like
+          any other noun (most often 'genitive'); it can still take its own
+          object or adverb, related to it the same way they'd relate to a
+          finite verb or infinitive. Example: in "ars bene disserendi",
+          "disserendi" (the gerund) has relatedtoken1 -> "ars",
+          relationship1 = 'genitive', and "bene" (the adverb modifying it)
+          has relatedtoken1 -> "disserendi", relationship1 = 'adverbial'.
+          Neither a gerund nor a gerundive is a verbal expression in its
+          own right -- no dedicated label, no `verbalunits` entry.
         - coordinating conjunction: when a coordinating conjunction (e.g.
           'et', '-que') joins a pair of adjectives, nouns, or prepositional
           phrases, it has relatedtoken1 -> the id of the first joined
