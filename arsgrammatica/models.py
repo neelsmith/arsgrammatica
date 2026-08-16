@@ -130,7 +130,15 @@ class VerbalExpression(BaseModel):
 # via "circumstantial participle"; if that noun doesn't otherwise fit into
 # the surrounding clause (a true ablative absolute), the noun points back
 # out to the main verb via "ablative absolute" instead of taking a normal
-# noun relation. "coordinating conjunction" joins a pair of nouns,
+# noun relation. "apposition" links a noun in apposition back to the first
+# noun it stands in apposition to (relatedtoken1 -> that first noun's id,
+# relationship1 = "apposition") -- a genitive depending on either noun
+# still gets its own separate "genitive" relation, pointing at whichever
+# noun it actually depends on. "subordinating conjunction" is also reused,
+# unchanged, for the interrogative word introducing an indirect question
+# (treated as a kind of dependent clause) -- see the "verb of a dependent
+# clause" note in latin_syntax_dspy.py's docstring; no new label was needed
+# for that case. "coordinating conjunction" joins a pair of nouns,
 # adjectives, prepositional phrases, or verbal expressions: the conjunction
 # has BOTH relation1 -> the first joined token's id and relation2 -> the
 # second's, both labelled "coordinating conjunction" -- except when the
@@ -138,6 +146,22 @@ class VerbalExpression(BaseModel):
 # pair with, in which case only relation1/relationship1 is set (see
 # latin_syntax_dspy.py's docstring for the full set of cases, including the
 # word-order caveat and the "et" adverb-vs-conjunction ambiguity).
+# "complementary infinitive" is the only other new label: an infinitive
+# that completes the sense of a governing verb like "volo"/"incipio"/
+# "audeo"/"licet"/"decet" (e.g. "expugnare" completing "vellet") has
+# relatedtoken1 -> that governing verb's id, relationship1 =
+# "complementary infinitive" -- but is NOT itself a separate verbal
+# expression (no `verbalunits` entry of its own), unlike an
+# indirect-statement infinitive. Two other infinitive/gerund/gerundive
+# uses need NO new label at all: an infinitive used as an ordinary noun
+# (e.g. as a verb's subject or object) just takes the normal "subject"/
+# "direct object"/etc. relation, like any other noun; a gerund (the oblique-
+# case noun form of a verb) likewise takes whatever ordinary noun relation
+# fits (most often "genitive"), and can itself govern an object or take an
+# adverb the same way a finite verb or infinitive can; and a gerundive is
+# simply treated as an ordinary adjective, agreeing with its noun via
+# "adjectival". None of these three make their token a verbal-expression
+# anchor either.
 RelationLabel = Literal[
     "unit verb",
     "subordinating conjunction",
@@ -160,6 +184,8 @@ RelationLabel = Literal[
     "circumstantial participle",
     "ablative absolute",
     "coordinating conjunction",
+    "apposition",
+    "complementary infinitive",
 ]
  
  

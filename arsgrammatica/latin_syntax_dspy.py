@@ -54,7 +54,17 @@ class SyntaxAnalysis(dspy.Signature):
           'while Ancus was reigning') rather than a purely *attributive*
           sense (modifying a noun like an ordinary adjective, e.g.
           "consentiens laus", 'universal praise' -- NOT a verbal expression
-          at all). Use 'dependent' as its syntactic type.
+          at all). Use 'dependent' as its syntactic type. When it's
+          genuinely uncertain whether a given participle is attributive or
+          predicate/circumstantial, PREFER the circumstantial reading --
+          treat it as its own verbal expression rather than folding it into
+          an attributive relation. Example: in "ille moriens, cum sciret
+          sagittas hydrae Lernaeae felle tinctas quantam uim haberent
+          ueneni, sanguinem suum exceptum Deianirae dedit", both "moriens"
+          (agreeing with "ille") and "tinctas" (agreeing with "sagittas")
+          are treated as circumstantial participles, each anchoring its own
+          verbal expression, rather than as ordinary attributive
+          adjectives.
  
         Classify each verbal expression's semantic type too (transitive
         active/transitive passive/intransitive/linking verb).
@@ -74,6 +84,15 @@ class SyntaxAnalysis(dspy.Signature):
           subordinate to, with relationship1 = 'subordinating conjunction'
           for a conjunction, or relatedtoken1 -> its antecedent's id with
           relationship1 = 'relative pronoun' for a relative pronoun.
+          Indirect questions are treated as a kind of dependent clause: the
+          interrogative word introducing one (e.g. "quanta" in "Theseus
+          audit quanta calamitate ciuitas afficeretur") is treated the same
+          way as a subordinating conjunction -- it has relatedtoken1 -> the
+          id of the verb it introduces (here "audit"), relationship1 =
+          'subordinating conjunction' (no separate label for this case) --
+          while the dependent verb itself ("afficeretur") has relatedtoken1
+          -> the interrogative word's id ("quanta"), relationship1 = 'unit
+          verb', exactly like any other dependent clause.
         - indirect statement (governing verb): an infinitive anchoring an
           indirect-statement verbal expression ALSO has relatedtoken1 ->
           the id of the verb that governs the indirect statement (the verb
@@ -88,6 +107,44 @@ class SyntaxAnalysis(dspy.Signature):
           relation does. In a compound future-infinitive form (participle +
           a form of 'sum'), this relation belongs on the form of 'sum' that
           anchors the verbal expression, same as any other relation into it.
+        - complementary infinitive: an infinitive that completes the sense
+          of a governing verb like 'volo', 'incipio', 'audeo', 'licet', or
+          'decet' (rather than reporting indirect speech) has relatedtoken1
+          -> the id of that governing verb, relationship1 = 'complementary
+          infinitive'. Unlike an indirect-statement infinitive, this does
+          NOT make the infinitive its own verbal expression -- it gets no
+          `verbalunits` entry of its own; the governing verb is still the
+          only verbal expression here. Example: in "Amphion...cum templum
+          Apollinis expugnare vellet...", "expugnare" completes "vellet"
+          (relatedtoken1 -> "vellet", relationship1 = 'complementary
+          infinitive'); "templum" is still "expugnare"'s own direct object,
+          exactly as if "expugnare" were a finite verb.
+        - infinitive used as a noun: an infinitive can also function as an
+          ordinary noun -- most often a verb's subject or object -- rather
+          than anchoring an indirect statement or completing another verb.
+          Treat it exactly like any other noun in that role: relatedtoken1
+          -> the verb it's the subject/object of, relationship1 = 'subject'
+          or 'direct object' as appropriate (no dedicated label, and again
+          no `verbalunits` entry of its own). Example: in "dolere malum
+          est", "dolere" has relatedtoken1 -> "est", relationship1 =
+          'subject'. Like any verbal form, an infinitive used this way can
+          still take its own object or adverb, related to it the same way
+          they'd relate to a finite verb.
+        - gerunds and gerundives: a gerundive is simply an adjective --
+          treat it exactly like one (relatedtoken1 -> the noun it agrees
+          with, relationship1 = 'adjectival'; see 'adjectival' below).
+          Example: in "...ad sacrum faciendum", "faciendum" (the gerundive)
+          has relatedtoken1 -> "sacrum", relationship1 = 'adjectival'. A
+          gerund is a noun -- the oblique-case form a verb takes where an
+          infinitive would be needed in the nominative -- so relate it like
+          any other noun (most often 'genitive'); it can still take its own
+          object or adverb, related to it the same way they'd relate to a
+          finite verb or infinitive. Example: in "ars bene disserendi",
+          "disserendi" (the gerund) has relatedtoken1 -> "ars",
+          relationship1 = 'genitive', and "bene" (the adverb modifying it)
+          has relatedtoken1 -> "disserendi", relationship1 = 'adverbial'.
+          Neither a gerund nor a gerundive is a verbal expression in its
+          own right -- no dedicated label, no `verbalunits` entry.
         - coordinating conjunction: when a coordinating conjunction (e.g.
           'et', '-que') joins a pair of adjectives, nouns, or prepositional
           phrases, it has relatedtoken1 -> the id of the first joined
@@ -181,6 +238,19 @@ class SyntaxAnalysis(dspy.Signature):
           'ablative'). These are purely syntactic (case-function) labels,
           not semantic ones -- don't distinguish e.g. possessive vs.
           partitive genitive.
+        - apposition: when one noun stands in apposition to another, the
+          appositive has relatedtoken1 -> the id of the first (the noun it
+          restates or further identifies), relationship1 = 'apposition'. A
+          genitive depending on either noun still gets its own ordinary
+          'genitive' relation, pointing at whichever noun it actually
+          depends on -- apposition doesn't change that. Example: in
+          "Neptunus et Aegeus Pandionis filius...cum Aethra Pitthei
+          filia...", "filius" is in apposition to "Aegeus" (relatedtoken1
+          -> "Aegeus", relationship1 = 'apposition'), and "Pandionis" (the
+          genitive depending on "filius") has relatedtoken1 -> "filius",
+          relationship1 = 'genitive' -- and likewise "filia" is in
+          apposition to "Aethra", with "Pitthei" as a genitive depending on
+          "filia".
         - prepositional phrases: the preposition has relatedtoken1 -> the id
           of the verb (adverbial) or noun (attributive) it modifies,
           relationship1 = 'adverbial' or 'attributive'. The noun/pronoun it
@@ -195,8 +265,8 @@ class SyntaxAnalysis(dspy.Signature):
  
         Only assign relations described above. Leave relatedtoken/
         relationship fields unset for tokens with no relation of these
-        kinds -- not every token will have one (e.g. apposition and a bare
-        accusative of place aren't covered). Use only the token ids given in
+        kinds -- not every token will have one (e.g. a bare accusative of
+        place isn't covered). Use only the token ids given in
         the input `tokens` list, or the sentinel 'root', in your output;
         never invent new ids.
     """
