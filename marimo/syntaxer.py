@@ -20,7 +20,7 @@ def _(mo):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(citation_context, mo, urnbase):
     mo.hstack([urnbase, citation_context], justify="start")
     return
@@ -109,24 +109,6 @@ def _(sentences):
     return
 
 
-@app.cell
-def _(finaltokens):
-    finaltokens[0]
-    return
-
-
-@app.cell
-def _(results):
-    results[0]
-    return
-
-
-@app.cell
-def _(sentences):
-    sentences[0]
-    return
-
-
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
@@ -136,8 +118,8 @@ def _(mo):
 
 
 @app.cell
-def _(finaltokens, mo, tokengraph_to_text):
-    psghtml = mo.Html("<b><i>Passage</i></b>: " + tokengraph_to_text(finaltokens))
+def _(citation_context, finaltokens, mo, tokengraph_to_text):
+    psghtml = mo.Html(f"<b><i>Passage {citation_context.value}</i></b>: " + tokengraph_to_text(finaltokens))
     return (psghtml,)
 
 
@@ -145,12 +127,6 @@ def _(finaltokens, mo, tokengraph_to_text):
 def _(finaltokens, mo, tokengraph_to_html):
     vuhtml = mo.Html("<b><i>Highlighted by verbal unit</i></b>: " + tokengraph_to_html(finaltokens))
     return (vuhtml,)
-
-
-@app.cell
-def _(mo):
-    citation_context = mo.ui.text(placeholder="urn:cts:latinLit:....", label="*Passage*:")
-    return (citation_context,)
 
 
 @app.cell
@@ -172,6 +148,12 @@ def _(mo):
 def _(mo):
     urnbase = mo.ui.text(value="urn:cts:latinLit:stoa1263.stoa001.hc:", label="*Base URN*:")
     return (urnbase,)
+
+
+@app.cell
+def _(mo):
+    citation_context = mo.ui.text(placeholder="urn:cts:latinLit:....", label="*Passage*:")
+    return (citation_context,)
 
 
 @app.cell

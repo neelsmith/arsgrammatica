@@ -107,6 +107,9 @@ tokengraph, verbalunits, sentences = read_analyses("analysis.txt")
 
 The file has three labelled, pipe-delimited blocks (`#!sentences`, `#!verbal_units`, `#!tokens`), each with its own fixed header row -- see `serialization.py`'s module docstring for the exact format, why `sentences` is needed at all (it's the only place a citation is actually attached to a token id), and what `write_analyses()`'s warnings vs. `read_analyses()`'s errors each catch. `read_analyses()` is deliberately strict: a malformed or internally inconsistent file raises `ValueError` naming the exact line and problem, rather than silently reconstructing something partial.
 
+## `marimo` notebooks
+
+- `syntaxer.py`: 
 
 ## Files
 
