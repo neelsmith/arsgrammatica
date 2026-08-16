@@ -109,24 +109,6 @@ def _(sentences):
     return
 
 
-@app.cell
-def _(finaltokens):
-    finaltokens[0]
-    return
-
-
-@app.cell
-def _(results):
-    results[0]
-    return
-
-
-@app.cell
-def _(sentences):
-    sentences[0]
-    return
-
-
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
@@ -136,8 +118,8 @@ def _(mo):
 
 
 @app.cell
-def _(finaltokens, mo, tokengraph_to_text):
-    psghtml = mo.Html("<b><i>Passage</i></b>: " + tokengraph_to_text(finaltokens))
+def _(citation_context, finaltokens, mo, tokengraph_to_text):
+    psghtml = mo.Html(f"<b><i>Passage {citation_context.value}</i></b>: " + tokengraph_to_text(finaltokens))
     return (psghtml,)
 
 
@@ -145,12 +127,6 @@ def _(finaltokens, mo, tokengraph_to_text):
 def _(finaltokens, mo, tokengraph_to_html):
     vuhtml = mo.Html("<b><i>Highlighted by verbal unit</i></b>: " + tokengraph_to_html(finaltokens))
     return (vuhtml,)
-
-
-@app.cell
-def _(mo):
-    citation_context = mo.ui.text(placeholder="urn:cts:latinLit:....", label="*Passage*:")
-    return (citation_context,)
 
 
 @app.cell
@@ -176,8 +152,51 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    text_area = mo.ui.text_area(value = "ac plerique suam ipsi vitam narrare fiduciam potius morum quam adrogantiam arbitrati sunt, nec id Rutilio et Scauro citra fidem aut obtrectationi fuit: adeo virtutes isdem temporibus optime aestimantur, quibus facillime gignuntur. at nunc narraturo mihi vitam defuncti hominis venia opus fuit, quam non petissem incusaturus: tam saeva et infesta virtutibus tempora.", full_width=True, label="*Text to analyze*:").form()
+    citation_context = mo.ui.text(placeholder="urn:cts:latinLit:....", label="*Passage*:")
+    return (citation_context,)
+
+
+@app.cell
+def _(mo):
+    text_area = mo.ui.text_area(value = "ac plerique suam ipsi vitam narrare fiduciam potius morum quam adrogantiam arbitrati sunt, nec id Rutilio et Scauro citra fidem aut obtrectationi fuit: adeo virtutes isdem temporibus optime aestimantur, quibus facillime gignuntur. at nunc narraturo mihi vitam defuncti hominis venia opus fuit, quam non petissem incusaturus: tam saeva et infesta virtutibus tempora.", full_width=True, label="*Text to analyze*:")
     return (text_area,)
+
+
+@app.cell
+def _():
+    #input_form = mo.vstack([mo.hstack([urnbase, citation_context], justify="start"), text_area]).form()
+    # 
+    # Instead:
+    # Define individual input elements
+    #name = mo.ui.text(label="Name")
+    #age = mo.ui.number(start=0, stop=120, label="Age")
+    #category = mo.ui.dropdown(options=["A", "B", "C"], label="Category")
+
+    # Create a layout inside mo.md and bind them into a batch form
+    #my_form = (
+    #    mo.md(
+    #        f"""
+    #       ### Complex Input Form
+        
+    #       {name}
+        
+    #        {age}
+        
+    #        {category}
+    #        """
+    #    )
+    #    .batch(name=name, age=age, category=category)
+    #    .form()
+    #
+
+    # Display the form
+    #my_form
+    return
+
+
+@app.cell
+def _():
+    return
 
 
 @app.cell(hide_code=True)
