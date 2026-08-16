@@ -20,7 +20,7 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(citation_context, mo, urnbase):
     mo.hstack([urnbase, citation_context], justify="start")
     return
@@ -158,8 +158,45 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    text_area = mo.ui.text_area(value = "ac plerique suam ipsi vitam narrare fiduciam potius morum quam adrogantiam arbitrati sunt, nec id Rutilio et Scauro citra fidem aut obtrectationi fuit: adeo virtutes isdem temporibus optime aestimantur, quibus facillime gignuntur. at nunc narraturo mihi vitam defuncti hominis venia opus fuit, quam non petissem incusaturus: tam saeva et infesta virtutibus tempora.", full_width=True, label="*Text to analyze*:").form()
+    text_area = mo.ui.text_area(value = "ac plerique suam ipsi vitam narrare fiduciam potius morum quam adrogantiam arbitrati sunt, nec id Rutilio et Scauro citra fidem aut obtrectationi fuit: adeo virtutes isdem temporibus optime aestimantur, quibus facillime gignuntur. at nunc narraturo mihi vitam defuncti hominis venia opus fuit, quam non petissem incusaturus: tam saeva et infesta virtutibus tempora.", full_width=True, label="*Text to analyze*:")
     return (text_area,)
+
+
+@app.cell
+def _():
+    #input_form = mo.vstack([mo.hstack([urnbase, citation_context], justify="start"), text_area]).form()
+    # 
+    # Instead:
+    # Define individual input elements
+    #name = mo.ui.text(label="Name")
+    #age = mo.ui.number(start=0, stop=120, label="Age")
+    #category = mo.ui.dropdown(options=["A", "B", "C"], label="Category")
+
+    # Create a layout inside mo.md and bind them into a batch form
+    #my_form = (
+    #    mo.md(
+    #        f"""
+    #       ### Complex Input Form
+        
+    #       {name}
+        
+    #        {age}
+        
+    #        {category}
+    #        """
+    #    )
+    #    .batch(name=name, age=age, category=category)
+    #    .form()
+    #
+
+    # Display the form
+    #my_form
+    return
+
+
+@app.cell
+def _():
+    return
 
 
 @app.cell(hide_code=True)
