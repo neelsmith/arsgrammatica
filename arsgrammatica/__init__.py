@@ -19,7 +19,7 @@ from .latin_syntax_dspy import (
 )
 from .segmentation_dspy import SegmentPassage, segment_sources
 from .pipeline import analyze_passage, analyze_sources, combined_tokengraph
-from .serialization import write_analyses, read_analyses
+from .serialization import serialize_analyses, write_analyses, read_analyses
 
 __all__ = [
     "Token",
@@ -45,6 +45,7 @@ __all__ = [
     "segment_sources",
     "analyze_sources",
     "combined_tokengraph",
+    "serialize_analyses",
     "write_analyses",
     "read_analyses",
 ]

@@ -1,19 +1,22 @@
 """
-Tests for arsgrammatica/serialization.py's write_analyses()/read_analyses().
+Tests for arsgrammatica/serialization.py's serialize_analyses()/
+write_analyses()/read_analyses().
 
 Covers: a full round trip (object equality, and a second write producing
 byte-identical output) across sentences with and without citations, every
 kind of optional field (None, the 'root' sentinel, the relatedtoken2/
 relationship2 overflow slot); every warning write_analyses() can return;
-every malformed-file error read_analyses() can raise; and a round trip
-built directly from real gold fixtures for realistic coverage of the
-scheme's relation shapes.
+every malformed-file error read_analyses() can raise; that
+serialize_analyses() and write_analyses() agree exactly; that
+read_analyses() accepts a file with more than one instance of a block
+label, merging them in file order; and a round trip built directly from
+real gold fixtures for realistic coverage of the scheme's relation shapes.
 """
 
 import pytest
 
 from arsgrammatica.models import Sentence, Token, TokenAnalysis, VerbalExpression
-from arsgrammatica.serialization import read_analyses, write_analyses
+from arsgrammatica.serialization import read_analyses, serialize_analyses, write_analyses
 from fixtures.gold_examples import GOLD_EXAMPLES
 
 
@@ -144,6 +147,56 @@ def test_file_contents_match_the_documented_format(tmp_path):
     assert "|t5|lexical|Hercules|Hercules||t8|subject||" in text
 
 
+# ---------------------------------------------------------------------------
+# serialize_analyses() -- same content as write_analyses(), returned as a
+# string instead of written to a file
+# ---------------------------------------------------------------------------
+
+
+def test_serialize_analyses_matches_what_write_analyses_writes_to_disk(tmp_path):
+    sentences, verbalunits, tokengraph = _two_sentence_fixture()
+    path = tmp_path / "analysis.txt"
+
+    write_warnings = write_analyses(sentences, verbalunits, tokengraph, str(path))
+    content, serialize_warnings = serialize_analyses(sentences, verbalunits, tokengraph)
+
+    assert content == path.read_text()
+    assert serialize_warnings == write_warnings
+
+
+def test_serialize_analyses_content_round_trips_through_read_analyses(tmp_path):
+    """serialize_analyses()'s string, written to a file by the caller
+    itself (not through write_analyses()), should read back identically to
+    a file write_analyses() produced directly."""
+    sentences, verbalunits, tokengraph = _two_sentence_fixture()
+    content, warnings = serialize_analyses(sentences, verbalunits, tokengraph)
+    assert warnings == []
+
+    path = tmp_path / "from_string.txt"
+    path.write_text(content)
+
+    got_tokengraph, got_verbalunits, got_sentences = read_analyses(str(path))
+    assert got_tokengraph == tokengraph
+    assert got_verbalunits == verbalunits
+    assert got_sentences == sentences
+
+
+def test_serialize_analyses_surfaces_the_same_warnings_and_raises(tmp_path):
+    """serialize_analyses() must reproduce write_analyses()'s "degrade
+    visibly" warnings (not raise for them) and its hard ValueErrors alike,
+    since write_analyses() is now just a thin wrapper around it."""
+    sentences, verbalunits, tokengraph = _two_sentence_fixture()
+    # Detach t9's citation from any sentence, like
+    # test_warns_when_a_token_is_not_covered_by_any_sentence below does.
+    sentences[1].tokens = sentences[1].tokens[:-1]
+    content, warnings = serialize_analyses(sentences, verbalunits, tokengraph)
+    assert any("not found among the given sentences' tokens" in w for w in warnings)
+    assert isinstance(content, str) and content  # still produced despite the warning
+
+    with pytest.raises(ValueError, match="has no tokens"):
+        serialize_analyses([Sentence(tokens=[])], [], [])
+
+
 @pytest.mark.parametrize(
     "slug",
     [
@@ -265,15 +318,48 @@ def test_missing_block_raises(tmp_path):
         read_analyses(path)
 
 
-def test_duplicate_block_raises(tmp_path):
+def test_repeated_block_labels_are_merged_in_file_order(tmp_path):
+    """Each of the three labels may appear more than once (see the module
+    docstring) -- this is what makes a file built by literally
+    concatenating two separate write_analyses() outputs (each a complete,
+    self-contained trio of blocks) read back as one combined analysis,
+    rather than raising or silently keeping only one instance."""
     content = (
         f"#!tokens\n{_TOKENS_HEADER}\n"
-        "#!tokens\n" + _TOKENS_HEADER + "\n"
+        "Aeneid 1.1|t0|lexical|foo||t0|root|unit verb||\n"
+        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        "Aeneid 1.1|t0|independent|intransitive\n"
+        "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
+        "Aeneid 1.1|t0|Aeneid 1.1|t0\n"
+        # A second, self-contained trio of blocks -- same labels, repeated.
+        f"#!tokens\n{_TOKENS_HEADER}\n"
+        "Aeneid 1.2|t1|lexical|bar||t1|root|unit verb||\n"
+        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        "Aeneid 1.2|t1|independent|intransitive\n"
+        "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
+        "Aeneid 1.2|t1|Aeneid 1.2|t1\n"
+    )
+    path = _write_raw(tmp_path, "repeated.txt", content)
+    tokengraph, verbalunits, sentences = read_analyses(path)
+
+    assert [tok.id for tok in tokengraph] == ["t0", "t1"]
+    assert [vu.id for vu in verbalunits] == ["t0", "t1"]
+    assert len(sentences) == 2
+    assert sentences[0].tokens == [Token(id="t0", text="foo", citation="Aeneid 1.1")]
+    assert sentences[1].tokens == [Token(id="t1", text="bar", citation="Aeneid 1.2")]
+
+
+def test_block_label_without_its_own_header_raises(tmp_path):
+    """A label line must be immediately followed by ITS OWN header line,
+    even on a repeat instance -- jumping straight to the next block's
+    label is malformed, not a zero-row instance of the first block."""
+    content = (
+        "#!tokens\n"
         "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
         "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
     )
-    path = _write_raw(tmp_path, "dup.txt", content)
-    with pytest.raises(ValueError, match="duplicate block label"):
+    path = _write_raw(tmp_path, "noheader.txt", content)
+    with pytest.raises(ValueError, match="label line but no header line"):
         read_analyses(path)
 
 

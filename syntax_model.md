@@ -7,7 +7,6 @@ In this scheme, analysis of a passage of Latin is expressed in two related struc
 - a list of verbal expressions, generally corresponding to clauses in an English translation
 - a token-level table capturing principal relations in a dependency graph
 
-This draft describes a first, partial implementation of the scheme.
 
 ## Table of verbal expressions
 
