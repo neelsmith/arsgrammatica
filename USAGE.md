@@ -109,6 +109,33 @@ tokengraph, verbalunits, sentences = read_analyses("analysis.txt")
 
 The file has three labelled, pipe-delimited blocks (`#!sentences`, `#!verbal_units`, `#!tokens`), each with its own fixed header row -- see `serialization.py`'s module docstring for the exact format, why `sentences` is needed at all (it's the only place a citation is actually attached to a token id), and what `write_analyses()`'s warnings vs. `read_analyses()`'s errors each catch. Each of the three labels may appear more than once in the file; `read_analyses()` merges every instance of a label into that label's combined row list, in file order, so simply concatenating several `write_analyses()`/`serialize_analyses()` outputs together and reading the result back gives you one combined analysis. `read_analyses()` is otherwise deliberately strict: a malformed or internally inconsistent file raises `ValueError` naming the exact line and problem, rather than silently reconstructing something partial.
 
+
+## Harvesting gold examples from real analyses
+
+`gold_example_from_analysis()`/`format_gold_example_source()` (in `tests/fixtures/harvest.py`) turn a real analysis's own `sentences`/`verbalunits`/`tokengraph` -- the same triple `write_analyses()`/`serialize_analyses()` take -- into a `GoldExample` (`tests/fixtures/gold_examples.py`), instead of hand-writing a `canned_answer` dict from scratch:
+
+```python
+from fixtures.harvest import gold_example_from_analysis, format_gold_example_source
+
+sentences, results = analyze_passage("Some new passage you've reviewed by hand.")
+result = results[0]  # one result per sentence; pick whichever one you're harvesting
+
+example = gold_example_from_analysis(
+    slug="some_new_construction_example",
+    tags=["the construction this example is meant to cover"],
+    sentences=sentences,
+    verbalunits=result.verbalunits,
+    tokengraph=result.tokengraph,
+    reasoning=result.reasoning,  # dspy.ChainOfThought's own reasoning field
+)
+print(format_gold_example_source(example, "_SOME_NEW_CONSTRUCTION_ANSWER"))
+```
+
+`format_gold_example_source()`'s output is ready-to-paste Python: a `_SOME_NEW_CONSTRUCTION_ANSWER = {...}` dict literal followed by the `GoldExample(...)` entry that references it, in the same two-part shape every existing block in `gold_examples.py` already uses. `gold_example_from_analysis()` runs `validate()` against the given `sentences`/`verbalunits`/`tokengraph` before returning (pass `skip_validation=True` to bypass) -- catching a referentially-malformed analysis, but *not* judging whether the analysis is actually correct; that's still on you, per "an analysis you've reviewed by hand" above.
+
+**Should a harvested example go into the trainset GEPA optimizes against, or into a held-out evaluation set?** Usually the latter. A *correct* analysis is, by definition, something the current model/prompt already gets right -- adding it to `optimize_gepa.py`'s trainset (all of `GOLD_EXAMPLES` today; see that script's own docstring for why there's no split at all there) mostly dilutes the trainset with an easy case GEPA gets to self-grade against, without teaching it anything new. The better default is to add the harvested example to `GOLD_EXAMPLES` *and* to `model_bakeoff.py`'s `HELD_OUT_SLUGS` (see `BAKEOFF.md`'s "The held-out evaluation set") -- growing a real regression corpus that catches a future prompt/model change breaking something that currently works, without inflating GEPA's own self-graded trainset. The exception is a rare construction the model only sometimes gets right, where locking in a correct demonstration genuinely is useful training signal -- that's what `model_bakeoff.py`'s bootstrap stage already does on purpose with a few-shot demo pool. `gold_example_from_analysis()` itself has no opinion baked in -- the choice of which list you paste the result into (and whether you also add its slug to `HELD_OUT_SLUGS`) is entirely on you.
+
+
 ## `marimo` notebooks
 
 - `syntaxer.py`: 
