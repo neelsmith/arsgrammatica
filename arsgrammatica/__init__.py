@@ -20,6 +20,7 @@ from .latin_syntax_dspy import (
 from .segmentation_dspy import SegmentPassage, segment_sources
 from .pipeline import analyze_passage, analyze_sources, combined_tokengraph
 from .serialization import serialize_analyses, write_analyses, read_analyses
+from .ctsdata import CtsDataRow, read_ctsdata
 
 __all__ = [
     "Token",
@@ -48,4 +49,6 @@ __all__ = [
     "serialize_analyses",
     "write_analyses",
     "read_analyses",
+    "CtsDataRow",
+    "read_ctsdata",
 ]

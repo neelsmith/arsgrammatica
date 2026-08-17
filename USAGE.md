@@ -110,6 +110,30 @@ tokengraph, verbalunits, sentences = read_analyses("analysis.txt")
 The file has three labelled, pipe-delimited blocks (`#!sentences`, `#!verbal_units`, `#!tokens`), each with its own fixed header row -- see `serialization.py`'s module docstring for the exact format, why `sentences` is needed at all (it's the only place a citation is actually attached to a token id), and what `write_analyses()`'s warnings vs. `read_analyses()`'s errors each catch. Each of the three labels may appear more than once in the file; `read_analyses()` merges every instance of a label into that label's combined row list, in file order, so simply concatenating several `write_analyses()`/`serialize_analyses()` outputs together and reading the result back gives you one combined analysis. `read_analyses()` is otherwise deliberately strict: a malformed or internally inconsistent file raises `ValueError` naming the exact line and problem, rather than silently reconstructing something partial.
 
 
+## Reading passages from a delimited-text source file
+
+`read_ctsdata()` (in `arsgrammatica/ctsdata.py`) reads a list of citable passages -- each one a CTS URN paired with its own text -- out of a pipe-delimited file, the input-side counterpart to `write_analyses()`/`read_analyses()` above (which handle an analysis's *results*, not the passages you're about to analyze):
+
+```python
+from arsgrammatica import read_ctsdata
+
+rows = read_ctsdata("passages.txt")
+for row in rows:
+    citation = row.urnbase + row.citation  # reconstructs the full URN
+    print(citation, "--", row.text)
+```
+
+The file has one or more `#!ctsdata` blocks, each with its own `urn|text` header row:
+
+```
+#!ctsdata
+urn|text
+urn:cts:compnov:bible.genesis.vulgate:45.1|Non se poterat ultra tenere.
+```
+
+Each row's `urn` column must be a 5-part, colon-separated CTS URN (e.g. `urn:cts:compnov:bible.genesis.vulgate:45.1`); `read_ctsdata()` splits it into `urnbase` (the first 4 parts, rejoined with `:`, plus a trailing `:` -- `urn:cts:compnov:bible.genesis.vulgate:` for that example) and `citation` (the 5th part, `45.1`) -- the same `urnbase + citation` shape `syntaxer_workflow.py`'s own manual-entry form uses for its base-URN/passage fields. Pass `delimiter=...` if the file itself uses something other than `|`. Like `read_analyses()`, this is deliberately strict (a malformed row or a urn that doesn't split into exactly 5 parts raises `ValueError`, naming the line) and merges multiple `#!ctsdata` blocks in file order.
+
+
 ## Harvesting gold examples from real analyses
 
 `gold_example_from_analysis()`/`format_gold_example_source()` (in `tests/fixtures/harvest.py`) turn a real analysis's own `sentences`/`verbalunits`/`tokengraph` -- the same triple `write_analyses()`/`serialize_analyses()` take -- into a `GoldExample` (`tests/fixtures/gold_examples.py`), instead of hand-writing a `canned_answer` dict from scratch:
@@ -140,6 +164,7 @@ print(format_gold_example_source(example, "_SOME_NEW_CONSTRUCTION_ANSWER"))
 
 - `syntaxer.py`: an interactive notebook wrapping `analyze_passage()` -- the base URN / passage / text-to-analyze inputs each re-analyze immediately as you edit them.
 - `syntaxer_workflow.py`: the same notebook, built for the real-world-testing loop DEVELOPMENT.md describes -- the three inputs are one form (nothing re-analyzes, and no LM call happens, until you click *Analyze*, rather than on every keystroke), and there's a `cex`/`txt` extension choice (default `cex`) plus a *Download analysis* button that hands the current analysis (built with `serialize_analyses()`, see "Saving and loading analyses" above) to the browser's own download mechanism -- no folder path to type, at the cost of the browser (not the notebook) deciding where the file actually lands. The filename defaults to the submitted citation (base URN + passage) with the chosen extension. Ready to hand-review and, if it's a case worth keeping, turn into a fixture with `tests/fixtures/harvest.py`.
+- `syntaxer_ctsdata.py`: the same notebook again, but the passage to analyze comes from a `#!ctsdata` source file (see "Reading passages from a delimited-text source file" above) instead of being typed in by hand -- browse for the file, then pick a passage from the menu that appears (labelled `<citation>: <first few words>…`, e.g. `45.1: Non se poterat ultra…`); picking one analyzes it immediately, the same way submitting `syntaxer_workflow.py`'s own form does, with the file's own urn supplying the base URN and citation. Everything downstream (Mermaid diagram, highlighted/indented HTML, save-to-file) is identical to `syntaxer_workflow.py`.
 
 ## Files
 

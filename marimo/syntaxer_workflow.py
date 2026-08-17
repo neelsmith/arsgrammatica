@@ -25,7 +25,6 @@ def _(mo):
     mo.md("""
     *Enter values for a base URN, passage reference, and text to analyze, then submit the form with the `Analyze` button.*
     """)
-
     return
 
 
@@ -65,18 +64,6 @@ def _(diagram, mo):
     return
 
 
-@app.cell
-def _():
-    #finaltokens
-    return
-
-
-@app.cell
-def _():
-    #dspy.inspect_history()
-    return
-
-
 @app.cell(hide_code=True)
 def _(analysis_warnings, download_widget, mo, save_extension):
     mo.vstack(
@@ -89,6 +76,50 @@ def _(analysis_warnings, download_widget, mo, save_extension):
             else []
         )
     )
+    return
+
+
+@app.cell(hide_code=True)
+def _(download_mermaid):
+    download_mermaid
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    seetokens = mo.ui.checkbox(label="*See list of tokens*")
+    seecost = mo.ui.checkbox(label="*See cost*")
+    seeprompts = mo.ui.checkbox(label="*See prompts*")
+    mo.hstack([seetokens, seeprompts, seecost], justify="start")
+    return seecost, seeprompts, seetokens
+
+
+@app.cell(hide_code=True)
+def _(finaltokens, seetokens):
+    tokendisplay = None
+    if seetokens.value:
+        tokendisplay = finaltokens
+
+    tokendisplay
+
+    return
+
+
+@app.cell(hide_code=True)
+def _(cost, mo, seecost):
+    costdisplay = None
+    if seecost.value:
+        costdisplay = mo.md(f"**Total cost**: {cost}")
+    costdisplay    
+    return
+
+
+@app.cell(hide_code=True)
+def _(dspy, seeprompts):
+    prompts = None
+    if seeprompts.value:
+        prompts = dspy.inspect_history()
+    prompts    
     return
 
 
@@ -146,13 +177,13 @@ def _(sentences):
 @app.cell
 def _(results):
     vus = [res.verbalunits for res in results]
-    return (vus,)
+    return
 
 
 @app.cell
-def _(vus):
-    vus[0] if vus else None
-    return
+def _(lm):
+    cost = sum([x['cost'] for x in lm.history if x['cost'] is not None]) 
+    return (cost,)
 
 
 @app.cell(hide_code=True)
@@ -289,6 +320,17 @@ def _(analysis_text, filename_base, mo, results, save_extension):
     return (download_widget,)
 
 
+@app.cell
+def _(diagram, filename_base, mo):
+    download_mermaid = mo.download(
+        data=("```mermaid\n\n" + diagram + "\n```\n").encode("utf-8"),
+        filename=f"{filename_base}.md",
+        label="Download mermaid diagram",
+        mimetype="text/plain",
+    )
+    return (download_mermaid,)
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
@@ -395,8 +437,8 @@ def _(dspy, getenv):
 
 @app.cell
 def _(configure_lm):
-    configure_lm()
-    return
+    lm = configure_lm()
+    return (lm,)
 
 
 if __name__ == "__main__":
