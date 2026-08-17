@@ -1,3 +1,15 @@
 # Release history
 
-No public releases yet. `main` branch now includes a complete framework for developing, testing and optimimzing a Latin analyzer with `dspy`. Documentation of Latin syntax in [syntax_model.md](https://github.com/neelsmith/arsgrammatica/blob/main/syntax_model.md) now covers the most frequent features of Latin syntax. Deterministic utilities for visualization and serialization of analyses are complete for a 1.0 release.
+Current version: **0.1.0**.
+
+
+
+- **0.1.0**, *Aug. 17, 2026*: Initial public release, built using Opus 5. Includes a complete framework for developing, testing and optimizing Latin syntactic analyzers with a wide variety of language models using `dspy`. This release includes:
+
+    - a python package with a complete implementation of the initial syntactic scheme
+    - more than 500 tests verifying the structure of the code and its data structures
+    - command-line scripts and marimo notebooks for interactive analysis of citable passages of Latin 
+    - utilities for visualizing syntactic analyses as Mermaid graphs, and as HTML display with a variety of syntactic highlighting.
+    - serialization and loading of syntactic analyses to/from plain-text files
+    - optimization pipeline against a given model using GEPA
+    - "bakeoff" utility script to automate comparative testing of open models from Hugging Face or running locally on ollama
