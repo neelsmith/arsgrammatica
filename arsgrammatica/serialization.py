@@ -12,12 +12,32 @@ sentences and citation sources were analyzed --
 an analysis can be saved, diffed, hand-edited, or loaded back into exactly
 the same three Python types without needing a database or a pickle file.
 
+write_analyses() writes straight to a file; serialize_analyses() builds
+the exact same text and warnings but returns the string instead of
+writing it anywhere -- useful whenever the caller wants to embed this
+format in something else (a log, a prompt, another file's contents, an
+in-memory test fixture) rather than write a standalone file. The two
+share one implementation: write_analyses() is a thin wrapper that calls
+serialize_analyses() and writes its result to `path`.
+
 File shape: three line-oriented, pipe-delimited blocks, each introduced by
 a label line (one of '#!sentences', '#!verbal_units', '#!tokens' alone on
 its own line) immediately followed by a fixed header line naming that
 block's columns, then one data line per record. Blocks may appear in any
 order (the label is what identifies a block, not its position), blank
 lines between blocks are ignored, and all three blocks are required.
+
+Each of the three labels may also appear MORE THAN ONCE -- e.g. several
+'#!tokens' blocks, each with its own repeated header line, scattered
+anywhere in the file. read_analyses() concatenates every block sharing a
+label into that label's single combined row list, in file order, before
+doing anything else with it -- so a file built by literally concatenating
+several write_analyses()/serialize_analyses() outputs (each a complete,
+self-contained trio of blocks) reads back exactly as if all their
+sentences/verbalunits/tokengraph rows had been passed to a single
+write_analyses() call to begin with. write_analyses() itself still only
+ever emits one instance of each block; multiple instances are something
+read_analyses() accepts, not something this module produces.
 
     #!sentences
     context_begin|first_token|context_end|last_token
@@ -70,6 +90,18 @@ contain neither '|' nor a newline (this format has no escaping mechanism
 for either); Latin surface text/lemmas are not expected to ever contain
 either character, so this is a defensive check, not an expected case.
 
+Implied/elided tokens (tokentype in IMPLIED_TOKENTYPES -- 'implied sum' or
+'continued discourse'; see models.py's TokenAnalysis)
+round-trip like any other #!tokens row -- their `text` column is empty,
+same as any other None field, and reads back as None (not ''), same as
+every other optional column. But they're excluded from a sentence's own
+reconstructed `tokens` list in both directions: write_analyses() ignores
+them when checking a sentence's tokens form a contiguous run in
+`tokengraph`, and read_analyses() skips them when rebuilding each
+Sentence's `tokens` -- since an implied token was never part of the
+original per-sentence token list segmentation produced, only something
+the analysis stage added afterward.
+
 read_analyses() is deliberately strict, not "degrade visibly" like
 tokengraph_to_mermaid()'s or compute_subordination_depths()'s warnings-
 returning functions: a missing block, a header line that doesn't match
@@ -85,7 +117,7 @@ subtly incorrect objects.
 
 from typing import Dict, List, Optional, Tuple
 
-from .models import Sentence, Token, TokenAnalysis, VerbalExpression
+from .models import IMPLIED_TOKENTYPES, Sentence, Token, TokenAnalysis, VerbalExpression
 
 SENTENCES_LABEL = "#!sentences"
 VERBAL_UNITS_LABEL = "#!verbal_units"
@@ -127,28 +159,34 @@ def _parse_optional(value: str) -> Optional[str]:
     return value if value != "" else None
 
 
-def write_analyses(
+def serialize_analyses(
     sentences: List[Sentence],
     verbalunits: List[VerbalExpression],
     tokengraph: List[TokenAnalysis],
-    path: str,
-) -> List[str]:
-    """Write `sentences`/`verbalunits`/`tokengraph` to `path` in the format
-    this module's docstring describes. All three lists are flat and span
-    however many sentences/citation sources were analyzed -- the same
-    shape analyze_sources() (for `sentences`) and combined_tokengraph()
-    (for `tokengraph`; `verbalunits` needs the analogous concatenation,
-    which this function does not do for you) already produce.
+) -> Tuple[str, List[str]]:
+    """Build the exact text write_analyses() would write to a file, and
+    return it directly as `(content, warnings)` instead of writing it
+    anywhere -- see the module docstring for why this exists alongside
+    write_analyses(). All three lists are flat and span however many
+    sentences/citation sources were analyzed -- the same shape
+    analyze_sources() (for `sentences`) and combined_tokengraph() (for
+    `tokengraph`; `verbalunits` needs the analogous concatenation, which
+    this function does not do for you) already produce.
 
-    Returns a list of warning strings (empty if nothing looks wrong),
-    matching this codebase's "degrade visibly, don't raise" convention for
-    warnings distinct from hard errors:
+    `content` is the complete file body, including its trailing newline,
+    exactly as write_analyses() would have written it. `warnings` is a
+    list of warning strings (empty if nothing looks wrong), matching this
+    codebase's "degrade visibly, don't raise" convention for warnings
+    distinct from hard errors:
 
     - a tokengraph or verbalunits entry whose id isn't found among any
       given sentence's tokens (so no citation is known for it -- an empty
       context is written, same as a token that legitimately has no
       citation at all, but this case specifically means the id wasn't
-      found anywhere in `sentences`);
+      found anywhere in `sentences` -- EXCEPT for an implied token
+      (tokentype in IMPLIED_TOKENTYPES), which never appears in any sentence's own
+      `tokens` by design, so this warning is suppressed for those
+      specifically rather than flagged as an anomaly);
     - a sentence whose own tokens don't form a contiguous, matching-order
       run in `tokengraph`'s given order -- see the module docstring for
       why this matters for read_analyses() to recover sentence boundaries
@@ -164,6 +202,13 @@ def write_analyses(
     for sentence in sentences:
         for tok in sentence.tokens:
             id_to_citation[tok.id] = tok.citation
+
+    # Implied tokens (tokentype in IMPLIED_TOKENTYPES) never appear in any sentence's
+    # own `tokens` list by design (see the module docstring's note above)
+    # -- so having no recorded citation is expected and correct for them,
+    # not the kind of anomaly the "not found among the given sentences'
+    # tokens" warning below exists to flag.
+    implied_ids = {tok.id for tok in tokengraph if tok.tokentype in IMPLIED_TOKENTYPES}
 
     tg_index = {tok.id: i for i, tok in enumerate(tokengraph)}
 
@@ -191,7 +236,15 @@ def write_analyses(
             )
         else:
             expected_ids = [t.id for t in sentence.tokens]
-            actual_ids = [tok.id for tok in tokengraph[first_pos : last_pos + 1]]
+            # Implied tokens (tokentype in IMPLIED_TOKENTYPES) were never part of the
+            # original per-sentence `tokens` list -- they're synthesized by
+            # analysis itself -- so exclude them here before comparing, or
+            # every sentence containing one would spuriously warn.
+            actual_ids = [
+                tok.id
+                for tok in tokengraph[first_pos : last_pos + 1]
+                if tok.tokentype not in IMPLIED_TOKENTYPES
+            ]
             if actual_ids != expected_ids:
                 warnings.append(
                     f"sentence at index {s_idx} (tokens {first_tok.id!r}.."
@@ -216,7 +269,7 @@ def write_analyses(
     lines.append(VERBAL_UNITS_LABEL)
     lines.append(VERBAL_UNITS_HEADER)
     for vu in verbalunits:
-        if vu.id not in id_to_citation:
+        if vu.id not in id_to_citation and vu.id not in implied_ids:
             warnings.append(
                 f"verbal expression {vu.id!r} not found among the given "
                 "sentences' tokens -- writing an empty context for it"
@@ -237,7 +290,7 @@ def write_analyses(
     lines.append(TOKENS_LABEL)
     lines.append(TOKENS_HEADER)
     for tok in tokengraph:
-        if tok.id not in id_to_citation:
+        if tok.id not in id_to_citation and tok.id not in implied_ids:
             warnings.append(
                 f"token {tok.id!r} not found among the given sentences' "
                 "tokens -- writing an empty context for it"
@@ -260,20 +313,47 @@ def write_analyses(
             )
         )
 
-    with open(path, "w", encoding="utf-8") as f:
-        f.write("\n".join(lines) + "\n")
+    return "\n".join(lines) + "\n", warnings
 
+
+def write_analyses(
+    sentences: List[Sentence],
+    verbalunits: List[VerbalExpression],
+    tokengraph: List[TokenAnalysis],
+    path: str,
+) -> List[str]:
+    """Write `sentences`/`verbalunits`/`tokengraph` to `path` in the format
+    this module's docstring describes -- see serialize_analyses() (which
+    this is a thin wrapper around) for what's actually written and for the
+    full list of warnings this can return.
+
+    Returns a list of warning strings (empty if nothing looks wrong); see
+    serialize_analyses()'s docstring for what each one means. Raises
+    ValueError for a sentence with no tokens at all (nothing to derive
+    first_token/last_token from), or if any field value contains '|' or a
+    newline (see `_field`) -- both raised by serialize_analyses() before
+    this function ever opens `path`.
+    """
+    content, warnings = serialize_analyses(sentences, verbalunits, tokengraph)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(content)
     return warnings
 
 
 def read_analyses(
     path: str,
 ) -> Tuple[List[TokenAnalysis], List[VerbalExpression], List[Sentence]]:
-    """Read `path` (as written by write_analyses()) and reconstruct
-    `(tokengraph, verbalunits, sentences)` -- in that order, matching the
-    order these three types are usually discussed in this codebase (the
-    token-level graph, then the verbal-expression table, then the
-    sentence/citation structure that supplies context for both).
+    """Read `path` (as written by write_analyses()/serialize_analyses()) and
+    reconstruct `(tokengraph, verbalunits, sentences)` -- in that order,
+    matching the order these three types are usually discussed in this
+    codebase (the token-level graph, then the verbal-expression table,
+    then the sentence/citation structure that supplies context for both).
+
+    Each of the three block labels may appear more than once in `path`
+    (see the module docstring) -- every instance contributes its own rows,
+    in file order, to that label's combined row list, as if the file were
+    the concatenation of however many separate write_analyses()/
+    serialize_analyses() outputs it actually is.
 
     Raises ValueError, naming the offending line and problem, for anything
     that isn't a faithful, internally-consistent file written by
@@ -286,21 +366,31 @@ def read_analyses(
     with open(path, "r", encoding="utf-8") as f:
         raw_lines = f.read().splitlines()
 
-    # blocks[label] is None until that block's header line has been
-    # consumed, then becomes the (growing) list of (line_no, line) data
-    # rows for that block.
-    blocks: Dict[str, Optional[List[Tuple[int, str]]]] = {}
+    # blocks[label] accumulates (line_no, line) data rows across every
+    # instance of that label found in the file, in file order. A label
+    # line always starts a new instance and must be immediately followed
+    # by that label's header line (`awaiting_header` tracks this) before
+    # any more data rows can be appended to it -- this holds per instance,
+    # not just for the label's first appearance, so every repeated block
+    # must repeat its own header line too.
+    blocks: Dict[str, List[Tuple[int, str]]] = {label: [] for label in _EXPECTED_HEADERS}
+    seen_labels = set()
     current_label: Optional[str] = None
+    awaiting_header = False
 
     for line_no, line in enumerate(raw_lines, start=1):
         if line.strip() == "":
             continue
 
         if line in _EXPECTED_HEADERS:
-            if line in blocks:
-                raise ValueError(f"line {line_no}: duplicate block label {line!r}")
-            blocks[line] = None
+            if awaiting_header:
+                raise ValueError(
+                    f"line {line_no}: block {current_label!r} has a label "
+                    "line but no header line before the next block starts"
+                )
             current_label = line
+            seen_labels.add(line)
+            awaiting_header = True
             continue
 
         if current_label is None:
@@ -309,26 +399,25 @@ def read_analyses(
                 "'#!' block label"
             )
 
-        if blocks[current_label] is None:
+        if awaiting_header:
             expected = _EXPECTED_HEADERS[current_label]
             if line != expected:
                 raise ValueError(
                     f"line {line_no}: expected header {expected!r} for "
                     f"block {current_label!r}, got {line!r}"
                 )
-            blocks[current_label] = []
+            awaiting_header = False
             continue
 
         blocks[current_label].append((line_no, line))
 
-    missing = sorted(set(_EXPECTED_HEADERS) - set(blocks))
+    missing = sorted(set(_EXPECTED_HEADERS) - seen_labels)
     if missing:
         raise ValueError(f"file is missing required block(s): {missing}")
-    empty_headerless = [label for label, rows in blocks.items() if rows is None]
-    if empty_headerless:
+    if awaiting_header:
         raise ValueError(
-            f"block(s) {sorted(empty_headerless)} have a label line but no "
-            "header line (and no data) -- the file ends too early"
+            f"block {current_label!r} has a label line but no header line "
+            "(and no data) -- the file ends too early"
         )
 
     # --- #!tokens: build the TokenAnalysis list, the id->citation map,
@@ -364,7 +453,7 @@ def read_analyses(
         tokengraph.append(
             TokenAnalysis(
                 id=tok_id,
-                token=text,
+                token=_parse_optional(text),
                 tokentype=tokentype,
                 lemma=_parse_optional(lemma),
                 verbalunitid=_parse_optional(verbalunit),
@@ -461,7 +550,11 @@ def read_analyses(
                 f"{last_id!r}"
             )
 
-        sentence_ids = row_order[start : end + 1]
+        sentence_ids = [
+            tid
+            for tid in row_order[start : end + 1]
+            if tokengraph[id_position[tid]].tokentype not in IMPLIED_TOKENTYPES
+        ]
         sentences.append(
             Sentence(
                 tokens=[

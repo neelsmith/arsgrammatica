@@ -59,7 +59,7 @@ its own.
 import html
 from typing import Dict, List, Optional, Tuple
  
-from .models import TokenAnalysis
+from .models import IMPLIED_TOKENTYPES, TokenAnalysis
 from .verbal_units import (
     assign_verbal_units,
     assign_verbal_unit_colors,
@@ -114,11 +114,19 @@ def tokengraph_to_text(tokengraph: List[TokenAnalysis]) -> str:
     quote_counts: Dict[str, int] = {}
     pieces: List[str] = []
     previous_class = None
- 
+
     for tok in tokengraph:
+        if tok.tokentype in IMPLIED_TOKENTYPES:
+            # An implied/elided token (models.py's IMPLIED_TOKENTYPES) has
+            # no surface realization at all -- skip it entirely, exactly as
+            # if it weren't in the list, rather than trying to render
+            # `None`. previous_class is deliberately left untouched, so the
+            # next real token's spacing is decided as if this one weren't
+            # here.
+            continue
         cls = _classify(tok, quote_counts)
         text = tok.token
- 
+
         if not pieces:
             # Nothing precedes the first token -- never prepend a space,
             # regardless of this token's own classification.
@@ -142,33 +150,58 @@ def tokengraph_to_html(tokengraph: List[TokenAnalysis]) -> str:
     """Render `tokengraph` as an HTML string: the same continuous text
     `tokengraph_to_text()` produces -- identical spacing rules, and the same
     punctuation/enclitic/quote-pair handling -- except every **lexical**
-    token's text is wrapped in a `<span style="...">` colored by the verbal
-    unit it belongs to. Colors come from `verbal_units.assign_verbal_units()`
-    / `assign_verbal_unit_colors()` -- the same assignment and the same
-    first-appearance palette ordering `tokengraph_to_mermaid()` uses for its
-    node coloring -- so a passage rendered here and the same passage's
-    Mermaid diagram color each verbal unit identically.
- 
-    Only tokens with `tokentype == "lexical"` get wrapped: punctuation,
-    enclitics, numerals, praenomens, and abbreviations are emitted as plain
-    (escaped) text even though `assign_verbal_units()` assigns every token,
-    including punctuation, to whichever unit its relations resolve to --
-    this function just doesn't turn that assignment into a span for
-    anything but lexical tokens, per the request it was built for. A
-    lexical token belonging to no verbal unit (assignment is `None`, e.g. a
-    bare accusative of place)
-    is left unwrapped too, as is a lexical token whose unit happens to have
-    no non-punctuation member at all and so never got a color slot from
-    `assign_verbal_unit_colors()` (should not occur in practice, since a
-    lexical token IS a non-punctuation member of its own unit, but handled
-    defensively rather than assumed).
- 
+    token, and every **coordinating conjunction** (any token with
+    relationship1 or relationship2 == "coordinating conjunction", lexical or
+    not), has its text wrapped in a `<span style="...">` colored by the
+    verbal unit it belongs to. Colors come from
+    `verbal_units.assign_verbal_units()` / `assign_verbal_unit_colors()` --
+    the same assignment and the same first-appearance palette ordering
+    `tokengraph_to_mermaid()` uses for its node coloring -- so a passage
+    rendered here and the same passage's Mermaid diagram color each verbal
+    unit identically.
+
+    The coordinating-conjunction carve-out exists because a conjunction
+    like "-que" or "-ve" is typically tokentype "enclitic", not "lexical",
+    but `assign_verbal_units()` still resolves it to one of the units it
+    coordinates (see that module's docstring) -- e.g. in "arma virumque
+    cano.", "que" resolves to the same unit as "cano", same as "arma" and
+    "virum" do. Leaving it unwrapped would visually hide that assignment
+    even though it's a real one, unlike the other non-lexical tokentypes
+    below. A subordinating conjunction (e.g. "cum", "ut") doesn't need this
+    carve-out: it's always tokentype "lexical" (a full word, never
+    enclitic), so it's already wrapped.
+
+    Every other non-lexical token -- punctuation, a non-conjunction
+    enclitic (e.g. the interrogative "-ne"), numerals, praenomens, and
+    abbreviations -- is still emitted as plain (escaped) text even though
+    `assign_verbal_units()` assigns every token, including punctuation, to
+    whichever unit its relations resolve to; this function just doesn't
+    turn that assignment into a span for anything else. A lexical or
+    coordinating-conjunction token belonging to no verbal unit (assignment
+    is `None`, e.g. a bare accusative of place) is left unwrapped too, as
+    is one whose unit happens to have no non-punctuation member at all and
+    so never got a color slot from `assign_verbal_unit_colors()` (should
+    not occur in practice for a lexical token, since it's always a
+    non-punctuation member of its own unit, but handled defensively rather
+    than assumed).
+
+    An **implied/elided token** (models.py's IMPLIED_TOKENTYPES: "implied
+    sum", "continued discourse") is omitted entirely -- same as
+    tokengraph_to_text() -- rather than rendered with any span: it has no
+    surface text (`tok.token` is always `None`), and unlike
+    `tokengraph_to_mermaid()`'s diagram (which DOES show these, as their
+    own specially-colored, specially-labeled node -- see that module's own
+    docstring), inserting placeholder text into the middle of reconstructed
+    prose here would misrepresent what the passage actually says. The
+    Mermaid diagram is the one place an implied token's presence is worth
+    seeing at all.
+
     Every token's text is HTML-escaped (`&`, `<`, `>`, and quote characters)
     before being emitted, spans or not -- real Latin text can contain a
     literal `"` or `'` (see the quote-pair handling below), which would
     otherwise be indistinguishable from markup to anything that re-parses
     this output.
- 
+
     The span's inline style sets both `background-color` (the verbal unit's
     palette `fill`, the same value used as a Mermaid node's `fill`) and
     `color` (the palette's `text` value, currently black for every slot) --
@@ -188,9 +221,13 @@ def _tokens_to_html(
 ) -> str:
     """Shared rendering core behind tokengraph_to_html() and
     tokengraph_to_depth_html(): join `tokens` into one HTML string with the
-    same spacing/escaping/quote-pairing rules as tokengraph_to_text(), plus
-    lexical-token color spans, given an already-computed verbal-unit
-    `assignment` and `colors` mapping. Taking these as parameters (rather
+    same spacing/escaping/quote-pairing rules as tokengraph_to_text()
+    (including that function's identical omission of implied/elided
+    tokens -- see tokengraph_to_html()'s own docstring for why), plus color
+    spans for lexical tokens and coordinating conjunctions (see that same
+    docstring for why conjunctions get this too), given an
+    already-computed verbal-unit `assignment` and `colors` mapping. Taking
+    these as parameters (rather
     than deriving them from `tokens` itself) is what lets
     tokengraph_to_depth_html() render one depth-block's tokens at a time
     while every block still uses the exact same unit-to-color mapping as
@@ -209,10 +246,20 @@ def _tokens_to_html(
     previous_class = None
 
     for tok in tokens:
+        if tok.tokentype in IMPLIED_TOKENTYPES:
+            # See tokengraph_to_text()'s identical skip -- no surface text
+            # to escape or wrap, and previous_class is left untouched.
+            # tokengraph_to_mermaid() is the one place these are shown at
+            # all (see tokengraph_to_html()'s own docstring).
+            continue
         cls = _classify(tok, quote_counts)
         rendered = html.escape(tok.token)
 
-        if tok.tokentype == "lexical":
+        is_coordinating_conjunction = (
+            tok.relationship1 == "coordinating conjunction"
+            or tok.relationship2 == "coordinating conjunction"
+        )
+        if tok.tokentype == "lexical" or is_coordinating_conjunction:
             unit_id = assignment.get(tok.id)
             color = colors.get(unit_id) if unit_id is not None else None
             if color is not None:

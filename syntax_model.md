@@ -7,7 +7,6 @@ In this scheme, analysis of a passage of Latin is expressed in two related struc
 - a list of verbal expressions, generally corresponding to clauses in an English translation
 - a token-level table capturing principal relations in a dependency graph
 
-This draft describes a first, partial implementation of the scheme.
 
 ## Table of verbal expressions
 
@@ -28,6 +27,17 @@ In this scheme, verbal expressions are classified according to:
     - for infinitives: *indirect statement* when they are part of an expression in indirect speech. Example: in the sentence *facturum enim se fuisse dixit*, the verb *dixit* is an independent verbal expression, and *facturum fuisse* is the compound verb form for the future infinitive. The verbal unit wil be anchored to the infinitive *fuisse* of syntactic type `indirect statement`.
     - for participles: For example, in the sentence *gloria est consentiens laus bonorum*, the participle *consentiens* has an attributive sense with *laus*, "universal praise": this is *not* a verbal expression. But in the sentence *Anco regnante Lucumo, vir inpiger ac divitiis potens, Romam commigravit* the participle *regnante* has a predicate sense with *Anco* "while Ancus was reigning..."  When it is uncertain whether to take the relation of a participle either as attribute or a circumstantial participle **prefer the treatment as circumstantial participle**. For example, in the sentence *ille moriens, cum sciret sagittas hydrae Lernaeae felle tinctas quantam uim haberent ueneni, sanguinem suum exceptum Deianirae dedit*, the participle *moriens* agrees with *ille* and the participle *tinctas* agrees with *sagittas*. Treat both as circumstantial participles definiing a verbal expression.
 2. by their *semantic type* ,as *transitive active*, *transitive passive*, *intransitive* or a *linking verb*. In the sentence *principes Albanorum in patres, ut ea quoque pars rei publicae cresceret, legit*m the verb *legit* is *transitive active*; and *cresceret* is *intransitive*. In *urbs a Romulo condita est*, the compound verb *condita est* is *transitive passive*.  In the sentence *Etruria erat vicina*, the verb *erat* is a *linking verb*.
+
+
+
+
+
+`arsgrammatica` recognizes two categories of understood or implied verbal expressions.
+
+1. elided present of `sum`: the verb `sum` ("to be") is often elided  in the present tense. A new token with unique ID must be added to the token table, and an entry added to the list of verbal expressions. The token will have `None` for its text value.  Example: *omnia praeclara rara* is a complete sentence with subject *omnia praeclara* and predicate *rara*. A new token will be created with `None` as its text value, and its ID will be entered in the list of verbal expressions. This of a predicate construction is a main sentence, so its syntactic type will be *independent clause* and the semantic type will be *linking verb*. This elision can also occur with multiword compounds such as the perfect passive system. Example: the sentence *inde P. Valerius iterum T. Lucretius consules facti.* has a single verbal expression with a perfect passive verb, *facti* with *sunt* omitted. Here too we will add a token to the token list with text value `None`, and add its ID to the list of verbal expressions. In this example, the syntactic type will be `independent clause` and the semantic type will be `transitive passive`. One important category of elided forms of *sum* is the participle: since there is no present participle of *sum*, its presence is *always* implied only. Example: in the sentence *P. Valerius anno post Agrippa Menenio P. Postumio consulibus moritur.*, the phrase *Agrippa Menenio P. Postumio consulibus* is a predicate construction implying a circumstantial participle. We must a new token with unique ID to the token table and use its ID for a new entry in the list of verbal expressions. The syntactic type will be *circumstantial participle* and the semantic type will be *linking verb* since this is a predicate construction ("when Agrippa Menenius and Publius Postumius were consuls...")
+
+2. continuation of indirect discourse: in long sections of indirect speech, entire passages may appear without repeating any governing verb of speaking or thinking. In this situation, we must add new token with unique ID to the token table, with `None` for its text value, and use its ID for new entry in the list of verbal expressions. For example, these three verbal expressions are each constructed in indirect statement: *nimium Tarquinios regno adsuesse; initium a Prisco factum; regnasse dein Ser. Tullium*. They imply a verb of speaking governing all three verbal expressions, so we add a new token with unique ID to the list of tokens, and add a verbal expression with its ID to the list of verbal expressions. Here, we assume that the understood verbal expression is of syntatic type *independent clause*; its semantic type is 'transitive active'. 
+
 
 
 ## Token-level table of dependencies
@@ -103,7 +113,6 @@ In the first phase of implementing our syntax model, we will record the followin
 
 
 
-
 - noun or pronoun serving as the subject of a verbal expression: *relation1* will be the id of the token of the verb. If it is a compound verb form in the perfect passive system, this should be the id of the form of *sum*. The value of *relation1ship* will be *subject*.
 
 - noun or pronoun functioning as direct object of a verbal expression: *relation1* will be the id of the token of the verb. If it is a compound verb form in the perfect passive system, this should be the id of the form of *sum*. The value of *relation1ship* will be *direct object*.
@@ -143,10 +152,6 @@ Traditional grammatical analyses typically conflate syntax and semantics: this m
 
 
 
-- gerunds: gerunds are noun forms, used in the oblique cases (where the infinitive could be used in the nominative). They can be related to the syntax of an expression like any other noun. Example: in the phrase *ars bene disserendi*, the gerund *disserendi* is a gentive noun related to *ars*. It will have the id of *ars* as `relation1` and `genitive` as the value of `relationship1`. As verbal forms, gerunds can have objects or take adverbs. *bene* in the precediong example is an adverb that will stand in relation to *disserendi* in an `adverbial` relationship, so will have the id of `disserendi` for `relaion1`, and `adverbial` as the value of `relationship1`.
+- gerunds: gerunds are noun forms, used in the oblique cases (where the infinitive could be used in the nominative). They can be related to the syntax of an expression like any other noun. Example: in the phrase *ars bene disserendi*, the gerund *disserendi* is a gentive noun related to *ars*. It will have the id of *ars* as `relation1` and `genitive` as the value of `relationship1`. As verbal forms, gerunds can have objects or take adverbs. *bene* in the precediong example is an adverb that will stand in relation to *disserendi* in an `adverbial` relationship, so will have the id of `disserendi` for `relation1`, and `adverbial` as the value of `relationship1`.
 
-
-### TBA
-
-- gerunds and gerundives
 

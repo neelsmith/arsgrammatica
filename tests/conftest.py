@@ -16,14 +16,14 @@ from dotenv import load_dotenv
 from dspy.utils.dummies import DummyLM
  
 from arsgrammatica import analyze
-from arsgrammatica.models import Token
+from arsgrammatica.models import IMPLIED_TOKENTYPES, Token
 from arsgrammatica.segmentation_dspy import segment_sources
  
  
 def tokens_from_canned_answer(canned_answer):
     """Build a Token list directly from a canned_answer's own tokengraph,
     rather than from a separate tokenizer.
- 
+
     Gold fixtures already specify each token's id and surface text via
     their tokengraph entries (id, token) -- that's the authoritative
     source now that there's no deterministic tokenize() to derive tokens
@@ -31,10 +31,18 @@ def tokens_from_canned_answer(canned_answer):
     handed to analyze() always agrees with the canned answer, by
     construction, which a separately-hand-tokenized passage string
     couldn't promise.
+
+    Implied/elided tokengraph entries (tokentype in IMPLIED_TOKENTYPES --
+    'implied sum' or 'continued discourse'; see models.py's
+    TokenAnalysis) are excluded: they were never part of the original,
+    pre-analysis token list -- analyze() itself is what adds them to its
+    OUTPUT tokengraph -- and Token.text is required, non-None, which an
+    implied entry's token=None couldn't satisfy anyway.
     """
     return [
         Token(id=entry["id"], text=entry["token"])
         for entry in canned_answer["tokengraph"]
+        if entry.get("tokentype") not in IMPLIED_TOKENTYPES
     ]
  
  

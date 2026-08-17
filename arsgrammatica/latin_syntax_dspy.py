@@ -22,7 +22,7 @@ from typing import List
  
 import dspy
  
-from .models import Token, VerbalExpression, TokenAnalysis
+from .models import IMPLIED_TOKENTYPES, Token, VerbalExpression, TokenAnalysis
  
  
 # ---------------------------------------------------------------------------
@@ -262,13 +262,79 @@ class SyntaxAnalysis(dspy.Signature):
           relatedtoken1 -> the verb's id, relationship1 = 'adverbial' --
           the same relationship1 value as a preposition modifying a verb,
           just with no object-of-preposition token on the other end.
- 
+
         Only assign relations described above. Leave relatedtoken/
         relationship fields unset for tokens with no relation of these
         kinds -- not every token will have one (e.g. a bare accusative of
         place isn't covered). Use only the token ids given in
-        the input `tokens` list, or the sentinel 'root', in your output;
-        never invent new ids.
+        the input `tokens` list, the sentinel 'root', or a NEW id you
+        create for an implied token (see below), in your output; never
+        invent an id for anything else.
+
+    (3) implied/elided tokens. `arsgrammatica` recognizes two DIFFERENT
+        situations where a verbal expression exists grammatically but has
+        no surface realization in the passage at all -- rather than skip
+        these, add a NEW entry to `tokengraph` (and a matching new entry to
+        `verbalunits`, since an implied token always anchors its own
+        verbal expression) with: a brand-new id, not used by any entry in
+        `tokens` or elsewhere in your own output (see the naming rule
+        below); the matching tokentype below; and no `token` value (leave
+        it unset/None) -- these go together, and 'implied sum' /
+        'continued discourse' are the ONLY two tokentype values whose id
+        isn't one of `tokens`' own ids and whose `token` is empty.
+
+        - tokentype 'implied sum': an elided present of 'sum' ('to be').
+          Three sub-cases, all using this same tokentype:
+            - a bare predicate construction (subject + predicate noun/
+              adjective, no verb at all): the implied token anchors a
+              verbal expression classified 'independent' (or 'dependent',
+              if the elided-'sum' clause is itself subordinate) and
+              'linking verb'; the subject and predicate each relate to it
+              exactly as they would to any linking verb ('subject' /
+              'predicate'). Example: "omnia praeclara rara" ('all splendid
+              things [are] rare') has an implied token anchoring an
+              'independent'/'linking verb' expression, with "omnia" (its
+              own 'praeclara' adjectival) as 'subject' and "rara" as
+              'predicate'.
+            - a compound perfect/pluperfect passive (or impersonal
+              passive) with its auxiliary omitted (e.g. "consules facti"
+              for "consules facti sunt"): the implied token stands in for
+              the omitted form of 'sum' -- everything that would normally
+              relate to that auxiliary (subject, the participle's own
+              'auxiliary' relation, etc.) relates to the implied token
+              instead, exactly as if the auxiliary had been written out.
+            - the present participle of 'sum' does not exist in Latin at
+              all, so an ablative-absolute-style predicate construction
+              built on it (e.g. "Agrippa Menenio P. Postumio consulibus",
+              '[when] Agrippa Menenius [and] Publius Postumius [were]
+              consuls') is ALWAYS implied, never optional. Classify the
+              implied token's verbal expression 'dependent' (this
+              codebase's circumstantial-participle convention -- see
+              VerbalExpression's own docstring) and 'linking verb'; relate
+              it to its noun via 'circumstantial participle' exactly like
+              any other circumstantial participle.
+        - tokentype 'continued discourse': continuation of indirect
+          discourse -- a long run of indirect statements can share one
+          governing verb of speaking/thinking stated once, then omitted
+          across several further coordinate statements. Add ONE implied
+          token (tokentype 'continued discourse') for that omitted
+          governing verb (syntactic type 'independent' unless the whole
+          passage is itself subordinate, semantic type 'transitive active'
+          unless context says otherwise), and give EACH of the governed
+          infinitives its normal 'indirect statement' relation into it,
+          exactly as if the verb had been repeated for each one.
+
+        Naming an implied token's id (both tokentypes): append '_implied'
+        to the id of the LAST real token in `tokens` that precedes where
+        the elided word would have stood (or, if the elided word would
+        come before every real token in the sentence, the FIRST real
+        token's id instead). If more than one implied token is ever
+        needed at the same position, append '2', '3', ... after '_implied'
+        to keep them unique (e.g. 't5_implied', 't5_implied2'). Place the
+        new `tokengraph` entry at the list position where the elided word
+        would have appeared, among the tokens of its own clause -- this
+        keeps it grouped with the rest of its verbal expression for
+        anything that reads `tokengraph` in order.
     """
  
     passage: str = dspy.InputField(desc="The Latin passage to analyze, exactly as written.")
@@ -279,7 +345,12 @@ class SyntaxAnalysis(dspy.Signature):
         desc="One entry per verbal expression (finite verb; infinitive used in indirect speech; or predicate-sense participle) in the passage."
     )
     tokengraph: List[TokenAnalysis] = dspy.OutputField(
-        desc="One entry per token in `tokens`, in the same order, with its type and any relations."
+        desc=(
+            "One entry per token in `tokens`, in the same order, with its "
+            "type and any relations -- PLUS one additional entry for each "
+            "implied/elided token you add (see this signature's docstring), "
+            "positioned where that token's clause falls in reading order."
+        )
     )
  
  
@@ -291,35 +362,71 @@ analyze = dspy.ChainOfThought(SyntaxAnalysis)
 # ---------------------------------------------------------------------------
  
 def validate(tokens: List[Token], result) -> List[str]:
-    """Check that every id the LM produced actually exists among `tokens`.
-    Returns a list of human-readable problem descriptions (empty if clean).
- 
+    """Check that every id the LM produced actually exists among `tokens`
+    -- OR is a legitimately new implied token (tokentype in
+    IMPLIED_TOKENTYPES -- 'implied sum' or 'continued discourse'; see
+    SyntaxAnalysis's docstring) -- and that implied tokens themselves are
+    well-formed. Returns a list of human-readable problem descriptions
+    (empty if clean).
+
     'root' is a special sentinel value for an independent verb's own
     relatedtoken1 (see SyntaxAnalysis's docstring) -- it is never treated as
     an unknown id, but syntax_model.md also requires that no actual token
-    ever be assigned the id 'root', so that's checked here too."""
+    ever be assigned the id 'root', so that's checked here too.
+
+    Implied tokens get their own, narrower checks: a tokengraph entry
+    claiming an IMPLIED_TOKENTYPES value must use a genuinely NEW id (not
+    one already in `tokens`) and must leave `token` unset (None) -- getting
+    either wrong is exactly the kind of malformed output this function
+    exists to catch, not a legitimate implied token. A non-implied entry,
+    conversely, must use one of `tokens`' own ids and must NOT have
+    `token=None` -- only 'implied sum'/'continued discourse' may omit real
+    surface text."""
     valid_ids = {t.id for t in tokens}
     problems = []
- 
+
     if "root" in valid_ids:
         problems.append(
             "token id 'root' is reserved as the sentinel relatedtoken1 "
             "value for independent verbs and must not be assigned to an "
             "actual token"
         )
- 
+
+    implied_ids = {tok.id for tok in result.tokengraph if tok.tokentype in IMPLIED_TOKENTYPES}
+    known_ids = valid_ids | implied_ids
+
     for tok in result.tokengraph:
-        if tok.id not in valid_ids:
-            problems.append(f"tokengraph entry has unknown id {tok.id!r}")
+        if tok.tokentype in IMPLIED_TOKENTYPES:
+            if tok.id in valid_ids:
+                problems.append(
+                    f"tokengraph entry {tok.id!r} is tokentype={tok.tokentype!r} but "
+                    "reuses an id already in the input `tokens` list -- an "
+                    "implied token must use a new id"
+                )
+            if tok.token is not None:
+                problems.append(
+                    f"tokengraph entry {tok.id!r} is tokentype={tok.tokentype!r} but "
+                    f"has a non-None token value {tok.token!r} -- an implied "
+                    "token's text must be left unset"
+                )
+        else:
+            if tok.id not in valid_ids:
+                problems.append(f"tokengraph entry has unknown id {tok.id!r}")
+            if tok.token is None:
+                problems.append(
+                    f"tokengraph entry {tok.id!r} has token=None but "
+                    f"tokentype={tok.tokentype!r} -- only 'implied sum'/"
+                    "'continued discourse' may omit surface text"
+                )
         for field in ("relatedtoken1", "relatedtoken2"):
             val = getattr(tok, field)
-            if val is not None and val != "root" and val not in valid_ids:
+            if val is not None and val != "root" and val not in known_ids:
                 problems.append(f"token {tok.id!r} {field}={val!r} is not a known token id")
- 
+
     for vu in result.verbalunits:
-        if vu.id not in valid_ids:
+        if vu.id not in known_ids:
             problems.append(f"verbal expression id {vu.id!r} is not a known token id")
- 
+
     return problems
  
  
@@ -341,4 +448,5 @@ def print_analysis(tokens: List[Token], result):
             rels.append(f"{tok.relationship2} -> {tok.relatedtoken2}")
         rel_str = "; ".join(rels) if rels else "-"
         vu_str = f" [verbal unit {tok.verbalunitid}]" if tok.verbalunitid else ""
-        print(f"  {tok.id:>4}  {tok.token:<15} type={tok.tokentype:<11} lemma={tok.lemma or '-':<15} {rel_str}{vu_str}")
+        token_str = tok.token if tok.token is not None else f"({tok.tokentype})"
+        print(f"  {tok.id:>4}  {token_str:<15} type={tok.tokentype:<11} lemma={tok.lemma or '-':<15} {rel_str}{vu_str}")

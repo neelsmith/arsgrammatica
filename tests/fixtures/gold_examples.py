@@ -1839,6 +1839,260 @@ _GERUND_ARS_BENE_DISSERENDI_ANSWER = {
 }
 
 
+# ---------------------------------------------------------------------------
+# "Omnia praeclara rara."
+#   t0 Omnia  t1 praeclara  t2 rara  t2_implied [implied sum]  t3 .
+#
+# syntax_model.md's own worked example for the elided present of *sum* in a
+# bare predicate construction: no verb at all is written, so a new implied
+# token (tokentype='implied sum', token=None) is added to anchor the linking-
+# verb verbal expression that "rara" and "omnia praeclara" would otherwise
+# have no home for. Named t2_implied per SyntaxAnalysis's naming rule
+# (appended to the last real token before where the elided word would
+# stand) and placed right after t2 in tokengraph, where that word would
+# have appeared.
+# ---------------------------------------------------------------------------
+
+_IMPLIED_SUM_OMNIA_PRAECLARA_ANSWER = {
+    "reasoning": (
+        "No form of sum appears anywhere in the sentence, but 'omnia "
+        "praeclara rara' is a complete predicate-noun-plus-predicate-"
+        "adjective construction ('all splendid things [are] rare') -- the "
+        "present tense of sum is simply omitted, per syntax_model.md's "
+        "elided-present-of-sum rule. A new implied token (t2_implied, "
+        "token=None) is added to anchor this as an independent, linking-"
+        "verb verbal expression: Omnia (used substantively, 'all things') "
+        "is its subject, with praeclara adjectival to Omnia, and rara is "
+        "its predicate."
+    ),
+    "verbalunits": [
+        {"id": "t2_implied", "syntactic_type": "independent", "semantic_type": "linking verb"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Omnia", "tokentype": "lexical", "lemma": "omnis",
+         "relatedtoken1": "t2_implied", "relationship1": "subject"},
+        {"id": "t1", "token": "praeclara", "tokentype": "lexical", "lemma": "praeclarus",
+         "relatedtoken1": "t0", "relationship1": "adjectival"},
+        {"id": "t2", "token": "rara", "tokentype": "lexical", "lemma": "rarus",
+         "relatedtoken1": "t2_implied", "relationship1": "predicate"},
+        {"id": "t2_implied", "token": None, "tokentype": "implied sum",
+         "verbalunitid": "t2_implied", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t3", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
+
+# ---------------------------------------------------------------------------
+# "inde P. Valerius iterum T. Lucretius consules facti."
+#   t0 inde  t1 P.  t2 Valerius  t3 iterum  t4 T.  t5 Lucretius  t6 consules
+#   t7 facti  t7_implied [implied sum]  t8 .
+#
+# syntax_model.md's own worked example for the elided present of *sum* in a
+# compound perfect-passive verb form: "facti" with "sunt" omitted. The
+# implied token (t7_implied) stands in for the missing "sunt" exactly as if
+# it had been written -- everything that would relate to a written-out
+# auxiliary (the two coordinate subjects, the predicate noun, the
+# participle's own 'auxiliary' relation) relates to it instead.
+# ---------------------------------------------------------------------------
+
+_IMPLIED_SUM_CONSULES_FACTI_ANSWER = {
+    "reasoning": (
+        "facti is a perfect passive participle with its auxiliary 'sunt' "
+        "omitted, per syntax_model.md's elided-present-of-sum rule -- a "
+        "new implied token (t7_implied, token=None) stands in for it, "
+        "anchoring an independent, transitive-passive verbal expression. "
+        "P. Valerius and T. Lucretius are its two (asyndetically "
+        "coordinated) subjects; consules is the predicate noun ('as "
+        "consuls'); facti itself relates to the implied token as its "
+        "auxiliary, exactly as a written-out 'sunt' would take it; inde "
+        "and iterum are adverbial. Neither praenomen abbreviation (P., T.) "
+        "gets a relation of its own, per the scheme's existing convention "
+        "for praenomen tokens."
+    ),
+    "verbalunits": [
+        {"id": "t7_implied", "syntactic_type": "independent", "semantic_type": "transitive passive"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "inde", "tokentype": "lexical", "lemma": "inde",
+         "relatedtoken1": "t7_implied", "relationship1": "adverbial"},
+        {"id": "t1", "token": "P.", "tokentype": "praenomen"},
+        {"id": "t2", "token": "Valerius", "tokentype": "lexical", "lemma": "Valerius",
+         "relatedtoken1": "t7_implied", "relationship1": "subject"},
+        {"id": "t3", "token": "iterum", "tokentype": "lexical", "lemma": "iterum",
+         "relatedtoken1": "t7_implied", "relationship1": "adverbial"},
+        {"id": "t4", "token": "T.", "tokentype": "praenomen"},
+        {"id": "t5", "token": "Lucretius", "tokentype": "lexical", "lemma": "Lucretius",
+         "relatedtoken1": "t7_implied", "relationship1": "subject"},
+        {"id": "t6", "token": "consules", "tokentype": "lexical", "lemma": "consul",
+         "relatedtoken1": "t7_implied", "relationship1": "predicate"},
+        {"id": "t7", "token": "facti", "tokentype": "lexical", "lemma": "facio",
+         "relatedtoken1": "t7_implied", "relationship1": "auxiliary"},
+        {"id": "t7_implied", "token": None, "tokentype": "implied sum",
+         "verbalunitid": "t7_implied", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t8", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
+
+# ---------------------------------------------------------------------------
+# "P. Valerius anno post Agrippa Menenio P. Postumio consulibus moritur."
+#   t0 P.  t1 Valerius  t2 anno  t3 post  t4 Agrippa  t5 Menenio  t6 P.
+#   t7 Postumio  t8 consulibus  t8_implied [implied sum]  t9 moritur  t10 .
+#
+# syntax_model.md's own worked example for the ALWAYS-implied participle of
+# *sum*: since Latin has no present participle of sum at all, an ablative-
+# absolute dating formula like "Agrippa Menenio P. Postumio consulibus"
+# ('[when] Agrippa Menenius [and] Publius Postumius [were] consuls')
+# necessarily implies one. The implied token (t8_implied) is a
+# circumstantial participle agreeing with consulibus, following this
+# codebase's existing convention of syntactic_type='dependent' for every
+# circumstantial participle (real or implied) -- syntax_model.md's own
+# prose calls this "the syntactic type circumstantial participle", but that
+# isn't one of VerbalExpression.syntactic_type's allowed values, so it's
+# read here as describing the RELATION (already true of every other
+# circumstantial participle in this codebase), not as introducing a new
+# syntactic_type value; flag it if a dedicated value was intended instead.
+# consulibus itself, an ablative with no other syntactic connection to the
+# sentence, relates onward to the main verb via 'ablative absolute', and
+# Menenio/Postumio (the two consuls' names) are in apposition to it --
+# exactly the same shape verbal_units.py's own docstring already describes
+# for a real circumstantial participle's noun (e.g. "Anco" in "Anco
+# regnante..."): the noun joins the OUTER clause, while the participle is
+# its own singleton unit one level deeper. "Agrippa" is spelled out in full
+# here (not abbreviated), so unlike "P."/"T." it is tokenized 'lexical', not
+# 'praenomen' -- but still gets no relation of its own, per the same
+# no-relation-for-a-bare-first-name convention 'praenomen' tokens already
+# follow (see praenomen_abbreviation_m_agrippa_cos).
+# ---------------------------------------------------------------------------
+
+_IMPLIED_PARTICIPLE_OF_SUM_CONSULIBUS_ANSWER = {
+    "reasoning": (
+        "moritur is the independent main verb ('he died', intransitive), "
+        "with the sentinel relatedtoken1 'root'; P. Valerius is its "
+        "subject; anno is an ablative of time and post an adverb, both "
+        "modifying moritur. 'Agrippa Menenio P. Postumio consulibus' is an "
+        "ablative-absolute dating formula implying a participle of sum "
+        "that doesn't exist in Latin at all -- a new implied token "
+        "(t8_implied, token=None) is added, syntactic_type 'dependent' "
+        "(this codebase's circumstantial-participle convention) and "
+        "semantic_type 'linking verb', with relatedtoken1 -> consulibus, "
+        "relationship1 'circumstantial participle'. consulibus, an "
+        "ablative with no other syntactic role, relates onward to moritur "
+        "via 'ablative absolute'; Menenio and Postumio (the two consuls' "
+        "names) are each in apposition to consulibus. Agrippa and the two "
+        "abbreviated praenomina (P., P.) get no relation of their own, "
+        "same as any other bare first name in this scheme."
+    ),
+    "verbalunits": [
+        {"id": "t9", "syntactic_type": "independent", "semantic_type": "intransitive"},
+        {"id": "t8_implied", "syntactic_type": "dependent", "semantic_type": "linking verb"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "P.", "tokentype": "praenomen"},
+        {"id": "t1", "token": "Valerius", "tokentype": "lexical", "lemma": "Valerius",
+         "relatedtoken1": "t9", "relationship1": "subject"},
+        {"id": "t2", "token": "anno", "tokentype": "lexical", "lemma": "annus",
+         "relatedtoken1": "t9", "relationship1": "ablative"},
+        {"id": "t3", "token": "post", "tokentype": "lexical", "lemma": "post",
+         "relatedtoken1": "t9", "relationship1": "adverbial"},
+        {"id": "t4", "token": "Agrippa", "tokentype": "lexical", "lemma": "Agrippa"},
+        {"id": "t5", "token": "Menenio", "tokentype": "lexical", "lemma": "Menenius",
+         "relatedtoken1": "t8", "relationship1": "apposition"},
+        {"id": "t6", "token": "P.", "tokentype": "praenomen"},
+        {"id": "t7", "token": "Postumio", "tokentype": "lexical", "lemma": "Postumius",
+         "relatedtoken1": "t8", "relationship1": "apposition"},
+        {"id": "t8", "token": "consulibus", "tokentype": "lexical", "lemma": "consul",
+         "relatedtoken1": "t9", "relationship1": "ablative absolute"},
+        {"id": "t8_implied", "token": None, "tokentype": "implied sum",
+         "verbalunitid": "t8_implied", "relatedtoken1": "t8", "relationship1": "circumstantial participle"},
+        {"id": "t9", "token": "moritur", "tokentype": "lexical", "lemma": "morior",
+         "verbalunitid": "t9", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t10", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
+
+# ---------------------------------------------------------------------------
+# "nimium Tarquinios regno adsuesse; initium a Prisco factum esse;
+#  regnasse dein Ser. Tullium."
+#   t0_implied [continued discourse]  t0 nimium  t1 Tarquinios  t2 regno  t3 adsuesse
+#   t4 ;  t5 initium  t6 a  t7 Prisco  t8 factum  t9 esse  t10 ;
+#   t11 regnasse  t12 dein  t13 Ser.  t14 Tullium  t15 .
+#
+# syntax_model.md's own worked example for continuation of indirect
+# discourse: three coordinate indirect-statement infinitives (adsuesse,
+# esse, regnasse) sharing ONE governing verb of speaking/thinking that is
+# never written at all in this excerpt -- so a single new implied token
+# (t0_implied) is added, and each infinitive's 'indirect statement'
+# relation points at it, exactly as if the governing verb had been
+# repeated for each one. Named t0_implied per SyntaxAnalysis's naming rule
+# for a word that would precede every real token in the sentence, and
+# placed first in tokengraph accordingly. (syntax_model.md's own excerpt
+# elides "esse" from "factum [esse]" too -- a SEPARATE elided-present-of-
+# sum case, layered on top of the one this fixture is about -- so "esse" is
+# spelled out here to keep this fixture focused on the shared-governing-
+# verb construction alone; see implied_sum_consules_facti for that other
+# elision on its own.)
+# ---------------------------------------------------------------------------
+
+_CONTINUATION_INDIRECT_DISCOURSE_ANSWER = {
+    "reasoning": (
+        "No verb of speaking or thinking appears anywhere in this excerpt, "
+        "but all three clauses are grammatically indirect statements "
+        "depending on one understood governing verb, per syntax_model.md's "
+        "continuation-of-indirect-discourse rule -- a new implied token "
+        "(t0_implied, token=None) is added, independent and transitive "
+        "active, and each infinitive's 'indirect statement' relation "
+        "points at it. adsuesse (intransitive, 'became accustomed') has "
+        "Tarquinios as its accusative subject and regno as a dative "
+        "depending on it; esse, with its auxiliary participle factum "
+        "('was made'), is transitive passive, with initium as subject and "
+        "'a Prisco' as the agent phrase; regnasse (intransitive, 'had "
+        "reigned') has Tullium as its accusative subject and dein "
+        "adverbial. Ser. gets no relation of its own, same as any other "
+        "praenomen."
+    ),
+    "verbalunits": [
+        {"id": "t0_implied", "syntactic_type": "independent", "semantic_type": "transitive active"},
+        {"id": "t3", "syntactic_type": "indirect statement", "semantic_type": "intransitive"},
+        {"id": "t9", "syntactic_type": "indirect statement", "semantic_type": "transitive passive"},
+        {"id": "t11", "syntactic_type": "indirect statement", "semantic_type": "intransitive"},
+    ],
+    "tokengraph": [
+        {"id": "t0_implied", "token": None, "tokentype": "continued discourse",
+         "verbalunitid": "t0_implied", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t0", "token": "nimium", "tokentype": "lexical", "lemma": "nimium",
+         "relatedtoken1": "t3", "relationship1": "adverbial"},
+        {"id": "t1", "token": "Tarquinios", "tokentype": "lexical", "lemma": "Tarquinius",
+         "relatedtoken1": "t3", "relationship1": "subject"},
+        {"id": "t2", "token": "regno", "tokentype": "lexical", "lemma": "regnum",
+         "relatedtoken1": "t3", "relationship1": "dative"},
+        {"id": "t3", "token": "adsuesse", "tokentype": "lexical", "lemma": "adsuesco",
+         "verbalunitid": "t3", "relatedtoken1": "t0_implied", "relationship1": "indirect statement"},
+        {"id": "t4", "token": ";", "tokentype": "punctuation"},
+        {"id": "t5", "token": "initium", "tokentype": "lexical", "lemma": "initium",
+         "relatedtoken1": "t9", "relationship1": "subject"},
+        {"id": "t6", "token": "a", "tokentype": "lexical", "lemma": "a",
+         "relatedtoken1": "t9", "relationship1": "agent"},
+        {"id": "t7", "token": "Prisco", "tokentype": "lexical", "lemma": "Priscus",
+         "relatedtoken1": "t6", "relationship1": "object of preposition"},
+        {"id": "t8", "token": "factum", "tokentype": "lexical", "lemma": "facio",
+         "relatedtoken1": "t9", "relationship1": "auxiliary"},
+        {"id": "t9", "token": "esse", "tokentype": "lexical", "lemma": "sum",
+         "verbalunitid": "t9", "relatedtoken1": "t0_implied", "relationship1": "indirect statement"},
+        {"id": "t10", "token": ";", "tokentype": "punctuation"},
+        {"id": "t11", "token": "regnasse", "tokentype": "lexical", "lemma": "regno",
+         "verbalunitid": "t11", "relatedtoken1": "t0_implied", "relationship1": "indirect statement"},
+        {"id": "t12", "token": "dein", "tokentype": "lexical", "lemma": "dein",
+         "relatedtoken1": "t11", "relationship1": "adverbial"},
+        {"id": "t13", "token": "Ser.", "tokentype": "praenomen"},
+        {"id": "t14", "token": "Tullium", "tokentype": "lexical", "lemma": "Tullius",
+         "relatedtoken1": "t11", "relationship1": "subject"},
+        {"id": "t15", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
+
 GOLD_EXAMPLES = [
     GoldExample(
         slug="unit_verb_hercules_cum",
@@ -2117,6 +2371,41 @@ GOLD_EXAMPLES = [
               "unit verb", "linking verb", "independent"],
         canned_answer=_GERUND_ARS_BENE_DISSERENDI_ANSWER,
     ),
+    GoldExample(
+        slug="implied_sum_omnia_praeclara_rara",
+        passage="Omnia praeclara rara.",
+        tags=["implied sum (elided present of sum, bare predicate construction)",
+              "subject", "predicate", "adjectival", "unit verb",
+              "linking verb", "independent"],
+        canned_answer=_IMPLIED_SUM_OMNIA_PRAECLARA_ANSWER,
+    ),
+    GoldExample(
+        slug="implied_sum_consules_facti",
+        passage="inde P. Valerius iterum T. Lucretius consules facti.",
+        tags=["implied sum (elided present of sum, compound perfect passive)",
+              "subject", "predicate", "auxiliary", "adverbial", "unit verb",
+              "transitive passive", "independent"],
+        canned_answer=_IMPLIED_SUM_CONSULES_FACTI_ANSWER,
+    ),
+    GoldExample(
+        slug="implied_participle_of_sum_consulibus",
+        passage="P. Valerius anno post Agrippa Menenio P. Postumio consulibus moritur.",
+        tags=["implied sum (always-implied participle of sum, ablative absolute)",
+              "circumstantial participle", "ablative absolute", "apposition",
+              "subject", "ablative", "adverbial", "unit verb", "dependent",
+              "independent", "linking verb", "intransitive"],
+        canned_answer=_IMPLIED_PARTICIPLE_OF_SUM_CONSULIBUS_ANSWER,
+    ),
+    GoldExample(
+        slug="continuation_indirect_discourse_tarquinios_adsuesse",
+        passage="nimium Tarquinios regno adsuesse; initium a Prisco factum esse; regnasse dein Ser. Tullium.",
+        tags=["continued discourse (continuation of indirect discourse, shared "
+              "governing verb)", "indirect statement", "subject", "dative",
+              "agent", "object of preposition", "auxiliary", "adverbial",
+              "unit verb", "independent", "transitive active",
+              "transitive passive", "intransitive"],
+        canned_answer=_CONTINUATION_INDIRECT_DISCOURSE_ANSWER,
+    ),
     # RelationLabel coverage is complete -- every documented relation has at
     # least one tagged example, including the relatedtoken2/relationship2
     # overflow pattern, "coordinating conjunction" (which uses relation1 AND
@@ -2142,6 +2431,13 @@ GOLD_EXAMPLES = [
     # nuances syntax_model.md's tokenization section documents: a
     # context-dependent split ("ratione") and a word that has incorporated
     # its historic enclitic and must never be split ("quisque" and its
-    # compounds).
+    # compounds), and now the two implied-token types too (see
+    # models.py's IMPLIED_TOKENTYPES): "implied sum" for an elided present
+    # of *sum* (bare predicate construction, implied_sum_omnia_praeclara_rara;
+    # compound perfect passive, implied_sum_consules_facti; the
+    # always-implied participle of *sum*, implied_participle_of_sum_consulibus)
+    # and "continued discourse" for a continuation of indirect discourse
+    # sharing one unwritten governing verb
+    # (continuation_indirect_discourse_tarquinios_adsuesse).
 ]
  

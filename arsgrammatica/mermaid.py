@@ -10,8 +10,21 @@ latin_syntax_dspy.analyze_passage) as a Mermaid flowchart.
 - By default (`color_by_verbal_unit=True`), every token is also colored by
   the verbal unit it belongs to (see verbal_units.py's assign_verbal_units())
   -- so the clauses a sentence breaks into are visually distinguishable at a
-  glance, not just inferable from following edges by hand.
- 
+  glance, not just inferable from following edges by hand. The one
+  exception: an implied/elided token (models.py's IMPLIED_TOKENTYPES --
+  "implied sum", "continued discourse") always gets a dedicated "caution"
+  amber (verbal_units._IMPLIED_TOKEN_COLOR) instead, regardless of which
+  unit it anchors -- flagging "a real word is missing here" rather than
+  blending in as an ordinary member of that unit's color. Its label is
+  "elided sum" or "continued discourse" (see `_IMPLIED_TOKEN_LABELS`
+  below) rather than its own surface text, since it has none (`token` is
+  `None`). This is the ONE place these tokens are shown at all --
+  rendering.py's tokengraph_to_html()/tokengraph_to_depth_html() omit them
+  entirely, same as tokengraph_to_text() does, since there's no real word
+  to display in reconstructed prose; the Mermaid diagram is where an
+  implied token's presence (and what it stands in for, via its edges) is
+  actually worth seeing.
+
 (These are the fields syntax_model.md calls `relation1`/`relationship1` and
 `relation2`/`relationship2` -- in models.py the "relation" side is named
 `relatedtoken*` to make clear it holds a token id, not the relation label.)
@@ -27,8 +40,8 @@ reporting.
  
 from typing import List, Tuple
  
-from .models import TokenAnalysis
-from .verbal_units import assign_verbal_units, assign_verbal_unit_colors
+from .models import IMPLIED_TOKENTYPES, TokenAnalysis
+from .verbal_units import _IMPLIED_TOKEN_COLOR, assign_verbal_units, assign_verbal_unit_colors
  
 # Characters that need escaping inside a Mermaid quoted label.
 _LABEL_ESCAPES = {
@@ -42,6 +55,20 @@ def _escape_label(text: str) -> str:
     for char, replacement in _LABEL_ESCAPES.items():
         text = text.replace(char, replacement)
     return text
+
+
+# The Mermaid node label for an implied/elided token (keyed by its own
+# tokentype, since it has no surface text of its own to use instead) --
+# "implied sum" reads as "elided sum" here specifically because that's the
+# more immediately legible term for a reader scanning the diagram; "continued
+# discourse" already reads fine as-is. A future IMPLIED_TOKENTYPES value not
+# listed here falls back to its own tokentype string verbatim (see its use
+# below), so this mapping is a display nicety, not something either tokentype
+# strictly depends on.
+_IMPLIED_TOKEN_LABELS = {
+    "implied sum": "elided sum",
+    "continued discourse": "continued discourse",
+}
  
  
 # The verbal-unit color palette and the first-appearance ordering rule now
@@ -69,8 +96,13 @@ def tokengraph_to_mermaid(
     clause is visually distinguishable. Verbal units are assigned colors
     from `_VERBAL_UNIT_PALETTE` in the order their tokens first appear in
     `tokengraph`; a token assigned to no verbal unit is left with Mermaid's
-    default node styling. Pass False to skip coloring and get a plain
-    diagram, as before this parameter existed.
+    default node styling. The one exception is an implied/elided token
+    (models.py's IMPLIED_TOKENTYPES) -- it always gets its own dedicated
+    `implied` class, colored with `verbal_units._IMPLIED_TOKEN_COLOR`,
+    instead of whatever `_VERBAL_UNIT_PALETTE` color its own verbal unit
+    would otherwise get (see this module's own docstring for why). Pass
+    False to skip coloring and get a plain diagram, as before this
+    parameter existed.
  
     Returns (diagram_text, warnings). `warnings` lists any edges that were
     skipped because they referenced a punctuation token or an id not present
@@ -86,7 +118,19 @@ def tokengraph_to_mermaid(
     for tok in tokengraph:
         if tok.id not in node_ids:
             continue
-        lines.append(f'    {tok.id}["{_escape_label(tok.token)}"]')
+        # An implied/elided token (see models.py's IMPLIED_TOKENTYPES) has
+        # no surface text at all -- tok.token is None -- so it needs a
+        # placeholder label rather than crashing _escape_label() on None.
+        # _IMPLIED_TOKEN_LABELS supplies that ("elided sum" for "implied
+        # sum", "continued discourse" verbatim); the node's color (below)
+        # is what actually marks it as an implied token, not the label
+        # text.
+        label = (
+            tok.token
+            if tok.token is not None
+            else _IMPLIED_TOKEN_LABELS.get(tok.tokentype, tok.tokentype)
+        )
+        lines.append(f'    {tok.id}["{_escape_label(label)}"]')
  
     warnings = []
     for tok in tokengraph:
@@ -117,8 +161,21 @@ def tokengraph_to_mermaid(
         assignment = assign_verbal_units(tokengraph)
         colors, color_warnings = assign_verbal_unit_colors(tokengraph, assignment=assignment)
         warnings.extend(color_warnings)
- 
-        if colors:
+
+        # Implied tokens (models.py's IMPLIED_TOKENTYPES) always get a
+        # dedicated "caution" amber (_IMPLIED_TOKEN_COLOR) instead of
+        # whatever color their own verbal unit would otherwise get --
+        # regardless of which unit they anchor -- so they're excluded from
+        # every per-unit `member_ids` group below and given their own
+        # classDef/class pair instead. See rendering.py's
+        # tokengraph_to_html() docstring for the matching HTML behavior.
+        implied_ids = [
+            tok.id
+            for tok in tokengraph
+            if tok.id in node_ids and tok.tokentype in IMPLIED_TOKENTYPES
+        ]
+
+        if colors or implied_ids:
             lines.append("")
             class_names = {}
             for i, (unit_id, (fill, stroke, text)) in enumerate(colors.items()):
@@ -131,9 +188,18 @@ def tokengraph_to_mermaid(
                 member_ids = [
                     tok.id
                     for tok in tokengraph
-                    if tok.id in node_ids and assignment.get(tok.id) == unit_id
+                    if tok.id in node_ids
+                    and assignment.get(tok.id) == unit_id
+                    and tok.id not in implied_ids
                 ]
-                lines.append(f"    class {','.join(member_ids)} {class_names[unit_id]};")
+                if member_ids:
+                    lines.append(f"    class {','.join(member_ids)} {class_names[unit_id]};")
+            if implied_ids:
+                fill, stroke, text = _IMPLIED_TOKEN_COLOR
+                lines.append(
+                    f"    classDef implied fill:{fill},stroke:{stroke},color:{text};"
+                )
+                lines.append(f"    class {','.join(implied_ids)} implied;")
  
     return "\n".join(lines), warnings
  

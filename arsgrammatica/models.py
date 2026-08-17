@@ -85,7 +85,11 @@ class VerbalExpression(BaseModel):
             "infinitive, or predicate-sense participle that anchors this "
             "verbal expression. For a compound perfect/pluperfect passive or "
             "future-infinitive form (participle + a form of *sum*), use the id "
-            "of the form of *sum*."
+            "of the form of *sum*. For an implied/elided verbal expression (see "
+            "TokenAnalysis's 'implied sum'/'continued discourse' tokentypes, "
+            "IMPLIED_TOKENTYPES), use the new implied token's "
+            "id instead -- an implied token always anchors its own verbal "
+            "expression."
         )
     )
     syntactic_type: Literal[
@@ -194,19 +198,64 @@ class TokenAnalysis(BaseModel):
     'Token-level table of dependencies'). Per syntax_model.md's 'Incomplete
     status' section, not every token will have a relation -- leave the
     relatedtoken*/relationship* fields unset when none of the documented
-    relations apply."""
- 
-    id: str = Field(description="Must match the id of the corresponding entry in the input `tokens` list.")
-    token: str = Field(description="The token's surface text; should match the `text` of the input token with this id.")
+    relations apply.
+
+    Most entries correspond 1:1 to an entry in the input `tokens` list. The
+    exceptions are the two IMPLIED_TOKENTYPES values below: syntax_model.md's
+    'understood or implied verbal expressions' section documents two
+    DIFFERENT situations where a verbal expression exists grammatically but
+    has no surface realization at all in the passage, and this codebase
+    distinguishes them with two distinct tokentype values rather than one
+    generic 'implied':
+
+    - 'implied sum': an elided form of *sum* -- syntax_model.md's three
+      elided-sum sub-cases (a bare predicate construction, a compound
+      perfect passive/future infinitive missing its auxiliary, or the
+      always-implied present participle of *sum*, which doesn't exist in
+      Latin at all) all use this one value.
+    - 'continued discourse': a governing verb of indirect discourse left
+      unrepeated across several continuation clauses.
+
+    For either, add a NEW entry here -- with a NEW id, not present in
+    `tokens` -- rather than skipping the construction entirely; see
+    latin_syntax_dspy.SyntaxAnalysis's docstring for the full rules and the
+    id-naming convention."""
+
+    id: str = Field(
+        description=(
+            "For an ordinary entry, must match the id of the corresponding "
+            "entry in the input `tokens` list. For an implied token "
+            "(tokentype in IMPLIED_TOKENTYPES -- 'implied sum' or "
+            "'continued discourse'), a NEW id not used by any entry in "
+            "`tokens` or elsewhere in this tokengraph -- see "
+            "SyntaxAnalysis's docstring for the naming convention."
+        )
+    )
+    token: Optional[str] = Field(
+        default=None,
+        description=(
+            "The token's surface text; should match the `text` of the input "
+            "token with this id. Leave as None ONLY for an implied token "
+            "(tokentype 'implied sum' or 'continued discourse') -- one with "
+            "no surface realization in the passage at all; every other "
+            "tokentype must have real text."
+        ),
+    )
     tokentype: Literal[
-        "lexical", "enclitic", "punctuation", "numeral", "praenomen", "abbreviation"
+        "lexical", "enclitic", "punctuation", "numeral", "praenomen", "abbreviation",
+        "implied sum", "continued discourse",
     ] = Field(
         description=(
             "'praenomen' is specifically an abbreviated Roman first name "
             "(e.g. 'M.' for Marcus), including its period; 'abbreviation' is "
             "any other abbreviation, including its period (e.g. 'f.' for "
             "filius, 'cos.' for consul) -- syntax_model.md's tokenization "
-            "section documents these as two distinct token types, not one."
+            "section documents these as two distinct token types, not one. "
+            "'implied sum' and 'continued discourse' each mark a token with "
+            "NO surface realization at all (see this model's own docstring "
+            "for the distinction) -- the only two tokentypes whose `token` "
+            "field is None and whose `id` is not one of the input `tokens`' "
+            "own ids."
         )
     )
  
@@ -229,3 +278,13 @@ class TokenAnalysis(BaseModel):
  
     relatedtoken2: Optional[str] = Field(default=None, description="Token id this token relates to (secondary relation, used when relation1 is already occupied).")
     relationship2: Optional[RelationLabel] = Field(default=None, description="The secondary relation type, if any.")
+
+
+# The two tokentype values (see TokenAnalysis's own docstring) that mark a
+# token with no surface realization at all -- an elided form of *sum*, or
+# an unrepeated governing verb of indirect discourse. Every other module
+# that needs to ask "is this an implied token" (validate(), rendering.py,
+# serialization.py, conftest.py's tokens_from_canned_answer()) checks
+# membership in this set rather than hardcoding either string itself, so
+# adding a third implied-token category later only needs a change here.
+IMPLIED_TOKENTYPES = frozenset({"implied sum", "continued discourse"})

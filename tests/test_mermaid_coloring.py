@@ -31,22 +31,27 @@ def test_coloring_adds_no_new_warnings(example):
  
 @pytest.mark.parametrize("example", GOLD_EXAMPLES, ids=lambda e: e.slug)
 def test_every_colored_node_gets_exactly_one_class(example):
+    """Covers both verbal-unit classes (vuN) and the dedicated `implied`
+    class an implied/elided token always gets instead (see
+    tokengraph_to_mermaid()'s own docstring) -- every node should still end
+    up in exactly one class either way."""
     tokens, result = run_gold_example(example)
     diagram, _warnings = tokengraph_to_mermaid(result.tokengraph)
- 
-    # Every "class <ids> vuN;" line's ids, keyed by which class they got.
+
+    # Every "class <ids> vuN;"/"class <ids> implied;" line's ids, keyed by
+    # which class they got.
     class_of = {}
     for line in diagram.splitlines():
-        m = re.match(r"\s*class ([\w,]+) (vu\d+);", line)
+        m = re.match(r"\s*class ([\w,]+) (vu\d+|implied);", line)
         if m:
             ids = m.group(1).split(",")
             class_name = m.group(2)
             for tid in ids:
                 assert tid not in class_of, f"{example.slug}: {tid} assigned to more than one class"
                 class_of[tid] = class_name
- 
+
     # Every class used must have a matching classDef line.
-    classdefs = set(re.findall(r"classDef (vu\d+) ", diagram))
+    classdefs = set(re.findall(r"classDef (vu\d+|implied) ", diagram))
     assert set(class_of.values()) <= classdefs, example.slug
  
  
@@ -67,6 +72,41 @@ def test_orientation_and_coloring_compose():
     assert "classDef vu0" in diagram
  
  
+def test_implied_token_gets_its_own_dedicated_class_and_label():
+    """An implied token (here, the elided 'sum' in "omnia praeclara rara")
+    always gets the special `implied` class -- colored with
+    verbal_units._IMPLIED_TOKEN_COLOR, NOT whatever `_VERBAL_UNIT_PALETTE`
+    color its own verbal unit (which it anchors) would otherwise get -- and
+    its node label is "elided sum" (mermaid.py's own _IMPLIED_TOKEN_LABELS,
+    keyed by its tokentype "implied sum"), since it has no surface text of
+    its own. This is the ONE place an implied token is shown at all --
+    tokengraph_to_html() omits it entirely (see test_rendering.py's
+    test_implied_tokens_are_omitted_from_html_entirely)."""
+    example = next(e for e in GOLD_EXAMPLES if e.slug == "implied_sum_omnia_praeclara_rara")
+    tokens, result = run_gold_example(example)
+    diagram, warnings = tokengraph_to_mermaid(result.tokengraph)
+    assert not warnings
+
+    implied_ids = [tok.id for tok in result.tokengraph if tok.tokentype == "implied sum"]
+    assert implied_ids, "fixture should contain an implied sum token"
+
+    assert 'classDef implied fill:#ffc107,stroke:#7a5200,color:#000000;' in diagram
+    implied_class_lines = [
+        line for line in diagram.splitlines() if line.strip().endswith("implied;")
+    ]
+    assert len(implied_class_lines) == 1
+    assert set(implied_class_lines[0].split()[1].split(",")) == set(implied_ids)
+
+    for tid in implied_ids:
+        assert f'{tid}["elided sum"]' in diagram
+    # No vuN classDef should also claim an implied token.
+    for line in diagram.splitlines():
+        if re.match(r"\s*class ([\w,]+) vu\d+;", line):
+            ids = line.split()[1].split(",")
+            for tid in implied_ids:
+                assert tid not in ids
+
+
 def test_aside_example_gets_three_distinct_colors():
     """aside_equidem_pace_dixerim has three verbal units (spero's main
     clause, dixerim's aside, esse's indirect statement) -- confirms
