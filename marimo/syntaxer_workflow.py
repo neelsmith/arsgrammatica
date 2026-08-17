@@ -7,7 +7,7 @@ app = marimo.App(width="medium")
 @app.cell(hide_code=True)
 def _():
     import marimo as mo
- 
+
 
     return (mo,)
 
@@ -16,19 +16,19 @@ def _():
 def _(mo):
     mo.md("""
     # Analyze Latin syntax with a configured LM
+
+    Like `syntaxer.py`, but the base URN / passage / text-to-analyze inputs
+    are one form: nothing re-analyzes until you click *Analyze*, and there's
+    a button to save the current analysis to a delimited-text file (see
+    `serialize_analyses()`/`write_analyses()` in `arsgrammatica/serialization.py`,
+    and DEVELOPMENT.md for the workflow this supports).
     """)
     return
 
 
 @app.cell(hide_code=True)
-def _(citation_context, mo, urnbase):
-    mo.hstack([urnbase, citation_context], justify="start")
-    return
-
-
-@app.cell(hide_code=True)
-def _(text_area):
-    text_area
+def _(input_form):
+    input_form
     return
 
 
@@ -63,6 +63,21 @@ def _(diagram, mo):
 
 
 @app.cell(hide_code=True)
+def _(analysis_warnings, download_widget, mo, save_extension):
+    mo.vstack(
+        [
+            mo.hstack([save_extension, download_widget], justify="start"),
+        ]
+        + (
+            [mo.callout(mo.md("\n".join(f"- {w}" for w in analysis_warnings)), kind="warn")]
+            if analysis_warnings
+            else []
+        )
+    )
+    return
+
+
+@app.cell(hide_code=True)
 def _(mo):
     mo.Html("<hr/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>")
     return
@@ -85,13 +100,17 @@ def _(mo):
 
 
 @app.cell
-def _(analyze_passage, citation_context, text_area, urnbase):
-    # Analyze text passage:
+def _(analyze_passage, input_form):
+    # Analyze text passage -- only once the form has been submitted at
+    # least once (input_form.value is None until then), and only again on
+    # each subsequent submission, not on every keystroke in the form's own
+    # inputs.
     passage = ''
     sentences, results = [], []
-    if text_area.value:
-        passage = text_area.value
-        sentences, results = analyze_passage(passage, citation = urnbase.value + citation_context.value)
+    if input_form.value and input_form.value.get("text_area"):
+        passage = input_form.value["text_area"]
+        citation = input_form.value["urnbase"] + input_form.value["citation_context"]
+        sentences, results = analyze_passage(passage, citation=citation)
     return results, sentences
 
 
@@ -117,7 +136,7 @@ def _(results):
 
 @app.cell
 def _(vus):
-    vus[0]
+    vus[0] if vus else None
     return
 
 
@@ -130,8 +149,9 @@ def _(mo):
 
 
 @app.cell
-def _(citation_context, finaltokens, mo, tokengraph_to_text):
-    psghtml = mo.Html(f"<b><i>Passage {citation_context.value}</i></b>: " + tokengraph_to_text(finaltokens))
+def _(finaltokens, input_form, mo, tokengraph_to_text):
+    citation_label = input_form.value["citation_context"] if input_form.value else ""
+    psghtml = mo.Html(f"<b><i>Passage {citation_label}</i></b>: " + tokengraph_to_text(finaltokens))
     return (psghtml,)
 
 
@@ -146,6 +166,37 @@ def _(finaltokens, mo, tokengraph_to_depth_html):
     indenthtml, indentwarnings = tokengraph_to_depth_html(finaltokens)
     indentpsg = mo.Html("<b><i>Indented by verbal unit</i></b>: " + indenthtml)
     return (indentpsg,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    ## Save analysis
+    """)
+    return
+
+
+@app.cell
+def _(finaltokens, results, sentences, serialize_analyses):
+    # Flatten every sentence's own verbalunits into the one flat list
+    # serialize_analyses()/write_analyses() expect, matching how
+    # combined_tokengraph() already flattens tokengraph across sentences.
+    all_verbalunits = [vu for result in results for vu in result.verbalunits]
+    analysis_text, analysis_warnings = serialize_analyses(sentences, all_verbalunits, finaltokens)
+    return analysis_text, analysis_warnings
+
+
+@app.cell
+def _(input_form):
+    # A readable default filename base, drawn from whatever citation the
+    # form was submitted with (falling back to "analysis" if the passage
+    # field was left blank) -- the extension is chosen separately, via
+    # save_extension below.
+    filename_base = ""
+    if input_form.value:
+        filename_base = (input_form.value.get("urnbase") or "") + (input_form.value.get("citation_context") or "")
+    filename_base = "".join(c if c.isalnum() else "_" for c in filename_base).strip("_") or "analysis"
+    return (filename_base,)
 
 
 @app.cell(hide_code=True)
@@ -175,40 +226,52 @@ def _(mo):
 
 
 @app.cell
-def _():
-    #input_form = mo.vstack([mo.hstack([urnbase, citation_context], justify="start"), text_area]).form()
-    # 
-    # Instead:
-    # Define individual input elements
-    #name = mo.ui.text(label="Name")
-    #age = mo.ui.number(start=0, stop=120, label="Age")
-    #category = mo.ui.dropdown(options=["A", "B", "C"], label="Category")
+def _(citation_context, mo, text_area, urnbase):
+    # All three inputs as one form -- marimo only updates input_form.value
+    # (and so only re-triggers the Analysis cell below) when the whole form
+    # is submitted, never on every keystroke in an individual field. This
+    # is the same batch()/form() shape sketched out (but never wired up) in
+    # syntaxer.py's own commented-out UI cell.
+    input_form = (
+        mo.md(
+            """
+            {urnbase}
 
-    # Create a layout inside mo.md and bind them into a batch form
-    #my_form = (
-    #    mo.md(
-    #        f"""
-    #       ### Complex Input Form
+            {citation_context}
 
-    #       {name}
-
-    #        {age}
-
-    #        {category}
-    #        """
-    #    )
-    #    .batch(name=name, age=age, category=category)
-    #    .form()
-    #
-
-    # Display the form
-    #my_form
-    return
+            {text_area}
+            """
+        )
+        .batch(urnbase=urnbase, citation_context=citation_context, text_area=text_area)
+        .form(submit_button_label="Analyze")
+    )
+    return (input_form,)
 
 
 @app.cell
-def _():
-    return
+def _(mo):
+    save_extension = mo.ui.radio(
+        options=["cex", "txt"], value="cex", inline=True, label="*File extension*:"
+    )
+    return (save_extension,)
+
+
+@app.cell
+def _(analysis_text, filename_base, mo, results, save_extension):
+    # mo.download() puts the browser in charge of where the file lands --
+    # no folder-path field to mistype, at the cost of not choosing a
+    # location up front (the browser's own download prompt/default
+    # download folder decides that). filename reactively follows both the
+    # citation-derived filename_base and whichever extension is chosen
+    # above.
+    download_widget = mo.download(
+        data=analysis_text.encode("utf-8"),
+        filename=f"{filename_base}.{save_extension.value}",
+        label="Download analysis",
+        mimetype="text/plain",
+        disabled=not results,
+    )
+    return (download_widget,)
 
 
 @app.cell(hide_code=True)
@@ -224,7 +287,7 @@ def _():
     import dspy
     import os
     from pathlib import Path
- 
+
 
     return Path, dspy, os
 
@@ -239,14 +302,15 @@ def _():
 @app.cell
 def _(Path):
     import sys
- 
+
     sys.path.insert(0, str(Path(__file__).parent.parent))
- 
-    from arsgrammatica import print_analysis, analyze_passage, tokengraph_to_mermaid, combined_tokengraph, tokengraph_to_html, tokengraph_to_text, tokengraph_to_depth_html
+
+    from arsgrammatica import print_analysis, analyze_passage, tokengraph_to_mermaid, combined_tokengraph, tokengraph_to_html, tokengraph_to_text, tokengraph_to_depth_html, serialize_analyses
 
     return (
         analyze_passage,
         combined_tokengraph,
+        serialize_analyses,
         tokengraph_to_depth_html,
         tokengraph_to_html,
         tokengraph_to_mermaid,
@@ -286,7 +350,7 @@ def _(os):
         if value:
             return value
         return default
- 
+
 
     return (getenv,)
 
@@ -296,20 +360,20 @@ def _(dspy, getenv):
     def configure_lm():
         if dspy.settings.lm is not None:
             return dspy.settings.lm
- 
+
         api_base = getenv("API_BASE", "API_BASE", "https://suarezai.holycross.edu/litellm")
         model = getenv("MODEL", "MODEL", "litellm_proxy/anthropic/Claude Opus 5")
         api_key = getenv("API_KEY", "API_KEY")
- 
+
         if not api_key:
             raise RuntimeError(
                 "Missing API key. Set API_KEY (preferred) or API_KEY in your .env file."
             )
- 
+
         lm = dspy.LM(model=model, api_base=api_base, api_key=api_key)
         dspy.configure(lm=lm)
         return lm
- 
+
 
     return (configure_lm,)
 
