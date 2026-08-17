@@ -224,7 +224,6 @@ def _():
     import dspy
     import os
     from pathlib import Path
- 
 
     return Path, dspy, os
 

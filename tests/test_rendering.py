@@ -244,7 +244,11 @@ def test_multiple_verbal_units_get_distinct_first_appearance_colors():
 def test_only_lexical_tokens_get_wrapped_even_when_others_are_assigned():
     """Punctuation, enclitics, numerals, and praenomens can all be assigned
     a verbal unit by assign_verbal_units() (it assigns every token id), but
-    only tokentype == "lexical" should ever get a <span> here."""
+    none of these particular ones is a coordinating conjunction (their own
+    relationship1 is "subject" or "adverbial") -- so only tokentype ==
+    "lexical" gets a <span> here. See
+    test_enclitic_coordinating_conjunction_gets_wrapped_too for the
+    coordinating-conjunction carve-out this would otherwise miss."""
     tg = [
         _tok("t0", "M.", "praenomen", relatedtoken1="t2", relationship1="subject"),
         _tok("t1", "que", "enclitic", relatedtoken1="t2", relationship1="subject"),
@@ -256,8 +260,32 @@ def test_only_lexical_tokens_get_wrapped_even_when_others_are_assigned():
     matches = _SPAN_RE.findall(html_out)
     assert len(matches) == 1
     assert matches[0][2] == "venit"
- 
- 
+
+
+def test_enclitic_coordinating_conjunction_gets_wrapped_too():
+    """The fix this test guards: an enclitic coordinating conjunction (e.g.
+    "-que" in "arma virumque cano") is not tokentype "lexical", but
+    assign_verbal_units() still resolves it to one of the units it
+    coordinates -- so it should get the SAME colored span as that unit's
+    other tokens, not be left plain like other non-lexical tokentypes."""
+    tg = [
+        _tok("t0", "arma", "lexical", relatedtoken1="t3", relationship1="direct object"),
+        _tok("t1", "virum", "lexical", relatedtoken1="t3", relationship1="direct object"),
+        _tok(
+            "t2", "que", "enclitic",
+            relatedtoken1="t0", relationship1="coordinating conjunction",
+            relatedtoken2="t1", relationship2="coordinating conjunction",
+        ),
+        _tok("t3", "cano", "lexical", verbalunitid="t3"),
+        _tok("t4", ".", "punctuation"),
+    ]
+    fill, _stroke, text_color = _VERBAL_UNIT_PALETTE[0]
+    span = lambda word: (
+        f'<span style="background-color: {fill}; color: {text_color};">{word}</span>'
+    )
+    assert tokengraph_to_html(tg) == f"{span('arma')} {span('virum')}{span('que')} {span('cano')}."
+
+
 def test_lexical_token_with_no_verbal_unit_is_unwrapped():
     tg = [
         _tok("t0", "cano", "lexical", verbalunitid="t0"),
@@ -301,16 +329,20 @@ def test_quote_pair_tokens_still_join_correctly_around_spans():
  
 @pytest.mark.parametrize("example", GOLD_EXAMPLES, ids=lambda e: e.slug)
 def test_html_colors_match_mermaid_colors_for_every_gold_example(example):
-    """The whole point of this function: whatever fill color a lexical
-    token's verbal unit gets in the Mermaid diagram, the same token's <span>
-    here must use that exact same fill (and the matching text color) --
-    checked against tokengraph_to_mermaid()'s own classDef/class output
-    rather than against verbal_units.py internals, so this test would catch
-    a real behavioral mismatch between the two renderers, not just a shared
-    bug in the code both of them call."""
+    """The whole point of this function: whatever fill color a token's
+    verbal unit gets in the Mermaid diagram, the same token's <span> here
+    must use that exact same fill (and the matching text color) -- checked
+    against tokengraph_to_mermaid()'s own classDef/class output rather than
+    against verbal_units.py internals, so this test would catch a real
+    behavioral mismatch between the two renderers, not just a shared bug in
+    the code both of them call. Covers every wrapped token, not just
+    lexical ones -- a coordinating conjunction (e.g. an enclitic "-que")
+    gets wrapped here too (see tokengraph_to_html()'s own docstring), and
+    the Mermaid diagram colors it via the same assign_verbal_units()
+    assignment, so both should agree there as well."""
     tokens, result = run_gold_example(example)
     tokengraph = result.tokengraph
- 
+
     diagram, _warnings = tokengraph_to_mermaid(tokengraph)
     fill_of_class = dict(
         re.findall(r"classDef (vu\d+) fill:(#[0-9a-fA-F]{6}),", diagram)
@@ -319,16 +351,21 @@ def test_html_colors_match_mermaid_colors_for_every_gold_example(example):
     for ids, class_name in re.findall(r"class ([\w,]+) (vu\d+);", diagram):
         for tid in ids.split(","):
             class_of_id[tid] = class_name
- 
+
     expected_fills = [
         fill_of_class[class_of_id[tok.id]]
         for tok in tokengraph
-        if tok.tokentype == "lexical" and tok.id in class_of_id
+        if (
+            tok.tokentype == "lexical"
+            or tok.relationship1 == "coordinating conjunction"
+            or tok.relationship2 == "coordinating conjunction"
+        )
+        and tok.id in class_of_id
     ]
- 
+
     html_out = tokengraph_to_html(tokengraph)
     actual_fills = [m[0] for m in _SPAN_RE.findall(html_out)]
- 
+
     assert actual_fills == expected_fills, example.slug
 
 
@@ -380,7 +417,10 @@ def test_depth_html_enclitic_never_starts_a_new_block():
     to adduxit's -- since que's own relation joins the two verbs, not the
     noun it's glued to. Splitting the orthographic word "Hermionenque"
     across two <div>s would be wrong, so the enclitic must stay in
-    whichever block "Hermionen" opened."""
+    whichever block "Hermionen" opened -- even though, as a coordinating
+    conjunction, it now gets its OWN color span there (noluit's color, not
+    Hermionen/adduxit's), immediately adjacent with no space, per
+    tokengraph_to_html()'s coordinating-conjunction carve-out."""
     tokengraph = _tokengraph("coordinating_conjunction_verbs_ille_hermionenque")
     html_out, warnings = tokengraph_to_depth_html(tokengraph)
     assert warnings == []
@@ -390,9 +430,16 @@ def test_depth_html_enclitic_never_starts_a_new_block():
 
     hermionen_block = next(content for _m, content in blocks if "Hermionen" in content)
     assert "que" in hermionen_block
-    # Specifically adjacent, no intervening tag boundary -- que directly
-    # continues right after Hermionen's closing </span>.
-    assert "Hermionen</span>que" in hermionen_block
+    # Two adjacent, differently-colored spans -- Hermionen's (adduxit's
+    # unit) immediately followed, with no space and no other markup
+    # between them, by que's own (noluit's unit).
+    assert "Hermionen</span><span" in hermionen_block
+    matches = _SPAN_RE.findall(hermionen_block)
+    words = [m[2] for m in matches]
+    fills = [m[0] for m in matches]
+    hermionen_index = words.index("Hermionen")
+    assert words[hermionen_index + 1] == "que"
+    assert fills[hermionen_index] != fills[hermionen_index + 1]
 
 
 def test_depth_html_custom_indent_scales_margins():

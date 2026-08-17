@@ -62,6 +62,18 @@ def _(diagram, mo):
     return
 
 
+@app.cell
+def _(finaltokens):
+    finaltokens
+    return
+
+
+@app.cell
+def _():
+    #dspy.inspect_history()
+    return
+
+
 @app.cell(hide_code=True)
 def _(analysis_warnings, download_widget, mo, save_extension):
     mo.vstack(
