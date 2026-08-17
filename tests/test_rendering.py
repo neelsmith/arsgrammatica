@@ -286,6 +286,30 @@ def test_enclitic_coordinating_conjunction_gets_wrapped_too():
     assert tokengraph_to_html(tg) == f"{span('arma')} {span('virum')}{span('que')} {span('cano')}."
 
 
+def test_implied_tokens_are_omitted_from_html_entirely():
+    """An implied/elided token (models.py's IMPLIED_TOKENTYPES) has no
+    surface text of its own (tok.token is always None) -- tokengraph_to_html()
+    omits it entirely, same as tokengraph_to_text() does, rather than
+    inventing placeholder text for it. tokengraph_to_mermaid() is the one
+    place these ARE shown (see test_mermaid_coloring.py) -- inserting
+    placeholder text into reconstructed HTML prose would misrepresent what
+    the passage actually says."""
+    tg = [
+        _tok("t0", "Omnia", "lexical", relatedtoken1="t0_implied", relationship1="subject"),
+        _tok(
+            "t0_implied", None, "implied sum",
+            verbalunitid="t0_implied", relatedtoken1="root", relationship1="unit verb",
+        ),
+        _tok("t1", "rara", "lexical", relatedtoken1="t0_implied", relationship1="predicate"),
+        _tok("t2", ".", "punctuation"),
+    ]
+    fill, _stroke, text_color = _VERBAL_UNIT_PALETTE[0]
+    span = lambda word: f'<span style="background-color: {fill}; color: {text_color};">{word}</span>'
+    html_out = tokengraph_to_html(tg)
+    assert html_out == f"{span('Omnia')} {span('rara')}."
+    assert "implied" not in html_out
+
+
 def test_lexical_token_with_no_verbal_unit_is_unwrapped():
     tg = [
         _tok("t0", "cano", "lexical", verbalunitid="t0"),
@@ -339,7 +363,13 @@ def test_html_colors_match_mermaid_colors_for_every_gold_example(example):
     lexical ones -- a coordinating conjunction (e.g. an enclitic "-que")
     gets wrapped here too (see tokengraph_to_html()'s own docstring), and
     the Mermaid diagram colors it via the same assign_verbal_units()
-    assignment, so both should agree there as well."""
+    assignment, so both should agree there as well. An implied token is
+    excluded from this comparison entirely: tokengraph_to_html() omits it
+    (see test_implied_tokens_are_omitted_from_html_entirely), while the
+    Mermaid diagram shows it in its own dedicated `implied` class -- the
+    two renderers deliberately disagree here by design, so this token
+    naturally never satisfies the `tok.tokentype == "lexical" or ...`
+    filter below and is skipped on both sides."""
     tokens, result = run_gold_example(example)
     tokengraph = result.tokengraph
 

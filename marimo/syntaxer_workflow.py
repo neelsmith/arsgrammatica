@@ -16,13 +16,16 @@ def _():
 def _(mo):
     mo.md("""
     # Analyze Latin syntax with a configured LM
-
-    Like `syntaxer.py`, but the base URN / passage / text-to-analyze inputs
-    are one form: nothing re-analyzes until you click *Analyze*, and there's
-    a button to save the current analysis to a delimited-text file (see
-    `serialize_analyses()`/`write_analyses()` in `arsgrammatica/serialization.py`,
-    and DEVELOPMENT.md for the workflow this supports).
     """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    *Enter values for a base URN, passage reference, and text to analyze, then submit the form with the `Analyze` button.*
+    """)
+
     return
 
 
@@ -63,8 +66,8 @@ def _(diagram, mo):
 
 
 @app.cell
-def _(finaltokens):
-    finaltokens
+def _():
+    #finaltokens
     return
 
 

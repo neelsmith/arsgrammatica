@@ -84,8 +84,24 @@ _VERBAL_UNIT_PALETTE = [
     ("#a494ff", "#4a3aa7", "#000000"),  # violet
     ("#ff9594", "#e34948", "#000000"),  # red
 ]
- 
- 
+
+# A dedicated "caution" color for implied/elided tokens (models.py's
+# IMPLIED_TOKENTYPES: "implied sum", "continued discourse") -- a strong,
+# saturated amber, deliberately NOT drawn from _VERBAL_UNIT_PALETTE above
+# (whose pastel tints it would otherwise be confusable with, especially the
+# "yellow" slot) and deliberately not pastel itself, so it reads as "this
+# marks something MISSING from the surface text" rather than as just
+# another clause's color. Every consumer that renders an implied token
+# (currently rendering.py's tokengraph_to_html()/tokengraph_to_depth_html()
+# and mermaid.py's tokengraph_to_mermaid()) uses this SAME color for it,
+# regardless of which verbal unit the token itself anchors -- the warning
+# is about the token's own kind, not about which clause it's in. Black
+# text keeps strong contrast against the fill, same convention as every
+# palette slot above.
+_IMPLIED_TOKEN_COLOR = ("#ffc107", "#7a5200", "#000000")  # amber warning
+
+
+
 def assign_verbal_units(tokengraph: List[TokenAnalysis]) -> Dict[str, Optional[str]]:
     """Return {token id: verbal unit id or None}, one entry per token in
     `tokengraph` (including punctuation and unrelated tokens, so every id

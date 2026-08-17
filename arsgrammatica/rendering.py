@@ -184,13 +184,24 @@ def tokengraph_to_html(tokengraph: List[TokenAnalysis]) -> str:
     not occur in practice for a lexical token, since it's always a
     non-punctuation member of its own unit, but handled defensively rather
     than assumed).
- 
+
+    An **implied/elided token** (models.py's IMPLIED_TOKENTYPES: "implied
+    sum", "continued discourse") is omitted entirely -- same as
+    tokengraph_to_text() -- rather than rendered with any span: it has no
+    surface text (`tok.token` is always `None`), and unlike
+    `tokengraph_to_mermaid()`'s diagram (which DOES show these, as their
+    own specially-colored, specially-labeled node -- see that module's own
+    docstring), inserting placeholder text into the middle of reconstructed
+    prose here would misrepresent what the passage actually says. The
+    Mermaid diagram is the one place an implied token's presence is worth
+    seeing at all.
+
     Every token's text is HTML-escaped (`&`, `<`, `>`, and quote characters)
     before being emitted, spans or not -- real Latin text can contain a
     literal `"` or `'` (see the quote-pair handling below), which would
     otherwise be indistinguishable from markup to anything that re-parses
     this output.
- 
+
     The span's inline style sets both `background-color` (the verbal unit's
     palette `fill`, the same value used as a Mermaid node's `fill`) and
     `color` (the palette's `text` value, currently black for every slot) --
@@ -210,11 +221,13 @@ def _tokens_to_html(
 ) -> str:
     """Shared rendering core behind tokengraph_to_html() and
     tokengraph_to_depth_html(): join `tokens` into one HTML string with the
-    same spacing/escaping/quote-pairing rules as tokengraph_to_text(), plus
-    color spans for lexical tokens and coordinating conjunctions (see
-    tokengraph_to_html()'s own docstring for why conjunctions get this too),
-    given an already-computed verbal-unit `assignment` and `colors`
-    mapping. Taking these as parameters (rather
+    same spacing/escaping/quote-pairing rules as tokengraph_to_text()
+    (including that function's identical omission of implied/elided
+    tokens -- see tokengraph_to_html()'s own docstring for why), plus color
+    spans for lexical tokens and coordinating conjunctions (see that same
+    docstring for why conjunctions get this too), given an
+    already-computed verbal-unit `assignment` and `colors` mapping. Taking
+    these as parameters (rather
     than deriving them from `tokens` itself) is what lets
     tokengraph_to_depth_html() render one depth-block's tokens at a time
     while every block still uses the exact same unit-to-color mapping as
@@ -236,6 +249,8 @@ def _tokens_to_html(
         if tok.tokentype in IMPLIED_TOKENTYPES:
             # See tokengraph_to_text()'s identical skip -- no surface text
             # to escape or wrap, and previous_class is left untouched.
+            # tokengraph_to_mermaid() is the one place these are shown at
+            # all (see tokengraph_to_html()'s own docstring).
             continue
         cls = _classify(tok, quote_counts)
         rendered = html.escape(tok.token)
