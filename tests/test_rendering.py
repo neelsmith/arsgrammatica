@@ -19,7 +19,7 @@ import re
 import pytest
  
 from arsgrammatica.mermaid import tokengraph_to_mermaid
-from arsgrammatica.models import TokenAnalysis
+from arsgrammatica.models import IMPLIED_TOKENTYPES, TokenAnalysis
 from arsgrammatica.rendering import (
     tokengraph_to_text,
     tokengraph_to_html,
@@ -463,4 +463,11 @@ def test_depth_html_never_warns_and_covers_every_token_for_every_gold_example(ex
     html_out, warnings = tokengraph_to_depth_html(tokengraph)
     assert warnings == [], f"{example.slug}: {warnings}"
     for tok in tokengraph:
+        if tok.tokentype in IMPLIED_TOKENTYPES:
+            # An implied/elided token (models.py's TokenAnalysis,
+            # IMPLIED_TOKENTYPES) has no surface text at all --
+            # tokengraph_to_depth_html() deliberately renders nothing for
+            # it (see rendering.py's skip logic), so there is no escaped
+            # text to look for here.
+            continue
         assert html.escape(tok.token) in html_out, f"{example.slug}: missing {tok.id}"

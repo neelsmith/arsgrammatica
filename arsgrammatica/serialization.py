@@ -70,6 +70,18 @@ contain neither '|' nor a newline (this format has no escaping mechanism
 for either); Latin surface text/lemmas are not expected to ever contain
 either character, so this is a defensive check, not an expected case.
 
+Implied/elided tokens (tokentype in IMPLIED_TOKENTYPES -- 'implied sum' or
+'continued discourse'; see models.py's TokenAnalysis)
+round-trip like any other #!tokens row -- their `text` column is empty,
+same as any other None field, and reads back as None (not ''), same as
+every other optional column. But they're excluded from a sentence's own
+reconstructed `tokens` list in both directions: write_analyses() ignores
+them when checking a sentence's tokens form a contiguous run in
+`tokengraph`, and read_analyses() skips them when rebuilding each
+Sentence's `tokens` -- since an implied token was never part of the
+original per-sentence token list segmentation produced, only something
+the analysis stage added afterward.
+
 read_analyses() is deliberately strict, not "degrade visibly" like
 tokengraph_to_mermaid()'s or compute_subordination_depths()'s warnings-
 returning functions: a missing block, a header line that doesn't match
@@ -85,7 +97,7 @@ subtly incorrect objects.
 
 from typing import Dict, List, Optional, Tuple
 
-from .models import Sentence, Token, TokenAnalysis, VerbalExpression
+from .models import IMPLIED_TOKENTYPES, Sentence, Token, TokenAnalysis, VerbalExpression
 
 SENTENCES_LABEL = "#!sentences"
 VERBAL_UNITS_LABEL = "#!verbal_units"
@@ -148,7 +160,10 @@ def write_analyses(
       given sentence's tokens (so no citation is known for it -- an empty
       context is written, same as a token that legitimately has no
       citation at all, but this case specifically means the id wasn't
-      found anywhere in `sentences`);
+      found anywhere in `sentences` -- EXCEPT for an implied token
+      (tokentype in IMPLIED_TOKENTYPES), which never appears in any sentence's own
+      `tokens` by design, so this warning is suppressed for those
+      specifically rather than flagged as an anomaly);
     - a sentence whose own tokens don't form a contiguous, matching-order
       run in `tokengraph`'s given order -- see the module docstring for
       why this matters for read_analyses() to recover sentence boundaries
@@ -164,6 +179,13 @@ def write_analyses(
     for sentence in sentences:
         for tok in sentence.tokens:
             id_to_citation[tok.id] = tok.citation
+
+    # Implied tokens (tokentype in IMPLIED_TOKENTYPES) never appear in any sentence's
+    # own `tokens` list by design (see the module docstring's note above)
+    # -- so having no recorded citation is expected and correct for them,
+    # not the kind of anomaly the "not found among the given sentences'
+    # tokens" warning below exists to flag.
+    implied_ids = {tok.id for tok in tokengraph if tok.tokentype in IMPLIED_TOKENTYPES}
 
     tg_index = {tok.id: i for i, tok in enumerate(tokengraph)}
 
@@ -191,7 +213,15 @@ def write_analyses(
             )
         else:
             expected_ids = [t.id for t in sentence.tokens]
-            actual_ids = [tok.id for tok in tokengraph[first_pos : last_pos + 1]]
+            # Implied tokens (tokentype in IMPLIED_TOKENTYPES) were never part of the
+            # original per-sentence `tokens` list -- they're synthesized by
+            # analysis itself -- so exclude them here before comparing, or
+            # every sentence containing one would spuriously warn.
+            actual_ids = [
+                tok.id
+                for tok in tokengraph[first_pos : last_pos + 1]
+                if tok.tokentype not in IMPLIED_TOKENTYPES
+            ]
             if actual_ids != expected_ids:
                 warnings.append(
                     f"sentence at index {s_idx} (tokens {first_tok.id!r}.."
@@ -216,7 +246,7 @@ def write_analyses(
     lines.append(VERBAL_UNITS_LABEL)
     lines.append(VERBAL_UNITS_HEADER)
     for vu in verbalunits:
-        if vu.id not in id_to_citation:
+        if vu.id not in id_to_citation and vu.id not in implied_ids:
             warnings.append(
                 f"verbal expression {vu.id!r} not found among the given "
                 "sentences' tokens -- writing an empty context for it"
@@ -237,7 +267,7 @@ def write_analyses(
     lines.append(TOKENS_LABEL)
     lines.append(TOKENS_HEADER)
     for tok in tokengraph:
-        if tok.id not in id_to_citation:
+        if tok.id not in id_to_citation and tok.id not in implied_ids:
             warnings.append(
                 f"token {tok.id!r} not found among the given sentences' "
                 "tokens -- writing an empty context for it"
@@ -364,7 +394,7 @@ def read_analyses(
         tokengraph.append(
             TokenAnalysis(
                 id=tok_id,
-                token=text,
+                token=_parse_optional(text),
                 tokentype=tokentype,
                 lemma=_parse_optional(lemma),
                 verbalunitid=_parse_optional(verbalunit),
@@ -461,7 +491,11 @@ def read_analyses(
                 f"{last_id!r}"
             )
 
-        sentence_ids = row_order[start : end + 1]
+        sentence_ids = [
+            tid
+            for tid in row_order[start : end + 1]
+            if tokengraph[id_position[tid]].tokentype not in IMPLIED_TOKENTYPES
+        ]
         sentences.append(
             Sentence(
                 tokens=[

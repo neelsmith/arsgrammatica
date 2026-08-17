@@ -109,6 +109,18 @@ def _(sentences):
     return
 
 
+@app.cell
+def _(results):
+    vus = [res.verbalunits for res in results]
+    return (vus,)
+
+
+@app.cell
+def _(vus):
+    vus[0]
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
@@ -177,11 +189,11 @@ def _():
     #    mo.md(
     #        f"""
     #       ### Complex Input Form
-        
+    
     #       {name}
-        
+    
     #        {age}
-        
+    
     #        {category}
     #        """
     #    )

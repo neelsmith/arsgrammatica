@@ -59,7 +59,7 @@ its own.
 import html
 from typing import Dict, List, Optional, Tuple
  
-from .models import TokenAnalysis
+from .models import IMPLIED_TOKENTYPES, TokenAnalysis
 from .verbal_units import (
     assign_verbal_units,
     assign_verbal_unit_colors,
@@ -114,11 +114,19 @@ def tokengraph_to_text(tokengraph: List[TokenAnalysis]) -> str:
     quote_counts: Dict[str, int] = {}
     pieces: List[str] = []
     previous_class = None
- 
+
     for tok in tokengraph:
+        if tok.tokentype in IMPLIED_TOKENTYPES:
+            # An implied/elided token (models.py's IMPLIED_TOKENTYPES) has
+            # no surface realization at all -- skip it entirely, exactly as
+            # if it weren't in the list, rather than trying to render
+            # `None`. previous_class is deliberately left untouched, so the
+            # next real token's spacing is decided as if this one weren't
+            # here.
+            continue
         cls = _classify(tok, quote_counts)
         text = tok.token
- 
+
         if not pieces:
             # Nothing precedes the first token -- never prepend a space,
             # regardless of this token's own classification.
@@ -209,6 +217,10 @@ def _tokens_to_html(
     previous_class = None
 
     for tok in tokens:
+        if tok.tokentype in IMPLIED_TOKENTYPES:
+            # See tokengraph_to_text()'s identical skip -- no surface text
+            # to escape or wrap, and previous_class is left untouched.
+            continue
         cls = _classify(tok, quote_counts)
         rendered = html.escape(tok.token)
 

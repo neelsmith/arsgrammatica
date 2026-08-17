@@ -402,3 +402,67 @@ def test_blank_lines_between_blocks_are_tolerated(tmp_path):
     assert len(tokengraph) == 1
     assert len(verbalunits) == 1
     assert len(sentences) == 1
+
+
+# ---------------------------------------------------------------------------
+# Implied/elided tokens (tokentype='implied sum'/'continued discourse'; see
+# models.py's TokenAnalysis and IMPLIED_TOKENTYPES)
+# ---------------------------------------------------------------------------
+#
+# An implied token was never part of the original per-sentence `tokens`
+# list segmentation produced -- it's synthesized by analysis itself -- so
+# it needs two things this format didn't need before: its `token`/text
+# column (empty, like any other None field) must round-trip back to None
+# rather than "" (see read_analyses()'s _parse_optional(text) fix), and it
+# must be excluded from the sentence it sits inside of when reconstructing
+# that sentence's own `tokens` list, even though it occupies a real
+# position in #!tokens' row order between two of that sentence's real
+# tokens.
+
+
+def _sentence_with_implied_token_fixture():
+    """"Rara [sunt]." -- one sentence, one real token (t0) plus one implied
+    token (t0_implied) anchoring its own linking-verb verbal expression."""
+    sentences = [Sentence(tokens=[Token(id="t0", text="Rara", citation="Livy 1.1")])]
+    tokengraph = [
+        TokenAnalysis(id="t0", token="Rara", tokentype="lexical",
+                      relatedtoken1="t0_implied", relationship1="predicate"),
+        TokenAnalysis(id="t0_implied", token=None, tokentype="implied sum",
+                      verbalunitid="t0_implied", relatedtoken1="root", relationship1="unit verb"),
+    ]
+    verbalunits = [
+        VerbalExpression(id="t0_implied", syntactic_type="independent", semantic_type="linking verb"),
+    ]
+    return sentences, verbalunits, tokengraph
+
+
+def test_implied_token_round_trips_with_none_text_not_empty_string(tmp_path):
+    sentences, verbalunits, tokengraph = _sentence_with_implied_token_fixture()
+    path = tmp_path / "implied.txt"
+
+    warnings = write_analyses(sentences, verbalunits, tokengraph, str(path))
+    assert warnings == [], (
+        "an implied token sitting inside a sentence's own token range should "
+        "not trigger the 'not a contiguous run' warning"
+    )
+
+    got_tokengraph, got_verbalunits, got_sentences = read_analyses(str(path))
+    assert got_tokengraph == tokengraph
+    assert got_verbalunits == verbalunits
+
+    implied = next(tok for tok in got_tokengraph if tok.id == "t0_implied")
+    assert implied.token is None, (
+        f"expected the implied token's text to round-trip as None, got {implied.token!r}"
+    )
+
+
+def test_implied_token_is_excluded_from_its_sentences_reconstructed_tokens(tmp_path):
+    sentences, verbalunits, tokengraph = _sentence_with_implied_token_fixture()
+    path = tmp_path / "implied.txt"
+    write_analyses(sentences, verbalunits, tokengraph, str(path))
+
+    _got_tokengraph, _got_verbalunits, got_sentences = read_analyses(str(path))
+    assert len(got_sentences) == 1
+    # Only t0 (the real token) belongs in the reconstructed sentence -- the
+    # implied token was never part of the original pre-analysis token list.
+    assert got_sentences[0].tokens == [Token(id="t0", text="Rara", citation="Livy 1.1")]

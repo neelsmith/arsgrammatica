@@ -86,7 +86,13 @@ def tokengraph_to_mermaid(
     for tok in tokengraph:
         if tok.id not in node_ids:
             continue
-        lines.append(f'    {tok.id}["{_escape_label(tok.token)}"]')
+        # An implied/elided token (see models.py's IMPLIED_TOKENTYPES) has
+        # no surface text at all -- tok.token is None -- so it needs a
+        # placeholder label rather than crashing _escape_label() on None.
+        # tok.tokentype itself ("implied sum" or "continued discourse") is
+        # a more useful label than a generic "[implied]" would be.
+        label = tok.token if tok.token is not None else f"[{tok.tokentype}]"
+        lines.append(f'    {tok.id}["{_escape_label(label)}"]')
  
     warnings = []
     for tok in tokengraph:
