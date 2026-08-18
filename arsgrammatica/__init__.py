@@ -22,6 +22,7 @@ from .segmentation_dspy import SegmentPassage, segment_sources
 from .pipeline import analyze_passage, analyze_sources, combined_tokengraph
 from .serialization import serialize_analyses, write_analyses, read_analyses
 from .ctsdata import CtsDataRow, read_ctsdata
+from .token_budget import estimate_max_tokens, analyze_with_retry, get_calibration
 
 __all__ = [
     "Token",
@@ -53,4 +54,7 @@ __all__ = [
     "read_analyses",
     "CtsDataRow",
     "read_ctsdata",
+    "estimate_max_tokens",
+    "analyze_with_retry",
+    "get_calibration",
 ]

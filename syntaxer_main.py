@@ -28,14 +28,30 @@ def _env(name: str, fallback_name: str, default: str | None = None) -> str | Non
 def _configure_lm():
     api_base = _env("API_BASE", "API_BASE", "https://suarezai.holycross.edu/litellm")
     model = _env("MODEL", "MODEL", "litellm_proxy/anthropic/Claude Opus 5")
-    api_key = _env("API_KEY", "API_KEY")
- 
-    if not api_key:
+
+    # Distinguish "API_KEY isn't in .env at all" (a likely oversight -- keep
+    # raising) from "API_KEY= is there but deliberately empty" (fine for a
+    # local, unauthenticated model like Ollama -- see model_bakeoff.py's own
+    # "ollama: no API key needed" comment for the same convention). _env()'s
+    # own truthiness check can't tell these apart (both look like "falsy"),
+    # so this checks os.environ directly instead.
+    if "API_KEY" not in os.environ:
         raise RuntimeError(
-            "Missing API key. Set API_KEY (preferred) or API_KEY in your .env file."
+            "Missing API key. Set API_KEY in your .env file -- an empty "
+            "value (API_KEY=) is fine for a local model that doesn't need "
+            "one, e.g. Ollama; this only checks that the line exists at all."
         )
- 
-    lm = dspy.LM(model=model, api_base=api_base, api_key=api_key)
+    api_key = os.environ["API_KEY"]
+
+    # Only pass api_key through when it's actually non-empty. dspy.LM/litellm
+    # don't need one at all for a local Ollama daemon -- passing api_key=""
+    # explicitly is unnecessary and, depending on the provider, can behave
+    # differently than omitting it outright.
+    lm_kwargs = dict(model=model, api_base=api_base)
+    if api_key:
+        lm_kwargs["api_key"] = api_key
+
+    lm = dspy.LM(**lm_kwargs)
     dspy.configure(lm=lm)
     return lm
  
@@ -58,7 +74,7 @@ if __name__ == "__main__":
              "recorded on every token via Token.citation. Defaults to no citation.",
     )
     args = parser.parse_args()
- 
+
     _configure_lm()
     #loadollama()
     sentences, results = analyze_passage(args.passage, citation=args.citation)
