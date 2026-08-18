@@ -4,6 +4,12 @@ Current version: **0.1.0**.
 
 
 
+- **0.2.0**:
+
+Breaking changes: syntactically absolute substantives are now assigned to the verbal unit of the circumstantial participle they agree with, not the verbal unit of the governing clause.
+
+Additions: relations of praenomina now included in syntax graph; special uses of accusative and ablative expanded; optional depth parameter in HTML block display; new function to find maximum depth of subordination of a passage; updated marimo notebooks.
+
 - **0.1.0**, *Aug. 17, 2026*: Initial public release, built using Opus 5. Includes a complete framework for developing, testing and optimizing Latin syntactic analyzers with a wide variety of language models using `dspy`. This release includes:
 
     - a python package with a complete implementation of the initial syntactic scheme

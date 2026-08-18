@@ -71,21 +71,96 @@ def test_relative_pronoun_belongs_to_the_clause_it_introduces_not_its_antecedent
     assert assignment["t0"] == "t8"  # Latini stays with the main verb, sustulerant
  
  
-def test_ablative_absolute_noun_belongs_to_the_main_verb():
+def test_ablative_absolute_noun_belongs_to_its_circumstantial_participle():
     """In "Anco regnante Lucumo Romam commigravit", Anco is a true ablative
-    absolute (per syntax_model.md, "otherwise unconnected syntactically"),
-    so it's assigned to the MAIN verb commigravit -- not to regnante, the
-    participle it grammatically agrees with. regnante's own verbal unit
-    ends up a singleton (nothing else resolves to it), which is the
-    expected shape for this construction, not a bug."""
+    absolute (per syntax_model.md, "otherwise unconnected syntactically"):
+    syntactically absolute from commigravit's own clause, it takes its
+    verbal unit instead from regnante, the circumstantial participle it
+    grammatically agrees with -- so Anco and regnante end up in the SAME
+    (regnante's) verbal unit, not split between regnante and commigravit."""
     tokengraph = _tokengraph("participle_predicate_anco_regnante")
     assignment = assign_verbal_units(tokengraph)
-    assert assignment["t0"] == "t4"  # Anco -> commigravit
-    assert assignment["t1"] == "t1"  # regnante -> itself (singleton unit)
+    assert assignment["t0"] == "t1"  # Anco -> regnante (its circumstantial participle)
+    assert assignment["t1"] == "t1"  # regnante -> itself
     assert assignment["t2"] == "t4"  # Lucumo (subject of commigravit)
     assert assignment["t3"] is None  # Romam: bare accusative of place, not covered
  
  
+def test_ablative_absolute_with_implied_participle_of_sum():
+    """"P. Valerius ... Agrippa Menenio P. Postumio consulibus moritur":
+    consulibus is a true ablative absolute (Latin has no present participle
+    of sum, so an implied one -- t8_implied -- stands in), so consulibus
+    takes ITS verbal unit from that implied participle, not from moritur.
+    Menenio and Postumio are each in apposition to consulibus, not to
+    moritur -- so they follow consulibus's own (redirected) resolution and
+    land in the implied participle's unit too, exactly the "new subgraphs
+    begin from the ablative-absolute noun" shape this feature is for."""
+    tokengraph = _tokengraph("implied_participle_of_sum_consulibus")
+    assignment = assign_verbal_units(tokengraph)
+    assert assignment["t8"] == "t8_implied"  # consulibus -> the implied participle
+    assert assignment["t8_implied"] == "t8_implied"  # implied participle -> itself
+    assert assignment["t5"] == "t8_implied"  # Menenio, apposed to consulibus
+    assert assignment["t7"] == "t8_implied"  # Postumio, apposed to consulibus
+    assert assignment["t1"] == "t9"  # Valerius (subject of moritur) stays with the main verb
+    assert assignment["t9"] == "t9"  # moritur -> itself
+
+
+def test_ablative_absolute_re_cognita_belongs_to_its_participle():
+    """"Sed re cognita, iussu Cereris Triptolemo regnum dedit": re is a true
+    ablative absolute agreeing with cognita, so re takes its verbal unit
+    from cognita rather than from dedit, the main verb it otherwise points
+    at via 'ablative absolute'."""
+    tokengraph = _tokengraph("coordinating_conjunction_sentence_initial_sed_dedit")
+    assignment = assign_verbal_units(tokengraph)
+    assert assignment["t1"] == "t2"  # re -> cognita (its circumstantial participle)
+    assert assignment["t2"] == "t2"  # cognita -> itself
+    assert assignment["t8"] == "t8"  # dedit -> itself
+    assert assignment["t4"] == "t8"  # iussu (ablative modifying dedit) stays with dedit
+
+
+def test_praenomen_chains_through_to_the_verb_like_any_other_relation():
+    """"Sex. Tarquinius inscio Collatino cum comite uno Collatiam venit":
+    Sex. relates to Tarquinius via 'praenomen', a relation like any other
+    for assign_verbal_units()'s purposes -- it chains forward exactly the
+    same way, landing in the same (venit's) verbal unit as Tarquinius
+    itself. Collatino (a true ablative absolute) belongs instead to the
+    implied participle of sum it agrees with, per the ablative-absolute
+    redirect -- and inscio, adjectival to Collatino, follows it there."""
+    tokengraph = _tokengraph("praenomen_sex_tarquinius_venit")
+    assignment = assign_verbal_units(tokengraph)
+    assert assignment["t0"] == "t8"  # Sex. -> venit (via Tarquinius)
+    assert assignment["t1"] == "t8"  # Tarquinius -> venit (subject)
+    assert assignment["t3"] == "t3_implied"  # Collatino -> the implied participle
+    assert assignment["t2"] == "t3_implied"  # inscio, adjectival to Collatino
+
+
+def test_accusative_links_to_a_verb_or_to_another_noun():
+    """The 'accusative' relation can target either a verb (a bare
+    accusative of place to which, "Romam" in "Romam venit") or another
+    noun (an accusative of extent qualifying it, "milia" in "duo milia
+    passuum iter fecerunt", qualifying "iter" rather than "fecerunt")."""
+    tokengraph = _tokengraph("accusative_romam_venit")
+    assignment = assign_verbal_units(tokengraph)
+    assert assignment["t0"] == "t1"  # Romam -> venit directly
+
+    tokengraph = _tokengraph("accusative_milia_passuum_iter")
+    assignment = assign_verbal_units(tokengraph)
+    assert assignment["t1"] == "t4"  # milia -> iter -> fecerunt's unit
+    assert assignment["t0"] == "t4"  # Duo, adjectival to milia, follows it there
+    assert assignment["t2"] == "t4"  # passuum, genitive on milia, follows it there too
+
+
+def test_opus_est_ablative_relates_to_opus_not_to_the_verb():
+    """"Collatinus negat verbis opus esse": in the idiomatic 'opus est'
+    construction, the ablative verbis relates to opus itself (not to esse,
+    the verb) -- so verbis resolves through opus to esse's own (indirect
+    statement) verbal unit, exactly as opus itself does."""
+    tokengraph = _tokengraph("ablative_opus_est_verbis")
+    assignment = assign_verbal_units(tokengraph)
+    assert assignment["t3"] == "t4"  # opus -> esse (predicate)
+    assert assignment["t2"] == "t4"  # verbis -> opus -> esse
+
+
 def test_circumstantial_participle_noun_keeps_its_own_clause_role():
     """In "Eum advenientem laeti omnes accepere", Eum fits into the main
     clause as accepere's direct object, so it's assigned there -- not to
@@ -170,9 +245,11 @@ def test_unrelated_and_punctuation_tokens_get_none():
     tokengraph = _tokengraph("numeral_hiberna_aberant_xxv")
     assignment = assign_verbal_units(tokengraph)
     assert assignment["t7"] is None  # trailing "."
-    # "milia passuum XXV" (accusative of extent) has no relation in the
-    # current scheme -- none of the three should resolve to a verbal unit.
-    assert assignment["t4"] is None
+    # "milia passuum XXV" is an accusative-of-extent phrase: milia now
+    # relates to aberant via 'accusative' (see syntax_model.md's "Noun
+    # relations" section), so it resolves to aberant's own verbal unit;
+    # passuum and XXV still have no relation in the scheme and stay None.
+    assert assignment["t4"] == "t1"
     assert assignment["t5"] is None
     assert assignment["t6"] is None
  

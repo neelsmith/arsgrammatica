@@ -166,6 +166,21 @@ class VerbalExpression(BaseModel):
 # simply treated as an ordinary adjective, agreeing with its noun via
 # "adjectival". None of these three make their token a verbal-expression
 # anchor either.
+# "accusative" and "praenomen" are the two newest labels. "accusative"
+# covers an accusative relation that ISN'T a direct object -- e.g. a bare
+# accusative of place to which ("Romam" in "Romam venit", relatedtoken1 ->
+# the verb "venit") or an accusative of extent modifying another noun
+# rather than a verb (e.g. "milia" in "duo milia passuum iter fecerunt",
+# relatedtoken1 -> "iter", the noun it qualifies) -- either a verb or
+# another noun can be the target, same as "genitive"/"dative"/"ablative"
+# below. "praenomen" links a `tokentype='praenomen'` token (an abbreviated
+# Roman first name, e.g. "M." or "Sex.") to the lexical token spelling out
+# the individual's own name it abbreviates/precedes: relatedtoken1 -> that
+# lexical token's id, relationship1 = "praenomen". (A praenomen with no
+# such name token to its own right -- e.g. the genitive filiation formula
+# "L. f." for "Lucii filius", where "L." precedes only the abbreviation
+# "f." rather than a lexical name -- has no target under this rule and is
+# left unrelated, same as before.)
 RelationLabel = Literal[
     "unit verb",
     "subordinating conjunction",
@@ -182,6 +197,7 @@ RelationLabel = Literal[
     "genitive",
     "dative",
     "ablative",
+    "accusative",
     "direct quote",
     "aside",
     "indirect statement",
@@ -190,6 +206,7 @@ RelationLabel = Literal[
     "coordinating conjunction",
     "apposition",
     "complementary infinitive",
+    "praenomen",
 ]
  
  

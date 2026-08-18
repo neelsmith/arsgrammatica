@@ -34,6 +34,31 @@ verbal unit, full stop -- its own outgoing relations (the antecedent link,
 the outer-clause-modifies link) are not used to override that. Only when
 no such reverse link exists does a token fall back to following its own
 relatedtoken1/relatedtoken2 chain forward.
+
+A second, analogous wrinkle: a noun or pronoun in a true "ablative
+absolute" relation to a verb (syntax_model.md's "verbal units with
+participles") is syntactically absolute -- it does not function inside
+that verb's own clause, even though its own relatedtoken1 points straight
+at that verb. Grammatically it belongs instead to the circumstantial
+participle it agrees with, which always relates back to that same noun
+via "circumstantial participle" (possibly an implied participle of *sum*,
+when Latin has no real participle to use -- see IMPLIED_TOKENTYPES).
+Example: in "paucis interiectis diebus ... Sex. Tarquinius inscio
+Collatino ... venit" (Livy), both *diebus* and *Collatino* relate to
+*venit* as "ablative absolute", but *interiectis* (a real participle)
+relates to *diebus*, and an implied participle of *sum* relates to
+*Collatino*, both via "circumstantial participle" -- so *diebus* and
+*Collatino* (and anything that in turn chains through them, e.g. an
+adjective or apposition) belong to *interiectis*'s and the implied
+participle's own verbal units respectively, NOT to *venit*'s. This is
+checked the same way as the "unit verb" wrinkle above -- via a reverse
+index -- but only overrides the default forward chase when the noun's
+own outgoing relation actually is "ablative absolute"; a noun a
+circumstantial participle agrees with that otherwise fits normally into
+the surrounding clause (e.g. "eum" as direct object in "eum advenientem
+... accepere") keeps that normal relation and is NOT redirected --
+syntax_model.md's own distinction between the two cases is exactly this
+outgoing-relation label.
 """
  
 from typing import Dict, List, Optional, Tuple
@@ -41,7 +66,9 @@ from typing import Dict, List, Optional, Tuple
 from .models import TokenAnalysis
  
 _UNIT_VERB = "unit verb"
- 
+_CIRCUMSTANTIAL_PARTICIPLE = "circumstantial participle"
+_ABLATIVE_ABSOLUTE = "ablative absolute"
+
 # Categorical palette for coloring verbal units: 8 (fill, stroke, text)
 # triples, in a fixed order chosen so adjacent slots stay distinguishable
 # under color-vision deficiency as well as normal vision. Pastel-hued by
@@ -114,9 +141,19 @@ def assign_verbal_units(tokengraph: List[TokenAnalysis]) -> Dict[str, Optional[s
     resolvable relation (e.g. a bare accusative of place, an enclitic, an
     emphatic pronoun left unrelated per syntax_model.md's "Incomplete
     status") gets None.
+
+    A true ablative-absolute noun (its own outgoing relation is "ablative
+    absolute", not some normal clause role) is redirected to the verbal
+    unit of the circumstantial participle it agrees with, rather than to
+    the verb its own relatedtoken1 points at -- see this module's
+    docstring for the full "paucis interiectis diebus ... inscio
+    Collatino ... venit" example. Anything that in turn chains through
+    that noun (an adjective, an appositive) follows it into the
+    participle's unit too, since this redirect happens once, at the noun
+    itself, and every other resolution is unchanged.
     """
     by_id = {tok.id: tok for tok in tokengraph}
- 
+
     # Reverse index: for every token that some OTHER token points at via a
     # "unit verb" relation, record who points at it. Per syntax_model.md,
     # a "unit verb" target is always either the literal sentinel 'root'
@@ -124,6 +161,15 @@ def assign_verbal_units(tokengraph: List[TokenAnalysis]) -> Dict[str, Optional[s
     # conjunction/relative pronoun's id (from a dependent verb) -- so a hit
     # here always means "this token introduces the pointing verb's clause."
     introduces_clause_for: Dict[str, str] = {}
+    # Reverse index: for every token that some OTHER token points at via a
+    # "circumstantial participle" relation, record who points at it (the
+    # participle -- real or implied -- that agrees with it). Used below to
+    # redirect a TRUE ablative-absolute noun to that participle's own
+    # verbal unit instead of the verb it otherwise points at; a noun a
+    # participle agrees with that fits normally into the clause (its own
+    # outgoing relation isn't "ablative absolute") is left alone and keeps
+    # resolving normally, so this index is consulted but not always used.
+    circumstantial_participle_for: Dict[str, str] = {}
     for tok in tokengraph:
         for related_field, label_field in (
             ("relatedtoken1", "relationship1"),
@@ -131,9 +177,13 @@ def assign_verbal_units(tokengraph: List[TokenAnalysis]) -> Dict[str, Optional[s
         ):
             related = getattr(tok, related_field)
             label = getattr(tok, label_field)
-            if related is not None and related != "root" and label == _UNIT_VERB:
+            if related is None or related == "root":
+                continue
+            if label == _UNIT_VERB:
                 introduces_clause_for[related] = tok.id
- 
+            elif label == _CIRCUMSTANTIAL_PARTICIPLE:
+                circumstantial_participle_for[related] = tok.id
+
     resolved: Dict[str, Optional[str]] = {}
     in_progress: set = set()
  
@@ -155,11 +205,20 @@ def assign_verbal_units(tokengraph: List[TokenAnalysis]) -> Dict[str, Optional[s
         in_progress.add(tid)
  
         result = None
- 
+
         clause_verb_id = introduces_clause_for.get(tid)
         if clause_verb_id is not None:
             result = resolve(clause_verb_id)
- 
+
+        if result is None:
+            participle_id = circumstantial_participle_for.get(tid)
+            is_ablative_absolute = (
+                tok.relationship1 == _ABLATIVE_ABSOLUTE
+                or tok.relationship2 == _ABLATIVE_ABSOLUTE
+            )
+            if participle_id is not None and is_ablative_absolute:
+                result = resolve(participle_id)
+
         if result is None:
             for related_field in ("relatedtoken1", "relatedtoken2"):
                 related = getattr(tok, related_field)
@@ -360,6 +419,44 @@ def compute_subordination_depths(
         depth_of(anchor_id)
 
     return depths, warnings
+
+
+def max_subordination_depth(
+    tokengraph: List[TokenAnalysis],
+    depths: Optional[Dict[str, Optional[int]]] = None,
+) -> Optional[int]:
+    """Return the deepest level of subordination reached anywhere in
+    `tokengraph` -- the highest value `compute_subordination_depths()`
+    assigns to any verbal expression. Root/independent clauses are depth
+    0, so this is also the upper end of the valid `depth` range for
+    `rendering.tokengraph_to_depth_html()`'s own `depth` parameter (whose
+    valid range is 0, root clauses only, through this function's return
+    value, everything).
+
+    Pass `depths` (the first element of `compute_subordination_depths()`'s
+    return value) if the caller already computed it, to avoid re-deriving
+    it here; otherwise it's computed internally (any resolution warnings
+    are silently dropped in that case -- call
+    `compute_subordination_depths()` directly first if the caller also
+    needs those).
+
+    Returns `None` if `tokengraph` has no verbal expressions at all (an
+    empty passage, or one with none of the three constructions
+    syntax_model.md counts as one), or if every anchor's own depth came
+    back unresolved (see `compute_subordination_depths()`'s own
+    warnings for why an anchor might be unresolved -- a relation cycle, or
+    a governing verbal expression that couldn't be found). Otherwise
+    returns the maximum of every RESOLVED anchor's depth, ignoring
+    unresolved ones rather than letting a single bad anchor blank out the
+    whole result.
+    """
+    if depths is None:
+        depths, _warnings = compute_subordination_depths(tokengraph)
+
+    resolved = [d for d in depths.values() if d is not None]
+    if not resolved:
+        return None
+    return max(resolved)
 
 
 def find_unanchored_coordinated_verbs(tokengraph: List[TokenAnalysis]) -> List[str]:

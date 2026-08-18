@@ -150,15 +150,15 @@ def tokengraph_to_html(tokengraph: List[TokenAnalysis]) -> str:
     """Render `tokengraph` as an HTML string: the same continuous text
     `tokengraph_to_text()` produces -- identical spacing rules, and the same
     punctuation/enclitic/quote-pair handling -- except every **lexical**
-    token, and every **coordinating conjunction** (any token with
-    relationship1 or relationship2 == "coordinating conjunction", lexical or
-    not), has its text wrapped in a `<span style="...">` colored by the
-    verbal unit it belongs to. Colors come from
-    `verbal_units.assign_verbal_units()` / `assign_verbal_unit_colors()` --
-    the same assignment and the same first-appearance palette ordering
-    `tokengraph_to_mermaid()` uses for its node coloring -- so a passage
-    rendered here and the same passage's Mermaid diagram color each verbal
-    unit identically.
+    token, every **praenomen** token, and every **coordinating conjunction**
+    (any token with relationship1 or relationship2 == "coordinating
+    conjunction", lexical or not), has its text wrapped in a
+    `<span style="...">` colored by the verbal unit it belongs to. Colors
+    come from `verbal_units.assign_verbal_units()` /
+    `assign_verbal_unit_colors()` -- the same assignment and the same
+    first-appearance palette ordering `tokengraph_to_mermaid()` uses for its
+    node coloring -- so a passage rendered here and the same passage's
+    Mermaid diagram color each verbal unit identically.
 
     The coordinating-conjunction carve-out exists because a conjunction
     like "-que" or "-ve" is typically tokentype "enclitic", not "lexical",
@@ -171,19 +171,35 @@ def tokengraph_to_html(tokengraph: List[TokenAnalysis]) -> str:
     carve-out: it's always tokentype "lexical" (a full word, never
     enclitic), so it's already wrapped.
 
-    Every other non-lexical token -- punctuation, a non-conjunction
-    enclitic (e.g. the interrogative "-ne"), numerals, praenomens, and
+    The praenomen carve-out is the same idea for a different reason:
+    syntax_model.md's "Praenomina" section gives every `tokentype`=
+    "praenomen" token (e.g. "Sex.") its own real relation -- relatedtoken1
+    -> the lexical name it precedes, relationship1 = "praenomen" -- so
+    `assign_verbal_units()` resolves it to that name's own verbal unit
+    exactly like any other token in the clause (e.g. "Sex." lands in the
+    same unit as "Tarquinius", which is "venit"'s). Unlike the
+    coordinating-conjunction case, this is keyed on `tokentype` directly
+    rather than on the relationship label, matching how the "lexical" half
+    of this check works -- every praenomen, by convention, is eligible for
+    this treatment, not just ones that happen to already carry the
+    relation (a praenomen with nothing to relate to, e.g. "L." in the
+    genitive filiation formula "L. f.", simply has no verbal-unit
+    assignment and so renders unwrapped anyway, same as an unrelated
+    lexical token would).
+
+    Every other non-lexical, non-praenomen token -- punctuation, a
+    non-conjunction enclitic (e.g. the interrogative "-ne"), numerals, and
     abbreviations -- is still emitted as plain (escaped) text even though
     `assign_verbal_units()` assigns every token, including punctuation, to
     whichever unit its relations resolve to; this function just doesn't
-    turn that assignment into a span for anything else. A lexical or
-    coordinating-conjunction token belonging to no verbal unit (assignment
-    is `None`, e.g. a bare accusative of place) is left unwrapped too, as
-    is one whose unit happens to have no non-punctuation member at all and
-    so never got a color slot from `assign_verbal_unit_colors()` (should
-    not occur in practice for a lexical token, since it's always a
-    non-punctuation member of its own unit, but handled defensively rather
-    than assumed).
+    turn that assignment into a span for anything else. A lexical,
+    praenomen, or coordinating-conjunction token belonging to no verbal
+    unit (assignment is `None`, e.g. a bare accusative of place) is left
+    unwrapped too, as is one whose unit happens to have no non-punctuation
+    member at all and so never got a color slot from
+    `assign_verbal_unit_colors()` (should not occur in practice for a
+    lexical or praenomen token, since it's always a non-punctuation member
+    of its own unit, but handled defensively rather than assumed).
 
     An **implied/elided token** (models.py's IMPLIED_TOKENTYPES: "implied
     sum", "continued discourse") is omitted entirely -- same as
@@ -224,8 +240,9 @@ def _tokens_to_html(
     same spacing/escaping/quote-pairing rules as tokengraph_to_text()
     (including that function's identical omission of implied/elided
     tokens -- see tokengraph_to_html()'s own docstring for why), plus color
-    spans for lexical tokens and coordinating conjunctions (see that same
-    docstring for why conjunctions get this too), given an
+    spans for lexical tokens, praenomen tokens, and coordinating
+    conjunctions (see that same docstring for why conjunctions and
+    praenomens get this too), given an
     already-computed verbal-unit `assignment` and `colors` mapping. Taking
     these as parameters (rather
     than deriving them from `tokens` itself) is what lets
@@ -259,7 +276,7 @@ def _tokens_to_html(
             tok.relationship1 == "coordinating conjunction"
             or tok.relationship2 == "coordinating conjunction"
         )
-        if tok.tokentype == "lexical" or is_coordinating_conjunction:
+        if tok.tokentype in ("lexical", "praenomen") or is_coordinating_conjunction:
             unit_id = assignment.get(tok.id)
             color = colors.get(unit_id) if unit_id is not None else None
             if color is not None:
@@ -295,6 +312,7 @@ _DEFAULT_DEPTH_INDENT_EM = 2.0
 def tokengraph_to_depth_html(
     tokengraph: List[TokenAnalysis],
     indent_em: float = _DEFAULT_DEPTH_INDENT_EM,
+    depth: Optional[int] = None,
 ) -> Tuple[str, List[str]]:
     """Render `tokengraph` as HTML illustrating each verbal expression's
     *depth of subordination* (see verbal_units.compute_subordination_
@@ -311,6 +329,20 @@ def tokengraph_to_depth_html(
     introduces, and so on. All layout is CSS (margin-left/margin-bottom on
     each block's <div>) -- no table or nested-list structure is used to
     produce the indentation.
+
+    `depth`, if given, caps how deep the rendering goes: ONLY blocks whose
+    own depth of subordination is <= `depth` are included in the output --
+    a block deeper than that is dropped entirely, not rendered empty or
+    grayed out. `depth=0` shows root/independent clauses only (and direct
+    quotes, asides, and any other depth-0 construction); omit `depth` (or
+    pass `None`, the default) to show every block, same as before this
+    parameter existed. Valid values run from 0 up to
+    verbal_units.max_subordination_depth()'s own return value for this
+    `tokengraph` (that function exists specifically to help a caller pick
+    a sensible value here); a negative `depth` raises ValueError, since
+    there's no clause shallower than root. A `depth` larger than the
+    passage's actual maximum is accepted, not an error -- it just means
+    "show everything," identical to leaving `depth` unset.
 
     Block boundaries follow assign_verbal_units()'s token-to-unit
     assignment, with one adjustment: an **enclitic** token never starts a
@@ -347,8 +379,13 @@ def tokengraph_to_depth_html(
     Returns (html, warnings), combining assign_verbal_unit_colors()'s
     warnings (colors repeating past 8 verbal units) and
     compute_subordination_depths()'s (an unresolved governing verbal
-    expression).
+    expression) -- computed the same way, and returned in full, regardless
+    of whether `depth` filters some blocks out of the rendered `html`
+    itself.
     """
+    if depth is not None and depth < 0:
+        raise ValueError(f"depth must be >= 0 (root clauses only), got {depth!r}")
+
     assignment = assign_verbal_units(tokengraph)
     colors, color_warnings = assign_verbal_unit_colors(tokengraph, assignment=assignment)
     depths, depth_warnings = compute_subordination_depths(tokengraph)
@@ -373,11 +410,16 @@ def tokengraph_to_depth_html(
 
     lines = []
     for unit_id, block_tokens in blocks:
-        depth = depths.get(unit_id) if unit_id is not None else 0
-        if depth is None:
-            depth = 0
+        block_depth = depths.get(unit_id) if unit_id is not None else 0
+        if block_depth is None:
+            block_depth = 0
+        if depth is not None and block_depth > depth:
+            # This whole block is deeper than the requested cutoff --
+            # drop it entirely rather than rendering an empty/grayed-out
+            # placeholder for it.
+            continue
         block_html = _tokens_to_html(block_tokens, assignment, colors)
-        margin_left = depth * indent_em
+        margin_left = block_depth * indent_em
         lines.append(
             f'<div style="margin-left: {margin_left}em; margin-bottom: 0.35em;">'
             f"{block_html}</div>"

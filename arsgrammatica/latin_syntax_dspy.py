@@ -229,15 +229,27 @@ class SyntaxAnalysis(dspy.Signature):
           a noun has relatedtoken1 -> the noun's id, relationship1 =
           'adjectival'. An adjective used as a substantive (standing in for
           a noun) is treated as a noun/pronoun instead, not as adjectival.
-        - genitive / dative / ablative: a noun in the genitive, dative, or
-          ablative case that depends on a verb or another noun -- and isn't
-          already covered by a more specific relation above (subject,
-          direct object, object of preposition, ablative absolute, etc) --
-          has relatedtoken1 -> the id of the verb or noun it depends on,
-          relationship1 = the matching case name ('genitive', 'dative', or
-          'ablative'). These are purely syntactic (case-function) labels,
+        - genitive / dative / ablative / accusative: a noun in the
+          genitive, dative, ablative, or accusative case that depends on a
+          verb or another noun -- and isn't already covered by a more
+          specific relation above (subject, direct object, object of
+          preposition, ablative absolute, etc) -- has relatedtoken1 -> the
+          id of the verb or noun it depends on, relationship1 = the
+          matching case name ('genitive', 'dative', 'ablative', or
+          'accusative'). These are purely syntactic (case-function) labels,
           not semantic ones -- don't distinguish e.g. possessive vs.
-          partitive genitive.
+          partitive genitive. 'accusative' specifically covers an
+          accusative relation that ISN'T a direct object: a bare
+          accusative of place to which (e.g. "Romam" in "Romam venit",
+          relatedtoken1 -> "venit", even though "venit" is intransitive)
+          or an accusative of extent that modifies another NOUN rather
+          than a verb (e.g. "milia" in "duo milia passuum iter fecerunt",
+          relatedtoken1 -> "iter", the noun it qualifies, not "fecerunt").
+          The idiomatic construction 'opus est' + an ablative is a special
+          case worth noting for 'ablative': the ablative token relates to
+          "opus" itself, not to "est" -- e.g. in "Collatinus negat verbis
+          opus esse", "verbis" has relatedtoken1 -> "opus", relationship1 =
+          'ablative'.
         - apposition: when one noun stands in apposition to another, the
           appositive has relatedtoken1 -> the id of the first (the noun it
           restates or further identifies), relationship1 = 'apposition'. A
@@ -251,6 +263,17 @@ class SyntaxAnalysis(dspy.Signature):
           relationship1 = 'genitive' -- and likewise "filia" is in
           apposition to "Aethra", with "Pitthei" as a genitive depending on
           "filia".
+        - praenomen: a token of tokentype 'praenomen' (an abbreviated Roman
+          first name, e.g. "M." or "Sex.") has relatedtoken1 -> the id of
+          the LEXICAL token spelling out the individual's own name that it
+          abbreviates/precedes, relationship1 = 'praenomen'. Example: in
+          "Sex. Tarquinius inscio Collatino...venit", "Sex." has
+          relatedtoken1 -> "Tarquinius", relationship1 = 'praenomen'. If
+          there is no such lexical name token to relate to -- e.g. the
+          genitive filiation formula "L. f." ("Lucii filius", 'son of
+          Lucius'), where "L." precedes only the abbreviation "f." rather
+          than a lexical name -- leave it unrelated, same as any other
+          token with no relation of these kinds.
         - prepositional phrases: the preposition has relatedtoken1 -> the id
           of the verb (adverbial) or noun (attributive) it modifies,
           relationship1 = 'adverbial' or 'attributive'. The noun/pronoun it

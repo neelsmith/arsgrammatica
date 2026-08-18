@@ -25,7 +25,7 @@ from arsgrammatica.rendering import (
     tokengraph_to_html,
     tokengraph_to_depth_html,
 )
-from arsgrammatica.verbal_units import _VERBAL_UNIT_PALETTE
+from arsgrammatica.verbal_units import _VERBAL_UNIT_PALETTE, max_subordination_depth
 from conftest import run_gold_example
 from fixtures.gold_examples import GOLD_EXAMPLES
  
@@ -241,14 +241,18 @@ def test_multiple_verbal_units_get_distinct_first_appearance_colors():
     assert tokengraph_to_html(tg) == expected
  
  
-def test_only_lexical_tokens_get_wrapped_even_when_others_are_assigned():
-    """Punctuation, enclitics, numerals, and praenomens can all be assigned
-    a verbal unit by assign_verbal_units() (it assigns every token id), but
-    none of these particular ones is a coordinating conjunction (their own
+def test_only_lexical_and_praenomen_tokens_get_wrapped_even_when_others_are_assigned():
+    """Punctuation, enclitics, and numerals can all be assigned a verbal
+    unit by assign_verbal_units() (it assigns every token id), but none of
+    these particular ones is a coordinating conjunction (their own
     relationship1 is "subject" or "adverbial") -- so only tokentype ==
-    "lexical" gets a <span> here. See
-    test_enclitic_coordinating_conjunction_gets_wrapped_too for the
-    coordinating-conjunction carve-out this would otherwise miss."""
+    "lexical" (or "praenomen") gets a <span> here. This praenomen token
+    ("M.") is given relationship1="subject" -- NOT its usual "praenomen"
+    relation -- specifically to isolate that tokengraph_to_html() wraps it
+    because of its tokentype, not because of which relation it happens to
+    carry (see test_enclitic_coordinating_conjunction_gets_wrapped_too for
+    the corresponding relationship-keyed carve-out, and
+    test_praenomen_token_gets_wrapped_too below for the normal case)."""
     tg = [
         _tok("t0", "M.", "praenomen", relatedtoken1="t2", relationship1="subject"),
         _tok("t1", "que", "enclitic", relatedtoken1="t2", relationship1="subject"),
@@ -258,8 +262,31 @@ def test_only_lexical_tokens_get_wrapped_even_when_others_are_assigned():
     ]
     html_out = tokengraph_to_html(tg)
     matches = _SPAN_RE.findall(html_out)
-    assert len(matches) == 1
-    assert matches[0][2] == "venit"
+    assert len(matches) == 2
+    assert matches[0][2] == "M."
+    assert matches[1][2] == "venit"
+    assert matches[0][0] == matches[1][0]  # same verbal unit -> same fill color
+
+
+def test_praenomen_token_gets_wrapped_too():
+    """The fix this test guards: "M." in "M. Agrippa..." is tokentype
+    "praenomen", not "lexical", but syntax_model.md's "Praenomina" section
+    gives it a real relation (relatedtoken1 -> the lexical name it
+    precedes, relationship1 = "praenomen") that assign_verbal_units()
+    resolves like any other -- so it must get the SAME colored span as the
+    rest of its verbal unit, not be left plain like other non-lexical,
+    non-praenomen tokentypes (numerals, abbreviations, punctuation)."""
+    tg = [
+        _tok("t0", "M.", "praenomen", relatedtoken1="t1", relationship1="praenomen"),
+        _tok("t1", "Agrippa", "lexical", relatedtoken1="t2", relationship1="subject"),
+        _tok("t2", "venit", "lexical", verbalunitid="t2"),
+        _tok("t3", ".", "punctuation"),
+    ]
+    fill, _stroke, text_color = _VERBAL_UNIT_PALETTE[0]
+    span = lambda word: (
+        f'<span style="background-color: {fill}; color: {text_color};">{word}</span>'
+    )
+    assert tokengraph_to_html(tg) == f"{span('M.')} {span('Agrippa')} {span('venit')}."
 
 
 def test_enclitic_coordinating_conjunction_gets_wrapped_too():
@@ -361,9 +388,10 @@ def test_html_colors_match_mermaid_colors_for_every_gold_example(example):
     behavioral mismatch between the two renderers, not just a shared bug in
     the code both of them call. Covers every wrapped token, not just
     lexical ones -- a coordinating conjunction (e.g. an enclitic "-que")
-    gets wrapped here too (see tokengraph_to_html()'s own docstring), and
-    the Mermaid diagram colors it via the same assign_verbal_units()
-    assignment, so both should agree there as well. An implied token is
+    or a praenomen (e.g. "Sex.") gets wrapped here too (see
+    tokengraph_to_html()'s own docstring), and the Mermaid diagram colors
+    it via the same assign_verbal_units() assignment, so both should agree
+    there as well. An implied token is
     excluded from this comparison entirely: tokengraph_to_html() omits it
     (see test_implied_tokens_are_omitted_from_html_entirely), while the
     Mermaid diagram shows it in its own dedicated `implied` class -- the
@@ -386,7 +414,7 @@ def test_html_colors_match_mermaid_colors_for_every_gold_example(example):
         fill_of_class[class_of_id[tok.id]]
         for tok in tokengraph
         if (
-            tok.tokentype == "lexical"
+            tok.tokentype in ("lexical", "praenomen")
             or tok.relationship1 == "coordinating conjunction"
             or tok.relationship2 == "coordinating conjunction"
         )
@@ -470,6 +498,54 @@ def test_depth_html_enclitic_never_starts_a_new_block():
     hermionen_index = words.index("Hermionen")
     assert words[hermionen_index + 1] == "que"
     assert fills[hermionen_index] != fills[hermionen_index + 1]
+
+
+def test_depth_html_depth_cap_drops_deeper_blocks_entirely():
+    """Same fixture as test_depth_html_taurum_example_produces_three_blocks_
+    at_expected_depths (three blocks at depths 0/1/0): passing depth=0
+    must drop the middle (depth-1) block ENTIRELY -- not render it empty
+    or grayed out -- leaving only the two depth-0 blocks; passing depth=1
+    (>= the passage's own max) must show all three, identical to leaving
+    `depth` unset."""
+    tokengraph = _tokengraph("depth_taurum_cum_quo_concubuit")
+
+    html_out, warnings = tokengraph_to_depth_html(tokengraph, depth=0)
+    assert warnings == []  # depth filtering must not itself produce warnings
+    blocks = _DIV_RE.findall(html_out)
+    assert len(blocks) == 2
+    assert "Taurum" in blocks[0][1]
+    assert "adduxit" in blocks[1][1]
+    assert "concubuit" not in html_out  # the depth-1 block is gone, not just emptied
+
+    html_out_1, _warnings = tokengraph_to_depth_html(tokengraph, depth=1)
+    html_out_none, _warnings = tokengraph_to_depth_html(tokengraph, depth=None)
+    assert html_out_1 == html_out_none
+    assert len(_DIV_RE.findall(html_out_1)) == 3
+
+
+def test_depth_html_negative_depth_raises():
+    tokengraph = _tokengraph("depth_taurum_cum_quo_concubuit")
+    with pytest.raises(ValueError, match="depth must be >= 0"):
+        tokengraph_to_depth_html(tokengraph, depth=-1)
+
+
+def test_max_subordination_depth_matches_the_deepest_resolved_anchor():
+    """max_subordination_depth() is just the max of compute_subordination_
+    depths()'s own resolved values -- checked against two fixtures whose
+    depths are already pinned down elsewhere (test_verbal_units.py): one
+    that bottoms out at depth 1 (taurum), and one that reaches depth 2
+    (the cum-sciret-peccavisse-doluit nesting case)."""
+    tokengraph = _tokengraph("depth_taurum_cum_quo_concubuit")
+    assert max_subordination_depth(tokengraph) == 1
+
+    tokengraph = _tokengraph("depth_two_cum_sciret_peccavisse_doluit")
+    assert max_subordination_depth(tokengraph) == 2
+
+
+def test_max_subordination_depth_none_when_no_verbal_expressions():
+    assert max_subordination_depth([]) is None
+    tg = [_tok("t0", "heus", "lexical")]  # no verb at all -- no anchors
+    assert max_subordination_depth(tg) is None
 
 
 def test_depth_html_custom_indent_scales_margins():
