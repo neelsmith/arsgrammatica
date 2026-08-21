@@ -5,4 +5,8 @@ __pycache__/
 __marimo__/
 .DS_Store
 gepa_logs/
+# Written by calibrate_max_tokens.py; specific to whatever MODEL your own
+# .env points at, so it doesn't belong in version control -- re-run the
+# script after cloning rather than committing its output.
+arsgrammatica/token_budget_calibration.json
 

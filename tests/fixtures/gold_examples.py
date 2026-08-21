@@ -126,10 +126,14 @@ _ENCLITIC_ANSWER = {
 # these as two distinct token types. A previous revision of this fixture had
 # to trim the sentence down to just "M. Tullius epistulam scripsit." because
 # TokenAnalysis.tokentype had no "abbreviation" value yet; that gap is now
-# closed in models.py, so this fixture uses the real sentence. None of "M.",
-# "L.", "f.", or "cos." gets a relation of its own: the scheme has no
-# documented relation type linking a praenomen or other abbreviation to the
-# name/title it modifies.
+# closed in models.py, so this fixture uses the real sentence. Per
+# syntax_model.md's "Praenomina" section, "M." relates to "Agrippa" (t1),
+# the lexical token spelling out the individual's own name, via
+# 'praenomen'. "L." is different: it's the FATHER's praenomen in the
+# genitive filiation formula "L. f." ("Lucii filius", 'son of Lucius'),
+# so it precedes only the abbreviation "f." -- not a lexical name token --
+# and has nothing to relate to under this rule; it (like "f." and "cos.")
+# is left unrelated, same as before.
 # ---------------------------------------------------------------------------
 
 _PRAENOMEN_ABBREVIATION_ANSWER = {
@@ -140,13 +144,17 @@ _PRAENOMEN_ABBREVIATION_ANSWER = {
         "inscription), with the sentinel relation1 'root'. Agrippa (M. "
         "Agrippa L. f. cos., 'Marcus Agrippa, son of Lucius, consul') is "
         "its subject; tertium ('for the third time', modifying his term as "
-        "consul) is adverbial, modifying fecit."
+        "consul) is adverbial, modifying fecit. M. relates to Agrippa as "
+        "its praenomen; L., preceding only the abbreviation f. rather than "
+        "a lexical name (it's the father's name in the genitive filiation "
+        "formula 'L. f.'), has no praenomen target and is left unrelated."
     ),
     "verbalunits": [
         {"id": "t6", "syntactic_type": "independent", "semantic_type": "transitive active"},
     ],
     "tokengraph": [
-        {"id": "t0", "token": "M.", "tokentype": "praenomen"},
+        {"id": "t0", "token": "M.", "tokentype": "praenomen",
+         "relatedtoken1": "t1", "relationship1": "praenomen"},
         {"id": "t1", "token": "Agrippa", "tokentype": "lexical", "lemma": "Agrippa",
          "relatedtoken1": "t6", "relationship1": "subject"},
         {"id": "t2", "token": "L.", "tokentype": "praenomen"},
@@ -168,19 +176,25 @@ _PRAENOMEN_ABBREVIATION_ANSWER = {
 # syntax_model.md's own worked example for the *numeral* token type:
 # "XXV in the phrase hiberna aberant ab eo milia passuum XXV." milia,
 # passuum, and XXV together form an accusative-of-extent phrase ("twenty-
-# five thousand paces") with no relation type in the current scheme, so
-# none of the three gets a relatedtoken/relationship -- same as que in the
-# enclitic example above, per "Incomplete status".
+# five thousand paces"). This used to have no relation type at all in the
+# scheme; now that syntax_model.md's "Noun relations" section documents
+# 'accusative' (covering exactly this construction -- an accusative of
+# extent linked to a verb, the same category as "Romam" in "Romam venit"),
+# milia relates to aberant via 'accusative'. passuum and XXV still get no
+# relation of their own -- syntax_model.md's own worked examples for
+# 'accusative' only relate the head noun of the extent phrase (here,
+# milia) to its target, not a dependent genitive or a bare numeral.
 # ---------------------------------------------------------------------------
- 
+
 _NUMERAL_ANSWER = {
     "reasoning": (
         "aberant is the independent main verb (intransitive, 'were "
         "distant'), with the sentinel relation1 'root'; Hiberna is its "
         "subject; ab is an adverbial preposition modifying aberant, "
         "governing eo as its object of preposition; milia passuum XXV "
-        "('twenty-five thousand paces') is an accusative-of-extent phrase "
-        "with no relation type in the current scheme."
+        "('twenty-five thousand paces') is an accusative-of-extent phrase, "
+        "with milia relating to aberant via 'accusative'; passuum and XXV "
+        "get no relation of their own."
     ),
     "verbalunits": [
         {"id": "t1", "syntactic_type": "independent", "semantic_type": "intransitive"},
@@ -194,7 +208,8 @@ _NUMERAL_ANSWER = {
          "relatedtoken1": "t1", "relationship1": "adverbial"},
         {"id": "t3", "token": "eo", "tokentype": "lexical", "lemma": "is",
          "relatedtoken1": "t2", "relationship1": "object of preposition"},
-        {"id": "t4", "token": "milia", "tokentype": "lexical", "lemma": "mille"},
+        {"id": "t4", "token": "milia", "tokentype": "lexical", "lemma": "mille",
+         "relatedtoken1": "t1", "relationship1": "accusative"},
         {"id": "t5", "token": "passuum", "tokentype": "lexical", "lemma": "passus"},
         {"id": "t6", "token": "XXV", "tokentype": "numeral"},
         {"id": "t7", "token": ".", "tokentype": "punctuation"},
@@ -1905,9 +1920,8 @@ _IMPLIED_SUM_CONSULES_FACTI_ANSWER = {
         "coordinated) subjects; consules is the predicate noun ('as "
         "consuls'); facti itself relates to the implied token as its "
         "auxiliary, exactly as a written-out 'sunt' would take it; inde "
-        "and iterum are adverbial. Neither praenomen abbreviation (P., T.) "
-        "gets a relation of its own, per the scheme's existing convention "
-        "for praenomen tokens."
+        "and iterum are adverbial. P. and T. each relate to their own "
+        "lexical name token (Valerius, Lucretius) via 'praenomen'."
     ),
     "verbalunits": [
         {"id": "t7_implied", "syntactic_type": "independent", "semantic_type": "transitive passive"},
@@ -1915,12 +1929,14 @@ _IMPLIED_SUM_CONSULES_FACTI_ANSWER = {
     "tokengraph": [
         {"id": "t0", "token": "inde", "tokentype": "lexical", "lemma": "inde",
          "relatedtoken1": "t7_implied", "relationship1": "adverbial"},
-        {"id": "t1", "token": "P.", "tokentype": "praenomen"},
+        {"id": "t1", "token": "P.", "tokentype": "praenomen",
+         "relatedtoken1": "t2", "relationship1": "praenomen"},
         {"id": "t2", "token": "Valerius", "tokentype": "lexical", "lemma": "Valerius",
          "relatedtoken1": "t7_implied", "relationship1": "subject"},
         {"id": "t3", "token": "iterum", "tokentype": "lexical", "lemma": "iterum",
          "relatedtoken1": "t7_implied", "relationship1": "adverbial"},
-        {"id": "t4", "token": "T.", "tokentype": "praenomen"},
+        {"id": "t4", "token": "T.", "tokentype": "praenomen",
+         "relatedtoken1": "t5", "relationship1": "praenomen"},
         {"id": "t5", "token": "Lucretius", "tokentype": "lexical", "lemma": "Lucretius",
          "relatedtoken1": "t7_implied", "relationship1": "subject"},
         {"id": "t6", "token": "consules", "tokentype": "lexical", "lemma": "consul",
@@ -1959,10 +1975,11 @@ _IMPLIED_SUM_CONSULES_FACTI_ANSWER = {
 # for a real circumstantial participle's noun (e.g. "Anco" in "Anco
 # regnante..."): the noun joins the OUTER clause, while the participle is
 # its own singleton unit one level deeper. "Agrippa" is spelled out in full
-# here (not abbreviated), so unlike "P."/"T." it is tokenized 'lexical', not
-# 'praenomen' -- but still gets no relation of its own, per the same
-# no-relation-for-a-bare-first-name convention 'praenomen' tokens already
-# follow (see praenomen_abbreviation_m_agrippa_cos).
+# here (not abbreviated), so unlike "P."/"P." it is tokenized 'lexical', not
+# 'praenomen', and (per syntax_model.md's "Praenomina" section, which only
+# relates a praenomen TO a lexical name, not the reverse) still gets no
+# relation of its own -- but each "P." now relates to its own lexical name
+# token (Valerius, Postumio) via 'praenomen'.
 # ---------------------------------------------------------------------------
 
 _IMPLIED_PARTICIPLE_OF_SUM_CONSULIBUS_ANSWER = {
@@ -1979,16 +1996,18 @@ _IMPLIED_PARTICIPLE_OF_SUM_CONSULIBUS_ANSWER = {
         "relationship1 'circumstantial participle'. consulibus, an "
         "ablative with no other syntactic role, relates onward to moritur "
         "via 'ablative absolute'; Menenio and Postumio (the two consuls' "
-        "names) are each in apposition to consulibus. Agrippa and the two "
-        "abbreviated praenomina (P., P.) get no relation of their own, "
-        "same as any other bare first name in this scheme."
+        "names) are each in apposition to consulibus. Each 'P.' relates to "
+        "its own lexical name (Valerius, Postumio) via 'praenomen'; "
+        "Agrippa, spelled out in full rather than abbreviated, still gets "
+        "no relation of its own."
     ),
     "verbalunits": [
         {"id": "t9", "syntactic_type": "independent", "semantic_type": "intransitive"},
         {"id": "t8_implied", "syntactic_type": "dependent", "semantic_type": "linking verb"},
     ],
     "tokengraph": [
-        {"id": "t0", "token": "P.", "tokentype": "praenomen"},
+        {"id": "t0", "token": "P.", "tokentype": "praenomen",
+         "relatedtoken1": "t1", "relationship1": "praenomen"},
         {"id": "t1", "token": "Valerius", "tokentype": "lexical", "lemma": "Valerius",
          "relatedtoken1": "t9", "relationship1": "subject"},
         {"id": "t2", "token": "anno", "tokentype": "lexical", "lemma": "annus",
@@ -1998,7 +2017,8 @@ _IMPLIED_PARTICIPLE_OF_SUM_CONSULIBUS_ANSWER = {
         {"id": "t4", "token": "Agrippa", "tokentype": "lexical", "lemma": "Agrippa"},
         {"id": "t5", "token": "Menenio", "tokentype": "lexical", "lemma": "Menenius",
          "relatedtoken1": "t8", "relationship1": "apposition"},
-        {"id": "t6", "token": "P.", "tokentype": "praenomen"},
+        {"id": "t6", "token": "P.", "tokentype": "praenomen",
+         "relatedtoken1": "t7", "relationship1": "praenomen"},
         {"id": "t7", "token": "Postumio", "tokentype": "lexical", "lemma": "Postumius",
          "relatedtoken1": "t8", "relationship1": "apposition"},
         {"id": "t8", "token": "consulibus", "tokentype": "lexical", "lemma": "consul",
@@ -2049,8 +2069,8 @@ _CONTINUATION_INDIRECT_DISCOURSE_ANSWER = {
         "('was made'), is transitive passive, with initium as subject and "
         "'a Prisco' as the agent phrase; regnasse (intransitive, 'had "
         "reigned') has Tullium as its accusative subject and dein "
-        "adverbial. Ser. gets no relation of its own, same as any other "
-        "praenomen."
+        "adverbial. Ser. relates to Tullium, the lexical name it "
+        "abbreviates, via 'praenomen'."
     ),
     "verbalunits": [
         {"id": "t0_implied", "syntactic_type": "independent", "semantic_type": "transitive active"},
@@ -2085,10 +2105,220 @@ _CONTINUATION_INDIRECT_DISCOURSE_ANSWER = {
          "verbalunitid": "t11", "relatedtoken1": "t0_implied", "relationship1": "indirect statement"},
         {"id": "t12", "token": "dein", "tokentype": "lexical", "lemma": "dein",
          "relatedtoken1": "t11", "relationship1": "adverbial"},
-        {"id": "t13", "token": "Ser.", "tokentype": "praenomen"},
+        {"id": "t13", "token": "Ser.", "tokentype": "praenomen",
+         "relatedtoken1": "t14", "relationship1": "praenomen"},
         {"id": "t14", "token": "Tullium", "tokentype": "lexical", "lemma": "Tullius",
          "relatedtoken1": "t11", "relationship1": "subject"},
         {"id": "t15", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
+
+# ---------------------------------------------------------------------------
+# "Sex. Tarquinius inscio Collatino cum comite uno Collatiam venit."
+#   t0 Sex.  t1 Tarquinius  t2 inscio  t3 Collatino  t4 cum  t5 comite
+#   t6 uno  t7 Collatiam  t8 venit  t9 .
+#
+# syntax_model.md's own worked example for the "Praenomina" section: "Sex."
+# is a praenomen related to the lexical token "Tarquinius" it precedes,
+# via relationship1 'praenomen'. Also folds in a real 'ablative absolute'
+# with an ALWAYS-implied participle of *sum* ("inscio Collatino", 'while
+# Collatinus was unaware') and a bare accusative of place to which
+# ("Collatiam", left unrelated, same convention as "Romam" in
+# accusative_romam_venit -- this fixture is about praenomen, not
+# accusative, so it doesn't also add that relation here).
+# ---------------------------------------------------------------------------
+
+_PRAENOMEN_SEX_TARQUINIUS_ANSWER = {
+    "reasoning": (
+        "venit is the independent main verb ('he came', intransitive), "
+        "with the sentinel relatedtoken1 'root'; Sex. Tarquinius is its "
+        "subject, with Sex. relating to Tarquinius via 'praenomen'. "
+        "Collatiam (bare accusative of place to which) is left unrelated. "
+        "'inscio Collatino' ('while Collatinus was unaware') is another "
+        "ablative-absolute dating-formula-like construction: since Latin "
+        "has no present participle of sum, a new implied token "
+        "(t3_implied, token=None) is added, syntactic_type 'dependent' and "
+        "semantic_type 'linking verb', relatedtoken1 -> Collatino, "
+        "relationship1 'circumstantial participle'. Collatino, an "
+        "ablative with no other syntactic role, relates onward to venit "
+        "via 'ablative absolute'; inscio is adjectival, agreeing with "
+        "Collatino ('unaware'). 'cum comite uno' ('with one companion') is "
+        "a prepositional phrase, adverbial to venit, with comite as its "
+        "object of preposition and uno adjectival to comite."
+    ),
+    "verbalunits": [
+        {"id": "t8", "syntactic_type": "independent", "semantic_type": "intransitive"},
+        {"id": "t3_implied", "syntactic_type": "dependent", "semantic_type": "linking verb"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Sex.", "tokentype": "praenomen",
+         "relatedtoken1": "t1", "relationship1": "praenomen"},
+        {"id": "t1", "token": "Tarquinius", "tokentype": "lexical", "lemma": "Tarquinius",
+         "relatedtoken1": "t8", "relationship1": "subject"},
+        {"id": "t2", "token": "inscio", "tokentype": "lexical", "lemma": "inscius",
+         "relatedtoken1": "t3", "relationship1": "adjectival"},
+        {"id": "t3", "token": "Collatino", "tokentype": "lexical", "lemma": "Collatinus",
+         "relatedtoken1": "t8", "relationship1": "ablative absolute"},
+        {"id": "t3_implied", "token": None, "tokentype": "implied sum",
+         "verbalunitid": "t3_implied", "relatedtoken1": "t3", "relationship1": "circumstantial participle"},
+        {"id": "t4", "token": "cum", "tokentype": "lexical", "lemma": "cum",
+         "relatedtoken1": "t8", "relationship1": "adverbial"},
+        {"id": "t5", "token": "comite", "tokentype": "lexical", "lemma": "comes",
+         "relatedtoken1": "t4", "relationship1": "object of preposition"},
+        {"id": "t6", "token": "uno", "tokentype": "lexical", "lemma": "unus",
+         "relatedtoken1": "t5", "relationship1": "adjectival"},
+        {"id": "t7", "token": "Collatiam", "tokentype": "lexical", "lemma": "Collatia"},
+        {"id": "t8", "token": "venit", "tokentype": "lexical", "lemma": "venio",
+         "verbalunitid": "t8", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t9", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
+
+# ---------------------------------------------------------------------------
+# "Romam venit."
+#   t0 Romam  t1 venit  t2 .
+#
+# syntax_model.md's own first worked example for the new 'accusative'
+# relation label (Noun relations section): a bare accusative of place to
+# which relates to the verb it modifies, even though that verb (venit) is
+# intransitive and this accusative is NOT its direct object.
+# ---------------------------------------------------------------------------
+
+_ACCUSATIVE_ROMAM_VENIT_ANSWER = {
+    "reasoning": (
+        "venit is the independent main verb ('he/she/it came', "
+        "intransitive -- subject left implicit, third person), with the "
+        "sentinel relatedtoken1 'root'. Romam, a bare accusative of place "
+        "to which ('to Rome'), relates to venit via 'accusative' -- not "
+        "'direct object', since venit is intransitive."
+    ),
+    "verbalunits": [
+        {"id": "t1", "syntactic_type": "independent", "semantic_type": "intransitive"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Romam", "tokentype": "lexical", "lemma": "Roma",
+         "relatedtoken1": "t1", "relationship1": "accusative"},
+        {"id": "t1", "token": "venit", "tokentype": "lexical", "lemma": "venio",
+         "verbalunitid": "t1", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t2", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
+
+# ---------------------------------------------------------------------------
+# "Duo milia passuum iter fecerunt."
+#   t0 Duo  t1 milia  t2 passuum  t3 iter  t4 fecerunt  t5 .
+#
+# syntax_model.md's own second worked example for 'accusative': an
+# accusative-of-extent phrase can also qualify another NOUN rather than a
+# verb -- "duo milia passuum" ('two thousand paces') qualifies iter, so
+# milia relates to iter (not to fecerunt) via 'accusative'.
+# ---------------------------------------------------------------------------
+
+_ACCUSATIVE_MILIA_PASSUUM_ITER_ANSWER = {
+    "reasoning": (
+        "fecerunt is the independent main verb ('they made/marched', "
+        "transitive active -- subject 'they' left implicit), with the "
+        "sentinel relatedtoken1 'root'; iter ('a march/journey') is its "
+        "direct object. 'duo milia passuum' ('two thousand paces') "
+        "qualifies iter, not fecerunt: milia relates to iter via "
+        "'accusative'; duo is adjectival to milia ('two'); passuum is "
+        "genitive, depending on milia ('of paces')."
+    ),
+    "verbalunits": [
+        {"id": "t4", "syntactic_type": "independent", "semantic_type": "transitive active"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Duo", "tokentype": "lexical", "lemma": "duo",
+         "relatedtoken1": "t1", "relationship1": "adjectival"},
+        {"id": "t1", "token": "milia", "tokentype": "lexical", "lemma": "mille",
+         "relatedtoken1": "t3", "relationship1": "accusative"},
+        {"id": "t2", "token": "passuum", "tokentype": "lexical", "lemma": "passus",
+         "relatedtoken1": "t1", "relationship1": "genitive"},
+        {"id": "t3", "token": "iter", "tokentype": "lexical", "lemma": "iter",
+         "relatedtoken1": "t4", "relationship1": "direct object"},
+        {"id": "t4", "token": "fecerunt", "tokentype": "lexical", "lemma": "facio",
+         "verbalunitid": "t4", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t5", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
+
+# ---------------------------------------------------------------------------
+# "Collatinus negat verbis opus esse."
+#   t0 Collatinus  t1 negat  t2 verbis  t3 opus  t4 esse  t5 .
+#
+# syntax_model.md's own worked example for the idiomatic 'opus est' + "
+# ablative construction (Noun relations section, 'ablative'): the ablative
+# token relates to "opus" itself, not to the verb "esse"/"est".
+# ---------------------------------------------------------------------------
+
+_ABLATIVE_OPUS_EST_VERBIS_ANSWER = {
+    "reasoning": (
+        "negat is the independent main verb ('he denies', transitive "
+        "active), with the sentinel relatedtoken1 'root'; Collatinus is "
+        "its subject. 'verbis opus esse' ('that there was need of words') "
+        "is an indirect statement governed by negat: esse (linking verb) "
+        "has relatedtoken1 -> negat, relationship1 'indirect statement'. "
+        "In the idiomatic 'opus est' construction, the ablative verbis "
+        "relates to opus itself, not to esse: verbis has relatedtoken1 -> "
+        "opus, relationship1 'ablative'; opus is the predicate, relating "
+        "to esse."
+    ),
+    "verbalunits": [
+        {"id": "t1", "syntactic_type": "independent", "semantic_type": "transitive active"},
+        {"id": "t4", "syntactic_type": "indirect statement", "semantic_type": "linking verb"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Collatinus", "tokentype": "lexical", "lemma": "Collatinus",
+         "relatedtoken1": "t1", "relationship1": "subject"},
+        {"id": "t1", "token": "negat", "tokentype": "lexical", "lemma": "nego",
+         "verbalunitid": "t1", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t2", "token": "verbis", "tokentype": "lexical", "lemma": "verbum",
+         "relatedtoken1": "t3", "relationship1": "ablative"},
+        {"id": "t3", "token": "opus", "tokentype": "lexical", "lemma": "opus",
+         "relatedtoken1": "t4", "relationship1": "predicate"},
+        {"id": "t4", "token": "esse", "tokentype": "lexical", "lemma": "sum",
+         "verbalunitid": "t4", "relatedtoken1": "t1", "relationship1": "indirect statement"},
+        {"id": "t5", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
+
+# ---------------------------------------------------------------------------
+# "vocative" -- syntax_model.md's newest noun-relation label: a noun in the
+# vocative case always relates to a VERB (unlike "genitive"/"dative"/
+# "ablative"/"accusative", which can also relate to another noun), via
+# relatedtoken1 -> the verb's id, relationship1 = "vocative". syntax_model.md's
+# own worked example is "Non est ita, domine, sed servi tui venerunt ut
+# emerent cibos." (domine -> est); this fixture keeps the same vocative
+# noun ("domine") and target verb ("venit") but in a minimal two-content-
+# word sentence, matching the minimal style of accusative_romam_venit
+# above rather than reproducing that full multi-clause sentence.
+# ---------------------------------------------------------------------------
+
+_VOCATIVE_DOMINE_VENIT_ANSWER = {
+    "reasoning": (
+        "venit is the independent main verb ('he/she/it comes', "
+        "intransitive -- subject left implicit, third person), with the "
+        "sentinel relatedtoken1 'root'. Domine, a noun in the vocative "
+        "directly addressing someone, relates to venit via 'vocative' -- "
+        "syntax_model.md's newest relation label, reserved for a noun in "
+        "the vocative case (always linked to a verb, never to another "
+        "noun)."
+    ),
+    "verbalunits": [
+        {"id": "t2", "syntactic_type": "independent", "semantic_type": "intransitive"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Domine", "tokentype": "lexical", "lemma": "dominus",
+         "relatedtoken1": "t2", "relationship1": "vocative"},
+        {"id": "t1", "token": ",", "tokentype": "punctuation"},
+        {"id": "t2", "token": "venit", "tokentype": "lexical", "lemma": "venio",
+         "verbalunitid": "t2", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t3", "token": ".", "tokentype": "punctuation"},
     ],
 }
 
@@ -2122,7 +2352,7 @@ GOLD_EXAMPLES = [
     GoldExample(
         slug="numeral_hiberna_aberant_xxv",
         passage="Hiberna aberant ab eo milia passuum XXV.",
-        tags=["numeral", "subject", "adverbial", "object of preposition"],
+        tags=["numeral", "subject", "adverbial", "object of preposition", "accusative"],
         canned_answer=_NUMERAL_ANSWER,
     ),
     GoldExample(
@@ -2406,6 +2636,44 @@ GOLD_EXAMPLES = [
               "transitive passive", "intransitive"],
         canned_answer=_CONTINUATION_INDIRECT_DISCOURSE_ANSWER,
     ),
+    GoldExample(
+        slug="praenomen_sex_tarquinius_venit",
+        passage="Sex. Tarquinius inscio Collatino cum comite uno Collatiam venit.",
+        tags=["praenomen", "subject", "circumstantial participle",
+              "ablative absolute", "adjectival", "adverbial",
+              "object of preposition",
+              "implied sum (always-implied participle of sum, ablative absolute)",
+              "unit verb", "independent", "dependent", "linking verb",
+              "intransitive"],
+        canned_answer=_PRAENOMEN_SEX_TARQUINIUS_ANSWER,
+    ),
+    GoldExample(
+        slug="accusative_romam_venit",
+        passage="Romam venit.",
+        tags=["accusative", "unit verb", "independent", "intransitive"],
+        canned_answer=_ACCUSATIVE_ROMAM_VENIT_ANSWER,
+    ),
+    GoldExample(
+        slug="accusative_milia_passuum_iter",
+        passage="Duo milia passuum iter fecerunt.",
+        tags=["accusative", "adjectival", "genitive", "direct object",
+              "unit verb", "independent", "transitive active"],
+        canned_answer=_ACCUSATIVE_MILIA_PASSUUM_ITER_ANSWER,
+    ),
+    GoldExample(
+        slug="ablative_opus_est_verbis",
+        passage="Collatinus negat verbis opus esse.",
+        tags=["ablative (idiomatic 'opus est')", "subject", "predicate",
+              "indirect statement", "unit verb", "independent",
+              "transitive active", "linking verb"],
+        canned_answer=_ABLATIVE_OPUS_EST_VERBIS_ANSWER,
+    ),
+    GoldExample(
+        slug="vocative_domine_venit",
+        passage="Domine, venit.",
+        tags=["vocative", "unit verb", "independent", "intransitive"],
+        canned_answer=_VOCATIVE_DOMINE_VENIT_ANSWER,
+    ),
     # RelationLabel coverage is complete -- every documented relation has at
     # least one tagged example, including the relatedtoken2/relationship2
     # overflow pattern, "coordinating conjunction" (which uses relation1 AND
@@ -2415,10 +2683,23 @@ GOLD_EXAMPLES = [
     # sentence-initial, and et-as-adverb cases), "apposition" (see
     # apposition_neptunus_aegeus_filius), "subordinating conjunction"'s
     # reuse for the interrogative word introducing an indirect question
-    # (see indirect_question_theseus_audit_quanta), and "complementary
-    # infinitive" (see complementary_infinitive_amphion_expugnare_vellet).
-    # Two related constructions need no dedicated label at all and are
-    # exercised for documentation/regression value rather than
+    # (see indirect_question_theseus_audit_quanta), "complementary
+    # infinitive" (see complementary_infinitive_amphion_expugnare_vellet),
+    # "praenomen" (see praenomen_sex_tarquinius_venit, and now also
+    # praenomen_abbreviation_m_agrippa_cos, implied_sum_consules_facti,
+    # implied_participle_of_sum_consulibus, and
+    # continuation_indirect_discourse_tarquinios_adsuesse, all retrofitted
+    # once this label was added), "accusative" (see
+    # accusative_romam_venit for the verb-linked case,
+    # accusative_milia_passuum_iter for the noun-linked case, and now also
+    # numeral_hiberna_aberant_xxv, retrofitted once this label was added),
+    # and "vocative" (see vocative_domine_venit -- always verb-linked, per
+    # syntax_model.md's own note, so there's no noun-linked counterpart to
+    # add the way accusative has one).
+    # ablative_opus_est_verbis adds a documented idiom for the pre-existing
+    # "ablative" label (the 'opus est' construction) rather than exercising
+    # a new one. Two related constructions need no dedicated label at all
+    # and are exercised for documentation/regression value rather than
     # test_coverage.py's sake: an infinitive used as an ordinary noun
     # (infinitive_as_subject_dolere_malum) and gerunds/gerundives
     # (gerund_ars_bene_disserendi, gerundive_metapontus_sacrum_faciendum),

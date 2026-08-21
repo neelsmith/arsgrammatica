@@ -12,7 +12,8 @@ from typing import List, Tuple
  
 from .models import CitedText, Sentence
 from .segmentation_dspy import segment_sources
-from .latin_syntax_dspy import analyze, validate
+from .latin_syntax_dspy import validate
+from .token_budget import analyze_with_retry
  
  
 def _render_sentence_text(sentence: Sentence) -> str:
@@ -36,12 +37,20 @@ def analyze_sources(sources: List[CitedText]) -> Tuple[List[Sentence], list]:
  
     Returns (sentences, results): results[i] is the SyntaxAnalysis result
     for sentences[i], same order, one entry per sentence.
+
+    Each sentence's SyntaxAnalysis call goes through
+    `token_budget.analyze_with_retry()` rather than calling `analyze()`
+    directly, so a sentence whose analysis needs more output than a fixed
+    `max_tokens` would allow (a long or deeply subordinated sentence) gets
+    an estimated, appropriately-sized budget up front, and a retry with a
+    larger one if it still comes back truncated -- see token_budget.py's
+    module docstring for the full design.
     """
     sentences = segment_sources(sources)
- 
+
     results = []
     for sentence in sentences:
-        result = analyze(passage=_render_sentence_text(sentence), tokens=sentence.tokens)
+        result = analyze_with_retry(passage=_render_sentence_text(sentence), tokens=sentence.tokens)
  
         problems = validate(sentence.tokens, result)
         if problems:

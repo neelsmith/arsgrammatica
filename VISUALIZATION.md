@@ -12,7 +12,7 @@ from arsgrammatica import tokengraph_to_html
 html = tokengraph_to_html(result.tokengraph)
 ```
 
-The colors are the *same* colors `tokengraph_to_mermaid()` assigns to that verbal unit's nodes -- same palette, same first-appearance ordering -- so a passage rendered this way and that passage's Mermaid diagram always agree on which clause is which color. (Both draw on `arsgrammatica.assign_verbal_unit_colors()`, so there's one shared definition to keep them in sync rather than two that could drift apart.) Only `tokentype == "lexical"` tokens get a span; punctuation, enclitics, numerals, and praenomens are emitted as plain (escaped) text even when they resolve to a verbal unit. A lexical token with no verbal unit at all (an unrelated bare accusative, an interjection) is left unwrapped too.
+The colors are the *same* colors `tokengraph_to_mermaid()` assigns to that verbal unit's nodes -- same palette, same first-appearance ordering -- so a passage rendered this way and that passage's Mermaid diagram always agree on which clause is which color. (Both draw on `arsgrammatica.assign_verbal_unit_colors()`, so there's one shared definition to keep them in sync rather than two that could drift apart.) `tokentype == "lexical"` and `tokentype == "praenomen"` tokens get a span, as does any coordinating conjunction (e.g. an enclitic "-que") regardless of its own tokentype -- a praenomen (e.g. "Sex.") always has a real `assign_verbal_units()`-resolvable relation per `syntax_model.md`'s "Praenomina" section, same as a coordinating conjunction does, so it's colored the same way. Punctuation, non-conjunction enclitics, numerals, and abbreviations are emitted as plain (escaped) text even when they resolve to a verbal unit. A lexical or praenomen token with no verbal unit at all (an unrelated bare accusative, an interjection, or a praenomen like "L." in "L. f." with no lexical name to relate to) is left unwrapped too.
 
 All token text is HTML-escaped (`&`, `<`, `>`, and quote characters) before being emitted, so real Latin text using literal `"`/`'` marks round-trips safely through the output. Since this reuses the same 8-color pastel palette described below, the same caveat applies: past 8 simultaneous verbal units in one passage, colors repeat.
 
@@ -30,6 +30,16 @@ depths, warnings = compute_subordination_depths(result.tokengraph)
 
 `depths` is a `{verbal unit anchor id: depth or None}` mapping, one entry per anchor (a token with `verbalunitid` set to its own id). It works uniformly across every documented governing-relation pattern -- subordinating conjunction, relative pronoun, direct quote, aside, circumstantial participle, ablative absolute, and indirect statement -- by following the anchor's own outgoing relation through any number of intermediate (non-anchor) tokens until it reaches another anchor, that anchor's own depth plus one. An anchor whose governing verbal expression can't be resolved (or that sits in a relation cycle) gets `None`, with a matching entry in `warnings` explaining why, rather than raising.
 
+`max_subordination_depth()`, also in `arsgrammatica/verbal_units.py`, returns the single deepest depth reached anywhere in a tokengraph -- the highest value in `depths` above:
+
+```python
+from arsgrammatica import max_subordination_depth
+
+deepest = max_subordination_depth(result.tokengraph)
+```
+
+Pass an already-computed `depths` dict (`max_subordination_depth(result.tokengraph, depths=depths)`) to avoid recomputing it. Returns `None` for a passage with no verbal expressions at all, or where every anchor's depth is unresolved; otherwise the max of whichever anchors DID resolve. This is the natural upper bound for `tokengraph_to_depth_html()`'s own `depth` parameter, below -- e.g. to build a "show more detail" slider from 0 up to a passage's actual maximum instead of guessing a fixed cap.
+
 ### `tokengraph_to_depth_html()`
 
 Renders a tokengraph as a sequence of indented HTML blocks, one per run of consecutive tokens belonging to the same verbal unit, each indented by its verbal expression's depth of subordination:
@@ -45,6 +55,15 @@ Tokens within each block are rendered exactly as `tokengraph_to_html()` renders 
 ```python
 html, warnings = tokengraph_to_depth_html(result.tokengraph, indent_em=1.5)
 ```
+
+Pass `depth` to cap how deep the rendering goes -- only blocks whose own depth of subordination is `<= depth` are included; a deeper block is dropped entirely, not rendered empty:
+
+```python
+# Root/independent clauses only:
+html, warnings = tokengraph_to_depth_html(result.tokengraph, depth=0)
+```
+
+`depth=0` shows root-level clauses only; leaving `depth` unset (the default, `None`) shows every block, same as before this parameter existed. Valid values run from `0` up to `max_subordination_depth(result.tokengraph)` for the same tokengraph -- a `depth` above the passage's own maximum is accepted and just means "show everything," but a negative `depth` raises `ValueError`, since there's no clause shallower than root.
 
 For example, in *taurum cum quo Pasiphae concubuit ex Creta insula Mycenis uiuum adduxit*, there are two verbal expressions: *adduxit* (independent, depth 0) and *concubuit* (dependent, introduced by the relative pronoun *quo*, depth 1). This renders as three blocks -- *taurum* (depth 0), *cum quo Pasiphae concubuit* (depth 1), and *ex Creta insula Mycenis uiuum adduxit* (depth 0) -- since the tokens before and after the relative clause both belong to *adduxit*'s verbal unit but aren't contiguous with each other.
 

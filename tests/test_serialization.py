@@ -16,7 +16,12 @@ real gold fixtures for realistic coverage of the scheme's relation shapes.
 import pytest
 
 from arsgrammatica.models import Sentence, Token, TokenAnalysis, VerbalExpression
-from arsgrammatica.serialization import read_analyses, serialize_analyses, write_analyses
+from arsgrammatica.serialization import (
+    read_analyses,
+    serialize_analyses,
+    split_analysis_by_sentence,
+    write_analyses,
+)
 from fixtures.gold_examples import GOLD_EXAMPLES
 
 
@@ -552,3 +557,118 @@ def test_implied_token_is_excluded_from_its_sentences_reconstructed_tokens(tmp_p
     # Only t0 (the real token) belongs in the reconstructed sentence -- the
     # implied token was never part of the original pre-analysis token list.
     assert got_sentences[0].tokens == [Token(id="t0", text="Rara", citation="Livy 1.1")]
+
+
+# ---------------------------------------------------------------------------
+# split_analysis_by_sentence()
+# ---------------------------------------------------------------------------
+
+
+def test_split_returns_one_slice_per_sentence_in_order():
+    sentences, verbalunits, tokengraph = _two_sentence_fixture()
+
+    slices = split_analysis_by_sentence(tokengraph, verbalunits, sentences)
+
+    assert len(slices) == 2
+    s1_tokengraph, s1_verbalunits = slices[0]
+    s2_tokengraph, s2_verbalunits = slices[1]
+
+    assert [tok.id for tok in s1_tokengraph] == ["t0", "t1", "t2", "t3", "t4"]
+    assert [tok.id for tok in s2_tokengraph] == ["t5", "t6", "t7", "t8", "t9"]
+
+    # t3 (cano) anchors sentence 1's own verbal unit; t7/t8 anchor
+    # sentence 2's two.
+    assert [vu.id for vu in s1_verbalunits] == ["t3"]
+    assert [vu.id for vu in s2_verbalunits] == ["t7", "t8"]
+
+
+def test_split_round_trips_through_a_written_and_reread_file(tmp_path):
+    """The realistic path: write a multi-sentence analysis, read it back,
+    then split it -- rather than splitting the in-memory objects directly."""
+    sentences, verbalunits, tokengraph = _two_sentence_fixture()
+    path = tmp_path / "analysis.txt"
+    write_analyses(sentences, verbalunits, tokengraph, str(path))
+
+    got_tokengraph, got_verbalunits, got_sentences = read_analyses(str(path))
+    slices = split_analysis_by_sentence(got_tokengraph, got_verbalunits, got_sentences)
+
+    assert len(slices) == 2
+    assert [tok.id for tok in slices[0][0]] == ["t0", "t1", "t2", "t3", "t4"]
+    assert [tok.id for tok in slices[1][0]] == ["t5", "t6", "t7", "t8", "t9"]
+
+
+def _sentence_with_medial_implied_token_fixture():
+    """Two real tokens (t0, t1) with an implied token (t0_implied) sitting
+    *between* them in tokengraph's own order -- "Puella [est] pulchra."
+    Unlike _sentence_with_implied_token_fixture()'s single-real-token case
+    (where the implied token trails the sentence's only real token, with
+    nothing to bound it from above), this exercises an implied token
+    genuinely nested inside a sentence's own [first, last] real-token
+    range."""
+    sentences = [Sentence(tokens=[Token(id="t0", text="Puella"), Token(id="t1", text="pulchra")])]
+    tokengraph = [
+        TokenAnalysis(id="t0", token="Puella", tokentype="lexical",
+                      relatedtoken1="t0_implied", relationship1="subject"),
+        TokenAnalysis(id="t0_implied", token=None, tokentype="implied sum",
+                      verbalunitid="t0_implied", relatedtoken1="root", relationship1="unit verb"),
+        TokenAnalysis(id="t1", token="pulchra", tokentype="lexical",
+                      relatedtoken1="t0_implied", relationship1="predicate"),
+    ]
+    verbalunits = [
+        VerbalExpression(id="t0_implied", syntactic_type="independent", semantic_type="linking verb"),
+    ]
+    return sentences, verbalunits, tokengraph
+
+
+def test_split_includes_an_implied_token_nested_within_a_sentences_range():
+    """An implied token positioned between two of a sentence's own real
+    tokens belongs in that sentence's slice, even though it was never part
+    of sentence.tokens -- it's part of the analysis, just with no surface
+    realization."""
+    sentences, verbalunits, tokengraph = _sentence_with_medial_implied_token_fixture()
+
+    slices = split_analysis_by_sentence(tokengraph, verbalunits, sentences)
+
+    assert len(slices) == 1
+    sentence_tokengraph, sentence_verbalunits = slices[0]
+    assert [tok.id for tok in sentence_tokengraph] == ["t0", "t0_implied", "t1"]
+    assert [vu.id for vu in sentence_verbalunits] == ["t0_implied"]
+
+
+def test_split_excludes_a_trailing_implied_token_past_the_sentences_last_real_token():
+    """A known, pre-existing limitation shared with read_analyses()'s own
+    sentence reconstruction: an implied token placed AFTER a sentence's
+    last real token (rather than nested between two real tokens) falls
+    outside the [first, last] real-token range this function -- like
+    read_analyses() -- uses to slice a sentence's own tokengraph.
+    _sentence_with_implied_token_fixture()'s single-real-token "Rara
+    [sunt]." case is exactly this: the implied token trails t0 with no
+    further real token of the same sentence to bound it from above, so it
+    isn't included here (matching read_analyses()'s own
+    test_implied_token_is_excluded_from_its_sentences_reconstructed_tokens,
+    which excludes it from the reconstructed Sentence for the same
+    positional reason)."""
+    sentences, verbalunits, tokengraph = _sentence_with_implied_token_fixture()
+
+    slices = split_analysis_by_sentence(tokengraph, verbalunits, sentences)
+
+    assert len(slices) == 1
+    sentence_tokengraph, sentence_verbalunits = slices[0]
+    assert [tok.id for tok in sentence_tokengraph] == ["t0"]
+    assert sentence_verbalunits == []
+
+
+def test_split_rejects_a_sentence_with_no_tokens():
+    _sentences, verbalunits, tokengraph = _two_sentence_fixture()
+
+    with pytest.raises(ValueError, match="no tokens"):
+        split_analysis_by_sentence(tokengraph, verbalunits, [Sentence(tokens=[])])
+
+
+def test_split_rejects_a_boundary_token_missing_from_tokengraph():
+    sentences, verbalunits, tokengraph = _two_sentence_fixture()
+    # Drop t9 (sentence 2's own last token) from the tokengraph entirely.
+    truncated_tokengraph = [tok for tok in tokengraph if tok.id != "t9"]
+
+    with pytest.raises(ValueError, match="not present in the given tokengraph"):
+        split_analysis_by_sentence(truncated_tokengraph, verbalunits, sentences)

@@ -60,7 +60,7 @@ The text of the passage must be tokenized, and each token classified as one of:
 
 ### Syntactic relations among tokens
 
-In the first phase of implementing our syntax model, we will record the following set of relations among tokens.
+We record the following set of relations among tokens.
 
 
 #### Verbs and their principal construction
@@ -138,7 +138,6 @@ In the first phase of implementing our syntax model, we will record the followin
 
 - gerundives: gerundives are adjective forms and can be related to a noun just like any other adjective. Example: in the sentence, *Metapontus exiit ad Dianam Metapontinam ad sacrum faciendum*, the gerundive *faciendum* is in agreement with the noun *sacrum*. It till have the ID of *sacrum* for `relation1` with a value of `adjectival` as its `relationship1`.
 
-Example: in the phrase *ars bene disserendi*, the gerund *disserendi* is a gentive noun related to *ars*. It will have the id of *ars* as `relation1` and `genitive` as the value of `relationship1`. As verbal forms, gerunds can have objects or take adverbs. *bene* in the precediong example is an adverb that will stand in relation to *disserendi* in an `adverbial` relationship, so will have the id of `disserendi` for `relaion1`, and `adverbial` as the value of `relationship1`.
 
 
 ### Noun relations
@@ -147,7 +146,10 @@ Traditional grammatical analyses typically conflate syntax and semantics: this m
 
 - *genitive*: when a noun in the genitive depends on another noun, we cateogorize its relationship type as *genitive* (without semantic distinctions such as "possessive" or "partitive"). Example: in the sentence *hic filius erat regis*, the token *regis* is in the genitive, and relates to *filius*. We use the ID of *filius* as its `relation1`, with `genitive` as its value for `relationship1`.
 - *dative*: dative relationships can be linked to verbs or nouns. In the sentence *audeat deinde talia alius, nisi in hunc insigne iam documentum mortalibus dedero*, the dative noun *mortalibus* relates to the verb *dedero*. *mortalibus* will have the id of *dedero* as its `relation1` with a value of `dative` for `relationship1`.
+- *accusative*: accusative relations other than *direct object* can be linked to verbs or nouns. Examples: in *Romam venit*, the verbal expression *venit* is intransitive, but the token *Romam* relates to it. *Romam* will have the id of *venit* for its `relation1` with `accusative` for `relationship1`. In *duo milia passuum iter fecerunt*, the phrase *duo milia passuum* qualifies the noun *iter* with a length of distance specified in the accusative. The token *milia* will take the id of *iter* for its `relation1` with a `accusative` as `relationship1`.
 - *ablative*: ablative relationships can be linked to verbs or nouns. In the sentence *omnia ferro flammaque miscet*, the two ablative tokens *ferro* and *flamma* both relate to the verb token *miscet* and will have the ID of *miscet* as their `relation1` with the value `ablative` for `relationship1`.
+In the idiomatic expression *opus est* + an ablative, the ablative token relates to *opus*. Example: in *Collatinus negat verbis opus esse*, the ablative token *verbis* will have the ID of *opus* for `relation1` with a value of `ablative` for `relationship1`.
+- *vocative*: vocative relationships are linked to verbs. In the sentence *Non est ita, domine, sed servi tui venerunt ut emerent cibos.* the token *domine* is in the vocative. It will have the ID of *est* as its `relation1`, with `vocative` as the value for `relationship1`.
 - apposition: when one noun stands in apposition to another, the appositve takes the id of the first noun as the value for `relation1`, and has `apposition` as the value for `relationship1`. Example: in the sentence *Neptunus et Aegeus Pandionis filius in fano Mineruae cum Aethra Pitthei filia una nocte concubuerunt*, the token *filius* is in apposition to *Aegeus* and takes the ID of *Aegeus* as `relation1` with `apposition` for `relationship1`. The genitive *Pandionis* depends on *filius* and will have the ID of *filius* for `relation1`, with `genitive` as `relationship1`. Similarly, *filia* is in apposition to *Aethra* and will have the id of *Aethra* for `relation1`, with `apposition` as `relationship1`. THe genitie *Pitthei* depends on *filia* and  will have the ID of *filia* for `relation1`, with `genitive` as `relationship1`. 
 
 
@@ -155,3 +157,6 @@ Traditional grammatical analyses typically conflate syntax and semantics: this m
 - gerunds: gerunds are noun forms, used in the oblique cases (where the infinitive could be used in the nominative). They can be related to the syntax of an expression like any other noun. Example: in the phrase *ars bene disserendi*, the gerund *disserendi* is a gentive noun related to *ars*. It will have the id of *ars* as `relation1` and `genitive` as the value of `relationship1`. As verbal forms, gerunds can have objects or take adverbs. *bene* in the precediong example is an adverb that will stand in relation to *disserendi* in an `adverbial` relationship, so will have the id of `disserendi` for `relation1`, and `adverbial` as the value of `relationship1`.
 
 
+### Praenomina
+
+Tokens classified as `praenomen` relate to a lexical token giving the individual's name. The `praenomen` token takes the ID of the name as its `relation1`, and has the value `praenomen` as `relationship1`. Example: in *Sex. Tarquinius inscio Collatino cum comite uno Collatiam venit*, the token *Sex.* is a `praenomen` related to the lexical token *Tarquinius*. It will have the ID of *Tarquinius* for `relation1` and a value of `praenomen` for `relationship1`.

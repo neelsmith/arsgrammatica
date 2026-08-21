@@ -1,8 +1,21 @@
 # Release history
 
-Current version: **0.1.0**.
+Current version: **0.2.0**.
 
 
+
+- **0.2.0**,  *Aug. 21, 2026*::
+
+Breaking changes: syntactically absolute substantives are now assigned to the verbal unit of the circumstantial participle they agree with, not the verbal unit of the governing clause.
+
+Additions: 
+
+- relations of praenomina now included in syntax graph
+- special uses of accusative and ablative expanded; syntax of vocative case added
+- tests for all new relations; suite for `pytest` now includes 630 tests
+- optional depth parameter in HTML block display + new function to find maximum depth of subordination of a passage, and updated marimo notebooks
+- new marimo notebook to visualize saved analyses (no LLM required), with option to export Mermaid graph of syntax
+- new utilities for managing maximum token numbers along with options to see tokens, prompts and costs of queries in. marimo notebooks
 
 - **0.1.0**, *Aug. 17, 2026*: Initial public release, built using Opus 5. Includes a complete framework for developing, testing and optimizing Latin syntactic analyzers with a wide variety of language models using `dspy`. This release includes:
 

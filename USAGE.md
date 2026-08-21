@@ -28,6 +28,16 @@ python3 syntaxer_main.py --passage "Arma virumque canō." --citation "urn:cts:la
 
 `syntaxer_main.py` reads `API_BASE` / `MODEL` / `API_KEY` from `.env`, configures the LM, and prints the analysis.
 
+For a local, unauthenticated model (e.g. Ollama), leave `API_KEY` present but empty:
+
+```
+API_BASE=http://localhost:11434
+MODEL=ollama_chat/llama3
+API_KEY=
+```
+
+`syntaxer_main.py` only raises "Missing API key" when `API_KEY` isn't in `.env` at all; an empty value is treated as "this model doesn't need one" and is left out of the LM call entirely, rather than sent through as an empty credential.
+
 
 ## Using `arsgrammatica` in a script
 
@@ -109,6 +119,20 @@ tokengraph, verbalunits, sentences = read_analyses("analysis.txt")
 
 The file has three labelled, pipe-delimited blocks (`#!sentences`, `#!verbal_units`, `#!tokens`), each with its own fixed header row -- see `serialization.py`'s module docstring for the exact format, why `sentences` is needed at all (it's the only place a citation is actually attached to a token id), and what `write_analyses()`'s warnings vs. `read_analyses()`'s errors each catch. Each of the three labels may appear more than once in the file; `read_analyses()` merges every instance of a label into that label's combined row list, in file order, so simply concatenating several `write_analyses()`/`serialize_analyses()` outputs together and reading the result back gives you one combined analysis. `read_analyses()` is otherwise deliberately strict: a malformed or internally inconsistent file raises `ValueError` naming the exact line and problem, rather than silently reconstructing something partial.
 
+`read_analyses()` hands back flat, whole-file lists -- every sentence's `tokengraph`/`verbalunits` concatenated together, the same shape `combined_tokengraph()` produces. `split_analysis_by_sentence(tokengraph, verbalunits, sentences)` splits that back into one `(sentence_tokengraph, sentence_verbalunits)` slice per sentence, aligned with `sentences` itself:
+
+```python
+from arsgrammatica import read_analyses, split_analysis_by_sentence
+
+tokengraph, verbalunits, sentences = read_analyses("analysis.txt")
+slices = split_analysis_by_sentence(tokengraph, verbalunits, sentences)
+
+for sentence, (sentence_tokengraph, sentence_verbalunits) in zip(sentences, slices):
+    ...  # render or inspect this one sentence's own analysis
+```
+
+This is what `marimo/syntaxer_review.py` (see "`marimo` notebooks" below) uses to let you pick one sentence at a time out of a saved analysis file, without needing an LM at all. An implied/elided token (see models.py's `TokenAnalysis`) is included in whichever sentence's slice it's nested inside, but one sitting *after* a sentence's own last real token (rather than between two real tokens) falls just outside that sentence's slice -- see `split_analysis_by_sentence()`'s own docstring for why, and `read_analyses()`'s note on the same underlying [first, last] real-token-position convention.
+
 
 ## Reading passages from a delimited-text source file
 
@@ -132,6 +156,39 @@ urn:cts:compnov:bible.genesis.vulgate:45.1|Non se poterat ultra tenere.
 ```
 
 Each row's `urn` column must be a 5-part, colon-separated CTS URN (e.g. `urn:cts:compnov:bible.genesis.vulgate:45.1`); `read_ctsdata()` splits it into `urnbase` (the first 4 parts, rejoined with `:`, plus a trailing `:` -- `urn:cts:compnov:bible.genesis.vulgate:` for that example) and `citation` (the 5th part, `45.1`) -- the same `urnbase + citation` shape `syntaxer_workflow.py`'s own manual-entry form uses for its base-URN/passage fields. Pass `delimiter=...` if the file itself uses something other than `|`. Like `read_analyses()`, this is deliberately strict (a malformed row or a urn that doesn't split into exactly 5 parts raises `ValueError`, naming the line) and merges multiple `#!ctsdata` blocks in file order.
+
+
+## Estimating and enforcing a `max_tokens` budget
+
+`SyntaxAnalysis`'s output (a `reasoning` field plus JSON-serialized `verbalunits`/`tokengraph`) grows with how long and how syntactically complex a sentence is, not by a fixed amount, so a single hard-coded `max_tokens` value is eventually wrong: too small for a long or deeply subordinated sentence (truncation), too large for a short one (wasted budget). `arsgrammatica/token_budget.py` addresses this with a calibrate-then-retry approach, and `pipeline.py`'s `analyze_sources()` already uses it -- both `analyze_sources()` and `analyze_passage()` get this for free, with nothing to change in your own calling code.
+
+First, calibrate against your own configured model:
+
+```bash
+python3 calibrate_max_tokens.py
+```
+
+This is a live-LM script (real API cost, one call per `GOLD_EXAMPLES` entry) that measures how many completion tokens the real model actually uses for each gold example, fits `completion_tokens ~= intercept + slope * num_input_tokens` by least squares, and writes the result to `arsgrammatica/token_budget_calibration.json`. Re-run it whenever the configured model, the `SyntaxAnalysis` prompt, or the `TokenAnalysis`/`VerbalExpression` schema changes substantially. Until you've run it at least once, `estimate_max_tokens()` falls back to an untuned, deliberately generous placeholder fit -- safe, but not a real measurement of your model.
+
+```python
+from arsgrammatica import estimate_max_tokens
+
+budget = estimate_max_tokens(num_tokens=25)  # -> an int max_tokens value
+```
+
+`estimate_max_tokens()` takes the calibrated (or fallback) fit, multiplies it by a `safety_margin` (default `1.4`, covering reasoning-length variance the fit alone doesn't), and clamps the result to `[floor, ceiling]`. Set `ceiling` to your actual model's real max-output-tokens limit -- the module's own `DEFAULT_CEILING` is only a placeholder stand-in, since that limit varies by provider/model and there's no single correct default.
+
+For the retry half, `analyze_with_retry()` wraps `analyze()`:
+
+```python
+from arsgrammatica import analyze_with_retry
+
+result = analyze_with_retry(passage, tokens)
+```
+
+It starts from `estimate_max_tokens(len(tokens))` (or `initial_max_tokens`, if you pass one), and checks the result two ways: whether the returned `tokengraph` is missing any of `tokens`' own ids (the primary, provider-independent signal -- a real truncation, LM-JSON getting cut off mid-list, always shows up here), and, as a corroborating check, whether the LM's own `finish_reason` was `"length"`. If either signals truncation and a retry is still available (`max_retries`, default `1`) with budget left before `ceiling`, it multiplies the budget by `growth_factor` (default `2.0`) and calls again -- `max_tokens` is part of DSPy's own LM cache key, so the retry always reaches the LM again rather than replaying the same truncated cached response. If retries run out: a call that raised re-raises (nothing to fall back to); a call that returned an incomplete result is returned anyway, with a `UserWarning` naming the missing ids, rather than treated as fatal -- consistent with `validate()`'s own warn-don't-raise convention for imperfect LM output.
+
+`get_calibration()` reports which fit is currently active (the real one from `calibrate_max_tokens.py`, or the untuned fallback) if you want to check before relying on an estimate.
 
 
 ## Harvesting gold examples from real analyses
@@ -165,20 +222,23 @@ print(format_gold_example_source(example, "_SOME_NEW_CONSTRUCTION_ANSWER"))
 - `syntaxer.py`: an interactive notebook wrapping `analyze_passage()` -- the base URN / passage / text-to-analyze inputs each re-analyze immediately as you edit them.
 - `syntaxer_workflow.py`: the same notebook, built for the real-world-testing loop DEVELOPMENT.md describes -- the three inputs are one form (nothing re-analyzes, and no LM call happens, until you click *Analyze*, rather than on every keystroke), and there's a `cex`/`txt` extension choice (default `cex`) plus a *Download analysis* button that hands the current analysis (built with `serialize_analyses()`, see "Saving and loading analyses" above) to the browser's own download mechanism -- no folder path to type, at the cost of the browser (not the notebook) deciding where the file actually lands. The filename defaults to the submitted citation (base URN + passage) with the chosen extension. Ready to hand-review and, if it's a case worth keeping, turn into a fixture with `tests/fixtures/harvest.py`.
 - `syntaxer_ctsdata.py`: the same notebook again, but the passage to analyze comes from a `#!ctsdata` source file (see "Reading passages from a delimited-text source file" above) instead of being typed in by hand -- browse for the file, then pick a passage from the menu that appears (labelled `<citation>: <first few words>…`, e.g. `45.1: Non se poterat ultra…`); picking one analyzes it immediately, the same way submitting `syntaxer_workflow.py`'s own form does, with the file's own urn supplying the base URN and citation. Everything downstream (Mermaid diagram, highlighted/indented HTML, save-to-file) is identical to `syntaxer_workflow.py`.
+- `syntaxer_review.py`: no LM access at all -- browse for a file previously written by `write_analyses()` (see "Saving and loading analyses" above), pick a sentence from the menu that appears (labelled `<n>. <citation>: <first six words>…`, via `split_analysis_by_sentence()`), and it displays that one sentence's own Mermaid diagram, plain (uncolored) text, verbal-unit-colored HTML, and colored-and-indented-by-subordination-depth HTML -- the same four views `syntaxer_workflow.py`/`syntaxer_ctsdata.py` show after an LM call, but reconstructed entirely from the saved file. A slider above the indented view caps it to that sentence's own `max_subordination_depth()` or shallower, the same depth-cap control the other two notebooks offer, except here it only appears once a sentence with at least one token has actually been picked. A *Download Mermaid diagram (.mmd)* button next to the diagram hands that sentence's raw Mermaid source (the same text `mo.mermaid()` renders) to the browser's own download mechanism, ready to paste into mermaid.live, a README code block, or any other Mermaid-aware tool -- disabled until a sentence is selected, and named from that sentence's own menu number and citation (e.g. `1_Aeneid_1_1_mermaid.mmd`). Useful for reviewing or presenting an already-completed analysis (e.g. one harvested into `GOLD_EXAMPLES`) without spending an LM call, or working at all when the LM is unreachable.
 
 ## Files
 
 - `syntaxer_main.py` — command-line entry point: loads `.env`, configures the LM, and runs an analysis for a passage given on the command line.
+- `calibrate_max_tokens.py` — loads `.env`, configures the LM, and fits `arsgrammatica/token_budget.py`'s `max_tokens` estimate against real completion-token usage over `GOLD_EXAMPLES` (see "Estimating and enforcing a `max_tokens` budget" above).
 - `arsgrammatica/` — the package with the actual analysis logic:
   - `models.py` — pydantic models for `CitedText`, `Token`, `Sentence`, `VerbalExpression`, and `TokenAnalysis`, matching the fields and relation labels from `syntax_model.md`.
   - `segmentation_dspy.py` — the DSPy signature (`SegmentPassage`) that segments citation-labeled source text into sentences and tokens, assigning stable ids (`t0`, `t1`, ...) and tracking which citation each token came from.
   - `latin_syntax_dspy.py` is the DSPy signature (`SyntaxAnalysis`) that takes a sentence's tokens and produces `verbalunits` + `tokengraph`, plus `validate()` and `print_analysis()`.
-  - `pipeline.py` — ties the two stages together: `analyze_sources()` runs the full pipeline over citation-labeled input and analyzes every sentence it finds; `analyze_passage()` is the convenience wrapper for a single bare passage string; `combined_tokengraph()` concatenates results for diagramming.
-  - `serialization.py` — `serialize_analyses()`/`write_analyses()`/`read_analyses()` save and reload `sentences`/`verbalunits`/`tokengraph` as one deterministic, pipe-delimited plain-text file, or as an equivalent in-memory string (see "Saving and loading analyses" above).
+  - `pipeline.py` — ties the two stages together: `analyze_sources()` runs the full pipeline over citation-labeled input and analyzes every sentence it finds (via `token_budget.analyze_with_retry()`, not `analyze()` directly -- see below); `analyze_passage()` is the convenience wrapper for a single bare passage string; `combined_tokengraph()` concatenates results for diagramming.
+  - `token_budget.py` — `estimate_max_tokens()` picks a `max_tokens` budget for a SyntaxAnalysis call from a passage's token count, using a fit `calibrate_max_tokens.py` writes to `token_budget_calibration.json` (or an untuned fallback before that's ever been run); `analyze_with_retry()` wraps `analyze()` with that estimate and retries with a larger budget if the result still comes back truncated (see "Estimating and enforcing a `max_tokens` budget" above).
+  - `serialization.py` — `serialize_analyses()`/`write_analyses()`/`read_analyses()` save and reload `sentences`/`verbalunits`/`tokengraph` as one deterministic, pipe-delimited plain-text file, or as an equivalent in-memory string; `split_analysis_by_sentence()` splits `read_analyses()`'s flat, whole-file lists back into one `(tokengraph, verbalunits)` slice per sentence (see "Saving and loading analyses" above).
   - `mermaid.py` — turns a `tokengraph` into a Mermaid flowchart: one node  per non-punctuation token, one labelled edge per
     `relatedtoken1`/`relationship1` and `relatedtoken2`/`relationship2` pair, colored by verbal unit (see `VISUALIZATION.md`).
-  - `verbal_units.py` — `assign_verbal_units()` partitions a `tokengraph` into the verbal units its own relations imply, purely from the existing graph structure (no extra LM call); `assign_verbal_unit_colors()` builds on that to assign each verbal unit a stable palette color, in the same first-appearance order `mermaid.py` uses for its node coloring — the single shared source both `mermaid.py` and `rendering.py` draw on so their colorings always agree. `compute_subordination_depths()` computes each verbal expression's *depth of subordination* (0 for an independent clause, 1 for a clause it introduces, 2 for one that clause in turn introduces, and so on) the same way, by chasing each anchor's own relation to its governing verbal expression (see `VISUALIZATION.md`). `find_unanchored_coordinated_verbs()` is a heuristic sanity check, separate from `validate()`: it flags a "coordinating conjunction" pair where one side anchors its own verbal unit and the other doesn't -- an asymmetry a correct analysis should never produce, and a real mistake a live LM has made (see that function's own docstring for the worked example). Returns a list of warning strings (empty if nothing looks wrong); it can't confirm the unanchored side really was meant to be a verb, only that the asymmetry is worth a human look.
-  - `rendering.py` — `tokengraph_to_text()` reconstructs a continuous, readable plain-text string from a `tokengraph`, with correct spacing around punctuation, brackets, quote pairs, and enclitics (unlike a plain `" ".join(...)`, which would put a space before every token, including punctuation and enclitics -- e.g. rendering "virumque" as "virum que"). `tokengraph_to_html()` does the same join, but as an HTML string with lexical tokens wrapped in verbal-unit-colored `<span>`s. `tokengraph_to_depth_html()` renders the same colored tokens grouped into per-verbal-unit blocks, each CSS-indented by its depth of subordination (see `VISUALIZATION.md`).
+  - `verbal_units.py` — `assign_verbal_units()` partitions a `tokengraph` into the verbal units its own relations imply, purely from the existing graph structure (no extra LM call); `assign_verbal_unit_colors()` builds on that to assign each verbal unit a stable palette color, in the same first-appearance order `mermaid.py` uses for its node coloring — the single shared source both `mermaid.py` and `rendering.py` draw on so their colorings always agree. `compute_subordination_depths()` computes each verbal expression's *depth of subordination* (0 for an independent clause, 1 for a clause it introduces, 2 for one that clause in turn introduces, and so on) the same way, by chasing each anchor's own relation to its governing verbal expression (see `VISUALIZATION.md`); `max_subordination_depth()` reduces that to the single deepest depth reached anywhere in the passage (`None` if there are no verbal expressions, or none resolve), the natural upper bound for `tokengraph_to_depth_html()`'s own `depth` parameter below. `find_unanchored_coordinated_verbs()` is a heuristic sanity check, separate from `validate()`: it flags a "coordinating conjunction" pair where one side anchors its own verbal unit and the other doesn't -- an asymmetry a correct analysis should never produce, and a real mistake a live LM has made (see that function's own docstring for the worked example). Returns a list of warning strings (empty if nothing looks wrong); it can't confirm the unanchored side really was meant to be a verb, only that the asymmetry is worth a human look.
+  - `rendering.py` — `tokengraph_to_text()` reconstructs a continuous, readable plain-text string from a `tokengraph`, with correct spacing around punctuation, brackets, quote pairs, and enclitics (unlike a plain `" ".join(...)`, which would put a space before every token, including punctuation and enclitics -- e.g. rendering "virumque" as "virum que"). `tokengraph_to_html()` does the same join, but as an HTML string with lexical and praenomen tokens (and any coordinating conjunction) wrapped in verbal-unit-colored `<span>`s. `tokengraph_to_depth_html()` renders the same colored tokens grouped into per-verbal-unit blocks, each CSS-indented by its depth of subordination (see `VISUALIZATION.md`); its optional `depth` parameter caps rendering to blocks at or below that depth (`depth=0` through the passage's own `max_subordination_depth()`) -- a block deeper than the cap is omitted entirely, not rendered empty.
   - `__init__.py` — re-exports the public names above, so callers do `from arsgrammatica import ...` rather than reaching into submodules.
 - `tests/` — a pytest suite covering models, segmentation, analysis, validation, and coverage of the scheme's relation/type vocabulary.
 
