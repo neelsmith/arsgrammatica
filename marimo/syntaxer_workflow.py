@@ -180,8 +180,14 @@ def _(results):
 
 
 @app.cell
-def _(dspy):
-    last_call = dspy.settings.lm.history[-1]
+def _(lm):
+    lm.history[-1].get("cost")
+    return
+
+
+@app.cell
+def _(lm):
+    last_call = lm.history[-1]
     cost = last_call.get('cost')
     return (cost,)
 
@@ -438,7 +444,7 @@ def _(dspy, getenv):
 @app.cell
 def _(configure_lm):
     lm = configure_lm()
-    return
+    return (lm,)
 
 
 if __name__ == "__main__":
