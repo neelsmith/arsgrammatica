@@ -125,7 +125,6 @@ def _(finaltokens, seetokens):
         tokendisplay = finaltokens
 
     tokendisplay
-
     return
 
 
@@ -133,7 +132,7 @@ def _(finaltokens, seetokens):
 def _(cost, mo, seecost):
     costdisplay = None
     if seecost.value:
-        costdisplay = mo.md(f"**Total cost**: {cost}")
+        costdisplay = mo.md(f"**Cost of last LM call**: {cost}")
     costdisplay
     return
 
@@ -340,8 +339,10 @@ def _(results):
 
 
 @app.cell
-def _(lm):
-    cost = sum([x['cost'] for x in lm.history if x['cost'] is not None])
+def _(dspy):
+    last_call = dspy.settings.lm.history[-1]
+    cost = last_call.get('cost')
+
     return (cost,)
 
 
@@ -534,7 +535,7 @@ def _(dspy, getenv):
 @app.cell
 def _(configure_lm):
     lm = configure_lm()
-    return (lm,)
+    return
 
 
 if __name__ == "__main__":
