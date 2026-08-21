@@ -23,7 +23,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    > Read citable text from a delimited-text (CEX) file, then choose a passage to analyze.
+    > Read citable text from a delimited-text (CEX) file, then choose one or more passages to analyze together.
     """)
     return
 
@@ -35,7 +35,7 @@ def _(ctsdata_file_browser):
 
 
 @app.cell(hide_code=True)
-def _(analyze_button, ctsdata_error, ctsdata_rows, mo, passage_dropdown):
+def _(analyze_button, ctsdata_error, ctsdata_rows, mo, passage_multiselect):
     if ctsdata_error is not None:
         ctsdata_status = mo.callout(
             mo.md(f"Could not read this file as a `#!ctsdata` source: {ctsdata_error}"),
@@ -47,7 +47,7 @@ def _(analyze_button, ctsdata_error, ctsdata_rows, mo, passage_dropdown):
         ctsdata_status = mo.md(f"## Passage selection\n\n*{len(ctsdata_rows)} passage(s) loaded from this file.*")
 
     mo.vstack(
-        [ctsdata_status, mo.hstack([passage_dropdown, analyze_button], justify="start")]
+        [ctsdata_status, mo.hstack([passage_multiselect, analyze_button], justify="start")]
     )
     return
 
@@ -216,26 +216,44 @@ def passage_label(row):
 
 @app.cell
 def _(ctsdata_rows, mo):
-    # Menu for selecting a passage.
-    # Mapseach label directly to a CtsDataRow, so passage_dropdown.value is the CtsDataRow.
+    # Menu for selecting one or more passages -- a multiselect rather than
+    # a dropdown, since analyze_sources() (see the Analysis cell below)
+    # accepts a list of sources and segments/analyzes them together, not
+    # just one at a time. Maps each label directly to a CtsDataRow, so
+    # passage_multiselect.value is a list of the selected CtsDataRows (in
+    # whatever order the widget itself reports them -- see selected_rows
+    # below for why that order isn't used directly).
     passage_options = {passage_label(row): row for row in ctsdata_rows}
-    passage_dropdown = mo.ui.dropdown(
+    passage_multiselect = mo.ui.multiselect(
         options=passage_options,
-        label="*Passage*:",
+        label="*Passage(s)*:",
     )
-    return (passage_dropdown,)
+    return (passage_multiselect,)
 
 
 @app.cell
-def _(mo, passage_dropdown):
+def _(ctsdata_rows, passage_multiselect):
+    # Always analyze selected passages in their original file order, not
+    # whatever order passage_multiselect.value happens to report them in
+    # (multiselect widgets are free to report selections in click order) --
+    # segment_sources() (inside analyze_sources()) treats consecutive
+    # sources as potentially sharing a sentence, so an out-of-file-order
+    # source list could segment incorrectly or produce citations in a
+    # confusing order.
+    selected_rows = [row for row in ctsdata_rows if row in passage_multiselect.value]
+    return (selected_rows,)
+
+
+@app.cell
+def _(mo, passage_multiselect):
     # A new instance is created (and analyze_button.value resets to False)
-    # every time passage_dropdown's own selection changes, since this cell
-    # depends on passage_dropdown.value -- so switching to a different
-    # passage always requires a fresh, deliberate Analyze click rather than
-    # silently re-using a previous click.
+    # every time passage_multiselect's own selection changes, since this
+    # cell depends on passage_multiselect.value -- so changing the
+    # selection always requires a fresh, deliberate Analyze click rather
+    # than silently re-using a previous click.
     analyze_button = mo.ui.run_button(
         label="Analyze",
-        disabled=passage_dropdown.value is None,
+        disabled=not passage_multiselect.value,
     )
     return (analyze_button,)
 
@@ -265,13 +283,18 @@ def _(mo):
 
 
 @app.cell
-def _(passage_dropdown):
-    # A readable default filename base, drawn from the selected row's own
-    # urn (falling back to "analysis" if nothing's been selected yet).
-    # The extension is chosen separately.
+def _(selected_rows):
+    # A readable default filename base, drawn from every selected row's own
+    # urn (falling back to "analysis" if nothing's been selected yet) --
+    # the first row's urnbase plus every selected row's own citation, in
+    # file order. This can get long with many passages selected at once,
+    # but stays deterministic and collision-resistant; the extension is
+    # chosen separately.
     filename_base = ""
-    if passage_dropdown.value is not None:
-        filename_base = (passage_dropdown.value.urnbase or "") + (passage_dropdown.value.citation or "")
+    if selected_rows:
+        filename_base = (selected_rows[0].urnbase or "") + "_".join(
+            row.citation or "" for row in selected_rows
+        )
     filename_base = "".join(c if c.isalnum() else "_" for c in filename_base).strip("_") or "analysis"
     return (filename_base,)
 
@@ -304,17 +327,22 @@ def _(mo):
 
 
 @app.cell
-def _(analyze_button, analyze_passage, passage_dropdown):
-    # Analyze the selected passage when the Analyze button is clicked. 
-    # analyze_button.value is True for exactly the one reactive cycle
-    # triggered by a click.
-    passage = ''
+def _(CitedText, analyze_button, analyze_sources, selected_rows):
+    # Analyze every selected passage, together, when the Analyze button is
+    # clicked. analyze_button.value is True for exactly the one reactive
+    # cycle triggered by a click. Each selected row becomes its own
+    # CitedText source (same urnbase+citation concatenation the single-
+    # passage cell used to build) -- analyze_sources() segments across all
+    # of them at once (a sentence may span two consecutive sources) and
+    # returns one flat (sentences, results) pair spanning every selected
+    # passage, in the file order selected_rows already established.
     sentences, results = [], []
-    if analyze_button.value and passage_dropdown.value is not None:
-        row = passage_dropdown.value
-        passage = row.text
-        citation = row.urnbase + row.citation
-        sentences, results = analyze_passage(passage, citation=citation)
+    if analyze_button.value and selected_rows:
+        sources = [
+            CitedText(citation=row.urnbase + row.citation, text=row.text)
+            for row in selected_rows
+        ]
+        sentences, results = analyze_sources(sources)
     return results, sentences
 
 
@@ -339,8 +367,15 @@ def _(results):
 
 
 @app.cell
+def _():
+    return
+
+
+@app.cell
 def _(lm):
-    last_call = lm.history[-1]
+    last_call = None
+    if lm.history:
+        last_call = lm.history[-1]
     return (last_call,)
 
 
@@ -360,29 +395,29 @@ def _(mo):
 
 
 @app.cell
-def _(mo, passage_dropdown):
-    # Show the raw, as-selected passage text as soon as a menu item is
-    # picked -- no LM call involved, so this can update immediately and
-    # independently of whether Analyze has been clicked yet. Lets the
-    # reader browse a whole text passage-by-passage (the user's own stated
-    # goal of hunting for edge cases) without spending an LM call on every
-    # single selection.
+def _(mo, selected_rows):
+    # Show the raw, as-selected passage text (one block per selection, in
+    # file order) as soon as the menu selection changes -- no LM call
+    # involved, so this can update immediately and independently of
+    # whether Analyze has been clicked yet. Lets the reader browse a whole
+    # text passage-by-passage (the user's own stated goal of hunting for
+    # edge cases) without spending an LM call on every single selection.
     import html as _html
 
-    if passage_dropdown.value is not None:
-        _row = passage_dropdown.value
-        rawpreview = mo.md(
-            f"## Selected passage: {_html.escape(_row.citation)}\n\n"
-            f"{_html.escape(_row.text)}"
-        )
+    if selected_rows:
+        _blocks = [
+            f"## Selected passage: {_html.escape(_row.citation)}\n\n{_html.escape(_row.text)}"
+            for _row in selected_rows
+        ]
+        rawpreview = mo.md("\n\n---\n\n".join(_blocks))
     else:
         rawpreview = mo.md("")
     return (rawpreview,)
 
 
 @app.cell
-def _(finaltokens, mo, passage_dropdown, tokengraph_to_text):
-    citation_label = passage_dropdown.value.citation if passage_dropdown.value else ""
+def _(finaltokens, mo, selected_rows, tokengraph_to_text):
+    citation_label = ", ".join(row.citation for row in selected_rows)
     psghtml = mo.Html(
         f"<b><i>Reconstructed passage {citation_label}</i></b>: " + tokengraph_to_text(finaltokens)
     )
@@ -446,7 +481,8 @@ def _(Path):
 
     from arsgrammatica import (
         print_analysis,
-        analyze_passage,
+        analyze_sources,
+        CitedText,
         tokengraph_to_mermaid,
         combined_tokengraph,
         tokengraph_to_html,
@@ -458,7 +494,8 @@ def _(Path):
     )
 
     return (
-        analyze_passage,
+        CitedText,
+        analyze_sources,
         combined_tokengraph,
         max_subordination_depth,
         read_ctsdata,

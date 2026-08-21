@@ -180,16 +180,18 @@ def _(results):
 
 
 @app.cell
-def _(lm):
-    lm.history[-1].get("cost")
-    return
+def _(last_call):
+    cost = last_call.get('cost')
+    return (cost,)
 
 
 @app.cell
 def _(lm):
-    last_call = lm.history[-1]
-    cost = last_call.get('cost')
-    return (cost,)
+    last_call = None
+    if lm.history:
+        last_call = lm.history[-1]
+
+    return (last_call,)
 
 
 @app.cell(hide_code=True)
@@ -350,16 +352,9 @@ def _():
     import dspy
     import os
     from pathlib import Path
-
-
-    return Path, dspy, os
-
-
-@app.cell
-def _():
     from dotenv import load_dotenv
 
-    return (load_dotenv,)
+    return Path, dspy, load_dotenv, os
 
 
 @app.cell

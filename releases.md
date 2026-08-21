@@ -4,6 +4,13 @@ Current version: **0.2.0**.
 
 
 
+**0.3.0**, :
+
+Fixes: better handling of `numeral` tokens.
+
+Additions: `syntaxer_ctsdata` allows selection of multiple citable passages. 
+
+
 **0.2.0**,  *Aug. 21, 2026*:
 
 Breaking changes: syntactically absolute substantives are now assigned to the verbal unit of the circumstantial participle they agree with, not the verbal unit of the governing clause.

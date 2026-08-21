@@ -215,8 +215,97 @@ _NUMERAL_ANSWER = {
         {"id": "t7", "token": ".", "tokentype": "punctuation"},
     ],
 }
- 
- 
+
+
+# ---------------------------------------------------------------------------
+# syntax_model.md's tokenization section clarifies that 'numeral' is only
+# for a number written NUMERICALLY (Roman or Arabic) -- a number spelled
+# out as an ordinary word (e.g. "decem", 'ten') is 'lexical' instead, even
+# though it's semantically a number. syntax_model.md's own worked example
+# is "fratres Joseph decem" (all three tokens lexical) -- itself drawn
+# from the real Vulgate Genesis 42:3 ("Descendentes igitur fratres Joseph
+# decem, ut emerent frumenta in Aegypto..."). This fixture reuses that
+# same phrase with a simple verb of its own ("venerunt") rather than the
+# original's more complex purpose clause, to keep this fixture minimal and
+# focused on the numeral-vs-lexical distinction alone.
+# ---------------------------------------------------------------------------
+
+_LEXICAL_NUMERAL_FRATRES_JOSEPH_DECEM_ANSWER = {
+    "reasoning": (
+        "venerunt is the independent main verb (intransitive, 'they "
+        "came'), with the sentinel relatedtoken1 'root'; Fratres is its "
+        "subject. Joseph, an indeclinable Hebrew name here in genitive "
+        "function ('brothers OF Joseph'), depends on Fratres via "
+        "'genitive'. decem ('ten') is spelled out as an ordinary word, "
+        "not written numerically, so per syntax_model.md's own "
+        "clarification it's tokentype 'lexical' -- NOT 'numeral' -- and "
+        "modifies Fratres via 'adjectival', the same relation an "
+        "ordinary adjective quantifying a noun would use."
+    ),
+    "verbalunits": [
+        {"id": "t3", "syntactic_type": "independent", "semantic_type": "intransitive"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Fratres", "tokentype": "lexical", "lemma": "frater",
+         "relatedtoken1": "t3", "relationship1": "subject"},
+        {"id": "t1", "token": "Joseph", "tokentype": "lexical", "lemma": "Joseph",
+         "relatedtoken1": "t0", "relationship1": "genitive"},
+        {"id": "t2", "token": "decem", "tokentype": "lexical", "lemma": "decem",
+         "relatedtoken1": "t0", "relationship1": "adjectival"},
+        {"id": "t3", "token": "venerunt", "tokentype": "lexical", "lemma": "venio",
+         "verbalunitid": "t3", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t4", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
+
+# ---------------------------------------------------------------------------
+# "Fratres Joseph XII venerunt." -- a direct parallel to
+# lexical_numeral_fratres_joseph_decem immediately above, swapping "decem"
+# (lexical, spelled-out "ten") for "XII" (numeral, written numerically) at
+# the exact same position/relation. This is the regression fixture for the
+# bug the user reported: a numeral token with a real relation (here
+# "adjectival" -> Fratres, same as decem's) was colored correctly in the
+# Mermaid diagram but left uncolored in tokengraph_to_html()/
+# tokengraph_to_depth_html() before the fix, because _tokens_to_html()'s
+# tokentype-eligibility check omitted "numeral". Deliberately NOT the
+# user's own bug-report sentence ("nati sunt Jacob filii XII.") -- that
+# sentence uses an unprecedented deponent-verb perfect construction with no
+# other fixture anywhere in this file, and "Jacob" is genitive-vs-dative
+# ambiguous (an indeclinable Hebrew name) -- building an unprecedented,
+# ambiguous analysis into an asserted-correct gold fixture would carry
+# correctness risk unrelated to the rendering bug actually being tested.
+# ---------------------------------------------------------------------------
+
+_NUMERAL_RELATION_FRATRES_JOSEPH_XII_ANSWER = {
+    "reasoning": (
+        "venerunt is the independent main verb (intransitive, 'they "
+        "came'), with the sentinel relatedtoken1 'root'; Fratres is its "
+        "subject. Joseph, an indeclinable Hebrew name here in genitive "
+        "function ('brothers OF Joseph'), depends on Fratres via "
+        "'genitive'. XII ('twelve') is written numerically, so per "
+        "syntax_model.md's own clarification it's tokentype 'numeral' -- "
+        "NOT 'lexical' -- but still modifies Fratres via 'adjectival', "
+        "the same relation decem (spelled out) or an ordinary adjective "
+        "quantifying a noun would use."
+    ),
+    "verbalunits": [
+        {"id": "t3", "syntactic_type": "independent", "semantic_type": "intransitive"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Fratres", "tokentype": "lexical", "lemma": "frater",
+         "relatedtoken1": "t3", "relationship1": "subject"},
+        {"id": "t1", "token": "Joseph", "tokentype": "lexical", "lemma": "Joseph",
+         "relatedtoken1": "t0", "relationship1": "genitive"},
+        {"id": "t2", "token": "XII", "tokentype": "numeral",
+         "relatedtoken1": "t0", "relationship1": "adjectival"},
+        {"id": "t3", "token": "venerunt", "tokentype": "lexical", "lemma": "venio",
+         "verbalunitid": "t3", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t4", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
+
 # ---------------------------------------------------------------------------
 # "principes Albanorum in patres, ut ea quoque pars rei publicae cresceret, legit."
 #   t0 principes  t1 Albanorum  t2 in     t3 patres    t4 ,
@@ -2356,6 +2445,20 @@ GOLD_EXAMPLES = [
         canned_answer=_NUMERAL_ANSWER,
     ),
     GoldExample(
+        slug="lexical_numeral_fratres_joseph_decem",
+        passage="Fratres Joseph decem venerunt.",
+        tags=["numeral vs lexical (word-form number stays lexical)", "genitive",
+              "adjectival", "subject", "unit verb", "independent", "intransitive"],
+        canned_answer=_LEXICAL_NUMERAL_FRATRES_JOSEPH_DECEM_ANSWER,
+    ),
+    GoldExample(
+        slug="numeral_relation_fratres_joseph_xii",
+        passage="Fratres Joseph XII venerunt.",
+        tags=["numeral", "genitive", "adjectival", "subject", "unit verb",
+              "independent", "intransitive"],
+        canned_answer=_NUMERAL_RELATION_FRATRES_JOSEPH_XII_ANSWER,
+    ),
+    GoldExample(
         slug="syntactic_type_legit_cresceret",
         passage="principes Albanorum in patres, ut ea quoque pars rei publicae cresceret, legit.",
         tags=[
@@ -2720,5 +2823,25 @@ GOLD_EXAMPLES = [
     # and "continued discourse" for a continuation of indirect discourse
     # sharing one unwritten governing verb
     # (continuation_indirect_discourse_tarquinios_adsuesse).
+    # lexical_numeral_fratres_joseph_decem exercises syntax_model.md's
+    # clarified numeral-vs-lexical boundary (see the numeral tokentype's
+    # own note in models.py's TokenAnalysis.tokentype field): a number
+    # spelled out as a word ("decem") is 'lexical', not 'numeral', unlike
+    # numeral_hiberna_aberant_xxv's numerically-written "XXV". Not itself
+    # needed for test_coverage.py's sake (numeral_hiberna_aberant_xxv
+    # already exercises both 'lexical' and 'numeral'), but worth keeping
+    # as a regression fixture for the distinction specifically.
+    # numeral_relation_fratres_joseph_xii is the regression fixture for the
+    # HTML-coloring bug fix: numeral_hiberna_aberant_xxv's "XXV" carries no
+    # relation at all, so it never exercised _tokens_to_html()'s
+    # tokentype-eligibility check either way. This fixture gives a numeral
+    # ("XII") a real relation ("adjectival" -> Fratres, the same relation
+    # lexical_numeral_fratres_joseph_decem's spelled-out "decem" uses at the
+    # same position) specifically so
+    # test_html_colors_match_mermaid_colors_for_every_gold_example (and
+    # test_depth_html_never_warns_and_covers_every_token_for_every_gold_example)
+    # would catch a numeral-with-relation going uncolored in HTML/depth-HTML
+    # while Mermaid colors it correctly -- the exact bug reported by the
+    # user, previously invisible to this fixture set.
 ]
  

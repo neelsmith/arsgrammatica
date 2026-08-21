@@ -241,31 +241,37 @@ def test_multiple_verbal_units_get_distinct_first_appearance_colors():
     assert tokengraph_to_html(tg) == expected
  
  
-def test_only_lexical_and_praenomen_tokens_get_wrapped_even_when_others_are_assigned():
-    """Punctuation, enclitics, and numerals can all be assigned a verbal
-    unit by assign_verbal_units() (it assigns every token id), but none of
-    these particular ones is a coordinating conjunction (their own
+def test_only_lexical_praenomen_and_numeral_tokens_get_wrapped_even_when_others_are_assigned():
+    """Punctuation, enclitics, and abbreviations can all be assigned a
+    verbal unit by assign_verbal_units() (it assigns every token id), but
+    none of these particular ones is a coordinating conjunction (their own
     relationship1 is "subject" or "adverbial") -- so only tokentype ==
-    "lexical" (or "praenomen") gets a <span> here. This praenomen token
-    ("M.") is given relationship1="subject" -- NOT its usual "praenomen"
-    relation -- specifically to isolate that tokengraph_to_html() wraps it
-    because of its tokentype, not because of which relation it happens to
-    carry (see test_enclitic_coordinating_conjunction_gets_wrapped_too for
-    the corresponding relationship-keyed carve-out, and
-    test_praenomen_token_gets_wrapped_too below for the normal case)."""
+    "lexical", "praenomen", or "numeral" gets a <span> here. This praenomen
+    token ("M.") and this numeral token ("V") are each given
+    relationship1="subject"/"adverbial" -- NOT praenomen's usual
+    "praenomen" relation -- specifically to isolate that
+    tokengraph_to_html() wraps them because of their tokentype, not because
+    of which relation they happen to carry (see
+    test_enclitic_coordinating_conjunction_gets_wrapped_too for the
+    corresponding relationship-keyed carve-out, and
+    test_praenomen_token_gets_wrapped_too/test_numeral_token_gets_wrapped_too
+    below for the normal case)."""
     tg = [
         _tok("t0", "M.", "praenomen", relatedtoken1="t2", relationship1="subject"),
         _tok("t1", "que", "enclitic", relatedtoken1="t2", relationship1="subject"),
         _tok("t2", "venit", "lexical", verbalunitid="t2"),
         _tok("t3", "V", "numeral", relatedtoken1="t2", relationship1="adverbial"),
-        _tok("t4", ".", "punctuation", relatedtoken1="t2", relationship1="adverbial"),
+        _tok("t4", "f.", "abbreviation", relatedtoken1="t2", relationship1="adverbial"),
+        _tok("t5", ".", "punctuation", relatedtoken1="t2", relationship1="adverbial"),
     ]
     html_out = tokengraph_to_html(tg)
     matches = _SPAN_RE.findall(html_out)
-    assert len(matches) == 2
+    assert len(matches) == 3
     assert matches[0][2] == "M."
     assert matches[1][2] == "venit"
-    assert matches[0][0] == matches[1][0]  # same verbal unit -> same fill color
+    assert matches[2][2] == "V"
+    # same verbal unit -> same fill color, for all three wrapped tokens
+    assert matches[0][0] == matches[1][0] == matches[2][0]
 
 
 def test_praenomen_token_gets_wrapped_too():
@@ -275,7 +281,7 @@ def test_praenomen_token_gets_wrapped_too():
     precedes, relationship1 = "praenomen") that assign_verbal_units()
     resolves like any other -- so it must get the SAME colored span as the
     rest of its verbal unit, not be left plain like other non-lexical,
-    non-praenomen tokentypes (numerals, abbreviations, punctuation)."""
+    non-praenomen, non-numeral tokentypes (abbreviations, punctuation)."""
     tg = [
         _tok("t0", "M.", "praenomen", relatedtoken1="t1", relationship1="praenomen"),
         _tok("t1", "Agrippa", "lexical", relatedtoken1="t2", relationship1="subject"),
@@ -287,6 +293,32 @@ def test_praenomen_token_gets_wrapped_too():
         f'<span style="background-color: {fill}; color: {text_color};">{word}</span>'
     )
     assert tokengraph_to_html(tg) == f"{span('M.')} {span('Agrippa')} {span('venit')}."
+
+
+def test_numeral_token_gets_wrapped_too():
+    """The fix this test guards (the reported bug): "XII" in "Fratres
+    Joseph XII venerunt." is tokentype "numeral", not "lexical", but
+    syntax_model.md's numeral-vs-lexical clarification makes clear a
+    numeral is otherwise an ordinary participant in the clause, able to
+    carry a real relation (here relatedtoken1 -> "Fratres", relationship1
+    = "adjectival") that assign_verbal_units() resolves like any other --
+    so it must get the SAME colored span as the rest of its verbal unit,
+    matching what tokengraph_to_mermaid() already did before this fix (see
+    also test_html_colors_match_mermaid_colors_for_every_gold_example)."""
+    tg = [
+        _tok("t0", "Fratres", "lexical", relatedtoken1="t3", relationship1="subject"),
+        _tok("t1", "Joseph", "lexical", relatedtoken1="t0", relationship1="genitive"),
+        _tok("t2", "XII", "numeral", relatedtoken1="t0", relationship1="adjectival"),
+        _tok("t3", "venerunt", "lexical", verbalunitid="t3"),
+        _tok("t4", ".", "punctuation"),
+    ]
+    fill, _stroke, text_color = _VERBAL_UNIT_PALETTE[0]
+    span = lambda word: (
+        f'<span style="background-color: {fill}; color: {text_color};">{word}</span>'
+    )
+    assert tokengraph_to_html(tg) == (
+        f"{span('Fratres')} {span('Joseph')} {span('XII')} {span('venerunt')}."
+    )
 
 
 def test_enclitic_coordinating_conjunction_gets_wrapped_too():
@@ -387,11 +419,11 @@ def test_html_colors_match_mermaid_colors_for_every_gold_example(example):
     against verbal_units.py internals, so this test would catch a real
     behavioral mismatch between the two renderers, not just a shared bug in
     the code both of them call. Covers every wrapped token, not just
-    lexical ones -- a coordinating conjunction (e.g. an enclitic "-que")
-    or a praenomen (e.g. "Sex.") gets wrapped here too (see
-    tokengraph_to_html()'s own docstring), and the Mermaid diagram colors
-    it via the same assign_verbal_units() assignment, so both should agree
-    there as well. An implied token is
+    lexical ones -- a coordinating conjunction (e.g. an enclitic "-que"),
+    a praenomen (e.g. "Sex."), or a numeral (e.g. "XII") gets wrapped here
+    too (see tokengraph_to_html()'s own docstring), and the Mermaid diagram
+    colors it via the same assign_verbal_units() assignment, so both should
+    agree there as well. An implied token is
     excluded from this comparison entirely: tokengraph_to_html() omits it
     (see test_implied_tokens_are_omitted_from_html_entirely), while the
     Mermaid diagram shows it in its own dedicated `implied` class -- the
@@ -414,7 +446,7 @@ def test_html_colors_match_mermaid_colors_for_every_gold_example(example):
         fill_of_class[class_of_id[tok.id]]
         for tok in tokengraph
         if (
-            tok.tokentype in ("lexical", "praenomen")
+            tok.tokentype in ("lexical", "praenomen", "numeral")
             or tok.relationship1 == "coordinating conjunction"
             or tok.relationship2 == "coordinating conjunction"
         )
