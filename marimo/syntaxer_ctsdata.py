@@ -339,10 +339,15 @@ def _(results):
 
 
 @app.cell
-def _(dspy):
-    last_call = dspy.settings.lm.history[-1]
-    cost = last_call.get('cost')
+def _(lm):
+    last_call = lm.history[-1]
+    return (last_call,)
 
+
+@app.cell
+def _(last_call):
+    #last_call = lm.history[-1]
+    cost = last_call.get('cost')
     return (cost,)
 
 
@@ -428,16 +433,9 @@ def _():
     import dspy
     import os
     from pathlib import Path
-
-
-    return Path, dspy, os
-
-
-@app.cell
-def _():
     from dotenv import load_dotenv
 
-    return (load_dotenv,)
+    return Path, dspy, load_dotenv, os
 
 
 @app.cell
@@ -535,7 +533,7 @@ def _(dspy, getenv):
 @app.cell
 def _(configure_lm):
     lm = configure_lm()
-    return
+    return (lm,)
 
 
 if __name__ == "__main__":
