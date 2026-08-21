@@ -569,3 +569,76 @@ def read_analyses(
         )
 
     return tokengraph, verbalunits, sentences
+
+
+def split_analysis_by_sentence(
+    tokengraph: List[TokenAnalysis],
+    verbalunits: List[VerbalExpression],
+    sentences: List[Sentence],
+) -> List[Tuple[List[TokenAnalysis], List[VerbalExpression]]]:
+    """The inverse of what write_analyses()/serialize_analyses() flatten
+    together: given the same `(tokengraph, verbalunits, sentences)` triple
+    read_analyses() returns (or that analyze_sources()/combined_tokengraph()
+    produce before ever being written to a file), split `tokengraph` and
+    `verbalunits` back into one slice per sentence.
+
+    Returns a list the same length and order as `sentences` -- entry i is
+    `(sentence_tokengraph, sentence_verbalunits)` for `sentences[i]`. Useful
+    for anything that wants to review or render one sentence's analysis at
+    a time (e.g. a sentence-picker UI, like marimo/syntaxer_review.py)
+    without re-running analysis or re-deriving the same id-position
+    bookkeeping read_analyses()/write_analyses() already do internally.
+
+    Relies on the same invariant read_analyses() and write_analyses()
+    already depend on: a sentence's own tokens form a contiguous,
+    matching-order run in `tokengraph` (see this module's own docstring).
+    `sentence_tokengraph` is the slice of `tokengraph` between that
+    sentence's first and last token's positions, inclusive -- which also
+    picks up any implied/elided tokens (tokentype in IMPLIED_TOKENTYPES)
+    interspersed within that range, since those were never part of
+    `sentence.tokens` to begin with but do belong to that sentence's own
+    analysis. `sentence_verbalunits` is every VerbalExpression whose id
+    falls within that same slice.
+
+    One consequence of using [first, last] *real* token positions as the
+    slice boundary, shared with read_analyses()'s own sentence
+    reconstruction: an implied token placed AFTER a sentence's last real
+    token (rather than nested between two real tokens) falls just outside
+    that slice, since there's no further real token of the same sentence
+    to bound it from above -- e.g. a one-real-token sentence like "Rara
+    [sunt]." (see tests/test_serialization.py's
+    test_split_excludes_a_trailing_implied_token_past_the_sentences_last_real_token).
+    An implied token nested between two real tokens of the same sentence
+    is included as expected; only this specific trailing case isn't.
+
+    Raises ValueError for a sentence with no tokens at all, or whose first
+    or last token id isn't present in `tokengraph` -- both should be
+    impossible for a triple that actually came from read_analyses(), which
+    already guarantees this by construction, but this function checks
+    explicitly anyway rather than trusting the caller, since nothing stops
+    it being called with a hand-built triple too.
+    """
+    id_position: Dict[str, int] = {tok.id: i for i, tok in enumerate(tokengraph)}
+
+    result: List[Tuple[List[TokenAnalysis], List[VerbalExpression]]] = []
+    for s_idx, sentence in enumerate(sentences):
+        if not sentence.tokens:
+            raise ValueError(f"sentence at index {s_idx} has no tokens")
+
+        first_id = sentence.tokens[0].id
+        last_id = sentence.tokens[-1].id
+        if first_id not in id_position or last_id not in id_position:
+            raise ValueError(
+                f"sentence at index {s_idx} (tokens {first_id!r}.."
+                f"{last_id!r}) has a boundary token not present in the "
+                "given tokengraph"
+            )
+
+        start = id_position[first_id]
+        end = id_position[last_id]
+        sentence_tokengraph = tokengraph[start : end + 1]
+        sentence_ids = {tok.id for tok in sentence_tokengraph}
+        sentence_verbalunits = [vu for vu in verbalunits if vu.id in sentence_ids]
+        result.append((sentence_tokengraph, sentence_verbalunits))
+
+    return result
