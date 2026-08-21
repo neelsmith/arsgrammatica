@@ -250,6 +250,13 @@ class SyntaxAnalysis(dspy.Signature):
           "opus" itself, not to "est" -- e.g. in "Collatinus negat verbis
           opus esse", "verbis" has relatedtoken1 -> "opus", relationship1 =
           'ablative'.
+        - vocative: a noun in the vocative case (direct address) has
+          relatedtoken1 -> the id of the verb of the clause it's addressed
+          within, relationship1 = 'vocative'. Unlike 'genitive'/'dative'/
+          'ablative'/'accusative' above, a vocative relates to a verb
+          only, never to another noun. Example: in "Non est ita, domine,
+          sed servi tui venerunt ut emerent cibos.", "domine" has
+          relatedtoken1 -> "est", relationship1 = 'vocative'.
         - apposition: when one noun stands in apposition to another, the
           appositive has relatedtoken1 -> the id of the first (the noun it
           restates or further identifies), relationship1 = 'apposition'. A

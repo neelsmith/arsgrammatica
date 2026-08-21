@@ -166,7 +166,13 @@ class VerbalExpression(BaseModel):
 # simply treated as an ordinary adjective, agreeing with its noun via
 # "adjectival". None of these three make their token a verbal-expression
 # anchor either.
-# "accusative" and "praenomen" are the two newest labels. "accusative"
+# "vocative" is the newest label: a noun in the vocative case relates to
+# a VERB only (never to another noun, unlike "genitive"/"dative"/
+# "ablative"/"accusative" above) -- relatedtoken1 -> the verb's id,
+# relationship1 = "vocative". Example: in "Non est ita, domine, sed servi
+# tui venerunt ut emerent cibos.", "domine" has relatedtoken1 -> "est",
+# relationship1 = "vocative".
+# "accusative" and "praenomen" are the two newest labels before that. "accusative"
 # covers an accusative relation that ISN'T a direct object -- e.g. a bare
 # accusative of place to which ("Romam" in "Romam venit", relatedtoken1 ->
 # the verb "venit") or an accusative of extent modifying another noun
@@ -198,6 +204,7 @@ RelationLabel = Literal[
     "dative",
     "ablative",
     "accusative",
+    "vocative",
     "direct quote",
     "aside",
     "indirect statement",

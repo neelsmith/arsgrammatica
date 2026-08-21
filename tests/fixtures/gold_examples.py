@@ -2287,6 +2287,42 @@ _ABLATIVE_OPUS_EST_VERBIS_ANSWER = {
 }
 
 
+# ---------------------------------------------------------------------------
+# "vocative" -- syntax_model.md's newest noun-relation label: a noun in the
+# vocative case always relates to a VERB (unlike "genitive"/"dative"/
+# "ablative"/"accusative", which can also relate to another noun), via
+# relatedtoken1 -> the verb's id, relationship1 = "vocative". syntax_model.md's
+# own worked example is "Non est ita, domine, sed servi tui venerunt ut
+# emerent cibos." (domine -> est); this fixture keeps the same vocative
+# noun ("domine") and target verb ("venit") but in a minimal two-content-
+# word sentence, matching the minimal style of accusative_romam_venit
+# above rather than reproducing that full multi-clause sentence.
+# ---------------------------------------------------------------------------
+
+_VOCATIVE_DOMINE_VENIT_ANSWER = {
+    "reasoning": (
+        "venit is the independent main verb ('he/she/it comes', "
+        "intransitive -- subject left implicit, third person), with the "
+        "sentinel relatedtoken1 'root'. Domine, a noun in the vocative "
+        "directly addressing someone, relates to venit via 'vocative' -- "
+        "syntax_model.md's newest relation label, reserved for a noun in "
+        "the vocative case (always linked to a verb, never to another "
+        "noun)."
+    ),
+    "verbalunits": [
+        {"id": "t2", "syntactic_type": "independent", "semantic_type": "intransitive"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Domine", "tokentype": "lexical", "lemma": "dominus",
+         "relatedtoken1": "t2", "relationship1": "vocative"},
+        {"id": "t1", "token": ",", "tokentype": "punctuation"},
+        {"id": "t2", "token": "venit", "tokentype": "lexical", "lemma": "venio",
+         "verbalunitid": "t2", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t3", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
+
 GOLD_EXAMPLES = [
     GoldExample(
         slug="unit_verb_hercules_cum",
@@ -2632,6 +2668,12 @@ GOLD_EXAMPLES = [
               "transitive active", "linking verb"],
         canned_answer=_ABLATIVE_OPUS_EST_VERBIS_ANSWER,
     ),
+    GoldExample(
+        slug="vocative_domine_venit",
+        passage="Domine, venit.",
+        tags=["vocative", "unit verb", "independent", "intransitive"],
+        canned_answer=_VOCATIVE_DOMINE_VENIT_ANSWER,
+    ),
     # RelationLabel coverage is complete -- every documented relation has at
     # least one tagged example, including the relatedtoken2/relationship2
     # overflow pattern, "coordinating conjunction" (which uses relation1 AND
@@ -2647,10 +2689,13 @@ GOLD_EXAMPLES = [
     # praenomen_abbreviation_m_agrippa_cos, implied_sum_consules_facti,
     # implied_participle_of_sum_consulibus, and
     # continuation_indirect_discourse_tarquinios_adsuesse, all retrofitted
-    # once this label was added), and "accusative" (see
+    # once this label was added), "accusative" (see
     # accusative_romam_venit for the verb-linked case,
     # accusative_milia_passuum_iter for the noun-linked case, and now also
-    # numeral_hiberna_aberant_xxv, retrofitted once this label was added).
+    # numeral_hiberna_aberant_xxv, retrofitted once this label was added),
+    # and "vocative" (see vocative_domine_venit -- always verb-linked, per
+    # syntax_model.md's own note, so there's no noun-linked counterpart to
+    # add the way accusative has one).
     # ablative_opus_est_verbis adds a documented idiom for the pre-existing
     # "ablative" label (the 'opus est' construction) rather than exercising
     # a new one. Two related constructions need no dedicated label at all
