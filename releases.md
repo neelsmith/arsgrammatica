@@ -1,10 +1,10 @@
 # Release history
 
-Current version: **0.1.0**.
+Current version: **0.2.0**.
 
 
 
-- **0.2.0**:
+- **0.2.0**,  *Aug. 21, 2026*::
 
 Breaking changes: syntactically absolute substantives are now assigned to the verbal unit of the circumstantial participle they agree with, not the verbal unit of the governing clause.
 
