@@ -17,6 +17,8 @@ It offers an alternative analytic scheme to [Universal Dependencies](https://uni
 - [OPTIMIZING.md](https://github.com/neelsmith/arsgrammatica/blob/main/OPTIMIZING.md)
 - [BAKEOFF.md](https://github.com/neelsmith/arsgrammatica/blob/main/BAKEOFF.md)
 - [DEVELOPMENT.md](https://github.com/neelsmith/arsgrammatica/blob/main/DEVELOPMENT.md) -- how the above fit together into one development loop
+- [API documentation](https://neelsmith.github.io/arsgrammatica/arsgrammatica-api-docs.html)
+
 
 See the [project issue tracker](https://github.com/neelsmith/arsgrammatica/issues) for known gaps and work in progress.
 
