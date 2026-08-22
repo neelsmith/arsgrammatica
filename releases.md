@@ -1,14 +1,14 @@
 # Release history
 
-Current version: **0.2.0**.
+Current version: **0.3.0**.
 
 
 
-**0.3.0**, :
+**0.3.0**, *Aug. 22, 2026*: Now packaged project for direct import from github repository.
 
 Fixes: better handling of `numeral` tokens.
 
-Additions: `syntaxer_ctsdata` allows selection of multiple citable passages. 
+Additions: `syntaxer_ctsdata` notebook allows selection of multiple citable passages. 
 
 
 **0.2.0**,  *Aug. 21, 2026*:
