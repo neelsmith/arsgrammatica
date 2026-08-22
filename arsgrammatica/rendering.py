@@ -150,10 +150,11 @@ def tokengraph_to_html(tokengraph: List[TokenAnalysis]) -> str:
     """Render `tokengraph` as an HTML string: the same continuous text
     `tokengraph_to_text()` produces -- identical spacing rules, and the same
     punctuation/enclitic/quote-pair handling -- except every **lexical**
-    token, every **praenomen** token, and every **coordinating conjunction**
-    (any token with relationship1 or relationship2 == "coordinating
-    conjunction", lexical or not), has its text wrapped in a
-    `<span style="...">` colored by the verbal unit it belongs to. Colors
+    token, every **praenomen** token, every **numeral** token, and every
+    **coordinating conjunction** (any token with relationship1 or
+    relationship2 == "coordinating conjunction", lexical or not), has its
+    text wrapped in a `<span style="...">` colored by the verbal unit it
+    belongs to. Colors
     come from `verbal_units.assign_verbal_units()` /
     `assign_verbal_unit_colors()` -- the same assignment and the same
     first-appearance palette ordering `tokengraph_to_mermaid()` uses for its
@@ -187,19 +188,33 @@ def tokengraph_to_html(tokengraph: List[TokenAnalysis]) -> str:
     assignment and so renders unwrapped anyway, same as an unrelated
     lexical token would).
 
-    Every other non-lexical, non-praenomen token -- punctuation, a
-    non-conjunction enclitic (e.g. the interrogative "-ne"), numerals, and
-    abbreviations -- is still emitted as plain (escaped) text even though
-    `assign_verbal_units()` assigns every token, including punctuation, to
-    whichever unit its relations resolve to; this function just doesn't
-    turn that assignment into a span for anything else. A lexical,
-    praenomen, or coordinating-conjunction token belonging to no verbal
-    unit (assignment is `None`, e.g. a bare accusative of place) is left
-    unwrapped too, as is one whose unit happens to have no non-punctuation
-    member at all and so never got a color slot from
-    `assign_verbal_unit_colors()` (should not occur in practice for a
-    lexical or praenomen token, since it's always a non-punctuation member
-    of its own unit, but handled defensively rather than assumed).
+    The numeral carve-out is for the same reason again: syntax_model.md's
+    tokenization section restricts `tokentype`="numeral" to a number
+    written NUMERICALLY (Roman or Arabic) -- a number spelled out as an
+    ordinary word (e.g. "decem") is "lexical" instead -- but a numeral is
+    otherwise an ordinary participant in the clause, able to carry a real
+    relation like any noun or adjective (e.g. "XII" modifying "filii" via
+    "adjectival", the same relation "decem" would use if spelled out).
+    `assign_verbal_units()` resolves that relation exactly like any other,
+    so a numeral belonging to a verbal unit is wrapped the same way a
+    lexical token would be -- unlike punctuation, a non-conjunction
+    enclitic, or an abbreviation, none of which carry that kind of
+    ordinary syntactic relation under the current scheme.
+
+    Every other non-lexical, non-praenomen, non-numeral token --
+    punctuation, a non-conjunction enclitic (e.g. the interrogative "-ne"),
+    and abbreviations -- is still emitted as plain (escaped) text even
+    though `assign_verbal_units()` assigns every token, including
+    punctuation, to whichever unit its relations resolve to; this function
+    just doesn't turn that assignment into a span for anything else. A
+    lexical, praenomen, numeral, or coordinating-conjunction token
+    belonging to no verbal unit (assignment is `None`, e.g. a bare
+    accusative of place) is left unwrapped too, as is one whose unit
+    happens to have no non-punctuation member at all and so never got a
+    color slot from `assign_verbal_unit_colors()` (should not occur in
+    practice for a lexical, praenomen, or numeral token, since it's always
+    a non-punctuation member of its own unit, but handled defensively
+    rather than assumed).
 
     An **implied/elided token** (models.py's IMPLIED_TOKENTYPES: "implied
     sum", "continued discourse") is omitted entirely -- same as
@@ -240,9 +255,9 @@ def _tokens_to_html(
     same spacing/escaping/quote-pairing rules as tokengraph_to_text()
     (including that function's identical omission of implied/elided
     tokens -- see tokengraph_to_html()'s own docstring for why), plus color
-    spans for lexical tokens, praenomen tokens, and coordinating
-    conjunctions (see that same docstring for why conjunctions and
-    praenomens get this too), given an
+    spans for lexical tokens, praenomen tokens, numeral tokens, and
+    coordinating conjunctions (see that same docstring for why
+    conjunctions, praenomens, and numerals get this too), given an
     already-computed verbal-unit `assignment` and `colors` mapping. Taking
     these as parameters (rather
     than deriving them from `tokens` itself) is what lets
@@ -276,7 +291,7 @@ def _tokens_to_html(
             tok.relationship1 == "coordinating conjunction"
             or tok.relationship2 == "coordinating conjunction"
         )
-        if tok.tokentype in ("lexical", "praenomen") or is_coordinating_conjunction:
+        if tok.tokentype in ("lexical", "praenomen", "numeral") or is_coordinating_conjunction:
             unit_id = assignment.get(tok.id)
             color = colors.get(unit_id) if unit_id is not None else None
             if color is not None:

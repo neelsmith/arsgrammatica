@@ -53,7 +53,7 @@ The text of the passage must be tokenized, and each token classified as one of:
 -  a *lexical* token. Example: the tokens *arma*, *virum* and *cano* in the phrase *arma virumque cano.*
 - a *praenomen*, including its punctuating period. Example: *M.* in the phrase *M. Agrippa L. f. cos. tertium fecit*
 - other *abbreviation*, including its period. Example: *f.* and *cos.* in the the phrase *M. Agrippa L. f. cos. tertium fecit*
-- a *numeral* written numerically. Example: *XXV* in the phrase *hiberna aberant ab eo milia passuum XXV*
+- a *numeral* if written numerically rather than phonetically. Example: *XXV* in the phrase *hiberna aberant ab eo milia passuum XXV* is a *numeral* token, but in the phrase *fratres Joseph decem*, all three tokens are *lexical* tokens.
 
 
 

@@ -270,6 +270,12 @@ class TokenAnalysis(BaseModel):
         "implied sum", "continued discourse",
     ] = Field(
         description=(
+            "'numeral' is a number written NUMERICALLY -- Roman (e.g. "
+            "'XXV') or Arabic -- rather than spelled out as a word; a "
+            "number spelled out as an ordinary word (e.g. 'decem' for "
+            "'ten') is 'lexical' instead, even though it's semantically a "
+            "number -- e.g. in 'fratres Joseph decem', all three tokens "
+            "are 'lexical', not 'numeral'. "
             "'praenomen' is specifically an abbreviated Roman first name "
             "(e.g. 'M.' for Marcus), including its period; 'abbreviation' is "
             "any other abbreviation, including its period (e.g. 'f.' for "
