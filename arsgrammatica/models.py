@@ -149,7 +149,14 @@ class VerbalExpression(BaseModel):
 # conjunction opens a new sentence with no explicit token to its left to
 # pair with, in which case only relation1/relationship1 is set (see
 # latin_syntax_dspy.py's docstring for the full set of cases, including the
-# word-order caveat and the "et" adverb-vs-conjunction ambiguity).
+# word-order caveat and the "et" adverb-vs-conjunction ambiguity). A
+# repeated connector (e.g. "et...et...et") coordinating a series of three
+# or more items reuses this same label but chains relation2 differently:
+# each connector's relation1 -> the item it immediately introduces (never
+# another connector), while relation2 -> the id of the NEXT connector for
+# the FIRST connector, or the id of the PRECEDING connector for every
+# connector after the first (see latin_syntax_dspy.py's docstring for the
+# worked example).
 # "complementary infinitive" is the only other new label: an infinitive
 # that completes the sense of a governing verb like "volo"/"incipio"/
 # "audeo"/"licet"/"decet" (e.g. "expugnare" completing "vellet") has

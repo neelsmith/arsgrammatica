@@ -493,6 +493,17 @@ def find_unanchored_coordinated_verbs(tokengraph: List[TokenAnalysis]) -> List[s
     the lopsided case -- one anchored, one not -- is unusual enough to be
     worth a human look.
 
+    This pairwise shape doesn't apply to a repeated connector coordinating
+    a series of three or more items (polysyndeton, e.g. 'et...et...et' --
+    see latin_syntax_dspy.py's docstring): there, every connector's own
+    relatedtoken2 points at a NEIGHBORING CONNECTOR, not at a second
+    conjunct, so this heuristic's asymmetry check would misfire on a
+    series that happens to coordinate verbal expressions (the neighboring
+    connector is never itself a verbal-unit anchor, so one side would
+    always look "unanchored" even when the analysis is entirely correct).
+    A pair is therefore skipped whenever relatedtoken2 resolves to a token
+    that is itself a coordinating-conjunction connector.
+
     Returns a list of warning strings (empty if nothing looks suspicious),
     the same "degrade visibly, don't raise" convention every other
     warnings-returning function in this codebase uses. This is a
@@ -526,6 +537,17 @@ def find_unanchored_coordinated_verbs(tokengraph: List[TokenAnalysis]) -> List[s
         seen_pairs.add(pair)
 
         first_id, second_id = pair
+        second_tok = by_id.get(second_id)
+        if second_tok is not None and (
+            second_tok.relationship1 == "coordinating conjunction"
+            or second_tok.relationship2 == "coordinating conjunction"
+        ):
+            # relatedtoken2 points at a FELLOW connector, not at a second
+            # conjunct -- the signature of the series/polysyndeton pattern
+            # (see this function's own docstring), where this heuristic's
+            # pairwise-specific asymmetry check doesn't apply.
+            continue
+
         first_anchored = first_id in anchor_ids
         second_anchored = second_id in anchor_ids
         if first_anchored == second_anchored:

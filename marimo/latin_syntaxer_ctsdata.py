@@ -187,8 +187,8 @@ def _(ctsdata_file_browser, read_ctsdata):
 def _(Path, mo):
     # Browse for the delimited-text file listing passages to analyze (see
     # arsgrammatica/ctsdata.py for the '#!ctsdata' block format). Unlike
-    # the "choose a folder to save to" field syntaxer_workflow.py used to
-    # have (see that notebook's own history: mo.ui.file_browser's
+    # the "choose a folder to save to" field latin_syntaxer_workflow.py used
+    # to have (see that notebook's own history: mo.ui.file_browser's
     # "directory" selection mode has no way to select the folder currently
     # being browsed, only a subfolder shown in its listing), selecting a
     # single FILE by clicking it works correctly -- there's no equivalent

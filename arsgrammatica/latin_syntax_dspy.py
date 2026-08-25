@@ -185,6 +185,37 @@ class SyntaxAnalysis(dspy.Signature):
           ('id philtrum esse'), but that does not exempt dixit itself from
           getting relatedtoken1 = 'root', relationship1 = 'unit verb', and
           its own entry in `verbalunits` -- exactly as if it stood alone.
+        - coordinating conjunction, repeated as a series: a conjunction
+          like 'et' or 'aut' can also be repeated before EVERY item of a
+          series of three or more (polysyndeton, e.g. 'et...et...et'),
+          not just used once between a pair. Annotate this differently
+          from the simple pairwise case above. Every connector's own
+          relatedtoken1 -> the id of the item it immediately introduces
+          (a real noun, adjective, prepositional phrase, or verbal
+          expression anchor -- NEVER another connector), relationship1 =
+          'coordinating conjunction', exactly as in the pairwise case.
+          relatedtoken2 is what differs: the FIRST connector's
+          relatedtoken2 -> the id of the NEXT (second) connector, while
+          every connector AFTER the first has relatedtoken2 -> the id of
+          the PRECEDING connector instead (not the following one).
+          relationship2 = 'coordinating conjunction' for all of them,
+          same as relationship1 -- this still isn't an overflow slot.
+          Each connected item ALSO keeps its own ordinary relation to the
+          rest of the sentence (subject, ablative, direct object, or
+          whatever fits), completely independent of this chain -- the
+          coordinating-conjunction relation only links a connector to the
+          item it introduces and to its neighboring connector(s); it
+          never substitutes for that item's own relation to whatever
+          governs it. Example: in "Tarquinius et assiduitate et
+          varietate et magnificentia omnes antecessit", the first et has
+          relatedtoken1 -> assiduitate and relatedtoken2 -> the second
+          et; the second et has relatedtoken1 -> varietate and
+          relatedtoken2 -> the FIRST et (not the third); the third et has
+          relatedtoken1 -> magnificentia and relatedtoken2 -> the second
+          et. assiduitate, varietate, and magnificentia each ALSO have
+          their own relatedtoken1 -> antecessit, relationship1 =
+          'ablative', same as any other ablative -- unaffected by which
+          connector introduces them.
         - direct quote / aside: a verbal expression of syntactic type
           'direct quote' or 'aside' has relatedtoken1 -> the id of the verb
           of the clause it interrupts or is framed by, relationship1 =

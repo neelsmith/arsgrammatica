@@ -345,6 +345,41 @@ def test_enclitic_coordinating_conjunction_gets_wrapped_too():
     assert tokengraph_to_html(tg) == f"{span('arma')} {span('virum')}{span('que')} {span('cano')}."
 
 
+def test_series_coordinating_conjunctions_all_get_wrapped():
+    """A repeated ("et...et...et") series connector still gets the SAME
+    treatment as the ordinary pairwise case: _tokens_to_html()'s wrapping
+    check only looks at relationship1/relationship2 == "coordinating
+    conjunction" (see rendering.py), which every connector in a series
+    still sets, regardless of relatedtoken2 chaining between neighboring
+    connectors instead of pairing two conjuncts. All three "et"s here
+    should get the same colored span as the ablatives they introduce and
+    the verb they all ultimately resolve to."""
+    tg = [
+        _tok("t0", "et", "lexical",
+             relatedtoken1="t1", relationship1="coordinating conjunction",
+             relatedtoken2="t2", relationship2="coordinating conjunction"),
+        _tok("t1", "assiduitate", "lexical", relatedtoken1="t6", relationship1="ablative"),
+        _tok("t2", "et", "lexical",
+             relatedtoken1="t3", relationship1="coordinating conjunction",
+             relatedtoken2="t0", relationship2="coordinating conjunction"),
+        _tok("t3", "varietate", "lexical", relatedtoken1="t6", relationship1="ablative"),
+        _tok("t4", "et", "lexical",
+             relatedtoken1="t5", relationship1="coordinating conjunction",
+             relatedtoken2="t2", relationship2="coordinating conjunction"),
+        _tok("t5", "magnificentia", "lexical", relatedtoken1="t6", relationship1="ablative"),
+        _tok("t6", "antecessit", "lexical", verbalunitid="t6"),
+        _tok("t7", ".", "punctuation"),
+    ]
+    fill, _stroke, text_color = _VERBAL_UNIT_PALETTE[0]
+    span = lambda word: (
+        f'<span style="background-color: {fill}; color: {text_color};">{word}</span>'
+    )
+    assert tokengraph_to_html(tg) == (
+        f"{span('et')} {span('assiduitate')} {span('et')} {span('varietate')} "
+        f"{span('et')} {span('magnificentia')} {span('antecessit')}."
+    )
+
+
 def test_implied_tokens_are_omitted_from_html_entirely():
     """An implied/elided token (models.py's IMPLIED_TOKENTYPES) has no
     surface text of its own (tok.token is always None) -- tokengraph_to_html()

@@ -8,7 +8,7 @@ Current version: **0.3.0**.
 
 Fixes: better handling of `numeral` tokens.
 
-Additions: `syntaxer_ctsdata` notebook allows selection of multiple citable passages. 
+Additions: `latin_syntaxer_ctsdata` notebook allows selection of multiple citable passages. 
 
 
 **0.2.0**,  *Aug. 21, 2026*:

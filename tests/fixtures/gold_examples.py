@@ -1605,6 +1605,83 @@ _COORDINATING_CONJUNCTION_DEDIT_ET_DIXIT_ANSWER = {
 
 
 # ---------------------------------------------------------------------------
+# "Tarquinius et assiduitate et varietate et magnificentia omnes antecessit."
+#   t0 Tarquinius  t1 et  t2 assiduitate  t3 et  t4 varietate  t5 et
+#   t6 magnificentia  t7 omnes  t8 antecessit  t9 .
+#
+# syntax_model.md's own worked example for a SERIES of repeated coordinating
+# conjunctions (polysyndeton, "et...et...et"), adapted from its "...omnes
+# antecessit" example: three ablatives of respect, each introduced by its
+# own "et", rather than a single conjunction joining just two conjuncts.
+# This exercises the chaining rule that distinguishes a series from the
+# ordinary pairwise case (see coordinating_conjunction_verbs_ille_hermionenque
+# and enclitic_arma_virumque_cano above): every connector's own relatedtoken1
+# points at the item it introduces (assiduitate, varietate, magnificentia --
+# never at another connector), but relatedtoken2 chains between NEIGHBORING
+# connectors instead of pairing two conjuncts -- the first et's relatedtoken2
+# -> the second et, while the second and third et's each point BACKWARD, to
+# the PRECEDING connector (t3 -> t1, t5 -> t3), not to the following one.
+# Each ablative also keeps its own ordinary "ablative" relation straight to
+# antecessit, independent of the conjunction chain. This is also the
+# regression fixture for find_unanchored_coordinated_verbs()'s series-aware
+# fix: without it, every one of these three connectors would misfire that
+# heuristic's pairwise asymmetry check (relatedtoken1 resolves to
+# antecessit's verbal unit through the ablative it introduces, relatedtoken2
+# never does, since a fellow connector is never itself an anchor) -- see
+# that function's own docstring and test_verbal_units.py's synthetic
+# verb-series test for the case where this would otherwise be a genuine
+# false positive.
+# ---------------------------------------------------------------------------
+
+_COORDINATING_CONJUNCTION_SERIES_ANSWER = {
+    "reasoning": (
+        "antecessit is the independent main verb ('surpassed', transitive "
+        "active), with Tarquinius as its subject and omnes as its direct "
+        "object. assiduitate, varietate, and magnificentia are three "
+        "ablatives of respect, each depending directly on antecessit "
+        "('surpassed all in assiduity, variety, and magnificence'), each "
+        "introduced by its own et -- a repeated series connector "
+        "(polysyndeton), not a single conjunction pairing two conjuncts. "
+        "Every et's own relatedtoken1 -> the ablative it introduces "
+        "(never another et), relationship1 'coordinating conjunction'. "
+        "relatedtoken2 chains between neighboring connectors instead: the "
+        "first et's relatedtoken2 -> the second et (the NEXT connector), "
+        "while the second et's relatedtoken2 -> the first et and the "
+        "third et's relatedtoken2 -> the second et (each pointing at the "
+        "PRECEDING connector, not the following one) -- relationship2 "
+        "'coordinating conjunction' throughout, same as relationship1."
+    ),
+    "verbalunits": [
+        {"id": "t8", "syntactic_type": "independent", "semantic_type": "transitive active"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Tarquinius", "tokentype": "lexical", "lemma": "Tarquinius",
+         "relatedtoken1": "t8", "relationship1": "subject"},
+        {"id": "t1", "token": "et", "tokentype": "lexical", "lemma": "et",
+         "relatedtoken1": "t2", "relationship1": "coordinating conjunction",
+         "relatedtoken2": "t3", "relationship2": "coordinating conjunction"},
+        {"id": "t2", "token": "assiduitate", "tokentype": "lexical", "lemma": "assiduitas",
+         "relatedtoken1": "t8", "relationship1": "ablative"},
+        {"id": "t3", "token": "et", "tokentype": "lexical", "lemma": "et",
+         "relatedtoken1": "t4", "relationship1": "coordinating conjunction",
+         "relatedtoken2": "t1", "relationship2": "coordinating conjunction"},
+        {"id": "t4", "token": "varietate", "tokentype": "lexical", "lemma": "varietas",
+         "relatedtoken1": "t8", "relationship1": "ablative"},
+        {"id": "t5", "token": "et", "tokentype": "lexical", "lemma": "et",
+         "relatedtoken1": "t6", "relationship1": "coordinating conjunction",
+         "relatedtoken2": "t3", "relationship2": "coordinating conjunction"},
+        {"id": "t6", "token": "magnificentia", "tokentype": "lexical", "lemma": "magnificentia",
+         "relatedtoken1": "t8", "relationship1": "ablative"},
+        {"id": "t7", "token": "omnes", "tokentype": "lexical", "lemma": "omnis",
+         "relatedtoken1": "t8", "relationship1": "direct object"},
+        {"id": "t8", "token": "antecessit", "tokentype": "lexical", "lemma": "antecedo",
+         "verbalunitid": "t8", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t9", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
+
+# ---------------------------------------------------------------------------
 # "Theseus audit quanta calamitate ciuitas afficeretur."
 #   t0 Theseus  t1 audit  t2 quanta  t3 calamitate  t4 ciuitas
 #   t5 afficeretur  t6 .
@@ -2653,6 +2730,16 @@ GOLD_EXAMPLES = [
         canned_answer=_COORDINATING_CONJUNCTION_DEDIT_ET_DIXIT_ANSWER,
     ),
     GoldExample(
+        slug="coordinating_conjunction_series_assiduitate_varietate_magnificentia",
+        passage="Tarquinius et assiduitate et varietate et magnificentia omnes antecessit.",
+        tags=["coordinating conjunction (series/polysyndeton of three "
+              "connectors, relatedtoken2 chains between neighboring "
+              "connectors rather than pairing two conjuncts)", "subject",
+              "ablative", "direct object", "unit verb", "independent",
+              "transitive active"],
+        canned_answer=_COORDINATING_CONJUNCTION_SERIES_ANSWER,
+    ),
+    GoldExample(
         slug="indirect_question_theseus_audit_quanta",
         passage="Theseus audit quanta calamitate ciuitas afficeretur.",
         tags=["subordinating conjunction (interrogative word introducing "
@@ -2843,5 +2930,15 @@ GOLD_EXAMPLES = [
     # would catch a numeral-with-relation going uncolored in HTML/depth-HTML
     # while Mermaid colors it correctly -- the exact bug reported by the
     # user, previously invisible to this fixture set.
+    # coordinating_conjunction_series_assiduitate_varietate_magnificentia
+    # is not needed for test_coverage.py's sake ("coordinating conjunction"
+    # is already covered by the pairwise fixtures above) -- it exists for
+    # documentation/regression value, exercising syntax_model.md's series/
+    # polysyndeton chaining rule (relatedtoken2 links between NEIGHBORING
+    # connectors, not between the two conjuncts) and guarding
+    # find_unanchored_coordinated_verbs()'s series-aware fix (see that
+    # function's own docstring, and test_verbal_units.py's synthetic
+    # verb-series test for the false positive this fixture's own
+    # noun-series shape doesn't happen to trigger on its own).
 ]
  
