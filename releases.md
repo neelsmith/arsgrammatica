@@ -2,6 +2,7 @@
 
 Current version: **0.3.0**.
 
+**0.4.0**, Non-breaking update. Numerous small bug fixes, expands handling of vocative case and of repeated series of conjunctions, adds annotating participles with implicit subjects, adds marimo utilities, improves formatting of alignment by depth of subordination in Mermaid diagrams.
 
 
 **0.3.0**, *Aug. 22, 2026*: Now packaged project for direct import from github repository.

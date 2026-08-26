@@ -169,6 +169,24 @@ def test_circumstantial_participle_noun_keeps_its_own_clause_role():
     assignment = assign_verbal_units(tokengraph)
     assert assignment["t0"] == "t4"  # Eum -> accepere (its own direct-object role)
     assert assignment["t1"] == "t1"  # advenientem -> itself (singleton unit)
+
+
+def test_implied_subject_resolves_like_any_ordinary_antecedent():
+    """"Recordatus somniorum ait ad eos": t0_implied (tokentype 'implied
+    subject') is NOT a verbal-unit anchor -- it has no verbalunitid, unlike
+    'implied sum'/'continued discourse' -- so it must resolve through the
+    plain forward chase, via its own ordinary 'subject' relation into ait,
+    exactly like a real subject noun would (see this module's own
+    docstring's note on why no special-casing is needed for this case).
+    Recordatus (the participle) then resolves the same way in turn, one
+    hop further, landing in ait's own verbal unit too -- even though
+    Recordatus itself anchors a SEPARATE (dependent) verbal unit of its
+    own."""
+    tokengraph = _tokengraph("implied_subject_recordatus_somniorum_ait")
+    assignment = assign_verbal_units(tokengraph)
+    assert assignment["t0_implied"] == "t2"  # implied subject -> ait (its own 'subject' role)
+    assert assignment["t0"] == "t0"  # Recordatus -> itself (anchors its own dependent unit)
+    assert assignment["t1"] == "t0"  # somniorum (genitive on Recordatus) -> Recordatus's unit
  
  
 def test_apposition_does_not_disturb_verbal_unit_assignment():
@@ -359,6 +377,22 @@ def test_circumstantial_participle_and_ablative_absolute_have_depth_one():
     depths, warnings = compute_subordination_depths(tokengraph)
     assert depths["t4"] == 0  # accepere, independent
     assert depths["t1"] == 1  # advenientem, circumstantial participle
+    assert warnings == []
+
+
+def test_circumstantial_participle_via_implied_subject_has_depth_one():
+    """"Recordatus somniorum ait ad eos": Recordatus's own relatedtoken1
+    points at t0_implied (the implied subject), not at ait directly -- so
+    its depth still has to chase one hop through that implied token to
+    reach ait, exactly like advenientem chases through the real noun "eum"
+    above. t0_implied itself never appears in `depths` at all (it isn't a
+    verbal-unit anchor, so compute_subordination_depths() has no entry for
+    it -- only Recordatus and ait do)."""
+    tokengraph = _tokengraph("implied_subject_recordatus_somniorum_ait")
+    depths, warnings = compute_subordination_depths(tokengraph)
+    assert depths["t2"] == 0  # ait, independent
+    assert depths["t0"] == 1  # Recordatus, circumstantial participle (via t0_implied)
+    assert "t0_implied" not in depths
     assert warnings == []
 
 

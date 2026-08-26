@@ -2199,6 +2199,74 @@ _IMPLIED_PARTICIPLE_OF_SUM_CONSULIBUS_ANSWER = {
 
 
 # ---------------------------------------------------------------------------
+# "Recordatus somniorum ait ad eos."
+#   t0_implied [implied subject]  t0 Recordatus  t1 somniorum  t2 ait
+#   t3 ad  t4 eos  t5 .
+#
+# syntax_model.md's own newest worked example (adapted from Genesis 42:9,
+# Joseph recognizing his brothers -- syntax_model.md's own text keeps the
+# enclitic "Recordatusque" and the quoted "Exploratores estis" that follow
+# in the Vulgate; both are dropped here to keep this fixture focused
+# tightly on the new implied-subject construction alone, rather than also
+# exercising an unrelated coordinating-conjunction-to-a-prior-sentence
+# call or a direct-quote verbal expression): Recordatus, a circumstantial
+# participle ('having remembered'), agrees not with any real noun but with
+# ait's own unexpressed subject ('he'). Per syntax_model.md's new rule, a
+# new tokentype='implied subject' token is added (t0_implied, token=None)
+# with relatedtoken1 -> ait, relationship1 'subject' -- exactly as if that
+# subject had been spelled out as a real pronoun -- and Recordatus relates
+# to THIS new token via 'circumstantial participle', exactly as it would
+# to a real antecedent (compare circumstantial_participle_eum_advenientem,
+# where the antecedent IS a real token). Unlike 'implied sum'/'continued
+# discourse', this implied token is NOT itself a verbal expression -- it
+# gets no `verbalunits` entry of its own, only Recordatus (the participle)
+# does. Named t0_implied per SyntaxAnalysis's naming rule for a word that
+# would precede every real token in the sentence (the logical subject of
+# the whole clause), and placed first in tokengraph accordingly, same
+# convention continuation_indirect_discourse_tarquinios_adsuesse's own
+# t0_implied uses.
+# ---------------------------------------------------------------------------
+
+_IMPLIED_SUBJECT_RECORDATUS_SOMNIORUM_ANSWER = {
+    "reasoning": (
+        "Recordatus is a circumstantial participle ('having remembered') "
+        "with no real noun to agree with -- it agrees with the unexpressed "
+        "subject of ait. A new tokentype='implied subject' token "
+        "(t0_implied, token=None) stands in for that missing subject: "
+        "relatedtoken1 -> ait, relationship1 'subject', exactly as a real "
+        "subject pronoun would relate. Recordatus in turn has relatedtoken1 "
+        "-> t0_implied, relationship1 'circumstantial participle' -- and, "
+        "being itself a predicate-sense participle, anchors its own "
+        "verbal expression (dependent, transitive active, since it takes "
+        "somniorum as a genitive object of remembering). ait is the "
+        "independent main verb ('he said'), intransitive here (no direct "
+        "object or indirect statement in this excerpt); ad is a "
+        "prepositional phrase modifying ait (adverbial), with eos as its "
+        "object of preposition."
+    ),
+    "verbalunits": [
+        {"id": "t0", "syntactic_type": "dependent", "semantic_type": "transitive active"},
+        {"id": "t2", "syntactic_type": "independent", "semantic_type": "intransitive"},
+    ],
+    "tokengraph": [
+        {"id": "t0_implied", "token": None, "tokentype": "implied subject",
+         "relatedtoken1": "t2", "relationship1": "subject"},
+        {"id": "t0", "token": "Recordatus", "tokentype": "lexical", "lemma": "recordor",
+         "verbalunitid": "t0", "relatedtoken1": "t0_implied", "relationship1": "circumstantial participle"},
+        {"id": "t1", "token": "somniorum", "tokentype": "lexical", "lemma": "somnium",
+         "relatedtoken1": "t0", "relationship1": "genitive"},
+        {"id": "t2", "token": "ait", "tokentype": "lexical", "lemma": "aio",
+         "verbalunitid": "t2", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t3", "token": "ad", "tokentype": "lexical", "lemma": "ad",
+         "relatedtoken1": "t2", "relationship1": "adverbial"},
+        {"id": "t4", "token": "eos", "tokentype": "lexical", "lemma": "is",
+         "relatedtoken1": "t3", "relationship1": "object of preposition"},
+        {"id": "t5", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
+
+# ---------------------------------------------------------------------------
 # "nimium Tarquinios regno adsuesse; initium a Prisco factum esse;
 #  regnasse dein Ser. Tullium."
 #   t0_implied [continued discourse]  t0 nimium  t1 Tarquinios  t2 regno  t3 adsuesse
@@ -2817,6 +2885,16 @@ GOLD_EXAMPLES = [
         canned_answer=_IMPLIED_PARTICIPLE_OF_SUM_CONSULIBUS_ANSWER,
     ),
     GoldExample(
+        slug="implied_subject_recordatus_somniorum_ait",
+        passage="Recordatus somniorum ait ad eos.",
+        tags=["implied subject (circumstantial participle agreeing with a "
+              "governing verb's own unexpressed subject)",
+              "circumstantial participle", "genitive", "adverbial",
+              "object of preposition", "unit verb", "dependent",
+              "independent", "transitive active", "intransitive"],
+        canned_answer=_IMPLIED_SUBJECT_RECORDATUS_SOMNIORUM_ANSWER,
+    ),
+    GoldExample(
         slug="continuation_indirect_discourse_tarquinios_adsuesse",
         passage="nimium Tarquinios regno adsuesse; initium a Prisco factum esse; regnasse dein Ser. Tullium.",
         tags=["continued discourse (continuation of indirect discourse, shared "
@@ -2902,14 +2980,18 @@ GOLD_EXAMPLES = [
     # nuances syntax_model.md's tokenization section documents: a
     # context-dependent split ("ratione") and a word that has incorporated
     # its historic enclitic and must never be split ("quisque" and its
-    # compounds), and now the two implied-token types too (see
+    # compounds), and now all three implied-token types too (see
     # models.py's IMPLIED_TOKENTYPES): "implied sum" for an elided present
     # of *sum* (bare predicate construction, implied_sum_omnia_praeclara_rara;
     # compound perfect passive, implied_sum_consules_facti; the
-    # always-implied participle of *sum*, implied_participle_of_sum_consulibus)
-    # and "continued discourse" for a continuation of indirect discourse
+    # always-implied participle of *sum*, implied_participle_of_sum_consulibus),
+    # "continued discourse" for a continuation of indirect discourse
     # sharing one unwritten governing verb
-    # (continuation_indirect_discourse_tarquinios_adsuesse).
+    # (continuation_indirect_discourse_tarquinios_adsuesse), and "implied
+    # subject" for a circumstantial participle agreeing with a governing
+    # verb's own unexpressed subject (implied_subject_recordatus_somniorum_ait)
+    # -- the one implied-token type that is NOT itself a verbal expression
+    # (no `verbalunits` entry of its own), unlike the other two.
     # lexical_numeral_fratres_joseph_decem exercises syntax_model.md's
     # clarified numeral-vs-lexical boundary (see the numeral tokentype's
     # own note in models.py's TokenAnalysis.tokentype field): a number

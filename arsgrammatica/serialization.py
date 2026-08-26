@@ -90,8 +90,8 @@ contain neither '|' nor a newline (this format has no escaping mechanism
 for either); Latin surface text/lemmas are not expected to ever contain
 either character, so this is a defensive check, not an expected case.
 
-Implied/elided tokens (tokentype in IMPLIED_TOKENTYPES -- 'implied sum' or
-'continued discourse'; see models.py's TokenAnalysis)
+Implied/elided tokens (tokentype in IMPLIED_TOKENTYPES -- 'implied sum',
+'continued discourse', or 'implied subject'; see models.py's TokenAnalysis)
 round-trip like any other #!tokens row -- their `text` column is empty,
 same as any other None field, and reads back as None (not ''), same as
 every other optional column. But they're excluded from a sentence's own
