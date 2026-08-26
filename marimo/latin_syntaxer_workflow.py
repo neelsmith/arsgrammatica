@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.16"
+__generated_with = "0.24.0"
 app = marimo.App(width="medium")
 
 
@@ -190,7 +190,6 @@ def _(lm):
     last_call = None
     if lm.history:
         last_call = lm.history[-1]
-
     return (last_call,)
 
 
@@ -421,7 +420,7 @@ def _(dspy, getenv):
 
         api_base = getenv("API_BASE", "API_BASE", "https://suarezai.holycross.edu/litellm")
         model = getenv("MODEL", "MODEL", "litellm_proxy/anthropic/Claude Opus 5")
-        api_key = getenv("API_KEY", "API_KEY")
+        api_key = "hoho" #getenv("API_KEY", "API_KEY")
 
         if not api_key:
             raise RuntimeError(
