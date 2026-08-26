@@ -1,14 +1,15 @@
 # Release history
 
-Current version: **0.3.0**.
+Current version: **0.4.0**.
 
+**0.4.0**, *Aug. 26, 2026*: Non-breaking update. Numerous small bug fixes, expands handling of vocative case and of repeated series of conjunctions, adds annotating participles with implicit subjects, adds marimo utilities, improves formatting of alignment by depth of subordination in Mermaid diagrams.
 
 
 **0.3.0**, *Aug. 22, 2026*: Now packaged project for direct import from github repository.
 
 Fixes: better handling of `numeral` tokens.
 
-Additions: `syntaxer_ctsdata` notebook allows selection of multiple citable passages. 
+Additions: `latin_syntaxer_ctsdata` notebook allows selection of multiple citable passages. 
 
 
 **0.2.0**,  *Aug. 21, 2026*:

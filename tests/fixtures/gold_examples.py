@@ -1605,6 +1605,83 @@ _COORDINATING_CONJUNCTION_DEDIT_ET_DIXIT_ANSWER = {
 
 
 # ---------------------------------------------------------------------------
+# "Tarquinius et assiduitate et varietate et magnificentia omnes antecessit."
+#   t0 Tarquinius  t1 et  t2 assiduitate  t3 et  t4 varietate  t5 et
+#   t6 magnificentia  t7 omnes  t8 antecessit  t9 .
+#
+# syntax_model.md's own worked example for a SERIES of repeated coordinating
+# conjunctions (polysyndeton, "et...et...et"), adapted from its "...omnes
+# antecessit" example: three ablatives of respect, each introduced by its
+# own "et", rather than a single conjunction joining just two conjuncts.
+# This exercises the chaining rule that distinguishes a series from the
+# ordinary pairwise case (see coordinating_conjunction_verbs_ille_hermionenque
+# and enclitic_arma_virumque_cano above): every connector's own relatedtoken1
+# points at the item it introduces (assiduitate, varietate, magnificentia --
+# never at another connector), but relatedtoken2 chains between NEIGHBORING
+# connectors instead of pairing two conjuncts -- the first et's relatedtoken2
+# -> the second et, while the second and third et's each point BACKWARD, to
+# the PRECEDING connector (t3 -> t1, t5 -> t3), not to the following one.
+# Each ablative also keeps its own ordinary "ablative" relation straight to
+# antecessit, independent of the conjunction chain. This is also the
+# regression fixture for find_unanchored_coordinated_verbs()'s series-aware
+# fix: without it, every one of these three connectors would misfire that
+# heuristic's pairwise asymmetry check (relatedtoken1 resolves to
+# antecessit's verbal unit through the ablative it introduces, relatedtoken2
+# never does, since a fellow connector is never itself an anchor) -- see
+# that function's own docstring and test_verbal_units.py's synthetic
+# verb-series test for the case where this would otherwise be a genuine
+# false positive.
+# ---------------------------------------------------------------------------
+
+_COORDINATING_CONJUNCTION_SERIES_ANSWER = {
+    "reasoning": (
+        "antecessit is the independent main verb ('surpassed', transitive "
+        "active), with Tarquinius as its subject and omnes as its direct "
+        "object. assiduitate, varietate, and magnificentia are three "
+        "ablatives of respect, each depending directly on antecessit "
+        "('surpassed all in assiduity, variety, and magnificence'), each "
+        "introduced by its own et -- a repeated series connector "
+        "(polysyndeton), not a single conjunction pairing two conjuncts. "
+        "Every et's own relatedtoken1 -> the ablative it introduces "
+        "(never another et), relationship1 'coordinating conjunction'. "
+        "relatedtoken2 chains between neighboring connectors instead: the "
+        "first et's relatedtoken2 -> the second et (the NEXT connector), "
+        "while the second et's relatedtoken2 -> the first et and the "
+        "third et's relatedtoken2 -> the second et (each pointing at the "
+        "PRECEDING connector, not the following one) -- relationship2 "
+        "'coordinating conjunction' throughout, same as relationship1."
+    ),
+    "verbalunits": [
+        {"id": "t8", "syntactic_type": "independent", "semantic_type": "transitive active"},
+    ],
+    "tokengraph": [
+        {"id": "t0", "token": "Tarquinius", "tokentype": "lexical", "lemma": "Tarquinius",
+         "relatedtoken1": "t8", "relationship1": "subject"},
+        {"id": "t1", "token": "et", "tokentype": "lexical", "lemma": "et",
+         "relatedtoken1": "t2", "relationship1": "coordinating conjunction",
+         "relatedtoken2": "t3", "relationship2": "coordinating conjunction"},
+        {"id": "t2", "token": "assiduitate", "tokentype": "lexical", "lemma": "assiduitas",
+         "relatedtoken1": "t8", "relationship1": "ablative"},
+        {"id": "t3", "token": "et", "tokentype": "lexical", "lemma": "et",
+         "relatedtoken1": "t4", "relationship1": "coordinating conjunction",
+         "relatedtoken2": "t1", "relationship2": "coordinating conjunction"},
+        {"id": "t4", "token": "varietate", "tokentype": "lexical", "lemma": "varietas",
+         "relatedtoken1": "t8", "relationship1": "ablative"},
+        {"id": "t5", "token": "et", "tokentype": "lexical", "lemma": "et",
+         "relatedtoken1": "t6", "relationship1": "coordinating conjunction",
+         "relatedtoken2": "t3", "relationship2": "coordinating conjunction"},
+        {"id": "t6", "token": "magnificentia", "tokentype": "lexical", "lemma": "magnificentia",
+         "relatedtoken1": "t8", "relationship1": "ablative"},
+        {"id": "t7", "token": "omnes", "tokentype": "lexical", "lemma": "omnis",
+         "relatedtoken1": "t8", "relationship1": "direct object"},
+        {"id": "t8", "token": "antecessit", "tokentype": "lexical", "lemma": "antecedo",
+         "verbalunitid": "t8", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t9", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
+
+# ---------------------------------------------------------------------------
 # "Theseus audit quanta calamitate ciuitas afficeretur."
 #   t0 Theseus  t1 audit  t2 quanta  t3 calamitate  t4 ciuitas
 #   t5 afficeretur  t6 .
@@ -2117,6 +2194,74 @@ _IMPLIED_PARTICIPLE_OF_SUM_CONSULIBUS_ANSWER = {
         {"id": "t9", "token": "moritur", "tokentype": "lexical", "lemma": "morior",
          "verbalunitid": "t9", "relatedtoken1": "root", "relationship1": "unit verb"},
         {"id": "t10", "token": ".", "tokentype": "punctuation"},
+    ],
+}
+
+
+# ---------------------------------------------------------------------------
+# "Recordatus somniorum ait ad eos."
+#   t0_implied [implied subject]  t0 Recordatus  t1 somniorum  t2 ait
+#   t3 ad  t4 eos  t5 .
+#
+# syntax_model.md's own newest worked example (adapted from Genesis 42:9,
+# Joseph recognizing his brothers -- syntax_model.md's own text keeps the
+# enclitic "Recordatusque" and the quoted "Exploratores estis" that follow
+# in the Vulgate; both are dropped here to keep this fixture focused
+# tightly on the new implied-subject construction alone, rather than also
+# exercising an unrelated coordinating-conjunction-to-a-prior-sentence
+# call or a direct-quote verbal expression): Recordatus, a circumstantial
+# participle ('having remembered'), agrees not with any real noun but with
+# ait's own unexpressed subject ('he'). Per syntax_model.md's new rule, a
+# new tokentype='implied subject' token is added (t0_implied, token=None)
+# with relatedtoken1 -> ait, relationship1 'subject' -- exactly as if that
+# subject had been spelled out as a real pronoun -- and Recordatus relates
+# to THIS new token via 'circumstantial participle', exactly as it would
+# to a real antecedent (compare circumstantial_participle_eum_advenientem,
+# where the antecedent IS a real token). Unlike 'implied sum'/'continued
+# discourse', this implied token is NOT itself a verbal expression -- it
+# gets no `verbalunits` entry of its own, only Recordatus (the participle)
+# does. Named t0_implied per SyntaxAnalysis's naming rule for a word that
+# would precede every real token in the sentence (the logical subject of
+# the whole clause), and placed first in tokengraph accordingly, same
+# convention continuation_indirect_discourse_tarquinios_adsuesse's own
+# t0_implied uses.
+# ---------------------------------------------------------------------------
+
+_IMPLIED_SUBJECT_RECORDATUS_SOMNIORUM_ANSWER = {
+    "reasoning": (
+        "Recordatus is a circumstantial participle ('having remembered') "
+        "with no real noun to agree with -- it agrees with the unexpressed "
+        "subject of ait. A new tokentype='implied subject' token "
+        "(t0_implied, token=None) stands in for that missing subject: "
+        "relatedtoken1 -> ait, relationship1 'subject', exactly as a real "
+        "subject pronoun would relate. Recordatus in turn has relatedtoken1 "
+        "-> t0_implied, relationship1 'circumstantial participle' -- and, "
+        "being itself a predicate-sense participle, anchors its own "
+        "verbal expression (dependent, transitive active, since it takes "
+        "somniorum as a genitive object of remembering). ait is the "
+        "independent main verb ('he said'), intransitive here (no direct "
+        "object or indirect statement in this excerpt); ad is a "
+        "prepositional phrase modifying ait (adverbial), with eos as its "
+        "object of preposition."
+    ),
+    "verbalunits": [
+        {"id": "t0", "syntactic_type": "dependent", "semantic_type": "transitive active"},
+        {"id": "t2", "syntactic_type": "independent", "semantic_type": "intransitive"},
+    ],
+    "tokengraph": [
+        {"id": "t0_implied", "token": None, "tokentype": "implied subject",
+         "relatedtoken1": "t2", "relationship1": "subject"},
+        {"id": "t0", "token": "Recordatus", "tokentype": "lexical", "lemma": "recordor",
+         "verbalunitid": "t0", "relatedtoken1": "t0_implied", "relationship1": "circumstantial participle"},
+        {"id": "t1", "token": "somniorum", "tokentype": "lexical", "lemma": "somnium",
+         "relatedtoken1": "t0", "relationship1": "genitive"},
+        {"id": "t2", "token": "ait", "tokentype": "lexical", "lemma": "aio",
+         "verbalunitid": "t2", "relatedtoken1": "root", "relationship1": "unit verb"},
+        {"id": "t3", "token": "ad", "tokentype": "lexical", "lemma": "ad",
+         "relatedtoken1": "t2", "relationship1": "adverbial"},
+        {"id": "t4", "token": "eos", "tokentype": "lexical", "lemma": "is",
+         "relatedtoken1": "t3", "relationship1": "object of preposition"},
+        {"id": "t5", "token": ".", "tokentype": "punctuation"},
     ],
 }
 
@@ -2653,6 +2798,16 @@ GOLD_EXAMPLES = [
         canned_answer=_COORDINATING_CONJUNCTION_DEDIT_ET_DIXIT_ANSWER,
     ),
     GoldExample(
+        slug="coordinating_conjunction_series_assiduitate_varietate_magnificentia",
+        passage="Tarquinius et assiduitate et varietate et magnificentia omnes antecessit.",
+        tags=["coordinating conjunction (series/polysyndeton of three "
+              "connectors, relatedtoken2 chains between neighboring "
+              "connectors rather than pairing two conjuncts)", "subject",
+              "ablative", "direct object", "unit verb", "independent",
+              "transitive active"],
+        canned_answer=_COORDINATING_CONJUNCTION_SERIES_ANSWER,
+    ),
+    GoldExample(
         slug="indirect_question_theseus_audit_quanta",
         passage="Theseus audit quanta calamitate ciuitas afficeretur.",
         tags=["subordinating conjunction (interrogative word introducing "
@@ -2728,6 +2883,16 @@ GOLD_EXAMPLES = [
               "subject", "ablative", "adverbial", "unit verb", "dependent",
               "independent", "linking verb", "intransitive"],
         canned_answer=_IMPLIED_PARTICIPLE_OF_SUM_CONSULIBUS_ANSWER,
+    ),
+    GoldExample(
+        slug="implied_subject_recordatus_somniorum_ait",
+        passage="Recordatus somniorum ait ad eos.",
+        tags=["implied subject (circumstantial participle agreeing with a "
+              "governing verb's own unexpressed subject)",
+              "circumstantial participle", "genitive", "adverbial",
+              "object of preposition", "unit verb", "dependent",
+              "independent", "transitive active", "intransitive"],
+        canned_answer=_IMPLIED_SUBJECT_RECORDATUS_SOMNIORUM_ANSWER,
     ),
     GoldExample(
         slug="continuation_indirect_discourse_tarquinios_adsuesse",
@@ -2815,14 +2980,18 @@ GOLD_EXAMPLES = [
     # nuances syntax_model.md's tokenization section documents: a
     # context-dependent split ("ratione") and a word that has incorporated
     # its historic enclitic and must never be split ("quisque" and its
-    # compounds), and now the two implied-token types too (see
+    # compounds), and now all three implied-token types too (see
     # models.py's IMPLIED_TOKENTYPES): "implied sum" for an elided present
     # of *sum* (bare predicate construction, implied_sum_omnia_praeclara_rara;
     # compound perfect passive, implied_sum_consules_facti; the
-    # always-implied participle of *sum*, implied_participle_of_sum_consulibus)
-    # and "continued discourse" for a continuation of indirect discourse
+    # always-implied participle of *sum*, implied_participle_of_sum_consulibus),
+    # "continued discourse" for a continuation of indirect discourse
     # sharing one unwritten governing verb
-    # (continuation_indirect_discourse_tarquinios_adsuesse).
+    # (continuation_indirect_discourse_tarquinios_adsuesse), and "implied
+    # subject" for a circumstantial participle agreeing with a governing
+    # verb's own unexpressed subject (implied_subject_recordatus_somniorum_ait)
+    # -- the one implied-token type that is NOT itself a verbal expression
+    # (no `verbalunits` entry of its own), unlike the other two.
     # lexical_numeral_fratres_joseph_decem exercises syntax_model.md's
     # clarified numeral-vs-lexical boundary (see the numeral tokentype's
     # own note in models.py's TokenAnalysis.tokentype field): a number
@@ -2843,5 +3012,15 @@ GOLD_EXAMPLES = [
     # would catch a numeral-with-relation going uncolored in HTML/depth-HTML
     # while Mermaid colors it correctly -- the exact bug reported by the
     # user, previously invisible to this fixture set.
+    # coordinating_conjunction_series_assiduitate_varietate_magnificentia
+    # is not needed for test_coverage.py's sake ("coordinating conjunction"
+    # is already covered by the pairwise fixtures above) -- it exists for
+    # documentation/regression value, exercising syntax_model.md's series/
+    # polysyndeton chaining rule (relatedtoken2 links between NEIGHBORING
+    # connectors, not between the two conjuncts) and guarding
+    # find_unanchored_coordinated_verbs()'s series-aware fix (see that
+    # function's own docstring, and test_verbal_units.py's synthetic
+    # verb-series test for the false positive this fixture's own
+    # noun-series shape doesn't happen to trigger on its own).
 ]
  

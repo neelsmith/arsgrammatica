@@ -12,18 +12,34 @@ latin_syntax_dspy.analyze_passage) as a Mermaid flowchart.
   -- so the clauses a sentence breaks into are visually distinguishable at a
   glance, not just inferable from following edges by hand. The one
   exception: an implied/elided token (models.py's IMPLIED_TOKENTYPES --
-  "implied sum", "continued discourse") always gets a dedicated "caution"
-  amber (verbal_units._IMPLIED_TOKEN_COLOR) instead, regardless of which
-  unit it anchors -- flagging "a real word is missing here" rather than
+  "implied sum", "continued discourse", "implied subject") always gets a
+  dedicated "caution" amber (verbal_units._IMPLIED_TOKEN_COLOR) instead,
+  regardless of which unit it anchors or (for "implied subject", which
+  anchors none of its own -- see models.py's TokenAnalysis docstring)
+  resolves into -- flagging "a real word is missing here" rather than
   blending in as an ordinary member of that unit's color. Its label is
   "elided sum" or "continued discourse" (see `_IMPLIED_TOKEN_LABELS`
-  below) rather than its own surface text, since it has none (`token` is
-  `None`). This is the ONE place these tokens are shown at all --
+  below), or else its own tokentype string verbatim ("implied subject"
+  has no dedicated entry there), rather than its own surface text, since
+  it has none (`token` is `None`). It's also drawn as a rounded-corner
+  rectangle (Mermaid's `(...)` node shape) rather than the plain `[...]`
+  rectangle every other node uses -- a second, shape-based cue alongside
+  the color that this node stands in for a word that isn't actually
+  there, independent of and unaffected by verbal-unit coloring (this
+  shape applies regardless of `color_by_verbal_unit`). This is the ONE place these tokens are shown at all --
   rendering.py's tokengraph_to_html()/tokengraph_to_depth_html() omit them
   entirely, same as tokengraph_to_text() does, since there's no real word
   to display in reconstructed prose; the Mermaid diagram is where an
   implied token's presence (and what it stands in for, via its edges) is
   actually worth seeing.
+- By default (`rank_by_depth=True`), every verbal-unit anchor node is also
+  chained to every other anchor at the SAME depth of subordination (see
+  verbal_units.py's compute_subordination_depths()) using Mermaid's
+  invisible-link syntax (`~~~`) -- a layout nudge only, no visible edge and
+  no new relation -- so independent clauses, the clauses one level below
+  them, and so on, tend to land level with each other in the rendered
+  diagram instead of wherever Mermaid's layout engine would otherwise put
+  them.
 
 (These are the fields syntax_model.md calls `relation1`/`relationship1` and
 `relation2`/`relationship2` -- in models.py the "relation" side is named
@@ -41,7 +57,12 @@ reporting.
 from typing import List, Tuple
  
 from .models import IMPLIED_TOKENTYPES, TokenAnalysis
-from .verbal_units import _IMPLIED_TOKEN_COLOR, assign_verbal_units, assign_verbal_unit_colors
+from .verbal_units import (
+    _IMPLIED_TOKEN_COLOR,
+    assign_verbal_units,
+    assign_verbal_unit_colors,
+    compute_subordination_depths,
+)
  
 # Characters that need escaping inside a Mermaid quoted label.
 _LABEL_ESCAPES = {
@@ -61,10 +82,10 @@ def _escape_label(text: str) -> str:
 # tokentype, since it has no surface text of its own to use instead) --
 # "implied sum" reads as "elided sum" here specifically because that's the
 # more immediately legible term for a reader scanning the diagram; "continued
-# discourse" already reads fine as-is. A future IMPLIED_TOKENTYPES value not
-# listed here falls back to its own tokentype string verbatim (see its use
-# below), so this mapping is a display nicety, not something either tokentype
-# strictly depends on.
+# discourse" already reads fine as-is. Any IMPLIED_TOKENTYPES value not
+# listed here (e.g. "implied subject") falls back to its own tokentype
+# string verbatim (see its use below), so this mapping is a display
+# nicety, not something any tokentype strictly depends on.
 _IMPLIED_TOKEN_LABELS = {
     "implied sum": "elided sum",
     "continued discourse": "continued discourse",
@@ -81,16 +102,17 @@ def tokengraph_to_mermaid(
     tokengraph: List[TokenAnalysis],
     orientation: str = "BT",
     color_by_verbal_unit: bool = True,
+    rank_by_depth: bool = True,
 ) -> Tuple[str, List[str]]:
     """Build a Mermaid `graph` diagram from a tokengraph.
- 
+
     `orientation` is Mermaid's own flowchart orientation code -- `BT`
     (bottom-to-top, the default here), `TB`, `LR`, or `RL` -- used verbatim
     in the diagram's opening line (`graph BT`, `graph LR`, etc.). See
     https://mermaid.js.org/syntax/flowchart.html for what each value looks
     like; this function doesn't validate it, so a typo just becomes invalid
     Mermaid syntax in the output rather than an error here.
- 
+
     `color_by_verbal_unit` (default True) colors every node by the verbal
     unit it belongs to, per verbal_units.assign_verbal_units() -- so each
     clause is visually distinguishable. Verbal units are assigned colors
@@ -103,14 +125,33 @@ def tokengraph_to_mermaid(
     would otherwise get (see this module's own docstring for why). Pass
     False to skip coloring and get a plain diagram, as before this
     parameter existed.
- 
+
+    `rank_by_depth` (default True) makes the diagram's layout respect each
+    verbal expression's own *depth of subordination* (see
+    verbal_units.compute_subordination_depths()): every verbal-unit anchor
+    node (any token with `verbalunitid` set to its own id, implied tokens
+    included) at the SAME depth gets chained together with Mermaid's
+    invisible-link syntax (`~~~`), e.g. `t1 ~~~ t6 ~~~ t9` for three anchors
+    all at depth 2. This draws no visible edge and adds no relation of its
+    own -- it only nudges Mermaid's layout engine to keep same-depth verbal
+    expressions level with each other, the same way independent clauses,
+    the dependent clauses one level below them, and so on, end up visually
+    aligned by rank rather than scattered. An anchor whose depth can't be
+    resolved (see compute_subordination_depths()'s own docstring for why)
+    is left out of every chain -- there's no rank to place it at -- and a
+    depth with only one anchor gets no chain at all (nothing to link).
+    Pass False to skip this and get the diagram's previous, unranked
+    layout.
+
     Returns (diagram_text, warnings). `warnings` lists any edges that were
     skipped because they referenced a punctuation token or an id not present
     in `tokengraph` -- worth checking, since it usually means the id came
     from a validation problem upstream (see latin_syntax_dspy.validate) --
     plus, if `color_by_verbal_unit` is True and the passage has more than 8
     verbal units, one warning that colors are repeating rather than staying
-    distinct (the palette has 8 slots; see _VERBAL_UNIT_PALETTE).
+    distinct (the palette has 8 slots; see _VERBAL_UNIT_PALETTE), plus, if
+    `rank_by_depth` is True, any of compute_subordination_depths()'s own
+    warnings about an anchor whose depth couldn't be resolved.
     """
     node_ids = {tok.id for tok in tokengraph if tok.tokentype != "punctuation"}
  
@@ -130,7 +171,15 @@ def tokengraph_to_mermaid(
             if tok.token is not None
             else _IMPLIED_TOKEN_LABELS.get(tok.tokentype, tok.tokentype)
         )
-        lines.append(f'    {tok.id}["{_escape_label(label)}"]')
+        # An implied/elided token (models.py's IMPLIED_TOKENTYPES) gets a
+        # rounded-corner rectangle -- Mermaid's `(...)` node shape -- instead
+        # of the plain `[...]` rectangle every other node uses, as a second,
+        # shape-based signal (on top of the dedicated amber color below)
+        # that this node stands in for a word that isn't actually there.
+        open_bracket, close_bracket = (
+            ("(", ")") if tok.tokentype in IMPLIED_TOKENTYPES else ("[", "]")
+        )
+        lines.append(f'    {tok.id}{open_bracket}"{_escape_label(label)}"{close_bracket}')
  
     warnings = []
     for tok in tokengraph:
@@ -156,7 +205,37 @@ def tokengraph_to_mermaid(
                 )
                 continue
             lines.append(f'    {tok.id} -->|{_escape_label(label)}| {related_id}')
- 
+
+    if rank_by_depth:
+        depths, depth_warnings = compute_subordination_depths(tokengraph)
+        warnings.extend(depth_warnings)
+
+        # Group every verbal-unit anchor node still in the diagram by its
+        # own resolved depth, preserving tokengraph's own (first-appearance)
+        # order within each group -- an anchor whose depth came back
+        # unresolved (depths.get() -> None) is left out of every chain, and
+        # depths.get() is also naturally None for any non-anchor token,
+        # since compute_subordination_depths() only ever keys its result by
+        # anchor id.
+        depth_groups: dict = {}
+        for tok in tokengraph:
+            if tok.id not in node_ids:
+                continue
+            depth = depths.get(tok.id)
+            if depth is None:
+                continue
+            depth_groups.setdefault(depth, []).append(tok.id)
+
+        rank_lines = [
+            "    " + " ~~~ ".join(ids)
+            for depth in sorted(depth_groups)
+            for ids in (depth_groups[depth],)
+            if len(ids) > 1
+        ]
+        if rank_lines:
+            lines.append("")
+            lines.extend(rank_lines)
+
     if color_by_verbal_unit:
         assignment = assign_verbal_units(tokengraph)
         colors, color_warnings = assign_verbal_unit_colors(tokengraph, assignment=assignment)
@@ -209,11 +288,15 @@ def save_mermaid(
     path: str,
     orientation: str = "BT",
     color_by_verbal_unit: bool = True,
+    rank_by_depth: bool = True,
 ) -> List[str]:
     """Write the diagram to `path` (e.g. 'analysis.mmd') and return any
     warnings from tokengraph_to_mermaid."""
     diagram, warnings = tokengraph_to_mermaid(
-        tokengraph, orientation=orientation, color_by_verbal_unit=color_by_verbal_unit
+        tokengraph,
+        orientation=orientation,
+        color_by_verbal_unit=color_by_verbal_unit,
+        rank_by_depth=rank_by_depth,
     )
     with open(path, "w", encoding="utf-8") as f:
         f.write(diagram + "\n")

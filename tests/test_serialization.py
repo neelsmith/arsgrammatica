@@ -559,6 +559,55 @@ def test_implied_token_is_excluded_from_its_sentences_reconstructed_tokens(tmp_p
     assert got_sentences[0].tokens == [Token(id="t0", text="Rara", citation="Livy 1.1")]
 
 
+def test_implied_subject_token_round_trips_with_no_verbalunits_entry(tmp_path):
+    """'implied subject' (see models.py's TokenAnalysis/IMPLIED_TOKENTYPES)
+    round-trips the exact same way 'implied sum'/'continued discourse' do
+    -- empty text column reads back as None, excluded from its sentence's
+    own reconstructed `tokens` -- but, unlike those two, it never anchors a
+    `verbalunits` entry of its own: "Recordatus venit" has a circumstantial
+    participle (Recordatus) agreeing with venit's own unexpressed subject,
+    so t0_implied stands in for that subject but is absent from
+    `verbalunits` entirely, only Recordatus (t0) gets an entry."""
+    sentences = [
+        Sentence(tokens=[
+            Token(id="t0", text="Recordatus", citation="Gen. 42.9"),
+            Token(id="t1", text="venit", citation="Gen. 42.9"),
+        ])
+    ]
+    tokengraph = [
+        TokenAnalysis(id="t0_implied", token=None, tokentype="implied subject",
+                      relatedtoken1="t1", relationship1="subject"),
+        TokenAnalysis(id="t0", token="Recordatus", tokentype="lexical",
+                      verbalunitid="t0", relatedtoken1="t0_implied",
+                      relationship1="circumstantial participle"),
+        TokenAnalysis(id="t1", token="venit", tokentype="lexical",
+                      verbalunitid="t1", relatedtoken1="root", relationship1="unit verb"),
+    ]
+    verbalunits = [
+        VerbalExpression(id="t0", syntactic_type="dependent", semantic_type="intransitive"),
+        VerbalExpression(id="t1", syntactic_type="independent", semantic_type="intransitive"),
+    ]
+    path = tmp_path / "implied_subject.txt"
+
+    warnings = write_analyses(sentences, verbalunits, tokengraph, str(path))
+    assert warnings == []
+
+    got_tokengraph, got_verbalunits, got_sentences = read_analyses(str(path))
+    assert got_tokengraph == tokengraph
+    assert got_verbalunits == verbalunits
+    assert {vu.id for vu in got_verbalunits} == {"t0", "t1"}  # NOT t0_implied
+
+    implied = next(tok for tok in got_tokengraph if tok.id == "t0_implied")
+    assert implied.token is None
+    assert implied.verbalunitid is None
+
+    assert len(got_sentences) == 1
+    assert got_sentences[0].tokens == [
+        Token(id="t0", text="Recordatus", citation="Gen. 42.9"),
+        Token(id="t1", text="venit", citation="Gen. 42.9"),
+    ]
+
+
 # ---------------------------------------------------------------------------
 # split_analysis_by_sentence()
 # ---------------------------------------------------------------------------

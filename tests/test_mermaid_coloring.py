@@ -79,7 +79,9 @@ def test_implied_token_gets_its_own_dedicated_class_and_label():
     color its own verbal unit (which it anchors) would otherwise get -- and
     its node label is "elided sum" (mermaid.py's own _IMPLIED_TOKEN_LABELS,
     keyed by its tokentype "implied sum"), since it has no surface text of
-    its own. This is the ONE place an implied token is shown at all --
+    its own. It's also drawn as a rounded-corner rectangle, `id("label")`,
+    rather than the plain `id["label"]` rectangle every other node uses.
+    This is the ONE place an implied token is shown at all --
     tokengraph_to_html() omits it entirely (see test_rendering.py's
     test_implied_tokens_are_omitted_from_html_entirely)."""
     example = next(e for e in GOLD_EXAMPLES if e.slug == "implied_sum_omnia_praeclara_rara")
@@ -98,13 +100,54 @@ def test_implied_token_gets_its_own_dedicated_class_and_label():
     assert set(implied_class_lines[0].split()[1].split(",")) == set(implied_ids)
 
     for tid in implied_ids:
-        assert f'{tid}["elided sum"]' in diagram
+        assert f'{tid}("elided sum")' in diagram
     # No vuN classDef should also claim an implied token.
     for line in diagram.splitlines():
         if re.match(r"\s*class ([\w,]+) vu\d+;", line):
             ids = line.split()[1].split(",")
             for tid in implied_ids:
                 assert tid not in ids
+
+
+def test_implied_subject_token_gets_dedicated_class_and_fallback_label():
+    """'implied subject' (see models.py's TokenAnalysis/IMPLIED_TOKENTYPES)
+    gets the same dedicated `implied` amber class as 'implied sum' above,
+    even though it never anchors a verbal unit of its own (unlike
+    'implied sum') -- the coloring is about the token's own KIND, not
+    about which clause it's in. It has no entry in mermaid.py's own
+    _IMPLIED_TOKEN_LABELS, so its node label falls back to its tokentype
+    string verbatim, "implied subject" (see that mapping's own comment).
+    It also gets the rounded-corner rectangle shape, `id("label")`, same
+    as any other implied token. Recordatus (the participle) keeps its own
+    ordinary vuN class and plain `id["label"]` rectangle, unaffected by
+    its antecedent being implied."""
+    example = next(
+        e for e in GOLD_EXAMPLES if e.slug == "implied_subject_recordatus_somniorum_ait"
+    )
+    tokens, result = run_gold_example(example)
+    diagram, warnings = tokengraph_to_mermaid(result.tokengraph)
+    assert not warnings
+
+    implied_ids = [tok.id for tok in result.tokengraph if tok.tokentype == "implied subject"]
+    assert implied_ids == ["t0_implied"]
+
+    assert 'classDef implied fill:#ffc107,stroke:#7a5200,color:#000000;' in diagram
+    implied_class_lines = [
+        line for line in diagram.splitlines() if line.strip().endswith("implied;")
+    ]
+    assert len(implied_class_lines) == 1
+    assert set(implied_class_lines[0].split()[1].split(",")) == set(implied_ids)
+
+    assert 't0_implied("implied subject")' in diagram
+
+    # No vuN classDef should also claim the implied-subject token, but
+    # Recordatus (its own real verbal-unit anchor) should still have one.
+    vu_class_ids = set()
+    for line in diagram.splitlines():
+        if re.match(r"\s*class ([\w,]+) vu\d+;", line):
+            vu_class_ids.update(line.split()[1].split(","))
+    assert "t0_implied" not in vu_class_ids
+    assert "t0" in vu_class_ids
 
 
 def test_aside_example_gets_three_distinct_colors():

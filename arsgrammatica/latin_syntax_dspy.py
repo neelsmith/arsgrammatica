@@ -185,6 +185,37 @@ class SyntaxAnalysis(dspy.Signature):
           ('id philtrum esse'), but that does not exempt dixit itself from
           getting relatedtoken1 = 'root', relationship1 = 'unit verb', and
           its own entry in `verbalunits` -- exactly as if it stood alone.
+        - coordinating conjunction, repeated as a series: a conjunction
+          like 'et' or 'aut' can also be repeated before EVERY item of a
+          series of three or more (polysyndeton, e.g. 'et...et...et'),
+          not just used once between a pair. Annotate this differently
+          from the simple pairwise case above. Every connector's own
+          relatedtoken1 -> the id of the item it immediately introduces
+          (a real noun, adjective, prepositional phrase, or verbal
+          expression anchor -- NEVER another connector), relationship1 =
+          'coordinating conjunction', exactly as in the pairwise case.
+          relatedtoken2 is what differs: the FIRST connector's
+          relatedtoken2 -> the id of the NEXT (second) connector, while
+          every connector AFTER the first has relatedtoken2 -> the id of
+          the PRECEDING connector instead (not the following one).
+          relationship2 = 'coordinating conjunction' for all of them,
+          same as relationship1 -- this still isn't an overflow slot.
+          Each connected item ALSO keeps its own ordinary relation to the
+          rest of the sentence (subject, ablative, direct object, or
+          whatever fits), completely independent of this chain -- the
+          coordinating-conjunction relation only links a connector to the
+          item it introduces and to its neighboring connector(s); it
+          never substitutes for that item's own relation to whatever
+          governs it. Example: in "Tarquinius et assiduitate et
+          varietate et magnificentia omnes antecessit", the first et has
+          relatedtoken1 -> assiduitate and relatedtoken2 -> the second
+          et; the second et has relatedtoken1 -> varietate and
+          relatedtoken2 -> the FIRST et (not the third); the third et has
+          relatedtoken1 -> magnificentia and relatedtoken2 -> the second
+          et. assiduitate, varietate, and magnificentia each ALSO have
+          their own relatedtoken1 -> antecessit, relationship1 =
+          'ablative', same as any other ablative -- unaffected by which
+          connector introduces them.
         - direct quote / aside: a verbal expression of syntactic type
           'direct quote' or 'aside' has relatedtoken1 -> the id of the verb
           of the clause it interrupts or is framed by, relationship1 =
@@ -199,7 +230,17 @@ class SyntaxAnalysis(dspy.Signature):
           add). If it's an ablative with no other syntactic connection to
           the sentence (a true ablative absolute), it instead has
           relatedtoken1 -> the id of the main verb, relationship1 =
-          'ablative absolute'.
+          'ablative absolute'. Sometimes there is no noun or pronoun at
+          all for the participle to agree with -- most often when it
+          agrees with a governing verb's own unexpressed subject. Do NOT
+          leave the participle's relatedtoken1 pointing at the verb
+          directly in that case (that would misrepresent the participle as
+          relating straight to the verb, the way an ablative-absolute noun
+          does): instead add a new tokentype='implied subject' token (see
+          (3) below) standing in for the missing noun, give IT the normal
+          'subject' relation into the verb, and have the participle relate
+          to THIS new token via 'circumstantial participle' exactly as it
+          would to a real one.
         - auxiliary: in a compound perfect/pluperfect passive, or compound
           future-infinitive, verb form (participle + a form of 'sum'), the
           form of 'sum' anchors the verbal expression and is the target of
@@ -301,17 +342,21 @@ class SyntaxAnalysis(dspy.Signature):
         create for an implied token (see below), in your output; never
         invent an id for anything else.
 
-    (3) implied/elided tokens. `arsgrammatica` recognizes two DIFFERENT
-        situations where a verbal expression exists grammatically but has
-        no surface realization in the passage at all -- rather than skip
-        these, add a NEW entry to `tokengraph` (and a matching new entry to
-        `verbalunits`, since an implied token always anchors its own
-        verbal expression) with: a brand-new id, not used by any entry in
-        `tokens` or elsewhere in your own output (see the naming rule
-        below); the matching tokentype below; and no `token` value (leave
-        it unset/None) -- these go together, and 'implied sum' /
-        'continued discourse' are the ONLY two tokentype values whose id
-        isn't one of `tokens`' own ids and whose `token` is empty.
+    (3) implied/elided tokens. `arsgrammatica` recognizes three DIFFERENT
+        situations where something exists grammatically but has no surface
+        realization in the passage at all -- rather than skip these, add a
+        NEW entry to `tokengraph` with: a brand-new id, not used by any
+        entry in `tokens` or elsewhere in your own output (see the naming
+        rule below); the matching tokentype below; and no `token` value
+        (leave it unset/None) -- these go together, and 'implied sum',
+        'continued discourse', and 'implied subject' are the ONLY three
+        tokentype values whose id isn't one of `tokens`' own ids and whose
+        `token` is empty. Two of the three (`implied sum`, `continued
+        discourse`) stand in for a missing VERBAL expression, and so also
+        need a matching new entry in `verbalunits`, exactly like any other
+        verbal expression; the third (`implied subject`) stands in for a
+        missing NOUN or pronoun instead, and never gets a `verbalunits`
+        entry of its own.
 
         - tokentype 'implied sum': an elided present of 'sum' ('to be').
           Three sub-cases, all using this same tokentype:
@@ -353,17 +398,44 @@ class SyntaxAnalysis(dspy.Signature):
           unless context says otherwise), and give EACH of the governed
           infinitives its normal 'indirect statement' relation into it,
           exactly as if the verb had been repeated for each one.
+        - tokentype 'implied subject': a participle's own antecedent (the
+          noun/pronoun it agrees with, related via 'circumstantial
+          participle' -- see that relation's own note above) can itself go
+          unexpressed, most often when the participle agrees with a
+          governing verb's own unexpressed subject. Rather than leaving
+          the participle with no antecedent to point at (or, worse,
+          pointing it straight at the verb, which would misrepresent it as
+          an ablative absolute), add ONE implied token (tokentype 'implied
+          subject') to stand in for the missing noun/pronoun. This implied
+          token is NOT a verbal expression itself -- it gets no
+          `verbalunits` entry -- it simply takes a normal 'subject'
+          relation into the governing verb (relatedtoken1 -> the verb's
+          id, relationship1 = 'subject'), exactly as if that subject had
+          been written out as a real word. The participle then relates to
+          THIS new token via 'circumstantial participle', exactly as it
+          would to a real antecedent. Example: in "Recordatusque
+          somniorum ait ad eos: Exploratores estis.", the participle
+          "Recordatus" agrees with the unexpressed subject of "ait" -- add
+          an implied token (tokentype 'implied subject') with relatedtoken1
+          -> "ait"'s id, relationship1 = 'subject'; "Recordatus" then has
+          relatedtoken1 -> that new implied token's id, relationship1 =
+          'circumstantial participle' (and, since "Recordatus" is itself a
+          predicate-sense participle, it ALSO anchors its own
+          `verbalunits` entry, syntactic_type 'dependent', semantic_type
+          matching its own transitivity -- unaffected by its antecedent
+          being implied rather than real).
 
-        Naming an implied token's id (both tokentypes): append '_implied'
-        to the id of the LAST real token in `tokens` that precedes where
-        the elided word would have stood (or, if the elided word would
-        come before every real token in the sentence, the FIRST real
-        token's id instead). If more than one implied token is ever
+        Naming an implied token's id (all three tokentypes): append
+        '_implied' to the id of the LAST real token in `tokens` that
+        precedes where the elided word would have stood (or, if the elided
+        word would come before every real token in the sentence, the FIRST
+        real token's id instead). If more than one implied token is ever
         needed at the same position, append '2', '3', ... after '_implied'
         to keep them unique (e.g. 't5_implied', 't5_implied2'). Place the
         new `tokengraph` entry at the list position where the elided word
         would have appeared, among the tokens of its own clause -- this
-        keeps it grouped with the rest of its verbal expression for
+        keeps it grouped with the rest of its verbal expression (or, for
+        'implied subject', the clause of the verb it's the subject of) for
         anything that reads `tokengraph` in order.
     """
  
@@ -394,10 +466,10 @@ analyze = dspy.ChainOfThought(SyntaxAnalysis)
 def validate(tokens: List[Token], result) -> List[str]:
     """Check that every id the LM produced actually exists among `tokens`
     -- OR is a legitimately new implied token (tokentype in
-    IMPLIED_TOKENTYPES -- 'implied sum' or 'continued discourse'; see
-    SyntaxAnalysis's docstring) -- and that implied tokens themselves are
-    well-formed. Returns a list of human-readable problem descriptions
-    (empty if clean).
+    IMPLIED_TOKENTYPES -- 'implied sum', 'continued discourse', or
+    'implied subject'; see SyntaxAnalysis's docstring) -- and that implied
+    tokens themselves are well-formed. Returns a list of human-readable
+    problem descriptions (empty if clean).
 
     'root' is a special sentinel value for an independent verb's own
     relatedtoken1 (see SyntaxAnalysis's docstring) -- it is never treated as
@@ -410,8 +482,13 @@ def validate(tokens: List[Token], result) -> List[str]:
     either wrong is exactly the kind of malformed output this function
     exists to catch, not a legitimate implied token. A non-implied entry,
     conversely, must use one of `tokens`' own ids and must NOT have
-    `token=None` -- only 'implied sum'/'continued discourse' may omit real
-    surface text."""
+    `token=None` -- only an IMPLIED_TOKENTYPES tokentype may omit real
+    surface text. This check is purely structural either way (new id,
+    empty text) -- it does NOT also require an 'implied sum'/'continued
+    discourse' token to have a matching `verbalunits` entry, or an
+    'implied subject' token to lack one; that distinction is documented
+    behavior (see SyntaxAnalysis's docstring), not something this function
+    enforces."""
     valid_ids = {t.id for t in tokens}
     problems = []
 
@@ -443,10 +520,11 @@ def validate(tokens: List[Token], result) -> List[str]:
             if tok.id not in valid_ids:
                 problems.append(f"tokengraph entry has unknown id {tok.id!r}")
             if tok.token is None:
+                allowed = "/".join(repr(t) for t in sorted(IMPLIED_TOKENTYPES))
                 problems.append(
                     f"tokengraph entry {tok.id!r} has token=None but "
-                    f"tokentype={tok.tokentype!r} -- only 'implied sum'/"
-                    "'continued discourse' may omit surface text"
+                    f"tokentype={tok.tokentype!r} -- only {allowed} may "
+                    "omit surface text"
                 )
         for field in ("relatedtoken1", "relatedtoken2"):
             val = getattr(tok, field)

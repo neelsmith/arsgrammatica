@@ -345,6 +345,41 @@ def test_enclitic_coordinating_conjunction_gets_wrapped_too():
     assert tokengraph_to_html(tg) == f"{span('arma')} {span('virum')}{span('que')} {span('cano')}."
 
 
+def test_series_coordinating_conjunctions_all_get_wrapped():
+    """A repeated ("et...et...et") series connector still gets the SAME
+    treatment as the ordinary pairwise case: _tokens_to_html()'s wrapping
+    check only looks at relationship1/relationship2 == "coordinating
+    conjunction" (see rendering.py), which every connector in a series
+    still sets, regardless of relatedtoken2 chaining between neighboring
+    connectors instead of pairing two conjuncts. All three "et"s here
+    should get the same colored span as the ablatives they introduce and
+    the verb they all ultimately resolve to."""
+    tg = [
+        _tok("t0", "et", "lexical",
+             relatedtoken1="t1", relationship1="coordinating conjunction",
+             relatedtoken2="t2", relationship2="coordinating conjunction"),
+        _tok("t1", "assiduitate", "lexical", relatedtoken1="t6", relationship1="ablative"),
+        _tok("t2", "et", "lexical",
+             relatedtoken1="t3", relationship1="coordinating conjunction",
+             relatedtoken2="t0", relationship2="coordinating conjunction"),
+        _tok("t3", "varietate", "lexical", relatedtoken1="t6", relationship1="ablative"),
+        _tok("t4", "et", "lexical",
+             relatedtoken1="t5", relationship1="coordinating conjunction",
+             relatedtoken2="t2", relationship2="coordinating conjunction"),
+        _tok("t5", "magnificentia", "lexical", relatedtoken1="t6", relationship1="ablative"),
+        _tok("t6", "antecessit", "lexical", verbalunitid="t6"),
+        _tok("t7", ".", "punctuation"),
+    ]
+    fill, _stroke, text_color = _VERBAL_UNIT_PALETTE[0]
+    span = lambda word: (
+        f'<span style="background-color: {fill}; color: {text_color};">{word}</span>'
+    )
+    assert tokengraph_to_html(tg) == (
+        f"{span('et')} {span('assiduitate')} {span('et')} {span('varietate')} "
+        f"{span('et')} {span('magnificentia')} {span('antecessit')}."
+    )
+
+
 def test_implied_tokens_are_omitted_from_html_entirely():
     """An implied/elided token (models.py's IMPLIED_TOKENTYPES) has no
     surface text of its own (tok.token is always None) -- tokengraph_to_html()
@@ -366,6 +401,41 @@ def test_implied_tokens_are_omitted_from_html_entirely():
     span = lambda word: f'<span style="background-color: {fill}; color: {text_color};">{word}</span>'
     html_out = tokengraph_to_html(tg)
     assert html_out == f"{span('Omnia')} {span('rara')}."
+    assert "implied" not in html_out
+
+
+def test_implied_subject_token_is_also_omitted_from_html():
+    """'implied subject' (see models.py's TokenAnalysis/IMPLIED_TOKENTYPES)
+    gets exactly the same omission as 'implied sum'/'continued discourse'
+    above -- it has no surface text either -- even though, unlike those
+    two, it never anchors a verbal unit of its own. Recordatus (the
+    participle) still gets wrapped normally, in its OWN verbal unit's
+    color, unaffected by its antecedent being implied rather than real.
+
+    Palette-slot order is a wrinkle worth spelling out: even though
+    t0_implied is invisible in the rendered HTML, assign_verbal_unit_colors()
+    still counts it toward first-appearance order (it operates on every
+    non-punctuation tokengraph entry, not just the ones that end up
+    wrapped in a span) -- and t0_implied resolves to venit's OWN verbal
+    unit (via its 'subject' relation), not Recordatus's. So venit's unit
+    claims palette slot 0 first, purely because t0_implied precedes t0 in
+    the tokengraph, and Recordatus's own (separate) unit gets slot 1 --
+    the reverse of what reading order alone would suggest."""
+    tg = [
+        _tok(
+            "t0_implied", None, "implied subject",
+            relatedtoken1="t1", relationship1="subject",
+        ),
+        _tok("t0", "Recordatus", "lexical", verbalunitid="t0",
+             relatedtoken1="t0_implied", relationship1="circumstantial participle"),
+        _tok("t1", "venit", "lexical", verbalunitid="t1", relatedtoken1="root", relationship1="unit verb"),
+    ]
+    html_out = tokengraph_to_html(tg)
+    fill1, _stroke1, text1 = _VERBAL_UNIT_PALETTE[1]  # Recordatus's own unit
+    fill0, _stroke0, text0 = _VERBAL_UNIT_PALETTE[0]  # venit's unit (claimed first, via t0_implied)
+    span_recordatus = f'<span style="background-color: {fill1}; color: {text1};">Recordatus</span>'
+    span_venit = f'<span style="background-color: {fill0}; color: {text0};">venit</span>'
+    assert html_out == f"{span_recordatus} {span_venit}"
     assert "implied" not in html_out
 
 

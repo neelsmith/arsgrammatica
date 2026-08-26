@@ -169,6 +169,24 @@ def test_circumstantial_participle_noun_keeps_its_own_clause_role():
     assignment = assign_verbal_units(tokengraph)
     assert assignment["t0"] == "t4"  # Eum -> accepere (its own direct-object role)
     assert assignment["t1"] == "t1"  # advenientem -> itself (singleton unit)
+
+
+def test_implied_subject_resolves_like_any_ordinary_antecedent():
+    """"Recordatus somniorum ait ad eos": t0_implied (tokentype 'implied
+    subject') is NOT a verbal-unit anchor -- it has no verbalunitid, unlike
+    'implied sum'/'continued discourse' -- so it must resolve through the
+    plain forward chase, via its own ordinary 'subject' relation into ait,
+    exactly like a real subject noun would (see this module's own
+    docstring's note on why no special-casing is needed for this case).
+    Recordatus (the participle) then resolves the same way in turn, one
+    hop further, landing in ait's own verbal unit too -- even though
+    Recordatus itself anchors a SEPARATE (dependent) verbal unit of its
+    own."""
+    tokengraph = _tokengraph("implied_subject_recordatus_somniorum_ait")
+    assignment = assign_verbal_units(tokengraph)
+    assert assignment["t0_implied"] == "t2"  # implied subject -> ait (its own 'subject' role)
+    assert assignment["t0"] == "t0"  # Recordatus -> itself (anchors its own dependent unit)
+    assert assignment["t1"] == "t0"  # somniorum (genitive on Recordatus) -> Recordatus's unit
  
  
 def test_apposition_does_not_disturb_verbal_unit_assignment():
@@ -185,6 +203,27 @@ def test_apposition_does_not_disturb_verbal_unit_assignment():
     assert assignment["t11"] == "t14"  # filia (apposed to Aethra) -> concubuerunt
     assert assignment["t10"] == "t14"  # Pitthei (genitive on filia) -> concubuerunt
     assert assignment["t14"] == "t14"  # concubuerunt -> itself
+
+
+def test_series_coordinating_conjunctions_all_resolve_through_relatedtoken1():
+    """"Tarquinius et assiduitate et varietate et magnificentia omnes
+    antecessit": a repeated ("et...et...et") series connector chains
+    relatedtoken2 between NEIGHBORING connectors (see this fixture's own
+    comment in gold_examples.py), not between two conjuncts the way the
+    ordinary pairwise case does -- so assign_verbal_units() must resolve
+    every connector via relatedtoken1 (always a real ablative here) without
+    ever needing to consult relatedtoken2 (which, for the second and third
+    connectors, points BACKWARD to a fellow connector and would resolve to
+    nothing useful on its own)."""
+    tokengraph = _tokengraph("coordinating_conjunction_series_assiduitate_varietate_magnificentia")
+    assignment = assign_verbal_units(tokengraph)
+    assert assignment["t2"] == "t8"  # assiduitate -> antecessit
+    assert assignment["t4"] == "t8"  # varietate -> antecessit
+    assert assignment["t6"] == "t8"  # magnificentia -> antecessit
+    assert assignment["t1"] == "t8"  # first et -> assiduitate -> antecessit
+    assert assignment["t3"] == "t8"  # second et -> varietate -> antecessit
+    assert assignment["t5"] == "t8"  # third et -> magnificentia -> antecessit
+    assert assignment["t8"] == "t8"  # antecessit -> itself
 
 
 def test_complementary_infinitive_and_infinitive_as_noun_are_not_anchors():
@@ -341,6 +380,22 @@ def test_circumstantial_participle_and_ablative_absolute_have_depth_one():
     assert warnings == []
 
 
+def test_circumstantial_participle_via_implied_subject_has_depth_one():
+    """"Recordatus somniorum ait ad eos": Recordatus's own relatedtoken1
+    points at t0_implied (the implied subject), not at ait directly -- so
+    its depth still has to chase one hop through that implied token to
+    reach ait, exactly like advenientem chases through the real noun "eum"
+    above. t0_implied itself never appears in `depths` at all (it isn't a
+    verbal-unit anchor, so compute_subordination_depths() has no entry for
+    it -- only Recordatus and ait do)."""
+    tokengraph = _tokengraph("implied_subject_recordatus_somniorum_ait")
+    depths, warnings = compute_subordination_depths(tokengraph)
+    assert depths["t2"] == 0  # ait, independent
+    assert depths["t0"] == 1  # Recordatus, circumstantial participle (via t0_implied)
+    assert "t0_implied" not in depths
+    assert warnings == []
+
+
 def test_indirect_statement_has_depth_one():
     """fuisse's own relatedtoken1 -> dixit (the new relation this whole
     feature depended on adding) makes its depth directly resolvable, one
@@ -477,6 +532,17 @@ def test_correct_dedit_et_dixit_fixture_produces_no_warning():
     assert find_unanchored_coordinated_verbs(tokengraph) == []
 
 
+def test_series_coordinating_conjunctions_produce_no_warning():
+    """The three "et" connectors in the series fixture each use BOTH
+    relatedtoken1 and relatedtoken2, matching this heuristic's precondition
+    -- but relatedtoken2 points at a FELLOW connector, not a second
+    conjunct, so the series-aware skip must kick in rather than flagging
+    the (harmless, expected) anchoring asymmetry between an ablative noun
+    and a connector."""
+    tokengraph = _tokengraph("coordinating_conjunction_series_assiduitate_varietate_magnificentia")
+    assert find_unanchored_coordinated_verbs(tokengraph) == []
+
+
 def test_flags_a_coordinated_verb_that_lost_its_own_anchor():
     """Simulates the real live-LM mistake this function exists to catch:
     take the correct dedit/dixit fixture and strip dixit's own anchor
@@ -518,6 +584,52 @@ def test_both_sides_anchored_but_neither_actually_verbs_is_not_flagged():
         ),
         TokenAnalysis(
             id="t2", token="b", tokentype="lexical", verbalunitid="t2",
+            relatedtoken1="root", relationship1="unit verb",
+        ),
+    ]
+    assert find_unanchored_coordinated_verbs(tokengraph) == []
+
+
+def test_series_coordinated_verbs_do_not_false_positive():
+    """Regression test for the series-aware fix: a repeated ("et...et...
+    et") connector coordinating a SERIES of independent verbs -- rather
+    than the noun series the gold fixture happens to use -- is exactly the
+    shape find_unanchored_coordinated_verbs() had a latent false-positive
+    risk for. Three anchored verbs (verb1/verb2/verb3), each introduced by
+    its own connector (conj1/conj2/conj3) via relatedtoken1; relatedtoken2
+    chains between neighboring connectors (conj1 -> conj2, conj2 -> conj1,
+    conj3 -> conj2), never at a second conjunct. Before the fix, every
+    connector's relatedtoken1 side (a verb, anchored) vs relatedtoken2 side
+    (a fellow connector, never itself an anchor) would look like the exact
+    asymmetry this heuristic exists to flag -- three spurious warnings for
+    a tokengraph that's actually entirely correct. The fix must recognize
+    relatedtoken2 pointing at a fellow connector and skip all three pairs."""
+    tokengraph = [
+        TokenAnalysis(
+            id="conj1", token="et", tokentype="lexical",
+            relatedtoken1="verb1", relationship1="coordinating conjunction",
+            relatedtoken2="conj2", relationship2="coordinating conjunction",
+        ),
+        TokenAnalysis(
+            id="verb1", token="venit", tokentype="lexical", verbalunitid="verb1",
+            relatedtoken1="root", relationship1="unit verb",
+        ),
+        TokenAnalysis(
+            id="conj2", token="et", tokentype="lexical",
+            relatedtoken1="verb2", relationship1="coordinating conjunction",
+            relatedtoken2="conj1", relationship2="coordinating conjunction",
+        ),
+        TokenAnalysis(
+            id="verb2", token="vidit", tokentype="lexical", verbalunitid="verb2",
+            relatedtoken1="root", relationship1="unit verb",
+        ),
+        TokenAnalysis(
+            id="conj3", token="et", tokentype="lexical",
+            relatedtoken1="verb3", relationship1="coordinating conjunction",
+            relatedtoken2="conj2", relationship2="coordinating conjunction",
+        ),
+        TokenAnalysis(
+            id="verb3", token="vicit", tokentype="lexical", verbalunitid="verb3",
             relatedtoken1="root", relationship1="unit verb",
         ),
     ]

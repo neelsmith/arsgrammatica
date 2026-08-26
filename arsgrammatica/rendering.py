@@ -217,7 +217,7 @@ def tokengraph_to_html(tokengraph: List[TokenAnalysis]) -> str:
     rather than assumed).
 
     An **implied/elided token** (models.py's IMPLIED_TOKENTYPES: "implied
-    sum", "continued discourse") is omitted entirely -- same as
+    sum", "continued discourse", "implied subject") is omitted entirely -- same as
     tokengraph_to_text() -- rather than rendered with any span: it has no
     surface text (`tok.token` is always `None`), and unlike
     `tokengraph_to_mermaid()`'s diagram (which DOES show these, as their

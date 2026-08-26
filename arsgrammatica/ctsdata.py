@@ -5,7 +5,7 @@ distinct from serialization.py's format (which reads/writes the *results*
 of an analysis). This is meant as the input side of the same workflow: pick
 a passage out of a file like this one, then hand its text and citation to
 analyze_passage() exactly as if they'd been typed in by hand (see
-marimo/syntaxer_ctsdata.py).
+marimo/latin_syntaxer_ctsdata.py).
 
 File shape: one or more blocks, each introduced by the label line
 '#!ctsdata' alone on its own line, immediately followed by the header line
@@ -22,7 +22,7 @@ Each row's own urn column is a 5-part, colon-separated CTS URN (e.g.
 the first 4 parts -- rejoined with ':', plus a trailing ':' -- as `urnbase`,
 and the 5th part as `citation`. For the example above that's
 'urn:cts:compnov:bible.genesis.vulgate:' and '45.1'. This mirrors how
-syntaxer_workflow.py's own manual-entry form works: `urnbase + citation`
+latin_syntaxer_workflow.py's own manual-entry form works: `urnbase + citation`
 (direct string concatenation, no separator) reconstructs the full URN,
 same as `input_form.value["urnbase"] + input_form.value["citation_context"]`
 there.
@@ -53,7 +53,7 @@ class CtsDataRow:
     colon-separated parts of the row's own CTS URN, rejoined with ':', plus
     a trailing ':') and `citation` (the URN's 5th part) together
     reconstruct the full URN as `urnbase + citation` -- the same
-    concatenation syntaxer_workflow.py's manual-entry form uses for its own
+    concatenation latin_syntaxer_workflow.py's manual-entry form uses for its own
     `urnbase`/`citation_context` fields. `text` is the passage's own
     surface text, verbatim."""
 
