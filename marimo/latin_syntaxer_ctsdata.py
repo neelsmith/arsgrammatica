@@ -517,7 +517,12 @@ def _(mo):
 
 @app.cell
 def _(Path, load_dotenv):
-    load_dotenv(dotenv_path=Path(__file__).parent.parent / ".env")
+    # override=True: marimo's kernel is a long-lived process, not a fresh
+    # one per run like syntaxer_main.py -- without this, once API_KEY (or
+    # any other var here) is set in os.environ, re-running this cell after
+    # editing .env would leave the stale value in place instead of picking
+    # up the fix.
+    load_dotenv(dotenv_path=Path(__file__).parent.parent / ".env", override=True)
     return
 
 
@@ -547,9 +552,16 @@ def _(os):
 @app.cell
 def _(dspy, getenv):
     def configure_lm():
-        if dspy.settings.lm is not None:
-            return dspy.settings.lm
-
+        # Always rebuild from the current environment -- no
+        # `if dspy.settings.lm is not None: return dspy.settings.lm` guard.
+        # dspy.settings is a module-level singleton that outlives any single
+        # cell run in marimo's long-lived kernel, so that guard would freeze
+        # whichever LM (and api_key) was first configured for the rest of
+        # the kernel's life, silently ignoring every later edit to .env --
+        # exactly the "works from the command line, fails in the notebook"
+        # symptom that sent us looking here. dspy.LM(...) construction and
+        # dspy.configure() are both cheap, local calls (no network round
+        # trip), so rebuilding on every call costs nothing.
         api_base = getenv("API_BASE", "API_BASE", "https://suarezai.holycross.edu/litellm")
         model = getenv("MODEL", "MODEL", "litellm_proxy/anthropic/Claude Opus 5")
         api_key = getenv("API_KEY", "API_KEY")
