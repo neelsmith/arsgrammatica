@@ -27,18 +27,15 @@ Working on `arsgrammatica` itself (this repo checked out locally) rather than de
 
 
 - [USAGE.md](https://github.com/neelsmith/arsgrammatica/blob/main/USAGE.md)
+- [API documentation](https://neelsmith.github.io/arsgrammatica/arsgrammatica-api-docs.html)
 - [TESTING.md](https://github.com/neelsmith/arsgrammatica/blob/main/TESTING.md)
 - [OPTIMIZING.md](https://github.com/neelsmith/arsgrammatica/blob/main/OPTIMIZING.md)
 - [BAKEOFF.md](https://github.com/neelsmith/arsgrammatica/blob/main/BAKEOFF.md)
 - [DEVELOPMENT.md](https://github.com/neelsmith/arsgrammatica/blob/main/DEVELOPMENT.md) -- how the above fit together into one development loop
-- [API documentation](https://neelsmith.github.io/arsgrammatica/arsgrammatica-api-docs.html)
+- Some additional [technical info](https://github.com/neelsmith/arsgrammatica/blob/main/technical.md)
+
 
 
 See the [project issue tracker](https://github.com/neelsmith/arsgrammatica/issues) for known gaps and work in progress.
 
-
-## Background
-
-- Some initial work from 2023 on [an alternative to universal dependencies](https://neelsmith.github.io/GreekAndLatinSyntax/) in 2023. 
-- A [Julia package](https://neelsmith.github.io/GreekSyntax.jl/stable/annotations/) implementing the alternative model.
 
