@@ -9,14 +9,18 @@ relationship2 overflow slot); every warning write_analyses() can return;
 every malformed-file error read_analyses() can raise; that
 serialize_analyses() and write_analyses() agree exactly; that
 read_analyses() accepts a file with more than one instance of a block
-label, merging them in file order; and a round trip built directly from
-real gold fixtures for realistic coverage of the scheme's relation shapes.
+label, merging them in file order; a round trip built directly from
+real gold fixtures for realistic coverage of the scheme's relation shapes;
+and the optional '#!LM' block -- its own round trip, its
+backward-compatible absence, reasoning's newline-collapsing, and every
+malformed-'#!LM' error read_analyses() can raise.
 """
 
 import pytest
 
 from arsgrammatica.models import Sentence, Token, TokenAnalysis, VerbalExpression
 from arsgrammatica.serialization import (
+    LMInfo,
     read_analyses,
     serialize_analyses,
     split_analysis_by_sentence,
@@ -110,7 +114,7 @@ def test_round_trip_preserves_every_object_exactly(tmp_path):
     warnings = write_analyses(sentences, verbalunits, tokengraph, str(path))
     assert warnings == []
 
-    got_tokengraph, got_verbalunits, got_sentences = read_analyses(str(path))
+    got_tokengraph, got_verbalunits, got_sentences, _ = read_analyses(str(path))
     assert got_tokengraph == tokengraph
     assert got_verbalunits == verbalunits
     assert got_sentences == sentences
@@ -125,7 +129,7 @@ def test_round_tripped_data_writes_byte_identical_output(tmp_path):
     path2 = tmp_path / "second.txt"
 
     write_analyses(sentences, verbalunits, tokengraph, str(path1))
-    got_tokengraph, got_verbalunits, got_sentences = read_analyses(str(path1))
+    got_tokengraph, got_verbalunits, got_sentences, _ = read_analyses(str(path1))
     write_analyses(got_sentences, got_verbalunits, got_tokengraph, str(path2))
 
     assert path1.read_text() == path2.read_text()
@@ -180,7 +184,7 @@ def test_serialize_analyses_content_round_trips_through_read_analyses(tmp_path):
     path = tmp_path / "from_string.txt"
     path.write_text(content)
 
-    got_tokengraph, got_verbalunits, got_sentences = read_analyses(str(path))
+    got_tokengraph, got_verbalunits, got_sentences, _ = read_analyses(str(path))
     assert got_tokengraph == tokengraph
     assert got_verbalunits == verbalunits
     assert got_sentences == sentences
@@ -230,7 +234,7 @@ def test_round_trip_against_real_gold_fixtures(tmp_path, slug):
     warnings = write_analyses(sentences, verbalunits, tokengraph, str(path))
     assert warnings == []
 
-    got_tokengraph, got_verbalunits, got_sentences = read_analyses(str(path))
+    got_tokengraph, got_verbalunits, got_sentences, _ = read_analyses(str(path))
     assert got_tokengraph == tokengraph
     assert got_verbalunits == verbalunits
     assert got_sentences == sentences
@@ -241,10 +245,11 @@ def test_empty_lists_round_trip_to_an_empty_but_valid_file(tmp_path):
     warnings = write_analyses([], [], [], str(path))
     assert warnings == []
 
-    tokengraph, verbalunits, sentences = read_analyses(str(path))
+    tokengraph, verbalunits, sentences, lm_infos = read_analyses(str(path))
     assert tokengraph == []
     assert verbalunits == []
     assert sentences == []
+    assert lm_infos == []
 
 
 # ---------------------------------------------------------------------------
@@ -263,7 +268,7 @@ def test_warns_when_a_token_is_not_covered_by_any_sentence(tmp_path):
     warnings = write_analyses([], verbalunits, tokengraph, str(path))
     assert any("t0" in w and "not found among the given sentences" in w for w in warnings)
     # Still written, with an empty context rather than raising.
-    got_tokengraph, got_verbalunits, _ = read_analyses(str(path))
+    got_tokengraph, got_verbalunits, _, _ = read_analyses(str(path))
     assert got_tokengraph == tokengraph
     assert got_verbalunits == verbalunits
 
@@ -345,7 +350,7 @@ def test_repeated_block_labels_are_merged_in_file_order(tmp_path):
         "Aeneid 1.2|t1|Aeneid 1.2|t1\n"
     )
     path = _write_raw(tmp_path, "repeated.txt", content)
-    tokengraph, verbalunits, sentences = read_analyses(path)
+    tokengraph, verbalunits, sentences, _ = read_analyses(path)
 
     assert [tok.id for tok in tokengraph] == ["t0", "t1"]
     assert [vu.id for vu in verbalunits] == ["t0", "t1"]
@@ -470,7 +475,7 @@ def test_blocks_may_appear_in_any_order(tmp_path):
         "Aeneid 1.1|t0|Aeneid 1.1|t0\n"
     )
     path = _write_raw(tmp_path, "reordered.txt", content)
-    tokengraph, verbalunits, sentences = read_analyses(path)
+    tokengraph, verbalunits, sentences, _ = read_analyses(path)
     assert len(tokengraph) == 1
     assert len(verbalunits) == 1
     assert len(sentences) == 1
@@ -489,7 +494,7 @@ def test_blank_lines_between_blocks_are_tolerated(tmp_path):
         "Aeneid 1.1|t0|Aeneid 1.1|t0\n"
     )
     path = _write_raw(tmp_path, "blank.txt", content)
-    tokengraph, verbalunits, sentences = read_analyses(path)
+    tokengraph, verbalunits, sentences, _ = read_analyses(path)
     assert len(tokengraph) == 1
     assert len(verbalunits) == 1
     assert len(sentences) == 1
@@ -537,7 +542,7 @@ def test_implied_token_round_trips_with_none_text_not_empty_string(tmp_path):
         "not trigger the 'not a contiguous run' warning"
     )
 
-    got_tokengraph, got_verbalunits, got_sentences = read_analyses(str(path))
+    got_tokengraph, got_verbalunits, got_sentences, _ = read_analyses(str(path))
     assert got_tokengraph == tokengraph
     assert got_verbalunits == verbalunits
 
@@ -552,7 +557,7 @@ def test_implied_token_is_excluded_from_its_sentences_reconstructed_tokens(tmp_p
     path = tmp_path / "implied.txt"
     write_analyses(sentences, verbalunits, tokengraph, str(path))
 
-    _got_tokengraph, _got_verbalunits, got_sentences = read_analyses(str(path))
+    _got_tokengraph, _got_verbalunits, got_sentences, _ = read_analyses(str(path))
     assert len(got_sentences) == 1
     # Only t0 (the real token) belongs in the reconstructed sentence -- the
     # implied token was never part of the original pre-analysis token list.
@@ -592,7 +597,7 @@ def test_implied_subject_token_round_trips_with_no_verbalunits_entry(tmp_path):
     warnings = write_analyses(sentences, verbalunits, tokengraph, str(path))
     assert warnings == []
 
-    got_tokengraph, got_verbalunits, got_sentences = read_analyses(str(path))
+    got_tokengraph, got_verbalunits, got_sentences, _ = read_analyses(str(path))
     assert got_tokengraph == tokengraph
     assert got_verbalunits == verbalunits
     assert {vu.id for vu in got_verbalunits} == {"t0", "t1"}  # NOT t0_implied
@@ -638,7 +643,7 @@ def test_split_round_trips_through_a_written_and_reread_file(tmp_path):
     path = tmp_path / "analysis.txt"
     write_analyses(sentences, verbalunits, tokengraph, str(path))
 
-    got_tokengraph, got_verbalunits, got_sentences = read_analyses(str(path))
+    got_tokengraph, got_verbalunits, got_sentences, _ = read_analyses(str(path))
     slices = split_analysis_by_sentence(got_tokengraph, got_verbalunits, got_sentences)
 
     assert len(slices) == 2
@@ -721,3 +726,213 @@ def test_split_rejects_a_boundary_token_missing_from_tokengraph():
 
     with pytest.raises(ValueError, match="not present in the given tokengraph"):
         split_analysis_by_sentence(truncated_tokengraph, verbalunits, sentences)
+
+
+# ---------------------------------------------------------------------------
+# The '#!LM' block: which model produced an analysis, what it was given to
+# analyze, and its own reasoning -- one entry per sentence, optional at
+# both ends (see the module docstring's "The #!LM block").
+# ---------------------------------------------------------------------------
+
+
+_MODEL = "litellm_proxy/anthropic/Claude Opus 5"
+_REASONING = [
+    "The main verb is cano, independent and transitive active.",
+    "Hercules is the subject of pergit, the sentence's independent verb.",
+]
+
+
+def test_lm_block_omitted_by_default(tmp_path):
+    """Neither serialize_analyses() nor write_analyses() should emit
+    '#!LM' -- or change their output at all -- when called without
+    `reasoning`, exactly reproducing every pre-'#!LM' file."""
+    sentences, verbalunits, tokengraph = _two_sentence_fixture()
+    path = tmp_path / "analysis.txt"
+
+    warnings = write_analyses(sentences, verbalunits, tokengraph, str(path))
+    assert warnings == []
+    text = path.read_text()
+    assert "#!LM" not in text
+
+    content, _ = serialize_analyses(sentences, verbalunits, tokengraph)
+    assert "#!LM" not in content
+
+    _tokengraph, _verbalunits, _sentences, lm_infos = read_analyses(str(path))
+    assert lm_infos == []
+
+
+def test_lm_block_appears_before_the_other_three(tmp_path):
+    sentences, verbalunits, tokengraph = _two_sentence_fixture()
+    path = tmp_path / "analysis.txt"
+    write_analyses(
+        sentences, verbalunits, tokengraph, str(path), model=_MODEL, reasoning=_REASONING
+    )
+
+    text = path.read_text()
+    assert text.index("#!LM") < text.index("#!sentences")
+    assert text.index("#!LM") < text.index("#!verbal_units")
+    assert text.index("#!LM") < text.index("#!tokens")
+
+
+def test_lm_block_round_trips(tmp_path):
+    sentences, verbalunits, tokengraph = _two_sentence_fixture()
+    path = tmp_path / "analysis.txt"
+
+    warnings = write_analyses(
+        sentences, verbalunits, tokengraph, str(path), model=_MODEL, reasoning=_REASONING
+    )
+    assert warnings == []
+
+    got_tokengraph, got_verbalunits, got_sentences, lm_infos = read_analyses(str(path))
+    assert got_tokengraph == tokengraph
+    assert got_verbalunits == verbalunits
+    assert got_sentences == sentences
+
+    assert lm_infos == [
+        LMInfo(
+            model=_MODEL,
+            context="Aeneid 1.1.t0-Aeneid 1.1.t4",
+            reasoning=_REASONING[0],
+        ),
+        LMInfo(
+            model=_MODEL,
+            # Sentence 2's tokens carry no citation at all -- each half of
+            # the identifier renders with an empty string before the '.'.
+            context=".t5-.t9",
+            reasoning=_REASONING[1],
+        ),
+    ]
+
+
+def test_lm_reasoning_newlines_and_repeated_whitespace_are_collapsed(tmp_path):
+    sentences, verbalunits, tokengraph = _two_sentence_fixture()
+    path = tmp_path / "analysis.txt"
+    messy_reasoning = [
+        "First line.\n\nSecond   paragraph\twith a tab.",
+        "Single line, no whitespace to collapse.",
+    ]
+
+    write_analyses(
+        sentences, verbalunits, tokengraph, str(path), model=_MODEL, reasoning=messy_reasoning
+    )
+    text = path.read_text()
+    assert "REASONING=First line. Second paragraph with a tab." in text
+
+    _tokengraph, _verbalunits, _sentences, lm_infos = read_analyses(str(path))
+    assert lm_infos[0].reasoning == "First line. Second paragraph with a tab."
+    assert lm_infos[1].reasoning == "Single line, no whitespace to collapse."
+
+
+def test_lm_none_model_and_reasoning_entries_round_trip_as_none(tmp_path):
+    sentences, verbalunits, tokengraph = _two_sentence_fixture()
+    path = tmp_path / "analysis.txt"
+
+    write_analyses(
+        sentences,
+        verbalunits,
+        tokengraph,
+        str(path),
+        model=None,
+        reasoning=[None, "Sentence two's reasoning."],
+    )
+
+    _tokengraph, _verbalunits, _sentences, lm_infos = read_analyses(str(path))
+    assert lm_infos[0].model is None
+    assert lm_infos[0].reasoning is None
+    assert lm_infos[1].model is None
+    assert lm_infos[1].reasoning == "Sentence two's reasoning."
+
+
+def test_lm_requires_one_reasoning_entry_per_sentence(tmp_path):
+    sentences, verbalunits, tokengraph = _two_sentence_fixture()
+    with pytest.raises(ValueError, match="one reasoning entry per sentence"):
+        write_analyses(
+            sentences,
+            verbalunits,
+            tokengraph,
+            str(tmp_path / "bad.txt"),
+            model=_MODEL,
+            reasoning=["only one entry"],
+        )
+
+
+def test_repeated_lm_blocks_are_merged_in_file_order(tmp_path):
+    """Same convention as the other three labels (see
+    test_repeated_block_labels_are_merged_in_file_order): concatenating two
+    self-contained write_analyses() outputs, each with its own '#!LM'
+    section, reads back as one combined list of LMInfo entries."""
+    sentence_a = Sentence(tokens=[Token(id="t0", text="foo", citation="Aeneid 1.1")])
+    tokengraph_a = [
+        TokenAnalysis(id="t0", token="foo", tokentype="lexical",
+                      verbalunitid="t0", relatedtoken1="root", relationship1="unit verb")
+    ]
+    verbalunits_a = [VerbalExpression(id="t0", syntactic_type="independent", semantic_type="intransitive")]
+
+    sentence_b = Sentence(tokens=[Token(id="t1", text="bar", citation="Aeneid 1.2")])
+    tokengraph_b = [
+        TokenAnalysis(id="t1", token="bar", tokentype="lexical",
+                      verbalunitid="t1", relatedtoken1="root", relationship1="unit verb")
+    ]
+    verbalunits_b = [VerbalExpression(id="t1", syntactic_type="independent", semantic_type="intransitive")]
+
+    content1, warnings1 = serialize_analyses(
+        [sentence_a], verbalunits_a, tokengraph_a, model=_MODEL, reasoning=[_REASONING[0]]
+    )
+    content2, warnings2 = serialize_analyses(
+        [sentence_b], verbalunits_b, tokengraph_b, model=_MODEL, reasoning=[_REASONING[1]]
+    )
+    assert warnings1 == [] and warnings2 == []
+    path = _write_raw(tmp_path, "concatenated.txt", content1 + content2)
+
+    _tokengraph, _verbalunits, got_sentences, lm_infos = read_analyses(path)
+    assert len(got_sentences) == 2
+    assert [info.reasoning for info in lm_infos] == _REASONING
+
+
+def test_lm_block_line_count_not_a_multiple_of_three_raises(tmp_path):
+    content = (
+        f"#!tokens\n{_TOKENS_HEADER}\nAeneid 1.1|t0|lexical|foo||t0|root|unit verb||\n"
+        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
+        "Aeneid 1.1|t0|Aeneid 1.1|t0\n"
+        "#!LM\nMODEL=foo\nCONTEXT=bar\n"  # missing REASONING= line
+    )
+    path = _write_raw(tmp_path, "lm_bad_count.txt", content)
+    with pytest.raises(ValueError, match="not a multiple of 3"):
+        read_analyses(path)
+
+
+@pytest.mark.parametrize(
+    "lm_lines,expected_match",
+    [
+        ("WRONG=foo\nCONTEXT=bar\nREASONING=baz", "MODEL="),
+        ("MODEL=foo\nWRONG=bar\nREASONING=baz", "CONTEXT="),
+        ("MODEL=foo\nCONTEXT=bar\nWRONG=baz", "REASONING="),
+    ],
+)
+def test_lm_block_wrong_prefix_raises(tmp_path, lm_lines, expected_match):
+    content = (
+        f"#!tokens\n{_TOKENS_HEADER}\nAeneid 1.1|t0|lexical|foo||t0|root|unit verb||\n"
+        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
+        "Aeneid 1.1|t0|Aeneid 1.1|t0\n"
+        f"#!LM\n{lm_lines}\n"
+    )
+    path = _write_raw(tmp_path, "lm_bad_prefix.txt", content)
+    with pytest.raises(ValueError, match=expected_match):
+        read_analyses(path)
+
+
+def test_lm_entry_count_mismatch_with_sentences_raises(tmp_path):
+    """Two '#!LM' entries but only one reconstructed sentence."""
+    content = (
+        f"#!tokens\n{_TOKENS_HEADER}\nAeneid 1.1|t0|lexical|foo||t0|root|unit verb||\n"
+        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
+        "Aeneid 1.1|t0|Aeneid 1.1|t0\n"
+        "#!LM\nMODEL=foo\nCONTEXT=bar\nREASONING=baz\n"
+        "MODEL=foo\nCONTEXT=bar2\nREASONING=baz2\n"
+    )
+    path = _write_raw(tmp_path, "lm_count_mismatch.txt", content)
+    with pytest.raises(ValueError, match="must match"):
+        read_analyses(path)

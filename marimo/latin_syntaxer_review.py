@@ -135,11 +135,11 @@ def _(analysis_file_browser, read_analyses):
     # No LM call anywhere in this notebook -- read_analyses() reconstructs
     # everything from the file's own text.
     analysis_path = analysis_file_browser.path(index=0)
-    tokengraph, verbalunits, sentences = [], [], []
+    tokengraph, verbalunits, sentences, lm_infos = [], [], [], []
     read_error = None
     if analysis_path is not None:
         try:
-            tokengraph, verbalunits, sentences = read_analyses(str(analysis_path))
+            tokengraph, verbalunits, sentences, lm_infos = read_analyses(str(analysis_path))
         except (ValueError, OSError) as e:
             read_error = str(e)
     return read_error, sentences, tokengraph, verbalunits

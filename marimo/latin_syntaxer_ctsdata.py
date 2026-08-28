@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.16"
+__generated_with = "0.24.0"
 app = marimo.App(width="medium")
 
 
@@ -446,12 +446,23 @@ def _(mo):
 
 
 @app.cell
-def _(finaltokens, results, sentences, serialize_analyses):
+def _(finaltokens, lm, results, sentences, serialize_analyses):
     # Flatten every sentence's own verbalunits into the one flat list
     # serialize_analyses()/write_analyses() expect, matching how
     # combined_tokengraph() already flattens tokengraph across sentences.
     all_verbalunits = [vu for result in results for vu in result.verbalunits]
-    analysis_text, analysis_warnings = serialize_analyses(sentences, all_verbalunits, finaltokens)
+    # '#!LM' records which model produced each sentence's analysis
+    # (lm.model -- the actual configured model, including configure_lm()'s
+    # own fallback default, not just a raw MODEL env lookup) and that
+    # sentence's own reasoning (dspy.ChainOfThought's `reasoning` output
+    # field), one entry per sentence.
+    analysis_text, analysis_warnings = serialize_analyses(
+        sentences,
+        all_verbalunits,
+        finaltokens,
+        model=lm.model,
+        reasoning=[result.reasoning for result in results],
+    )
     return analysis_text, analysis_warnings
 
 
