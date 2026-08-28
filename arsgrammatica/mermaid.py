@@ -96,8 +96,30 @@ _IMPLIED_TOKEN_LABELS = {
 # live in verbal_units.py (assign_verbal_unit_colors()), shared with
 # rendering.py's tokengraph_to_html() -- so both consumers assign identical
 # colors to the same verbal units instead of each maintaining its own copy.
- 
- 
+
+
+def token_label(tok: TokenAnalysis) -> str:
+    """The display label for one token: its own surface text (`tok.token`),
+    or -- for an implied/elided token (tokentype in IMPLIED_TOKENTYPES,
+    which has no surface text of its own; `tok.token` is None) -- a
+    placeholder from `_IMPLIED_TOKEN_LABELS` ("elided sum" for "implied
+    sum", "continued discourse" verbatim), falling back to the token's own
+    tokentype string verbatim for any IMPLIED_TOKENTYPES value not listed
+    there (e.g. "implied subject").
+
+    This is the exact label `tokengraph_to_mermaid()` puts in each node's
+    diagram box; it's pulled out as its own function so anything else that
+    needs "the same label the Mermaid diagram uses" for a token --
+    graphs.py's tokengraph_to_networkx(), for one -- can reuse it directly
+    rather than re-deriving (and risking drifting from) the same fallback
+    logic."""
+    return (
+        tok.token
+        if tok.token is not None
+        else _IMPLIED_TOKEN_LABELS.get(tok.tokentype, tok.tokentype)
+    )
+
+
 def tokengraph_to_mermaid(
     tokengraph: List[TokenAnalysis],
     orientation: str = "BT",
@@ -161,16 +183,10 @@ def tokengraph_to_mermaid(
             continue
         # An implied/elided token (see models.py's IMPLIED_TOKENTYPES) has
         # no surface text at all -- tok.token is None -- so it needs a
-        # placeholder label rather than crashing _escape_label() on None.
-        # _IMPLIED_TOKEN_LABELS supplies that ("elided sum" for "implied
-        # sum", "continued discourse" verbatim); the node's color (below)
-        # is what actually marks it as an implied token, not the label
-        # text.
-        label = (
-            tok.token
-            if tok.token is not None
-            else _IMPLIED_TOKEN_LABELS.get(tok.tokentype, tok.tokentype)
-        )
+        # placeholder label rather than crashing _escape_label() on None;
+        # token_label() supplies that. The node's color (below) is what
+        # actually marks it as an implied token, not the label text.
+        label = token_label(tok)
         # An implied/elided token (models.py's IMPLIED_TOKENTYPES) gets a
         # rounded-corner rectangle -- Mermaid's `(...)` node shape -- instead
         # of the plain `[...]` rectangle every other node uses, as a second,

@@ -3,7 +3,8 @@ according to the scheme documented in syntax_model.md.
 """
  
 from .models import Token, CitedText, Sentence, VerbalExpression, TokenAnalysis, RelationLabel
-from .mermaid import tokengraph_to_mermaid
+from .mermaid import tokengraph_to_mermaid, token_label
+from .graphs import GraphMetrics, tokengraph_to_networkx, graph_metrics
 from .verbal_units import (
     assign_verbal_units,
     assign_verbal_unit_colors,
@@ -38,6 +39,10 @@ __all__ = [
     "TokenAnalysis",
     "RelationLabel",
     "tokengraph_to_mermaid",
+    "token_label",
+    "GraphMetrics",
+    "tokengraph_to_networkx",
+    "graph_metrics",
     "assign_verbal_units",
     "assign_verbal_unit_colors",
     "compute_subordination_depths",
