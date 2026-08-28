@@ -51,6 +51,31 @@ def _configure_lm():
     if api_key:
         lm_kwargs["api_key"] = api_key
 
+    # Anthropic prompt caching: SyntaxAnalysis's system message (its own
+    # instructions plus the TokenAnalysis/VerbalExpression field
+    # descriptions) runs ~40K characters and is byte-identical on every
+    # single call -- only the per-sentence user message actually changes.
+    # Marking it with an ephemeral cache_control breakpoint lets a repeat
+    # call within Anthropic's cache TTL reuse that whole block at ~10% of
+    # its normal input-token price instead of paying full price every time
+    # (see VISUALIZATION.md-adjacent discussion in the project chat history
+    # -- there's no dedicated caching doc yet). litellm (which dspy.LM
+    # forwards arbitrary kwargs to) applies cache_control_injection_points
+    # provider-agnostically based solely on the param's presence, so this
+    # is gated on the model actually being Anthropic-routed -- a MODEL
+    # override pointing at Ollama/OpenAI/etc. would otherwise just carry an
+    # inert, unrecognized field. There are no few-shot demos attached to
+    # `analyze` today, so one breakpoint on the system message covers the
+    # whole static prefix; if a compiled/optimized program with demos is
+    # ever loaded here, add a second point, {"location": "message", "index":
+    # -2}, to fold the demo turns into the same cached prefix too (the
+    # real, always-different input is always the last message, so -2 is
+    # "whatever precedes it," demos or not).
+    if "anthropic" in model.lower():
+        lm_kwargs["cache_control_injection_points"] = [
+            {"location": "message", "role": "system"}
+        ]
+
     lm = dspy.LM(**lm_kwargs)
     dspy.configure(lm=lm)
     return lm

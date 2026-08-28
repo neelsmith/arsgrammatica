@@ -35,6 +35,22 @@ It starts from `estimate_max_tokens(len(tokens))` (or `initial_max_tokens`, if y
 `get_calibration()` reports which fit is currently active (the real one from `calibrate_max_tokens.py`, or the untuned fallback) if you want to check before relying on an estimate.
 
 
+## Anthropic prompt caching
+
+`SyntaxAnalysis`'s system message -- its own instructions plus the full `TokenAnalysis`/`VerbalExpression` field descriptions -- runs to roughly 40,000 characters and is byte-identical on every single call, regardless of passage; only the small per-sentence user message actually varies (typically well under 1,000 characters). Every `_configure_lm()` in this repo (`syntaxer_main.py`, `calibrate_max_tokens.py`, and the `marimo` notebooks) turns on Anthropic prompt caching automatically when `MODEL` routes to Anthropic -- there's no `.env` setting for this, and switching `MODEL` to a non-Anthropic backend (Ollama, OpenAI, etc.) skips it with nothing to turn off by hand:
+
+```python
+if "anthropic" in model.lower():
+    lm_kwargs["cache_control_injection_points"] = [
+        {"location": "message", "role": "system"}
+    ]
+```
+
+`cache_control_injection_points` is a litellm parameter (which `dspy.LM` forwards straight through, along with any other kwarg) that marks a message with Anthropic's ephemeral `cache_control` breakpoint -- everything up to and including that message can be reused by a later call within Anthropic's cache TTL (5 minutes by default) at roughly a tenth of its normal input-token price, instead of paying full price every time. Since there are no few-shot demos attached to `analyze` today, one breakpoint on the system message covers the whole static prefix; if a compiled/optimized program with demos is ever loaded, add a second point, `{"location": "message", "index": -2}`, to fold the demo turns into the same cached prefix (the real, always-different input is always the last message, so `-2` is "whatever precedes it," demos or not).
+
+This is a net win specifically for anything that fires several calls close together against the same system message -- `analyze_sources()` walking a multi-sentence passage, `calibrate_max_tokens.py`'s run over the whole `GOLD_EXAMPLES` corpus (one call per entry, 43 as of this writing), or an interactive `marimo` session. A single, isolated call costs a little *more* than before (a modest write premium with no offsetting read), so this only pays off because these scripts are rarely run for just one call.
+
+
 ## Harvesting gold examples from real analyses
 
 `gold_example_from_analysis()`/`format_gold_example_source()` (in `tests/fixtures/harvest.py`) turn a real analysis's own `sentences`/`verbalunits`/`tokengraph` -- the same triple `write_analyses()`/`serialize_analyses()` take -- into a `GoldExample` (`tests/fixtures/gold_examples.py`), instead of hand-writing a `canned_answer` dict from scratch:
