@@ -161,27 +161,29 @@ Each row's `urn` column must be a 5-part, colon-separated CTS URN (e.g. `urn:cts
 
 ## Tokenizing a source file without full syntax analysis
 
-`utilities/tokenize_ctsdata.py` is a command-line script that reads every passage out of a `#!ctsdata` (CEX) source file, tokenizes and sentence-splits each one on its own via `segment_sources()` (the same LM-driven segmentation stage `analyze_sources()` runs before syntax analysis), and writes the result to standard output -- no `SyntaxAnalysis` call, no `TokenAnalysis`/`VerbalExpression`, one LM call per passage rather than one per sentence:
+`utilities/tokenize_ctsdata.py` is a command-line script that reads every passage out of a `#!ctsdata` (CEX) source file, tokenizes and sentence-splits the WHOLE collected text in one shot via `segment_sources()` (the same LM-driven segmentation stage `analyze_sources()` runs before syntax analysis, and the same way `latin_syntaxer_ctsdata.py`'s own "Analyze every selected passage, together" cell does), and writes the result to standard output -- no `SyntaxAnalysis` call, no `TokenAnalysis`/`VerbalExpression`, one LM call for the whole file rather than one per sentence:
 
 ```bash
 python3 utilities/tokenize_ctsdata.py passages.txt > tokenized.txt
 ```
 
-Its output is a new, lightweight pipe-delimited format -- NOT `read_analyses()`'s `#!sentences`/`#!verbal_units`/`#!tokens` blocks, since nothing here ever produces the `TokenAnalysis`/`VerbalExpression` data that format is built around:
+Every row is segmented together, in file order, so a sentence may run from the end of one row's text into the start of the next -- exactly like `analyze_sources()` -- and token ids (`t0`, `t1`, ...) are globally unique across the whole output.
+
+The output has two `#!`-labeled, pipe-delimited blocks. The first, `#!sentences`, is in exactly the same shape `arsgrammatica.serialization` writes for its own `#!sentences` block (this script imports those constants directly, so the two can't drift apart). The second, `#!tokens`, lists every token in every sentence; it shares that name with `arsgrammatica.serialization`'s own `#!tokens` block, but not its columns -- there's no `tokentype`/`lemma`/relation data to write here, since nothing in this script ever runs syntax analysis. Because of that column mismatch, `read_analyses()` still can't parse this file as a whole, even though its `#!sentences` half alone is exactly what that function expects:
 
 ```
-#!passages
-citation|text
-urn:cts:compnov:bible.genesis.vulgate:45.1|Non se poterat ultra tenere.
-
 #!sentences
+context_begin|first_token|context_end|last_token
+urn:cts:compnov:bible.genesis.vulgate:45.1|t0|urn:cts:compnov:bible.genesis.vulgate:45.1|t4
+
+#!tokens
 context|sentence_index|id|text
 urn:cts:compnov:bible.genesis.vulgate:45.1|0|t0|Non
 urn:cts:compnov:bible.genesis.vulgate:45.1|0|t1|se
 ...
 ```
 
-`#!passages` is every row `read_ctsdata()` returned, verbatim. `#!sentences` has one row per token: `context` is that token's own citation (its owning passage's `citation`), `sentence_index` is that sentence's 0-based position *within its own passage* (not across the whole file), and `id`/`text` are the token's own id/surface text. Each passage is segmented independently rather than combined with its neighbors -- a `#!ctsdata` file is an arbitrary catalog of passages, not necessarily one continuous stretch of reading -- so token ids restart at `t0` for every passage (unique within a passage, not across the file) and a sentence never runs from one row's text into the next. `--delimiter` controls the *source* `#!ctsdata` file's own column delimiter, matching `read_ctsdata()`'s own option; the output this script writes always uses `|`.
+`#!sentences` has one row per sentence: `context_begin`/`first_token` are that sentence's own first token's citation/id, `context_end`/`last_token` its own last token's citation/id -- same fields `serialize_analyses()` itself writes. `#!tokens` has one row per token: `context` is that token's own citation, `sentence_index` is that token's own sentence's 0-based position *across the whole file* (not reset per source row), and `id`/`text` are the token's own id/surface text. `--delimiter` controls the *source* `#!ctsdata` file's own column delimiter, matching `read_ctsdata()`'s own option; the output this script writes always uses `|`.
 
 
 

@@ -1,62 +1,61 @@
 """
 Command-line utility: read every passage out of a `#!ctsdata` (CEX) source
-file (ctsdata.py's `read_ctsdata()`), tokenize and split each one into
-sentences via segmentation_dspy.py's `segment_sources()` -- the same LLM-
-driven tokenization/sentence-splitting stage pipeline.py's `analyze_sources()`
-runs before syntax analysis -- and write the result to standard output as
-one serialized string. No syntax analysis happens here at all: there is no
-SyntaxAnalysis call, no TokenAnalysis/VerbalExpression, and nothing for
-`validate()` to check -- this stops at "what are the sentences and tokens",
-one LM call per passage.
+file (ctsdata.py's `read_ctsdata()`), tokenize and split the WHOLE collected
+text into sentences in one shot via segmentation_dspy.py's
+`segment_sources()` -- the same LLM-driven tokenization/sentence-splitting
+stage pipeline.py's `analyze_sources()` runs before syntax analysis, and
+the same way marimo/latin_syntaxer_ctsdata.py segments its own selected
+passages -- and write the result to standard output as one serialized
+string. No syntax analysis happens here at all: there is no SyntaxAnalysis
+call, no TokenAnalysis/VerbalExpression, and nothing for `validate()` to
+check -- this stops at "what are the sentences and tokens", one LM call for
+the whole file.
 
-Each passage is segmented ON ITS OWN, not combined with its neighbors into
-one continuous `segment_sources()` call the way the ctsdata marimo notebook
-combines several *selected* passages together (see
-marimo/latin_syntaxer_ctsdata.py) -- a `#!ctsdata` file's rows are an
-arbitrary catalog of passages (e.g. gathered from unrelated places in a
-text, or from different texts entirely), not necessarily one continuous
-stretch of reading, so a sentence is never allowed to run from the end of
-one row's text into the start of the next. One consequence: token ids
-(`t0`, `t1`, ...) restart at `t0` for every passage, since
-`segment_sources()` numbers ids sequentially within whatever `sources` it's
-given (see its own docstring) and each call here is given exactly one
-passage. Ids are therefore only unique WITHIN a passage (i.e. within one
-`context` value below), not across the whole file -- unlike
-arsgrammatica.serialization's format, which assumes globally-unique ids
-because it serializes one continuous, jointly-segmented passage.
+Every row `read_ctsdata()` returns is handed to a single `segment_sources()`
+call together, in file order -- not segmented one row at a time -- so a
+sentence is free to run from the end of one row's text into the start of
+the next, exactly like `analyze_sources()`/the ctsdata notebook's own
+"Analyze every selected passage, together" behavior. Token ids (`t0`, `t1`,
+...) are therefore globally unique across the whole output, the same
+`segment_sources()` guarantee `arsgrammatica.serialization`'s own format
+relies on -- not scoped to one row the way an earlier version of this
+script had it.
 
-Output format: this is a NEW, lightweight format, deliberately not
-arsgrammatica.serialization's `#!sentences`/`#!verbal_units`/`#!tokens`
-blocks -- that format is built around TokenAnalysis/VerbalExpression (the
-*syntax analysis* stage's output), which nothing here ever produces, and
-`read_analyses()` cannot parse this file. Two pipe-delimited blocks, each
-introduced by a `#!`-prefixed label line and a fixed header line, mirroring
-that module's own style:
-
-    #!passages
-    citation|text
-    urn:cts:compnov:bible.genesis.vulgate:45.1|Non se poterat ultra tenere.
+Output format: two `#!`-labeled, pipe-delimited blocks. The first,
+`#!sentences`, is in EXACTLY the same shape `arsgrammatica.serialization`
+writes for its own `#!sentences` block (same label, same
+`context_begin|first_token|context_end|last_token` header and row shape --
+this script imports those constants directly from `arsgrammatica.serialization`
+rather than re-typing them, so the two can never quietly drift apart). The
+second, `#!tokens`, lists every token in every sentence; despite sharing
+`arsgrammatica.serialization`'s block NAME, its columns are its own,
+lighter shape (`context|sentence_index|id|text`), not that module's
+10-column tokengraph row -- there is no `tokentype`/`lemma`/relation data
+to write, since nothing here ever runs syntax analysis. Because of that
+column mismatch, `read_analyses()` still cannot parse this file as a whole,
+even though its `#!sentences` half alone is byte-for-byte what that
+function expects:
 
     #!sentences
+    context_begin|first_token|context_end|last_token
+    urn:cts:compnov:bible.genesis.vulgate:45.1|t0|urn:cts:compnov:bible.genesis.vulgate:45.1|t4
+
+    #!tokens
     context|sentence_index|id|text
     urn:cts:compnov:bible.genesis.vulgate:45.1|0|t0|Non
     urn:cts:compnov:bible.genesis.vulgate:45.1|0|t1|se
-    urn:cts:compnov:bible.genesis.vulgate:45.1|0|t2|poterat
     ...
 
-`#!passages` is simply every row `read_ctsdata()` returned (each a
-`CitedText` -- `citation` is that row's own whole urn, `text` its surface
-text verbatim), in file order -- a record of exactly what was segmented
-and with what citation, kept alongside the tokens themselves rather than
-requiring a reader to go back to the original `#!ctsdata` file to know it.
-`#!sentences` has one row per token: `context` is that token's own
-`Token.citation` (always the owning passage's `citation` here, since every
-token in a passage's sentences carries that same citation -- named
-`context` rather than `citation` to match serialization.py's own column-
-naming convention for this field), `sentence_index` is that sentence's
-0-based position within its OWN passage (not across the whole file --
-resets to 0 for every passage, same reasoning as the id reset above),
-`id`/`text` are the token's own `Token.id`/`Token.text`.
+`#!sentences` has one row per sentence: `context_begin`/`first_token` are
+that sentence's own first token's citation/id, `context_end`/`last_token`
+its own last token's citation/id -- same fields, same meaning, as
+`arsgrammatica.serialization.serialize_analyses()`'s own `#!sentences` rows.
+`#!tokens` has one row per token: `context` is that token's own
+`Token.citation` (named `context` rather than `citation` to match
+serialization.py's own column-naming convention for this field),
+`sentence_index` is that token's own sentence's 0-based position in the
+WHOLE file (not reset per source row, since segmentation runs once across
+every row together), `id`/`text` are the token's own `Token.id`/`Token.text`.
 
 As with every other pipe-delimited format in this codebase, no column may
 contain a literal `|` or newline -- there is no escaping mechanism. This
@@ -93,82 +92,93 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from syntaxer_main import _configure_lm  # noqa: E402
 
 from arsgrammatica import CitedText, read_ctsdata, segment_sources
+from arsgrammatica.serialization import SENTENCES_LABEL, SENTENCES_HEADER
 
 
-PASSAGES_LABEL = "#!passages"
-PASSAGES_HEADER = "citation|text"
-SENTENCES_LABEL = "#!sentences"
-SENTENCES_HEADER = "context|sentence_index|id|text"
+TOKENS_LABEL = "#!tokens"
+TOKENS_HEADER = "context|sentence_index|id|text"
 
 
-def _field(value: str, *, where: str) -> str:
-    """Validate one column value for this format's pipe-delimited rows --
-    same convention as serialization.py's own `_field()`: a literal
-    newline or '|' can't be represented (no escaping mechanism), so raise
-    ValueError immediately, naming `where`, rather than write a row a
-    reader couldn't parse back apart."""
-    if "\n" in value:
-        raise ValueError(f"{where}: value {value!r} contains a newline, which this pipe-delimited format cannot represent")
-    if "|" in value:
-        raise ValueError(f"{where}: value {value!r} contains '|', this format's own column delimiter, which it cannot represent")
+def _field(value, *, where: str) -> str:
+    """Render one column value: same convention as serialization.py's own
+    `_field()` -- `None` becomes `''` (used here for a token with no
+    citation), any other string is returned verbatim after checking it
+    contains none of `|`/`\\n`/`\\r`, none of which this pipe-delimited
+    format has any way to escape. Raises ValueError immediately, naming
+    `where`, rather than write a row a reader couldn't parse back apart."""
+    if value is None:
+        return ""
+    if "|" in value or "\n" in value or "\r" in value:
+        raise ValueError(
+            f"{where}: value {value!r} contains a '|' or a newline, which "
+            "this pipe-delimited format has no way to escape"
+        )
     return value
 
 
 def tokenize_ctsdata(rows: List[CitedText]) -> str:
-    """Segment every row in `rows` (as `read_ctsdata()` returns them --
-    each already a `CitedText`) into sentences, one `segment_sources()`
-    call per row (see this module's own docstring for why passages are
-    never combined), and return the complete `#!passages`/`#!sentences`
-    file body described there as a single string, including its trailing
-    newline.
+    """Segment `rows` (as `read_ctsdata()` returns them -- each already a
+    `CitedText`) into sentences with a single `segment_sources()` call over
+    all of them together, in file order (see this module's own docstring
+    for why they're combined rather than segmented one at a time), and
+    return the complete `#!sentences`/`#!tokens` file body described there
+    as a single string, including its trailing newline.
 
     Raises ValueError, naming the offending row, if any field value
-    contains '|' or a newline (see `_field()`); propagates whatever
-    `segment_sources()` itself raises (e.g. a malformed LM response) for a
-    given passage as-is, taking down the whole run rather than silently
-    skipping that passage -- this is a small enough tool that "one bad
-    passage aborts the batch, rerun once it's fixed" is preferable to
-    guessing which passages are safe to keep.
+    contains '|' or a newline (see `_field()`), or if a sentence somehow
+    has no tokens at all (nothing to derive `#!sentences`' own
+    first_token/last_token from -- mirrors serialize_analyses()'s own
+    guard for the same case); propagates whatever `segment_sources()`
+    itself raises (e.g. a malformed LM response) as-is -- there is only
+    one LM call for the whole file, so there is no notion of "one bad
+    passage" to isolate from the rest.
     """
-    lines: List[str] = [PASSAGES_LABEL, PASSAGES_HEADER]
-    for row in rows:
-        where = f"#!passages row for citation {row.citation!r}"
-        lines.append(
+    sentences = segment_sources(rows)
+
+    sentence_lines: List[str] = [SENTENCES_LABEL, SENTENCES_HEADER]
+    token_lines: List[str] = [TOKENS_LABEL, TOKENS_HEADER]
+
+    for s_idx, sentence in enumerate(sentences):
+        if not sentence.tokens:
+            raise ValueError(f"sentence at index {s_idx} has no tokens -- cannot derive first_token/last_token for an empty sentence")
+
+        first_tok = sentence.tokens[0]
+        last_tok = sentence.tokens[-1]
+        where = f"#!sentences row for sentence {s_idx}"
+        sentence_lines.append(
             "|".join(
                 [
-                    _field(row.citation, where=where),
-                    _field(row.text, where=where),
+                    _field(first_tok.citation, where=where),
+                    _field(first_tok.id, where=where),
+                    _field(last_tok.citation, where=where),
+                    _field(last_tok.id, where=where),
                 ]
             )
         )
 
-    lines.append("")
-    lines.append(SENTENCES_LABEL)
-    lines.append(SENTENCES_HEADER)
-    for row in rows:
-        sentences = segment_sources([row])
-        for s_idx, sentence in enumerate(sentences):
-            for tok in sentence.tokens:
-                where = f"#!sentences row for citation {row.citation!r} sentence {s_idx} token {tok.id!r}"
-                lines.append(
-                    "|".join(
-                        [
-                            _field(row.citation, where=where),
-                            str(s_idx),
-                            _field(tok.id, where=where),
-                            _field(tok.text, where=where),
-                        ]
-                    )
+        for tok in sentence.tokens:
+            where = f"#!tokens row for sentence {s_idx} token {tok.id!r}"
+            token_lines.append(
+                "|".join(
+                    [
+                        _field(tok.citation, where=where),
+                        str(s_idx),
+                        _field(tok.id, where=where),
+                        _field(tok.text, where=where),
+                    ]
                 )
+            )
 
+    lines = sentence_lines + [""] + token_lines
     return "\n".join(lines) + "\n"
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description=(
-            "Tokenize and sentence-split every passage in a #!ctsdata (CEX) "
-            "source file (no syntax analysis), writing the result to stdout."
+            "Tokenize and sentence-split the whole collected text of a "
+            "#!ctsdata (CEX) source file (no syntax analysis), writing the "
+            "result to stdout."
         )
     )
     parser.add_argument("ctsdata_path", help="Path to a #!ctsdata (CEX) source file.")
