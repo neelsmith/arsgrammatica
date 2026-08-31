@@ -8,7 +8,9 @@ from .graphs import GraphMetrics, tokengraph_to_networkx, graph_metrics
 from .verbal_units import (
     assign_verbal_units,
     assign_verbal_unit_colors,
+    compute_aat_depths,
     compute_subordination_depths,
+    find_governing_verbal_expression,
     max_subordination_depth,
     find_unanchored_coordinated_verbs,
 )
@@ -36,6 +38,37 @@ from .segmentation_serialization import (
 )
 from .token_budget import estimate_max_tokens, analyze_with_retry, get_calibration, DEFAULT_CEILING
 
+# attgraph() depends on the separate `aat` package, which most callers of
+# arsgrammatica have no need to install at all -- not on PyPI, so
+# `pip install git+https://github.com/neelsmith/aat.git` (not a bare
+# `pip install aat`) is what actually installs it; pyproject.toml's "aat"
+# extra is only reachable if arsgrammatica itself is pip-installed
+# (`pip install '.[aat]'` from a checkout, or an editable install) rather
+# than just run from a checkout on sys.path, which is how this project is
+# normally used. Importing it lazily/defensively here, rather than
+# unconditionally like every other submodule above, means `import
+# arsgrammatica` still succeeds without `aat` installed; only actually
+# calling `arsgrammatica.attgraph(...)` without it raises, with a message
+# naming the missing package and how to get it.
+try:
+    from .aat_bridge import attgraph
+except ImportError as _exc:  # pragma: no cover -- exercised only when `aat` isn't installed
+    # `except ... as name` implicitly deletes `name` once this block ends
+    # (a Python gotcha, not specific to this code) -- reassign to a plain
+    # variable first so attgraph(), called later, can still reference it.
+    _aat_import_error = _exc
+
+    def attgraph(*args, **kwargs):
+        raise ImportError(
+            "attgraph() needs the separate 'aat' package "
+            "(https://github.com/neelsmith/aat), which isn't installed. "
+            "Install it with: pip install git+https://github.com/"
+            "neelsmith/aat.git -- (if you've also `pip install`ed "
+            "arsgrammatica itself, rather than just running it from a "
+            "checkout, `pip install '.[aat]'` from its own directory "
+            "does the same thing via this package's 'aat' extra)."
+        ) from _aat_import_error
+
 __all__ = [
     "Token",
     "CitedText",
@@ -50,7 +83,9 @@ __all__ = [
     "graph_metrics",
     "assign_verbal_units",
     "assign_verbal_unit_colors",
+    "compute_aat_depths",
     "compute_subordination_depths",
+    "find_governing_verbal_expression",
     "max_subordination_depth",
     "find_unanchored_coordinated_verbs",
     "tokengraph_to_text",
@@ -78,4 +113,5 @@ __all__ = [
     "analyze_with_retry",
     "get_calibration",
     "DEFAULT_CEILING",
+    "attgraph",
 ]

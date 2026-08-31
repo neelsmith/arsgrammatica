@@ -11,20 +11,15 @@ Released under the [GNU General Public License v3 or later](LICENSE).
 
 ## Installing
 
-To use `arsgrammatica` from another project, install it straight from this repository (no PyPI account or release process needed):
+To use `arsgrammatica` from another project, install it from this repository:
 
 ```sh
 pip install git+https://github.com/neelsmith/arsgrammatica.git
 ```
 
-That installs whatever's currently on the `main` branch. Pin to a specific branch, tag, or commit by appending `@<ref>`, e.g. `pip install git+https://github.com/neelsmith/arsgrammatica.git@wip` for the development branch, or `@v0.2.0` once a version is tagged. Either way, only `arsgrammatica/` itself is installed as a package -- `dspy` and `pydantic` come along automatically as declared dependencies; the marimo notebooks, tests, and other repo scripts are not part of the installed package and aren't needed to use it.
-
-Working on `arsgrammatica` itself (this repo checked out locally) rather than depending on it from elsewhere: `pip install -e .` from the repo root installs it in editable mode, so source edits take effect immediately without reinstalling.
-
+That installs whatever's currently on the `main` branch. Pin to a specific branch or tag by appending `@<ref>`, e.g. `pip install git+https://github.com/neelsmith/arsgrammatica.git@wip` for the development branch, or `@v0.2.0` for a tagged version. `arsgrammatica` itself is installed, and brigns `dspy` and `pydantic` as declared dependencies; the marimo notebooks, tests, and other repo scripts are not part of the installed package and are not needed to use it.
 
 ## Using `arsgrammatica`
-
-
 
 - [USAGE.md](https://github.com/neelsmith/arsgrammatica/blob/main/USAGE.md)
 - [API documentation](https://neelsmith.github.io/arsgrammatica/arsgrammatica-api-docs.html)

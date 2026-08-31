@@ -11,7 +11,7 @@ import pytest
 
 from arsgrammatica import tokengraph_to_mermaid, validate
 from arsgrammatica.models import TokenAnalysis
-from arsgrammatica.verbal_units import compute_subordination_depths
+from arsgrammatica.verbal_units import compute_aat_depths, compute_subordination_depths
 from conftest import run_gold_example
 from fixtures.gold_examples import GOLD_EXAMPLES
 
@@ -20,10 +20,11 @@ from fixtures.gold_examples import GOLD_EXAMPLES
 def test_ranking_adds_no_new_warnings(example):
     """Ranking is a purely additive layout step -- it must never introduce
     a warning that plain rendering (rank_by_depth=False) doesn't already
-    have, for any well-formed gold fixture (none of them currently produce
-    a compute_subordination_depths() warning -- see
-    test_unresolved_depth_warning_is_surfaced_and_excludes_that_anchor
-    below for the case where one does)."""
+    have. compute_aat_depths() (unlike compute_subordination_depths(),
+    which some other views still use) never produces a warning at all --
+    see test_cyclic_anchors_still_get_ranked_with_no_warning below for the
+    one malformed-input case that would have warned under the old
+    depth-of-subordination ranking."""
     tokens, result = run_gold_example(example)
     _plain_diagram, plain_warnings = tokengraph_to_mermaid(
         result.tokengraph, rank_by_depth=False
@@ -93,13 +94,23 @@ def test_ranking_and_coloring_compose():
     assert "classDef vu0" in diagram
 
 
-def test_unresolved_depth_warning_is_surfaced_and_excludes_that_anchor():
+def test_cyclic_anchors_still_get_ranked_with_no_warning():
     """Two anchors caught in a relation cycle (see
-    test_verbal_units.py's own test_cycle_in_relations_leaves_depth_unresolved_with_warning)
-    resolve to depth None -- compute_subordination_depths()'s warning about
-    that must be surfaced through tokengraph_to_mermaid()'s own warnings
-    list, and neither cyclic anchor should show up in any invisible-link
-    chain (there's no depth to rank them by)."""
+    test_verbal_units.py's own test_cycle_in_relations_leaves_depth_unresolved_with_warning,
+    and test_mutual_cycle_resolves_each_anchor_to_the_other) would leave
+    compute_subordination_depths() unable to resolve either one's depth at
+    all, with a warning, and tokengraph_to_mermaid() used to surface that
+    warning and exclude both anchors from ranking entirely. Since
+    rank_by_depth now uses compute_aat_depths() instead (see mermaid.py's
+    own docstring for why: it lines this diagram's layout up with what an
+    AAT graph of the same sentence would show), the very different
+    tradeoff documented there applies here too: NO warning, and both
+    anchors DO get a plain int depth and end up in the diagram's ranking
+    -- an AATGraph has no way to represent 'this verbal expression's
+    subordination couldn't be resolved,' only 'independent' or 'depends on
+    this other one,' so this diagram's ranking doesn't either, even though
+    the actual numbers a cycle produces are an arbitrary tie-break rather
+    than a meaningful depth (see compute_aat_depths()'s own docstring)."""
     tokengraph = [
         TokenAnalysis(
             id="t0", token="a", tokentype="lexical", verbalunitid="t0",
@@ -112,7 +123,12 @@ def test_unresolved_depth_warning_is_surfaced_and_excludes_that_anchor():
     ]
     depths, direct_warnings = compute_subordination_depths(tokengraph)
     assert depths == {"t0": None, "t1": None}
+    assert direct_warnings  # compute_subordination_depths() still warns, unchanged
 
     diagram, warnings = tokengraph_to_mermaid(tokengraph, color_by_verbal_unit=False)
-    assert warnings == direct_warnings
-    assert "~~~" not in diagram
+    assert warnings == []
+    lines = diagram.splitlines()
+    assert not any("~~~" in line and "t0" in line and "t1" in line for line in lines)
+    aat_depths = compute_aat_depths(tokengraph)
+    assert None not in aat_depths.values()
+    assert all(isinstance(d, int) for d in aat_depths.values())
