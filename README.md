@@ -39,3 +39,13 @@ Working on `arsgrammatica` itself (this repo checked out locally) rather than de
 See the [project issue tracker](https://github.com/neelsmith/arsgrammatica/issues) for known gaps and work in progress.
 
 
+## Related work
+
+Parallel python packages for syntactic analysis:
+
+- [grammatike](https://github.com/neelsmith/grammatike) for Ancient Greek
+- [diqduq](https://github.com/neelsmith/diqduq) for Biblical Hebrew
+
+A reduced model of natural-language syntax:
+
+- the `aat` package, implementing an Agent-Action-Target model
