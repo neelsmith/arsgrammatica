@@ -48,4 +48,4 @@ Parallel python packages for syntactic analysis:
 
 A reduced model of natural-language syntax:
 
-- the `aat` package, implementing an Agent-Action-Target model
+- [aat](https://github.com/neelsmith/aat) a Python package implementing an Agent-Action-Target model
