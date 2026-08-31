@@ -137,15 +137,14 @@ This is what `marimo/latin_syntaxer_review.py` (see "`marimo` notebooks" below) 
 
 ## Reading passages from a delimited-text source file
 
-`read_ctsdata()` (in `arsgrammatica/ctsdata.py`) reads a list of citable passages -- each one a CTS URN paired with its own text -- out of a pipe-delimited file, the input-side counterpart to `write_analyses()`/`read_analyses()` above (which handle an analysis's *results*, not the passages you're about to analyze):
+`read_ctsdata()` (in `arsgrammatica/ctsdata.py`) reads a list of citable passages -- each one a CTS URN paired with its own text -- out of a pipe-delimited file, as a list of `CitedText` (the same type `segment_sources()`/`analyze_sources()` already take, so a row can be handed straight to either with no conversion). This is the input-side counterpart to `write_analyses()`/`read_analyses()` above (which handle an analysis's *results*, not the passages you're about to analyze):
 
 ```python
 from arsgrammatica import read_ctsdata
 
 rows = read_ctsdata("passages.txt")
 for row in rows:
-    citation = row.urnbase + row.citation  # reconstructs the full URN
-    print(citation, "--", row.text)
+    print(row.citation, "--", row.text)
 ```
 
 The file has one or more `#!ctsdata` blocks, each with its own `urn|text` header row:
@@ -156,7 +155,33 @@ urn|text
 urn:cts:compnov:bible.genesis.vulgate:45.1|Non se poterat ultra tenere.
 ```
 
-Each row's `urn` column must be a 5-part, colon-separated CTS URN (e.g. `urn:cts:compnov:bible.genesis.vulgate:45.1`); `read_ctsdata()` splits it into `urnbase` (the first 4 parts, rejoined with `:`, plus a trailing `:` -- `urn:cts:compnov:bible.genesis.vulgate:` for that example) and `citation` (the 5th part, `45.1`) -- the same `urnbase + citation` shape `latin_syntaxer_workflow.py`'s own manual-entry form uses for its base-URN/passage fields. Pass `delimiter=...` if the file itself uses something other than `|`. Like `read_analyses()`, this is deliberately strict (a malformed row or a urn that doesn't split into exactly 5 parts raises `ValueError`, naming the line) and merges multiple `#!ctsdata` blocks in file order.
+Each row's `urn` column must be a 5-part, colon-separated CTS URN (e.g. `urn:cts:compnov:bible.genesis.vulgate:45.1`); `read_ctsdata()` validates that shape, then uses the URN verbatim, in full, as the resulting row's own `citation` -- there's no separate "base URN" piece kept around, since nothing downstream needs the URN in two pieces rather than one (a caller building a shorter display label can always recover the URN's own final segment with `row.citation.rpartition(":")[-1]`). Pass `delimiter=...` if the file itself uses something other than `|`. Like `read_analyses()`, this is deliberately strict (a malformed row or a urn that doesn't split into exactly 5 parts raises `ValueError`, naming the line) and merges multiple `#!ctsdata` blocks in file order.
+
+
+
+## Tokenizing a source file without full syntax analysis
+
+`utilities/tokenize_ctsdata.py` is a command-line script that reads every passage out of a `#!ctsdata` (CEX) source file, tokenizes and sentence-splits each one on its own via `segment_sources()` (the same LM-driven segmentation stage `analyze_sources()` runs before syntax analysis), and writes the result to standard output -- no `SyntaxAnalysis` call, no `TokenAnalysis`/`VerbalExpression`, one LM call per passage rather than one per sentence:
+
+```bash
+python3 utilities/tokenize_ctsdata.py passages.txt > tokenized.txt
+```
+
+Its output is a new, lightweight pipe-delimited format -- NOT `read_analyses()`'s `#!sentences`/`#!verbal_units`/`#!tokens` blocks, since nothing here ever produces the `TokenAnalysis`/`VerbalExpression` data that format is built around:
+
+```
+#!passages
+citation|text
+urn:cts:compnov:bible.genesis.vulgate:45.1|Non se poterat ultra tenere.
+
+#!sentences
+context|sentence_index|id|text
+urn:cts:compnov:bible.genesis.vulgate:45.1|0|t0|Non
+urn:cts:compnov:bible.genesis.vulgate:45.1|0|t1|se
+...
+```
+
+`#!passages` is every row `read_ctsdata()` returned, verbatim. `#!sentences` has one row per token: `context` is that token's own citation (its owning passage's `citation`), `sentence_index` is that sentence's 0-based position *within its own passage* (not across the whole file), and `id`/`text` are the token's own id/surface text. Each passage is segmented independently rather than combined with its neighbors -- a `#!ctsdata` file is an arbitrary catalog of passages, not necessarily one continuous stretch of reading -- so token ids restart at `t0` for every passage (unique within a passage, not across the file) and a sentence never runs from one row's text into the next. `--delimiter` controls the *source* `#!ctsdata` file's own column delimiter, matching `read_ctsdata()`'s own option; the output this script writes always uses `|`.
 
 
 

@@ -2,7 +2,7 @@
 
 Current version: **0.4.0**.
 
-**0.5.0**, ?: No breaking changes. improved documentation. Added info to serializatoin about LM. Caching stuff that I don't really understand. More than 800 tests. REAL ADDITION: Network analysis and comparison!
+**0.5.0**, ?: No breaking changes. improved documentation. Added info to serialization about LM. Caching stuff that I don't really understand. More than 800 tests. REAL ADDITION: Network analysis and comparison!
 
 **0.4.0**, *Aug. 26, 2026*: Non-breaking update. Numerous small bug fixes, expands handling of vocative case and of repeated series of conjunctions, adds annotating participles with implicit subjects, adds marimo utilities, improves formatting of alignment by depth of subordination in Mermaid diagrams.
 

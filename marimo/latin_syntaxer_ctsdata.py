@@ -204,14 +204,29 @@ def _(Path, mo):
 
 
 @app.function
-# Format label for one menu entry as "<citation>: <first four words>…"
-# The trailing "…" is only added when the passage actually has more words than the preview
-# shows -- a passage that's already 4 words or shorter is shown in full.
+def citation_suffix(citation):
+    """The final segment of a CitedText's own `citation` -- for a CTS URN
+    like 'urn:cts:compnov:bible.genesis.vulgate:45.1', whatever follows its
+    last ':' ('45.1'); for a citation with no ':' at all (e.g. a hand-typed
+    'Aeneid 1.1'), `citation` itself, unchanged. read_ctsdata() hands back
+    each row's own citation as the row's WHOLE urn (see arsgrammatica/
+    ctsdata.py) -- this is purely a shorter display label derived from
+    that, used everywhere below a menu/heading would otherwise repeat a
+    long shared urn prefix on every single passage; `row.citation` itself,
+    in full, is still what's actually passed to analyze_sources()."""
+    return citation.rpartition(":")[-1]
+
+
+@app.function
+# Format label for one menu entry as "<citation suffix>: <first four
+# words>…" The trailing "…" is only added when the passage actually has
+# more words than the preview shows -- a passage that's already 4 words or
+# shorter is shown in full.
 def passage_label(row):
     words = row.text.split()
     preview = " ".join(words[:4])
     ellipsis = "…" if len(words) > 4 else ""
-    return f"{row.citation}: {preview}{ellipsis}"
+    return f"{citation_suffix(row.citation)}: {preview}{ellipsis}"
 
 
 @app.cell
@@ -219,10 +234,11 @@ def _(ctsdata_rows, mo):
     # Menu for selecting one or more passages -- a multiselect rather than
     # a dropdown, since analyze_sources() (see the Analysis cell below)
     # accepts a list of sources and segments/analyzes them together, not
-    # just one at a time. Maps each label directly to a CtsDataRow, so
-    # passage_multiselect.value is a list of the selected CtsDataRows (in
-    # whatever order the widget itself reports them -- see selected_rows
-    # below for why that order isn't used directly).
+    # just one at a time. Maps each label directly to a CitedText (what
+    # read_ctsdata() returns each row as), so passage_multiselect.value is
+    # a list of the selected CitedTexts (in whatever order the widget
+    # itself reports them -- see selected_rows below for why that order
+    # isn't used directly).
     passage_options = {passage_label(row): row for row in ctsdata_rows}
     passage_multiselect = mo.ui.multiselect(
         options=passage_options,
@@ -285,15 +301,18 @@ def _(mo):
 @app.cell
 def _(selected_rows):
     # A readable default filename base, drawn from every selected row's own
-    # urn (falling back to "analysis" if nothing's been selected yet) --
-    # the first row's urnbase plus every selected row's own citation, in
-    # file order. This can get long with many passages selected at once,
-    # but stays deterministic and collision-resistant; the extension is
-    # chosen separately.
+    # citation (falling back to "analysis" if nothing's been selected yet)
+    # -- the first selection's own citation up to and including its last
+    # ':' (its shared urn prefix, if any -- see citation_suffix()'s own
+    # docstring), plus every selection's own citation_suffix(), in file
+    # order. This can get long with many passages selected at once, but
+    # stays deterministic and collision-resistant; the extension is chosen
+    # separately.
     filename_base = ""
     if selected_rows:
-        filename_base = (selected_rows[0].urnbase or "") + "_".join(
-            row.citation or "" for row in selected_rows
+        shared_prefix, sep, _ = selected_rows[0].citation.rpartition(":")
+        filename_base = shared_prefix + sep + "_".join(
+            citation_suffix(row.citation) for row in selected_rows
         )
     filename_base = "".join(c if c.isalnum() else "_" for c in filename_base).strip("_") or "analysis"
     return (filename_base,)
@@ -327,22 +346,18 @@ def _(mo):
 
 
 @app.cell
-def _(CitedText, analyze_button, analyze_sources, selected_rows):
+def _(analyze_button, analyze_sources, selected_rows):
     # Analyze every selected passage, together, when the Analyze button is
     # clicked. analyze_button.value is True for exactly the one reactive
-    # cycle triggered by a click. Each selected row becomes its own
-    # CitedText source (same urnbase+citation concatenation the single-
-    # passage cell used to build) -- analyze_sources() segments across all
-    # of them at once (a sentence may span two consecutive sources) and
-    # returns one flat (sentences, results) pair spanning every selected
-    # passage, in the file order selected_rows already established.
+    # cycle triggered by a click. Each selected row is already a CitedText
+    # (read_ctsdata() returns them directly -- see arsgrammatica/
+    # ctsdata.py) -- analyze_sources() segments across all of them at once
+    # (a sentence may span two consecutive sources) and returns one flat
+    # (sentences, results) pair spanning every selected passage, in the
+    # file order selected_rows already established.
     sentences, results = [], []
     if analyze_button.value and selected_rows:
-        sources = [
-            CitedText(citation=row.urnbase + row.citation, text=row.text)
-            for row in selected_rows
-        ]
-        sentences, results = analyze_sources(sources)
+        sentences, results = analyze_sources(selected_rows)
     return results, sentences
 
 
@@ -406,7 +421,7 @@ def _(mo, selected_rows):
 
     if selected_rows:
         _blocks = [
-            f"## Selected passage: {_html.escape(_row.citation)}\n\n{_html.escape(_row.text)}"
+            f"## Selected passage: {_html.escape(citation_suffix(_row.citation))}\n\n{_html.escape(_row.text)}"
             for _row in selected_rows
         ]
         rawpreview = mo.md("\n\n---\n\n".join(_blocks))
@@ -417,7 +432,7 @@ def _(mo, selected_rows):
 
 @app.cell
 def _(finaltokens, mo, selected_rows, tokengraph_to_text):
-    citation_label = ", ".join(row.citation for row in selected_rows)
+    citation_label = ", ".join(citation_suffix(row.citation) for row in selected_rows)
     psghtml = mo.Html(
         f"<b><i>Reconstructed passage {citation_label}</i></b>: " + tokengraph_to_text(finaltokens)
     )
@@ -493,7 +508,6 @@ def _(Path):
     from arsgrammatica import (
         print_analysis,
         analyze_sources,
-        CitedText,
         tokengraph_to_mermaid,
         combined_tokengraph,
         tokengraph_to_html,
@@ -505,7 +519,6 @@ def _(Path):
     )
 
     return (
-        CitedText,
         analyze_sources,
         combined_tokengraph,
         max_subordination_depth,

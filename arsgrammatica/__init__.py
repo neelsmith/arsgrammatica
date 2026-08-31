@@ -28,7 +28,7 @@ from .serialization import (
     read_analyses,
     split_analysis_by_sentence,
 )
-from .ctsdata import CtsDataRow, read_ctsdata
+from .ctsdata import read_ctsdata
 from .token_budget import estimate_max_tokens, analyze_with_retry, get_calibration
 
 __all__ = [
@@ -65,7 +65,6 @@ __all__ = [
     "write_analyses",
     "read_analyses",
     "split_analysis_by_sentence",
-    "CtsDataRow",
     "read_ctsdata",
     "estimate_max_tokens",
     "analyze_with_retry",
