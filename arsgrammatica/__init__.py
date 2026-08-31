@@ -29,7 +29,12 @@ from .serialization import (
     split_analysis_by_sentence,
 )
 from .ctsdata import read_ctsdata
-from .token_budget import estimate_max_tokens, analyze_with_retry, get_calibration
+from .segmentation_serialization import (
+    serialize_segmentation,
+    write_segmentation,
+    read_segmentation,
+)
+from .token_budget import estimate_max_tokens, analyze_with_retry, get_calibration, DEFAULT_CEILING
 
 __all__ = [
     "Token",
@@ -66,7 +71,11 @@ __all__ = [
     "read_analyses",
     "split_analysis_by_sentence",
     "read_ctsdata",
+    "serialize_segmentation",
+    "write_segmentation",
+    "read_segmentation",
     "estimate_max_tokens",
     "analyze_with_retry",
     "get_calibration",
+    "DEFAULT_CEILING",
 ]

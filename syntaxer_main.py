@@ -11,8 +11,10 @@ import os
  
 import dspy
 from dotenv import load_dotenv
- 
- 
+
+from arsgrammatica import DEFAULT_CEILING
+
+
 load_dotenv(dotenv_path=Path(__file__).with_name(".env"))
  
  
@@ -47,7 +49,18 @@ def _configure_lm():
     # don't need one at all for a local Ollama daemon -- passing api_key=""
     # explicitly is unnecessary and, depending on the provider, can behave
     # differently than omitting it outright.
-    lm_kwargs = dict(model=model, api_base=api_base)
+    # An explicit numeric baseline, not None (dspy.LM's own default): every
+    # SyntaxAnalysis call here goes through token_budget.analyze_with_retry(),
+    # which overrides max_tokens per call anyway, but segment_sources()'s own
+    # LM call does NOT -- it has no calibration or retry of its own, so
+    # without this it would fall through to whatever the provider/litellm
+    # itself defaults to. This also fixes a confusing side effect: dspy's own
+    # truncation warning (dspy.LM._check_truncation) always reports THIS
+    # baseline, not whatever a per-call `config={"max_tokens": ...}` override
+    # actually used -- leaving it at None made every truncation warning
+    # (even ones where analyze_with_retry() had already picked a much larger,
+    # correctly-applied budget) misleadingly read "max_tokens=None".
+    lm_kwargs = dict(model=model, api_base=api_base, max_tokens=DEFAULT_CEILING)
     if api_key:
         lm_kwargs["api_key"] = api_key
 

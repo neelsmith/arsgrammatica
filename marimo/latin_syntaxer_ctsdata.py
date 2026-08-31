@@ -35,6 +35,13 @@ def _(ctsdata_file_browser):
 
 
 @app.cell(hide_code=True)
+def _(mo):
+    disable_cache = mo.ui.checkbox(label="*Disable LM cache (debugging)*")
+    disable_cache
+    return (disable_cache,)
+
+
+@app.cell(hide_code=True)
 def _(analyze_button, ctsdata_error, ctsdata_rows, mo, passage_multiselect):
     if ctsdata_error is not None:
         ctsdata_status = mo.callout(
@@ -55,6 +62,14 @@ def _(analyze_button, ctsdata_error, ctsdata_rows, mo, passage_multiselect):
 @app.cell(hide_code=True)
 def _(rawpreview):
     rawpreview
+    return
+
+
+@app.cell
+def _(dspy):
+    dspy.inspect_history()
+
+
     return
 
 
@@ -109,11 +124,23 @@ def _(analysis_warnings, download_widget, mo, save_extension):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
     seetokens = mo.ui.checkbox(label="*See list of tokens*")
     seecost = mo.ui.checkbox(label="*See cost*")
     seeprompts = mo.ui.checkbox(label="*See prompts*")
+    # dspy.LM caches responses by default (model + messages + config), so
+    # re-clicking Analyze on the exact same passage selection normally just
+    # replays the earlier result instead of hitting the LM again -- correct
+    # for everyday use, but exactly the wrong behavior when you're
+    # deliberately re-running the same passage to see whether the LM's
+    # output changes (e.g. after a prompt tweak, or to check run-to-run
+    # variance). This is dspy's own client-side response cache, unrelated
+    # to configure_lm()'s Anthropic `cache_control_injection_points` prompt
+    # caching below -- that one only caches the STATIC system-message
+    # prefix to make each still-genuinely-fresh call cheaper, it never
+    # replays a whole response, so it stays on regardless of this checkbox.
+
     mo.hstack([seetokens, seeprompts, seecost], justify="start")
     return seecost, seeprompts, seetokens
 
@@ -346,6 +373,12 @@ def _(mo):
 
 
 @app.cell
+def _(dspy):
+    dspy.inspect_history()
+    return
+
+
+@app.cell
 def _(analyze_button, analyze_sources, selected_rows):
     # Analyze every selected passage, together, when the Analyze button is
     # clicked. analyze_button.value is True for exactly the one reactive
@@ -506,6 +539,7 @@ def _(Path):
     sys.path.insert(0, str(Path(__file__).parent.parent))
 
     from arsgrammatica import (
+        DEFAULT_CEILING,
         print_analysis,
         analyze_sources,
         tokengraph_to_mermaid,
@@ -519,6 +553,7 @@ def _(Path):
     )
 
     return (
+        DEFAULT_CEILING,
         analyze_sources,
         combined_tokengraph,
         max_subordination_depth,
@@ -574,7 +609,7 @@ def _(os):
 
 
 @app.cell
-def _(dspy, getenv):
+def _(DEFAULT_CEILING, disable_cache, dspy, getenv):
     def configure_lm():
         # Always rebuild from the current environment -- no
         # `if dspy.settings.lm is not None: return dspy.settings.lm` guard.
@@ -595,7 +630,34 @@ def _(dspy, getenv):
                 "Missing API key. Set API_KEY (preferred) or API_KEY in your .env file."
             )
 
-        lm_kwargs = dict(model=model, api_base=api_base, api_key=api_key)
+        # An explicit numeric baseline, not None (dspy.LM's own default) --
+        # see arsgrammatica/token_budget.py's DEFAULT_CEILING and
+        # syntaxer_main.py's own configure_lm() for the full rationale:
+        # analyze_sources() overrides this per call via analyze_with_retry(),
+        # but segment_sources()'s own LM call does not, so without this it
+        # would fall through to whatever the provider/litellm defaults to;
+        # it also keeps dspy's own truncation warning (which always reports
+        # this baseline, never a per-call override) from misleadingly
+        # reading "max_tokens=None".
+        #
+        # cache=not disable_cache.value: dspy.LM defaults to caching every
+        # response it gets (keyed on model + messages + these very
+        # lm_kwargs), so re-clicking Analyze on an unchanged passage
+        # selection normally just replays the cached result rather than
+        # calling the LM again -- see the *Disable LM cache (debugging)*
+        # checkbox above for why that's sometimes exactly what you don't
+        # want. Reading disable_cache.value here (rather than passing
+        # `cache=False` unconditionally) means toggling the checkbox takes
+        # effect immediately: it's a parameter of this very cell, so
+        # flipping it rebuilds configure_lm's closure (and, downstream, the
+        # `lm = configure_lm()` cell) the same way editing .env does.
+        lm_kwargs = dict(
+            model=model,
+            api_base=api_base,
+            api_key=api_key,
+            max_tokens=DEFAULT_CEILING,
+            cache=not disable_cache.value,
+        )
 
         # Anthropic prompt caching: SyntaxAnalysis's system message runs
         # ~40K characters and is byte-identical on every single call --
