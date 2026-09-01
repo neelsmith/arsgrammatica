@@ -11,4 +11,4 @@ title: Tutorials
 
 ## Using the `arsgrammatica` package in python
 
-- Quick start: [query a language model](./quick.qmd)
+- Quickest possible start to [querying a language model](./quick.qmd)

@@ -4,24 +4,40 @@ title: marimo notebooks
 
 [marimo](https://marimo.io) is a reactive notebook system written in Python. You can find the notebooks listed in the `marimo` directory of the `arsgrammatica` github repository,  here are available in the `marimo` directory, and run them as you would any marimo notebook, e.g., `marimo run NOTEBOOKNAME.py`.
 
+::: {.callout-warning}
+The poorly chosen names for these notebooks will certainly be changed (and improved!) in a future release of `arsgrammatica`.
+:::
+
+## Marimo notebooks for analysis with a configured language model
+
+`latin_syntaxer_workflow.py` and `latin_syntaxer_ctsdata.py` use a configured language model to analyze the syntax of Latin text. To configure your model, create an `.env` file like this:
+
+
+```bash
+API_BASE=https://localmodel/api
+MODEL=litellm/modelname
+API_KEY=your-key-here
+```
 
 
 
-> *The docs for these notebooks are a dump of AI slop*
+### `latin_syntaxer_workflow.py`
 
-## `latin_syntaxer_workflow.py`
+A notebook for a real-world testing loop. Enter text content and identifier for a passage, analyze it, and visualize the results. Optionally download the analysis results.
 
-A notebook for a 
-real-world-testing loop DEVELOPMENT.md describes -- the three inputs are one form (nothing re-analyzes, and no LM call happens, until you click *Analyze*, rather than on every keystroke), and there's a `cex`/`txt` extension choice (default `cex`) plus a *Download analysis* button that hands the current analysis (built with `serialize_analyses()`, see "Saving and loading analyses" above) to the browser's own download mechanism -- no folder path to type, at the cost of the browser (not the notebook) deciding where the file actually lands. The filename defaults to the submitted citation (base URN + passage) with the chosen extension. Ready to hand-review and, if it's a case worth keeping, turn into a fixture with `tests/fixtures/harvest.py`.
+### `latin_syntaxer_ctsdata.py`
+
+Citable passage to analyze come from a source file in CEX format. Load a file, then pick one or more passages to analyze from a multiselect menu. Note: this can be handy when you want to analyze sentences that span more than one citation unit, as frequently or usually happens in Latin poetry. Analyze and visualize the result. Optionally download the analysis results
 
 
-## `latin_syntaxer_ctsdata.py`
+## Notebooks for working with saved analyses
 
-passage(s) to analyze come from a `#!ctsdata` source file -- browse for the file, then pick one or more passages from the multiselect menu that appears (labelled `<citation>: <first few words>…`, e.g. `45.1: Non se poterat ultra…`), and click *Analyze*. Every selected passage becomes its own `CitedText` source and is analyzed together via `analyze_sources()` -- always in the file's own order regardless of the order they were clicked in, since consecutive sources can share a sentence across their boundary -- with the file's own urn supplying each source's base URN and citation. Everything downstream (Mermaid diagram, highlighted/indented HTML, save-to-file) covers the combined result across every selected passage, same as `latin_syntaxer_workflow.py`'s own multi-sentence output. Both this notebook and `latin_syntaxer_workflow.py` also have *See list of tokens*/*See cost*/*See prompts* checkboxes, each toggling a hidden display of the raw token list, the last LM call's own reported cost, or `dspy.inspect_history()`'s prompt/response transcript. This notebook additionally has a *Disable LM cache (debugging)* checkbox next to those three: dspy.LM caches every response it gets (keyed on the model, messages, and call kwargs), so re-clicking *Analyze* on the same passage selection normally just replays the earlier result instead of calling the LM again -- check this box first if you want to deliberately re-run the same passage and see whether the LM's actual output changes. This is dspy's own client-side response cache, unrelated to `configure_lm()`'s separate Anthropic prompt caching (`cache_control_injection_points`, see that function's own comments) -- the Anthropic one only makes each still-genuinely-fresh call cheaper by reusing the static system-message prefix, it never replays a whole response, so it stays on regardless of this checkbox.
 
-## `latin_syntaxer_review.py`
 
- no LM access at all -- browse for a file previously written by `write_analyses()` (see "Saving and loading analyses" above), pick a sentence from the menu that appears (labelled `<n>. <citation>: <first six words>…`, via `split_analysis_by_sentence()`), and it displays that one sentence's own Mermaid diagram, plain (uncolored) text, verbal-unit-colored HTML, and colored-and-indented-by-subordination-depth HTML -- the same four views `latin_syntaxer_workflow.py`/`latin_syntaxer_ctsdata.py` show after an LM call, but reconstructed entirely from the saved file. A slider above the indented view caps it to that sentence's own `max_subordination_depth()` or shallower, the same depth-cap control the other two notebooks offer, except here it only appears once a sentence with at least one token has actually been picked. A *Download Mermaid diagram (.mmd)* button next to the diagram hands that sentence's raw Mermaid source (the same text `mo.mermaid()` renders) to the browser's own download mechanism, ready to paste into mermaid.live, a README code block, or any other Mermaid-aware tool -- disabled until a sentence is selected, and named from that sentence's own menu number and citation (e.g. `1_Aeneid_1_1_mermaid.mmd`). Below those four views, it also builds and displays that same sentence's AAT (Agent-Action-Target) graph -- `attgraph()` (see "Building an AAT (Agent-Action-Target) graph" above) applied to just this one sentence, rendered as a Mermaid diagram via `aat`'s own `graph_to_mermaid()`, colored by action cluster; any warning either function returns is shown in a callout underneath. If the `aat` package isn't installed, this section shows a note explaining that instead of failing -- every other view in this notebook works regardless. Useful for reviewing or presenting an already-completed analysis (e.g. one harvested into `GOLD_EXAMPLES`) without spending an LM call, or working at all when the LM is unreachable.
+### `latin_syntaxer_review.py`
+
+Load a file with one or more saved analyses, pick a sentence fromthe menu that appears, and visualize it, as well as the interpretation of the analysis as an Agent-Action-Target (AAT)) graph.
+
 
 ## `latin_syntaxer_graphs.py`
 

@@ -5,8 +5,15 @@ title: Run a command-line script
 
 
 
-`syntaxer_main.py` analyzes a passage and prints the result to standard output.
+`syntaxer_main.py` uses a configured language model to analyze a passage and print the result to standard output. Create an `.env` to configure your LM credentials, like this:
 
+```bash
+API_BASE=https://localmodel/api
+MODEL=litellm/modelname
+API_KEY=your-key-here
+```
+
+Then run `syntaxer_main.py`:
 
 ```bash
 python3 syntaxer_main.py --passage "Gallia est omnis divisa in partes tres."
