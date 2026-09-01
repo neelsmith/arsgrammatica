@@ -2,4 +2,8 @@
 title: Concepts
 ---
 
-No UD
+Relation to UD
+ 
+Relation to AAT
+
+Different models of syntax for different purposes.

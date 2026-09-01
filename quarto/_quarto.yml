@@ -19,9 +19,7 @@ website:
         file: guides/index.qmd           
       - text: "Reference"
         file: reference/index.qmd          
-      
-      - href: usage.qmd
-        text: Usage guide
+
             
     right:   
       - icon: github
@@ -36,7 +34,10 @@ website:
     - title: "Concepts"
       contents:
         - concepts/index.qmd
-    
+    - title: "Guides"
+      contents: 
+        - guides/index.qmd      
+        - guides/usage.qmd
     - title: "Reference"
       contents: 
         - reference/index.qmd      

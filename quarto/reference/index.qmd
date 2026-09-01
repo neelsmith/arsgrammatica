@@ -3,5 +3,5 @@ title: Reference
 ---
 
 
-- API docs
+- [API docs](../arsgrammatica-api-docs.html)
 - list of all edge values used in syntax graph
