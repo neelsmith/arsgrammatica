@@ -1,17 +1,17 @@
 # Building quarto web site
 
 
-From repo root:
 
-Preview:
+
+Preview: from `quarto` directory:
 
 `quarto preview`
 
-Build:
+Build: from repository root:
 
-`quarto render quarto`
+`quarto render`
 
-Test output:
+Test output: from reepository root:
 
 `python3 -m http.server -d quarto/quarto-build`
 
