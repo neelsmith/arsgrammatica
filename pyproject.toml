@@ -33,6 +33,19 @@ classifiers = [
 # rejects those.
 aat = ["aat @ git+https://github.com/neelsmith/aat.git"]
 
+# Tooling used to develop arsgrammatica itself -- running the test suite,
+# .env-based live-LM config, regenerating docs/arsgrammatica-api-docs.html,
+# and the notebooks in marimo/. None of this is needed to just use the
+# package (see notes/install.md); `pip install -e ".[dev]"` from a checkout
+# covers it in one shot. Combine with `aat` too if you're touching
+# aat_bridge.py or its tests: `pip install -e ".[dev,aat]"`.
+dev = [
+    "pytest>=8.0",
+    "python-dotenv>=1.0",
+    "pdoc>=15.0",
+    "marimo>=0.20",
+]
+
 [project.urls]
 Homepage = "https://github.com/neelsmith/arsgrammatica"
 Repository = "https://github.com/neelsmith/arsgrammatica"
