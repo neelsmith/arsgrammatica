@@ -1,6 +1,6 @@
 """
 Render a `tokengraph` (a list of TokenAnalysis, as produced by
-latin_syntax_dspy.analyze_passage) as a Mermaid flowchart.
+latin_syntax_dspy.analyze_string) as a Mermaid flowchart.
  
 - Every non-punctuation token becomes a node, labelled with the token's
   surface text.

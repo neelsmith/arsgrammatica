@@ -145,7 +145,7 @@ def _(mo):
 
 
 @app.cell
-def _(analyze_passage, input_form):
+def _(analyze_string, input_form):
     # Analyze text passage -- only once the form has been submitted at
     # least once (input_form.value is None until then), and only again on
     # each subsequent submission, not on every keystroke in the form's own
@@ -155,7 +155,7 @@ def _(analyze_passage, input_form):
     if input_form.value and input_form.value.get("text_area"):
         passage = input_form.value["text_area"]
         citation = input_form.value["urnbase"] + input_form.value["citation_context"]
-        sentences, results = analyze_passage(passage, citation=citation)
+        sentences, results = analyze_string(passage, citation=citation)
     return results, sentences
 
 
@@ -374,11 +374,11 @@ def _(Path):
 
     sys.path.insert(0, str(Path(__file__).parent.parent))
 
-    from arsgrammatica import DEFAULT_CEILING, print_analysis, analyze_passage, tokengraph_to_mermaid, combined_tokengraph, tokengraph_to_html, tokengraph_to_text, tokengraph_to_depth_html, serialize_analyses
+    from arsgrammatica import DEFAULT_CEILING, print_analysis, analyze_string, tokengraph_to_mermaid, combined_tokengraph, tokengraph_to_html, tokengraph_to_text, tokengraph_to_depth_html, serialize_analyses
 
     return (
         DEFAULT_CEILING,
-        analyze_passage,
+        analyze_string,
         combined_tokengraph,
         serialize_analyses,
         tokengraph_to_depth_html,
@@ -455,7 +455,7 @@ def _(DEFAULT_CEILING, dspy, getenv):
         # An explicit numeric baseline, not None (dspy.LM's own default) --
         # see arsgrammatica/token_budget.py's DEFAULT_CEILING and
         # syntaxer_main.py's own configure_lm() for the full rationale:
-        # analyze_passage() -> analyze_sources() overrides this per call via
+        # analyze_string() -> analyze_sources() overrides this per call via
         # analyze_with_retry(), but segment_sources()'s own LM call does not,
         # so without this it would fall through to whatever the provider/
         # litellm defaults to; it also keeps dspy's own truncation warning
@@ -463,7 +463,7 @@ def _(DEFAULT_CEILING, dspy, getenv):
         # from misleadingly reading "max_tokens=None".
         lm_kwargs = dict(model=model, api_base=api_base, api_key=api_key, max_tokens=DEFAULT_CEILING)
 
-        # Anthropic prompt caching: SyntaxAnalysis's system message runs
+        # Anthropic prompt caching: SentenceAnalysis's system message runs
         # ~40K characters and is byte-identical on every single call --
         # only the per-sentence user message actually changes. Marking it
         # with an ephemeral cache_control breakpoint lets a repeat call

@@ -10,7 +10,7 @@ which puts a space before every token including punctuation and enclitics
 (see pipeline.py's _render_sentence_text() docstring, which flags exactly
 this: "virumque" would round-trip as "virum que"). This module needs
 `tokentype` to decide spacing, so it operates on TokenAnalysis
-(post-SyntaxAnalysis), not the plain pre-analysis Token list segmentation
+(post-SentenceAnalysis), not the plain pre-analysis Token list segmentation
 produces -- tokentype isn't known yet at that earlier stage.
  
 Every token is classified as one of:

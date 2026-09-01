@@ -12,11 +12,11 @@ verse sentence running across two lines, say) is representable: sentence
 boundaries do not need to respect CitedText boundaries, but every token
 still records the citation it came from via Token.citation.
  
-This is a separate stage from SyntaxAnalysis (latin_syntax_dspy.py) on
+This is a separate stage from SentenceAnalysis (latin_syntax_dspy.py) on
 purpose: SegmentPassage's output (List[Sentence]) still feeds
-SyntaxAnalysis as `tokens: List[Token]` per sentence, unchanged -- adding
-citation tracking here required no changes to SyntaxAnalysis at all, since
-Token.citation just rides along and SyntaxAnalysis never needs to look at
+SentenceAnalysis as `tokens: List[Token]` per sentence, unchanged -- adding
+citation tracking here required no changes to SentenceAnalysis at all, since
+Token.citation just rides along and SentenceAnalysis never needs to look at
 it.
  
 Run this file directly for a quick smoke test against the configured LM:

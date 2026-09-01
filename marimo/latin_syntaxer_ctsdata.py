@@ -35,13 +35,6 @@ def _(ctsdata_file_browser):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    disable_cache = mo.ui.checkbox(label="*Disable LM cache (debugging)*")
-    disable_cache
-    return (disable_cache,)
-
-
-@app.cell(hide_code=True)
 def _(analyze_button, ctsdata_error, ctsdata_rows, mo, passage_multiselect):
     if ctsdata_error is not None:
         ctsdata_status = mo.callout(
@@ -62,14 +55,6 @@ def _(analyze_button, ctsdata_error, ctsdata_rows, mo, passage_multiselect):
 @app.cell(hide_code=True)
 def _(rawpreview):
     rawpreview
-    return
-
-
-@app.cell
-def _(dspy):
-    dspy.inspect_history()
-
-
     return
 
 
@@ -124,7 +109,7 @@ def _(analysis_warnings, download_widget, mo, save_extension):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     seetokens = mo.ui.checkbox(label="*See list of tokens*")
     seecost = mo.ui.checkbox(label="*See cost*")
@@ -140,9 +125,9 @@ def _(mo):
     # caching below -- that one only caches the STATIC system-message
     # prefix to make each still-genuinely-fresh call cheaper, it never
     # replays a whole response, so it stays on regardless of this checkbox.
-
-    mo.hstack([seetokens, seeprompts, seecost], justify="start")
-    return seecost, seeprompts, seetokens
+    disable_cache = mo.ui.checkbox(label="*Disable LM cache (debugging)*")
+    mo.hstack([seetokens, seeprompts, seecost, disable_cache], justify="start")
+    return disable_cache, seecost, seeprompts, seetokens
 
 
 @app.cell(hide_code=True)
@@ -369,12 +354,6 @@ def _(mo):
     mo.md("""
     ## Analysis
     """)
-    return
-
-
-@app.cell
-def _(dspy):
-    dspy.inspect_history()
     return
 
 
@@ -659,7 +638,7 @@ def _(DEFAULT_CEILING, disable_cache, dspy, getenv):
             cache=not disable_cache.value,
         )
 
-        # Anthropic prompt caching: SyntaxAnalysis's system message runs
+        # Anthropic prompt caching: SentenceAnalysis's system message runs
         # ~40K characters and is byte-identical on every single call --
         # only the per-sentence user message actually changes. Marking it
         # with an ephemeral cache_control breakpoint lets a repeat call

@@ -1,5 +1,5 @@
 """
-Optimizes latin_syntax_dspy.py's SyntaxAnalysis prompt with dspy.GEPA,
+Optimizes latin_syntax_dspy.py's SentenceAnalysis prompt with dspy.GEPA,
 using tests/fixtures/gold_examples.py's GOLD_EXAMPLES as the trainset and
 arsgrammatica/gepa_metric.py's syntax_metric as the scoring/feedback
 function.
@@ -62,7 +62,7 @@ from arsgrammatica.models import TokenAnalysis, VerbalExpression
 
 def build_trainset():
     """Turn every GoldExample in GOLD_EXAMPLES into a dspy.Example GEPA can
-    train against: `passage`/`tokens` as inputs (matching SyntaxAnalysis's
+    train against: `passage`/`tokens` as inputs (matching SentenceAnalysis's
     own InputFields), `verbalunits`/`tokengraph` as the gold outputs
     arsgrammatica.gepa_metric.syntax_metric compares predictions to."""
     trainset = []
@@ -118,7 +118,7 @@ def _evaluate(program, trainset, label):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Optimize SyntaxAnalysis's prompt with GEPA.")
+    parser = argparse.ArgumentParser(description="Optimize SentenceAnalysis's prompt with GEPA.")
     budget = parser.add_mutually_exclusive_group()
     budget.add_argument(
         "--auto",
@@ -182,7 +182,7 @@ def main():
     print(
         "To use it, right after `from arsgrammatica.latin_syntax_dspy import analyze`, call:\n"
         f"    analyze.load({args.out!r})\n"
-        "before running analyze_passage()/analyze_sources() -- see "
+        "before running analyze_string()/analyze_sources() -- see "
         "OPTIMIZING.md."
     )
 

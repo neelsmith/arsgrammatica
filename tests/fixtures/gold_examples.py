@@ -2028,7 +2028,7 @@ _GERUND_ARS_BENE_DISSERENDI_ANSWER = {
 # bare predicate construction: no verb at all is written, so a new implied
 # token (tokentype='implied sum', token=None) is added to anchor the linking-
 # verb verbal expression that "rara" and "omnia praeclara" would otherwise
-# have no home for. Named t2_implied per SyntaxAnalysis's naming rule
+# have no home for. Named t2_implied per SentenceAnalysis's naming rule
 # (appended to the last real token before where the elided word would
 # stand) and placed right after t2 in tokengraph, where that word would
 # have appeared.
@@ -2220,7 +2220,7 @@ _IMPLIED_PARTICIPLE_OF_SUM_CONSULIBUS_ANSWER = {
 # where the antecedent IS a real token). Unlike 'implied sum'/'continued
 # discourse', this implied token is NOT itself a verbal expression -- it
 # gets no `verbalunits` entry of its own, only Recordatus (the participle)
-# does. Named t0_implied per SyntaxAnalysis's naming rule for a word that
+# does. Named t0_implied per SentenceAnalysis's naming rule for a word that
 # would precede every real token in the sentence (the logical subject of
 # the whole clause), and placed first in tokengraph accordingly, same
 # convention continuation_indirect_discourse_tarquinios_adsuesse's own
@@ -2279,7 +2279,7 @@ _IMPLIED_SUBJECT_RECORDATUS_SOMNIORUM_ANSWER = {
 # never written at all in this excerpt -- so a single new implied token
 # (t0_implied) is added, and each infinitive's 'indirect statement'
 # relation points at it, exactly as if the governing verb had been
-# repeated for each one. Named t0_implied per SyntaxAnalysis's naming rule
+# repeated for each one. Named t0_implied per SentenceAnalysis's naming rule
 # for a word that would precede every real token in the sentence, and
 # placed first in tokengraph accordingly. (syntax_model.md's own excerpt
 # elides "esse" from "factum [esse]" too -- a SEPARATE elided-present-of-

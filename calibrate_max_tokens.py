@@ -3,7 +3,7 @@ Calibrates arsgrammatica/token_budget.py's max_tokens estimate against real
 LM output, instead of the untuned fallback constants token_budget.py ships
 with.
 
-Why: SyntaxAnalysis's output (a `reasoning` field plus JSON-serialized
+Why: SentenceAnalysis's output (a `reasoning` field plus JSON-serialized
 `verbalunits`/`tokengraph` lists) grows with how long and how syntactically
 complex a passage is, not by a fixed amount -- so the right `max_tokens`
 budget for a call is a function of the input token count, not a constant.
@@ -29,7 +29,7 @@ Needs the same .env this project's other scripts use (see USAGE.md's
 
 This is a live-LM script with real API cost -- one call per GOLD_EXAMPLES
 entry (43 as of this writing). Re-run it whenever the configured MODEL, the
-SyntaxAnalysis prompt, or the TokenAnalysis/VerbalExpression schema changes
+SentenceAnalysis prompt, or the TokenAnalysis/VerbalExpression schema changes
 substantially, since any of those shifts how many output tokens a given
 passage actually needs. GOLD_EXAMPLES itself is a corpus of short,
 illustrative single-construction sentences (3-22 tokens each), not long

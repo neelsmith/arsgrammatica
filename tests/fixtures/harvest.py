@@ -5,7 +5,7 @@ serialization.py) -- into a `GoldExample` (see gold_examples.py), instead
 of hand-writing a `canned_answer` dict from scratch the way every existing
 GOLD_EXAMPLES entry so far has been written.
 
-Intended workflow: run analyze_passage()/analyze_sources() over new
+Intended workflow: run analyze_string()/analyze_sources() over new
 passages, read over each result by hand, and for the ones that come out
 correct, call gold_example_from_analysis() on that sentence's own
 `sentences`/`result.verbalunits`/`result.tokengraph` to get a `GoldExample`
@@ -98,7 +98,7 @@ def gold_example_from_analysis(
 ) -> GoldExample:
     """Build a GoldExample from a real analysis's own objects -- the exact
     `sentences`/`verbalunits`/`tokengraph` triple serialize_analyses()/
-    write_analyses() take, as produced by analyze_passage()/
+    write_analyses() take, as produced by analyze_string()/
     analyze_sources() (+ combined_tokengraph(), and concatenating every
     result.verbalunits, if the passage was more than one sentence).
 
@@ -110,7 +110,7 @@ def gold_example_from_analysis(
     `passage` defaults to reconstructing the surface text directly from
     `tokengraph` via rendering.tokengraph_to_text() -- pass an explicit
     string instead if you'd rather preserve the exact original
-    wording/whitespace you fed to analyze_passage() than its
+    wording/whitespace you fed to analyze_string() than its
     reconstruction.
 
     `reasoning` defaults to an obvious placeholder string if omitted --

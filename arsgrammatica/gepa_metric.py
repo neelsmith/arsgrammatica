@@ -1,5 +1,5 @@
 """
-GEPA metric for optimizing latin_syntax_dspy.py's SyntaxAnalysis signature.
+GEPA metric for optimizing latin_syntax_dspy.py's SentenceAnalysis signature.
 
 GEPA (see dspy.GEPA) is a "reflective" prompt optimizer: it uses an LM to
 read the metric's *feedback* text -- not just its numeric score -- and
@@ -7,7 +7,7 @@ propose better instructions. That makes the feedback string here at least
 as important as the score itself: it should read like a teacher's marginal
 comments on a student's parse, naming the actual token, the actual
 relation, and the actual expected-vs-got values, in the same vocabulary
-syntax_model.md and SyntaxAnalysis's docstring use.
+syntax_model.md and SentenceAnalysis's docstring use.
 
 Scoring is structural, not exact-dict-equality, in one deliberate way:
 relatedtoken1/relationship1 vs. relatedtoken2/relationship2 is documented
@@ -79,12 +79,12 @@ def syntax_metric(
     pred_trace: Optional[Any] = None,
     program_trace: Optional[Any] = None,
 ) -> "dspy.Prediction":
-    """Score a SyntaxAnalysis prediction against a gold dspy.Example built
+    """Score a SentenceAnalysis prediction against a gold dspy.Example built
     from a GoldExample (see optimize_gepa.py's build_trainset()).
 
     `gold` must have `.tokengraph` (list of TokenAnalysis) and
     `.verbalunits` (list of VerbalExpression) fields -- the same shape
-    SyntaxAnalysis itself outputs, so the exact same dict-or-model access
+    SentenceAnalysis itself outputs, so the exact same dict-or-model access
     pattern works for both the gold example and a live prediction.
 
     Returns a dspy.Prediction(score=..., feedback=...) -- GEPA's expected
@@ -93,7 +93,7 @@ def syntax_metric(
     (relations, verbal-expression classification, and basic per-token
     fields); `feedback` is a human-readable list of every mismatch found,
     for GEPA's reflection LM to read. There's only one predictor in
-    `analyze` (SyntaxAnalysis is a single dspy.ChainOfThought), so
+    `analyze` (SentenceAnalysis is a single dspy.ChainOfThought), so
     `pred_name`/`pred_trace` are accepted for protocol compatibility but
     not used to change scoring -- GEPA will use the same feedback whether
     it's asking at the program level or the (only) predictor level.

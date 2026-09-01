@@ -267,11 +267,11 @@ class TokenAnalysis(BaseModel):
       subject it stands in for, exactly as if that subject had been
       written out; the participle then relates to THIS token via
       'circumstantial participle', same as it would to any real noun. See
-      latin_syntax_dspy.SyntaxAnalysis's docstring for the worked example.
+      latin_syntax_dspy.SentenceAnalysis's docstring for the worked example.
 
     For any of the three, add a NEW entry here -- with a NEW id, not
     present in `tokens` -- rather than skipping the construction entirely;
-    see latin_syntax_dspy.SyntaxAnalysis's docstring for the full rules and
+    see latin_syntax_dspy.SentenceAnalysis's docstring for the full rules and
     the id-naming convention."""
 
     id: str = Field(
@@ -281,7 +281,7 @@ class TokenAnalysis(BaseModel):
             "(tokentype in IMPLIED_TOKENTYPES -- 'implied sum', "
             "'continued discourse', or 'implied subject'), a NEW id not "
             "used by any entry in `tokens` or elsewhere in this "
-            "tokengraph -- see SyntaxAnalysis's docstring for the naming "
+            "tokengraph -- see SentenceAnalysis's docstring for the naming "
             "convention."
         )
     )

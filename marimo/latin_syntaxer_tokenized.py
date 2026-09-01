@@ -141,7 +141,7 @@ def _(read_segmentation, tokenized_file_browser):
 # unanalyzed Tokens -- no tokentype, so no relation-aware spacing/enclitic
 # handling) -- this preview is the same naive "join every token's own text
 # with a space" approximation pipeline.py's own _render_sentence_text()
-# uses to build SyntaxAnalysis's `passage` field, good enough for a short
+# uses to build SentenceAnalysis's `passage` field, good enough for a short
 # preview label even though it isn't faithful surface text.
 def sentence_label(index, citation, sentence, preview_words=6):
     words = [tok.text for tok in sentence.tokens]
@@ -399,7 +399,7 @@ def _(DEFAULT_CEILING, dspy, getenv):
         lm_kwargs = dict(model=model, api_base=api_base, api_key=api_key, max_tokens=DEFAULT_CEILING)
 
         # Anthropic prompt caching -- same reasoning as
-        # latin_syntaxer_ctsdata.py's own configure_lm(): SyntaxAnalysis's
+        # latin_syntaxer_ctsdata.py's own configure_lm(): SentenceAnalysis's
         # system message is byte-identical on every call, so marking it
         # with an ephemeral cache_control breakpoint lets a repeat call
         # within Anthropic's cache TTL reuse it cheaply. Gated on the model

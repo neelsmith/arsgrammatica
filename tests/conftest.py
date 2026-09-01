@@ -50,7 +50,7 @@ def run_gold_example(example):
     """Run a GoldExample's passage through analyze(), with DummyLM standing
     in for the real LM and returning that example's canned_answer.
  
-    Returns (tokens, result) -- the same pair analyze_passage() returns.
+    Returns (tokens, result) -- the same pair analyze_string() returns.
     """
     dspy.configure(lm=DummyLM([example.canned_answer]))
     tokens = tokens_from_canned_answer(example.canned_answer)

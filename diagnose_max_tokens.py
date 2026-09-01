@@ -16,7 +16,7 @@ both, or neither) tells us where to look next:
     down, MODEL/API_BASE/API_KEY issue, or a litellm/openai version quirk on
     this machine) -- worth checking API_BASE reachability and the MODEL
     string separately.
-  - Neither fails -> something else about the real SyntaxAnalysis call
+  - Neither fails -> something else about the real SentenceAnalysis call
     (prompt size, the `config=` plumbing through dspy.Predict) is the
     trigger, not a bare max_tokens value.
 """

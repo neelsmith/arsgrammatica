@@ -4,7 +4,7 @@ each one identified by a CTS URN and paired with its own text content --
 distinct from serialization.py's format (which reads/writes the *results*
 of an analysis). This is meant as the input side of the same workflow: pick
 a passage out of a file like this one, then hand its text and citation to
-analyze_passage()/segment_sources() exactly as if they'd been typed in by
+analyze_string()/segment_sources() exactly as if they'd been typed in by
 hand (see marimo/latin_syntaxer_ctsdata.py) -- read_ctsdata() returns
 `CitedText` (models.py) directly, the same type those functions already
 take, rather than a dedicated row type of its own that a caller would need
