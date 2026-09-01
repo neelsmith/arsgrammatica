@@ -39,8 +39,8 @@ dspy.configure(lm=dspy.LM(model="litellm_proxy/anthropic/Claude Opus 5",
 ### Analyze a string
 
 ```python
-from arsgrammatica import analyze_passage
-sentences, results = analyze_passage("Gallia est omnis divisa in partes tres.")
+from arsgrammatica import analyze_string
+sentences, results = analyze_string("Gallia est omnis divisa in partes tres.")
 ```
 
 
@@ -62,30 +62,25 @@ sentences, results = analyze_sources(sources)
 tokengraph = combined_tokengraph(results)  # one flat list, spanning every sentence
 ```
 
+Note that sentence boundaries don't need to respect citation-unit boundaries (one sentence may span multiple source lines, as above)
 
-`analyze_sources()` handles any number of sentences and citation units; sentence boundaries don't need to respect citation-unit boundaries (one sentence may span two source lines, as above), and every token still records which source unit it came from via `Token.citation`.
+> *Validation*: the `validate` function checks the results of an analysis for internal consistency, and compiles a list of problems it detects. Both `analyze_string()` and `analyze_sources` call `validate`, and print a print a warning if any are found.
 
 
-### Working with results
-Explanation:
+### Working with results of an analysis
 
-- `analyze_passage()` returns `(sentences, results)`: that is, one `Sentence` and one `SyntaxAnalysis` result per sentence it finds in `passage`. 
-- `result.verbalunits` is a list of `VerbalExpression` objects
-- `result.tokengraph` is a list of `TokenAnalysis` objects, one per token in that sentence, in order.
+`analyze_string()` and `analyze_sources()` return a pair of lists:
 
-`analyze_passage()` also prints a warning if the LM refers to a token id that doesn't exist in its sentence's input tokens. (That's a sign that the output needs a re-run or a prompt tweak, and does not necessarily mean that your code is broken.)
+1.  a list of `Sentence` objects
+2.  a corresponding list of `SentenceAnalysis` objects, one for each sentence.
 
-`validate()` only catches referential problems like that one -- ids that don't exist. It can't tell you an otherwise well-formed analysis is probably still wrong. For one specific, observed failure mode -- a coordinating conjunction correctly pairing two verbal expressions, but the second one silently missing its own `verbalunitid` -- call `find_unanchored_coordinated_verbs()` on the result:
 
-```python
-from arsgrammatica import find_unanchored_coordinated_verbs
+A `SentenceAnalysis` has two a list of `VerbalExpression` objects in its `verbalunits` property, and an ordered list of  `TokenAnalysis` objects in its `tokengraph` property.
 
-for sentence, result in zip(sentences, results):
-    for warning in find_unanchored_coordinated_verbs(result.tokengraph):
-        print(f"Possible mistake: {warning}")
-```
 
-It's a heuristic, not a guarantee -- see its own docstring -- but a clean result costs nothing to check, and a flagged one is worth a manual read before you trust the analysis.
+
+`validate()` only catches referential problems like that one -- ids that don't exist. It can't tell you an otherwise well-formed analysis is probably still wrong. 
+
 
 
 ## Saving and loading analyses
@@ -149,9 +144,9 @@ pip install git+https://github.com/neelsmith/aat.git
 into whichever environment you run arsgrammatica from (its own `.venv`, most likely). `import arsgrammatica` works fine without it -- only actually calling `attgraph()` raises `ImportError`, naming this same install command. (If you separately `pip install` arsgrammatica itself, rather than just running it from a checkout on `sys.path` the way this repo's own scripts and notebooks do, `pip install '.[aat]'` from its directory reaches `aat` the same way, via `pyproject.toml`'s "aat" extra -- but a bare `pip install 'arsgrammatica[aat]'` will NOT work, since arsgrammatica itself isn't published on PyPI either.)
 
 ```python
-from arsgrammatica import analyze_passage, attgraph
+from arsgrammatica import analyze_string, attgraph
 
-sentences, results = analyze_passage("urbs a Romulo condita est.", citation="Livy 1.7")
+sentences, results = analyze_string("urbs a Romulo condita est.", citation="Livy 1.7")
 graph, warnings = attgraph(sentences, results)
 for w in warnings:
     print(f"Warning: {w}")
@@ -160,7 +155,7 @@ for action in graph.actions():
     print(action.value, [a.value for a in graph.agents_for(action)], [t.value for t in graph.targets_for(action)])
 ```
 
-`attgraph()` takes `(sentences, results)` in the exact shape `analyze_sources()`/`analyze_passage()` return them, and returns `(graph, warnings)` -- the same "return warnings, don't raise" convention `compute_subordination_depths()` uses, not a bare `AATGraph`. An empty `warnings` list means nothing unusual was found, not that the underlying Latin analysis itself is correct; run `aat.core.validate.validate()` against the result (with a matching `CitableToken` list) for that.
+`attgraph()` takes `(sentences, results)` in the exact shape `analyze_sources()`/`analyze_string()` return them, and returns `(graph, warnings)` -- the same "return warnings, don't raise" convention `compute_subordination_depths()` uses, not a bare `AATGraph`. An empty `warnings` list means nothing unusual was found, not that the underlying Latin analysis itself is correct; run `aat.core.validate.validate()` against the result (with a matching `CitableToken` list) for that.
 
 The role mapping applies the same rules `aat`'s own English pipeline documents, to Latin's relation scheme (see `aat_bridge.py`'s module docstring for the full reasoning and worked examples):
 
@@ -231,7 +226,7 @@ This format is written and read by `arsgrammatica.segmentation_serialization`, e
 
 ## `marimo` notebooks
 
-- `syntaxer.py`: an interactive notebook wrapping `analyze_passage()` -- the base URN / passage / text-to-analyze inputs each re-analyze immediately as you edit them.
+- `syntaxer.py`: an interactive notebook wrapping `analyze_string()` -- the base URN / passage / text-to-analyze inputs each re-analyze immediately as you edit them.
 - `latin_syntaxer_workflow.py`: the same notebook, built for the real-world-testing loop DEVELOPMENT.md describes -- the three inputs are one form (nothing re-analyzes, and no LM call happens, until you click *Analyze*, rather than on every keystroke), and there's a `cex`/`txt` extension choice (default `cex`) plus a *Download analysis* button that hands the current analysis (built with `serialize_analyses()`, see "Saving and loading analyses" above) to the browser's own download mechanism -- no folder path to type, at the cost of the browser (not the notebook) deciding where the file actually lands. The filename defaults to the submitted citation (base URN + passage) with the chosen extension. Ready to hand-review and, if it's a case worth keeping, turn into a fixture with `tests/fixtures/harvest.py`.
 - `latin_syntaxer_ctsdata.py`: the same notebook again, but the passage(s) to analyze come from a `#!ctsdata` source file (see "Reading passages from a delimited-text source file" above) instead of being typed in by hand -- browse for the file, then pick one or more passages from the multiselect menu that appears (labelled `<citation>: <first few words>…`, e.g. `45.1: Non se poterat ultra…`), and click *Analyze*. Every selected passage becomes its own `CitedText` source and is analyzed together via `analyze_sources()` -- always in the file's own order regardless of the order they were clicked in, since consecutive sources can share a sentence across their boundary -- with the file's own urn supplying each source's base URN and citation. Everything downstream (Mermaid diagram, highlighted/indented HTML, save-to-file) covers the combined result across every selected passage, same as `latin_syntaxer_workflow.py`'s own multi-sentence output. Both this notebook and `latin_syntaxer_workflow.py` also have *See list of tokens*/*See cost*/*See prompts* checkboxes, each toggling a hidden display of the raw token list, the last LM call's own reported cost, or `dspy.inspect_history()`'s prompt/response transcript. This notebook additionally has a *Disable LM cache (debugging)* checkbox next to those three: dspy.LM caches every response it gets (keyed on the model, messages, and call kwargs), so re-clicking *Analyze* on the same passage selection normally just replays the earlier result instead of calling the LM again -- check this box first if you want to deliberately re-run the same passage and see whether the LM's actual output changes. This is dspy's own client-side response cache, unrelated to `configure_lm()`'s separate Anthropic prompt caching (`cache_control_injection_points`, see that function's own comments) -- the Anthropic one only makes each still-genuinely-fresh call cheaper by reusing the static system-message prefix, it never replays a whole response, so it stays on regardless of this checkbox.
 - `latin_syntaxer_review.py`: no LM access at all -- browse for a file previously written by `write_analyses()` (see "Saving and loading analyses" above), pick a sentence from the menu that appears (labelled `<n>. <citation>: <first six words>…`, via `split_analysis_by_sentence()`), and it displays that one sentence's own Mermaid diagram, plain (uncolored) text, verbal-unit-colored HTML, and colored-and-indented-by-subordination-depth HTML -- the same four views `latin_syntaxer_workflow.py`/`latin_syntaxer_ctsdata.py` show after an LM call, but reconstructed entirely from the saved file. A slider above the indented view caps it to that sentence's own `max_subordination_depth()` or shallower, the same depth-cap control the other two notebooks offer, except here it only appears once a sentence with at least one token has actually been picked. A *Download Mermaid diagram (.mmd)* button next to the diagram hands that sentence's raw Mermaid source (the same text `mo.mermaid()` renders) to the browser's own download mechanism, ready to paste into mermaid.live, a README code block, or any other Mermaid-aware tool -- disabled until a sentence is selected, and named from that sentence's own menu number and citation (e.g. `1_Aeneid_1_1_mermaid.mmd`). Below those four views, it also builds and displays that same sentence's AAT (Agent-Action-Target) graph -- `attgraph()` (see "Building an AAT (Agent-Action-Target) graph" above) applied to just this one sentence, rendered as a Mermaid diagram via `aat`'s own `graph_to_mermaid()`, colored by action cluster; any warning either function returns is shown in a callout underneath. If the `aat` package isn't installed, this section shows a note explaining that instead of failing -- every other view in this notebook works regardless. Useful for reviewing or presenting an already-completed analysis (e.g. one harvested into `GOLD_EXAMPLES`) without spending an LM call, or working at all when the LM is unreachable.

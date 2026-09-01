@@ -1,21 +1,14 @@
 # Installing arsgrammatica
 
-Not on PyPI -- every install here is a direct git reference. Two cases: using the package as-is, or checking it out to develop/test it.
-
-## Just use the package
+Just use the package
 
 ```sh
 pip install git+https://github.com/neelsmith/arsgrammatica.git
 ```
 
-Pin to a branch or tag if you don't want `main`:
-
-```sh
-pip install git+https://github.com/neelsmith/arsgrammatica.git@wip
-pip install git+https://github.com/neelsmith/arsgrammatica.git@v0.5.0
 ```
 
-### Optional: the `aat` extra
+Include `aat` :
 
 Only needed for `attgraph()` (`arsgrammatica/aat_bridge.py`), converting an analysis to an Agent-Action-Target graph. The separate `aat` package isn't on PyPI either, so pick one:
 
@@ -27,7 +20,7 @@ pip install git+https://github.com/neelsmith/aat.git
 pip install "arsgrammatica[aat] @ git+https://github.com/neelsmith/arsgrammatica.git"
 ```
 
-## Developing (checkout + tests)
+Developing (checkout + tests)
 
 ```sh
 git clone https://github.com/neelsmith/arsgrammatica.git
