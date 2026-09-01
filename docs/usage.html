@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.33">
+<meta name="generator" content="quarto-1.9.38">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -74,7 +74,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-6d4e4c6c342646cac9792aff734a6985.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap-158031087360bce0ff56dc785ce39e06.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -132,12 +132,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
-<span class="menu-text">About</span></a>
+    <a class="nav-link" href="./concepts/index.html"> 
+<span class="menu-text">Concepts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./tutorials/index.html"> 
+<span class="menu-text">Tutorials</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./guides/index.html"> 
+<span class="menu-text">Guides</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./reference/index.html"> 
+<span class="menu-text">Reference</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link active" href="./usage.html" aria-current="page"> 
 <span class="menu-text">Usage guide</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/neelsmith/arsgrammatica"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -157,14 +176,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#arsgrammatica-usage-guide" id="toc-arsgrammatica-usage-guide" class="nav-link active" data-scroll-target="#arsgrammatica-usage-guide"><code>arsgrammatica</code> usage guide</a>
   <ul class="collapse">
-  <li><a href="#running-an-analysis-from-the-command-line" id="toc-running-an-analysis-from-the-command-line" class="nav-link" data-scroll-target="#running-an-analysis-from-the-command-line">Running an analysis from the command line</a>
-  <ul class="collapse">
-  <li><a href="#prerequisite" id="toc-prerequisite" class="nav-link" data-scroll-target="#prerequisite">Prerequisite</a></li>
-  </ul></li>
-  <li><a href="#command-line-script" id="toc-command-line-script" class="nav-link" data-scroll-target="#command-line-script">Command-line script</a></li>
   <li><a href="#installing-the-package" id="toc-installing-the-package" class="nav-link" data-scroll-target="#installing-the-package">Installing the package</a></li>
-  <li><a href="#using-the-arsgrammatica-package-in-a-script" id="toc-using-the-arsgrammatica-package-in-a-script" class="nav-link" data-scroll-target="#using-the-arsgrammatica-package-in-a-script">Using the <code>arsgrammatica</code> package in a script</a></li>
-  <li><a href="#analyzing-citable-sources" id="toc-analyzing-citable-sources" class="nav-link" data-scroll-target="#analyzing-citable-sources">Analyzing citable sources</a></li>
+  <li><a href="#analyzing-syntax-with-a-language-model" id="toc-analyzing-syntax-with-a-language-model" class="nav-link" data-scroll-target="#analyzing-syntax-with-a-language-model">Analyzing syntax with a language model</a>
+  <ul class="collapse">
+  <li><a href="#analyze-a-string" id="toc-analyze-a-string" class="nav-link" data-scroll-target="#analyze-a-string">Analyze a string</a></li>
+  <li><a href="#analyze-citable-passages" id="toc-analyze-citable-passages" class="nav-link" data-scroll-target="#analyze-citable-passages">Analyze citable passages</a></li>
+  <li><a href="#working-with-results-of-an-analysis" id="toc-working-with-results-of-an-analysis" class="nav-link" data-scroll-target="#working-with-results-of-an-analysis">Working with results of an analysis</a></li>
+  </ul></li>
   <li><a href="#saving-and-loading-analyses" id="toc-saving-and-loading-analyses" class="nav-link" data-scroll-target="#saving-and-loading-analyses">Saving and loading analyses</a></li>
   <li><a href="#building-an-aat-agent-action-target-graph" id="toc-building-an-aat-agent-action-target-graph" class="nav-link" data-scroll-target="#building-an-aat-agent-action-target-graph">Building an AAT (Agent-Action-Target) graph</a></li>
   <li><a href="#reading-passages-from-a-delimited-text-source-file" id="toc-reading-passages-from-a-delimited-text-source-file" class="nav-link" data-scroll-target="#reading-passages-from-a-delimited-text-source-file">Reading passages from a delimited-text source file</a></li>
@@ -182,109 +200,88 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="arsgrammatica-usage-guide" class="level1">
 <h1><code>arsgrammatica</code> usage guide</h1>
-<section id="running-an-analysis-from-the-command-line" class="level2">
-<h2 class="anchored" data-anchor-id="running-an-analysis-from-the-command-line">Running an analysis from the command line</h2>
-<section id="prerequisite" class="level3">
-<h3 class="anchored" data-anchor-id="prerequisite">Prerequisite</h3>
-<p>Create an <code>.env</code> with with your LM credentials, like this:</p>
-<pre><code>API_BASE=https://localmodel/api
-MODEL=litellm/modelname
-API_KEY=your-key-here</code></pre>
-</section>
-</section>
-<section id="command-line-script" class="level2">
-<h2 class="anchored" data-anchor-id="command-line-script">Command-line script</h2>
-<p><code>syntaxer_main.py</code> analyzes a passage and prints the result to standard output.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> syntaxer_main.py <span class="at">--passage</span> <span class="st">"Gallia est omnis divisa in partes tres."</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>To include a citation reference (e.g.&nbsp;a CTS URN), use the <code>--citation</code> argument:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> syntaxer_main.py <span class="at">--passage</span> <span class="st">"Arma virumque canō."</span> <span class="at">--citation</span> <span class="st">"urn:cts:latinLit:phi0690.phi003.perseus:1.1"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Redirect the output to a file with standard IO redirection:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> syntaxer_main.py <span class="at">--passage</span> <span class="st">"Arma virumque canō."</span> </span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">--citation</span> <span class="st">"urn:cts:latinLit:phi0690.phi003.perseus:1.1"</span> <span class="op">&gt;</span> aeneid_analysis.cex</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
 <section id="installing-the-package" class="level2">
 <h2 class="anchored" data-anchor-id="installing-the-package">Installing the package</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install git+https://github.com/neelsmith/arsgrammatica.git</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Pin to a specific branch or tag by appending <code>@&lt;ref&gt;</code>, e.g.&nbsp;for the <code>wip</code> branch:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install git+https://github.com/neelsmith/arsgrammatica.git@wip</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>or for a tagged version:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install git+https://github.com/neelsmith/arsgrammatica.git@v0.5.0</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Install directly from its github repository:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install git+https://github.com/neelsmith/arsgrammatica.git</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Pin to a specific branch, e.g.&nbsp;for the <code>wip</code> branch:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install git+https://github.com/neelsmith/arsgrammatica.git@wip</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Pin to a tagged version, e.g., <code>v0.5.0</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install git+https://github.com/neelsmith/arsgrammatica.git@v0.5.0</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="using-the-arsgrammatica-package-in-a-script" class="level2">
-<h2 class="anchored" data-anchor-id="using-the-arsgrammatica-package-in-a-script">Using the <code>arsgrammatica</code> package in a script</h2>
-<p>To call the pipeline from your own script or a REPL instead of the CLI, configure a <code>dspy.LM</code> yourself and use <code>arsgrammatica</code> directly:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> dspy</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> analyze_passage, print_analysis</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>dspy.configure(lm<span class="op">=</span>dspy.LM(model<span class="op">=</span><span class="st">"litellm_proxy/anthropic/Claude Opus 5"</span>,</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>                           api_base<span class="op">=</span><span class="st">"https://api_url/litellm"</span>,</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>                           api_key<span class="op">=</span><span class="st">"your-key-here"</span>))</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>sentences, results <span class="op">=</span> analyze_passage(<span class="st">"Gallia est omnis divisa in partes tres."</span>)</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> sentence, result <span class="kw">in</span> <span class="bu">zip</span>(sentences, results):</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    print_analysis(sentence.tokens, result)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Explanation:</p>
-<ul>
-<li><code>analyze_passage()</code> returns <code>(sentences, results)</code>: that is, one <code>Sentence</code> and one <code>SyntaxAnalysis</code> result per sentence it finds in <code>passage</code>.</li>
-<li><code>result.verbalunits</code> is a list of <code>VerbalExpression</code> objects</li>
-<li><code>result.tokengraph</code> is a list of <code>TokenAnalysis</code> objects, one per token in that sentence, in order.</li>
-</ul>
-<p><code>analyze_passage()</code> also prints a warning if the LM refers to a token id that doesn’t exist in its sentence’s input tokens. (That’s a sign that the output needs a re-run or a prompt tweak, and does not necessarily mean that your code is broken.)</p>
-<p><code>validate()</code> only catches referential problems like that one – ids that don’t exist. It can’t tell you an otherwise well-formed analysis is probably still wrong. For one specific, observed failure mode – a coordinating conjunction correctly pairing two verbal expressions, but the second one silently missing its own <code>verbalunitid</code> – call <code>find_unanchored_coordinated_verbs()</code> on the result:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> find_unanchored_coordinated_verbs</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> sentence, result <span class="kw">in</span> <span class="bu">zip</span>(sentences, results):</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> warning <span class="kw">in</span> find_unanchored_coordinated_verbs(result.tokengraph):</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Possible mistake: </span><span class="sc">{</span>warning<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>It’s a heuristic, not a guarantee – see its own docstring – but a clean result costs nothing to check, and a flagged one is worth a manual read before you trust the analysis.</p>
+<section id="analyzing-syntax-with-a-language-model" class="level2">
+<h2 class="anchored" data-anchor-id="analyzing-syntax-with-a-language-model">Analyzing syntax with a language model</h2>
+<p>Configure dspy for your LM:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> dspy</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>dspy.configure(lm<span class="op">=</span>dspy.LM(model<span class="op">=</span><span class="st">"litellm_proxy/anthropic/Claude Opus 5"</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                           api_base<span class="op">=</span><span class="st">"https://api_url/litellm"</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                           api_key<span class="op">=</span><span class="st">"your-key-here"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="analyze-a-string" class="level3">
+<h3 class="anchored" data-anchor-id="analyze-a-string">Analyze a string</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> analyze_string</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>sentences, results <span class="op">=</span> analyze_string(<span class="st">"Gallia est omnis divisa in partes tres."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="analyzing-citable-sources" class="level2">
-<h2 class="anchored" data-anchor-id="analyzing-citable-sources">Analyzing citable sources</h2>
-<p><code>arsgrammatica</code> supports tracking analyzing texts identified by some canonical citation. Under the hood, <code>analyze_passage()</code> wraps <code>passage</code> as a <code>CitedText</code> and hands this to <code>analyze_sources()</code>, which is what actually does the work. You can call <code>analyze_sources()</code> directly like this:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> analyze_sources, combined_tokengraph</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica.models <span class="im">import</span> CitedText</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>aeneid <span class="op">=</span> <span class="st">"urn:cts:latinLit:phi0690:"</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>sources <span class="op">=</span> [</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    CitedText(citation<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>aeneid<span class="sc">}</span><span class="ss">1.1"</span>, text<span class="op">=</span><span class="st">"Arma virumque canō, Trōiae quī prīmus ab ōrīs"</span>),</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    CitedText(citation<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>aeneid<span class="sc">}</span><span class="ss">1.2"</span>, text<span class="op">=</span><span class="st">"Ītaliam, fātō profugus, Lāvīniaque vēnit"</span>),</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>sentences, results <span class="op">=</span> analyze_sources(sources)</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>tokengraph <span class="op">=</span> combined_tokengraph(results)  <span class="co"># one flat list, spanning every sentence</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><code>analyze_sources()</code> handles any number of sentences and citation units; sentence boundaries don’t need to respect citation-unit boundaries (one sentence may span two source lines, as above), and every token still records which source unit it came from via <code>Token.citation</code>.</p>
+<section id="analyze-citable-passages" class="level3">
+<h3 class="anchored" data-anchor-id="analyze-citable-passages">Analyze citable passages</h3>
+<p>A <code>CitedText</code> has an identifier (such as a CTS URN) and a text value. Use <code>analyze_sources</code> to analyze a list of <code>CitedText</code> objects.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> analyze_sources, combined_tokengraph</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica.models <span class="im">import</span> CitedText</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>aeneid <span class="op">=</span> <span class="st">"urn:cts:latinLit:phi0690.ph003.perseus:"</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>sources <span class="op">=</span> [</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    CitedText(citation<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>aeneid<span class="sc">}</span><span class="ss">1.1"</span>, text<span class="op">=</span><span class="st">"Arma virumque canō, Trōiae quī prīmus ab ōrīs"</span>),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    CitedText(citation<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>aeneid<span class="sc">}</span><span class="ss">1.2"</span>, text<span class="op">=</span><span class="st">"Ītaliam, fātō profugus, Lāvīniaque vēnit"</span>),</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>sentences, results <span class="op">=</span> analyze_sources(sources)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>tokengraph <span class="op">=</span> combined_tokengraph(results)  <span class="co"># one flat list, spanning every sentence</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Note that sentence boundaries don’t need to respect citation-unit boundaries (one sentence may span multiple source lines, as above)</p>
+<blockquote class="blockquote">
+<p><em>Validation</em>: the <code>validate</code> function checks the results of an analysis for internal consistency, and compiles a list of problems it detects. Both <code>analyze_string()</code> and <code>analyze_sources</code> call <code>validate</code>, and print a print a warning if any are found.</p>
+</blockquote>
+</section>
+<section id="working-with-results-of-an-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="working-with-results-of-an-analysis">Working with results of an analysis</h3>
+<p><code>analyze_string()</code> and <code>analyze_sources()</code> return a pair of lists:</p>
+<ol type="1">
+<li>a list of <code>Sentence</code> objects</li>
+<li>a corresponding list of <code>SentenceAnalysis</code> objects, one for each sentence.</li>
+</ol>
+<p>A <code>SentenceAnalysis</code> has two a list of <code>VerbalExpression</code> objects in its <code>verbalunits</code> property, and an ordered list of <code>TokenAnalysis</code> objects in its <code>tokengraph</code> property.</p>
+<p><code>validate()</code> only catches referential problems like that one – ids that don’t exist. It can’t tell you an otherwise well-formed analysis is probably still wrong.</p>
+</section>
 </section>
 <section id="saving-and-loading-analyses" class="level2">
 <h2 class="anchored" data-anchor-id="saving-and-loading-analyses">Saving and loading analyses</h2>
 <p><code>write_analyses()</code>/<code>read_analyses()</code> (in <code>arsgrammatica/serialization.py</code>) save and reload a full analysis – <code>sentences</code>, <code>verbalunits</code> (concatenated across every sentence’s result), and <code>tokengraph</code> (via <code>combined_tokengraph()</code>) – as one deterministic, pipe-delimited plain-text file, so you can persist an analysis, diff it, hand-edit it, or reload it later without re-running the LM:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> write_analyses, read_analyses, combined_tokengraph</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>verbalunits <span class="op">=</span> [vu <span class="cf">for</span> result <span class="kw">in</span> results <span class="cf">for</span> vu <span class="kw">in</span> result.verbalunits]</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>tokengraph <span class="op">=</span> combined_tokengraph(results)</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>warnings <span class="op">=</span> write_analyses(sentences, verbalunits, tokengraph, <span class="st">"analysis.txt"</span>)</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> w <span class="kw">in</span> warnings:</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Warning: </span><span class="sc">{</span>w<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>tokengraph, verbalunits, sentences, lm_infos <span class="op">=</span> read_analyses(<span class="st">"analysis.txt"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> write_analyses, read_analyses, combined_tokengraph</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>verbalunits <span class="op">=</span> [vu <span class="cf">for</span> result <span class="kw">in</span> results <span class="cf">for</span> vu <span class="kw">in</span> result.verbalunits]</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>tokengraph <span class="op">=</span> combined_tokengraph(results)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>warnings <span class="op">=</span> write_analyses(sentences, verbalunits, tokengraph, <span class="st">"analysis.txt"</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> w <span class="kw">in</span> warnings:</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Warning: </span><span class="sc">{</span>w<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>tokengraph, verbalunits, sentences, lm_infos <span class="op">=</span> read_analyses(<span class="st">"analysis.txt"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>serialize_analyses(sentences, verbalunits, tokengraph)</code> builds the exact same text and returns it as a string (plus the same warnings) instead of writing it to a file – <code>write_analyses()</code> is just a thin wrapper around it. Use this whenever you want the serialized format for something other than a standalone file: embedding it in a prompt, logging it, or handing it to some other file-writing code of your own.</p>
 <p>The file has three required, labelled, pipe-delimited blocks (<code>#!sentences</code>, <code>#!verbal_units</code>, <code>#!tokens</code>), each with its own fixed header row, plus a fourth, optional block, <code>#!LM</code> – see <code>serialization.py</code>’s module docstring for the exact format, why <code>sentences</code> is needed at all (it’s the only place a citation is actually attached to a token id), and what <code>write_analyses()</code>’s warnings vs.&nbsp;<code>read_analyses()</code>’s errors each catch. Each of the three required labels (and <code>#!LM</code>) may appear more than once in the file; <code>read_analyses()</code> merges every instance of a label into that label’s combined row list, in file order, so simply concatenating several <code>write_analyses()</code>/<code>serialize_analyses()</code> outputs together and reading the result back gives you one combined analysis. <code>read_analyses()</code> is otherwise deliberately strict: a malformed or internally inconsistent file raises <code>ValueError</code> naming the exact line and problem, rather than silently reconstructing something partial.</p>
 <p><code>#!LM</code> records, once per sentence, which model produced that sentence’s analysis, what it was given to analyze, and its own reasoning – pass <code>model</code>/<code>reasoning</code> to write it:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>warnings <span class="op">=</span> write_analyses(</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    sentences, verbalunits, tokengraph, <span class="st">"analysis.txt"</span>,</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>os.environ[<span class="st">"MODEL"</span>],</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    reasoning<span class="op">=</span>[result.reasoning <span class="cf">for</span> result <span class="kw">in</span> results],</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>warnings <span class="op">=</span> write_analyses(</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    sentences, verbalunits, tokengraph, <span class="st">"analysis.txt"</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>os.environ[<span class="st">"MODEL"</span>],</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    reasoning<span class="op">=</span>[result.reasoning <span class="cf">for</span> result <span class="kw">in</span> results],</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Both are optional and keyword-only; omit them (as above) to skip <code>#!LM</code> entirely, exactly reproducing the file <code>write_analyses()</code> would have written before this block existed. <code>reasoning</code> needs exactly one entry per sentence (any entry can be <code>None</code>); <code>read_analyses()</code>’s fourth return value, <code>lm_infos</code>, is <code>[]</code> for a file with no <code>#!LM</code> block at all, or one <code>LMInfo(model, context, reasoning)</code> per sentence otherwise, aligned with <code>sentences</code> by position.</p>
 <p><code>read_analyses()</code> hands back flat, whole-file lists – every sentence’s <code>tokengraph</code>/<code>verbalunits</code> concatenated together, the same shape <code>combined_tokengraph()</code> produces. <code>split_analysis_by_sentence(tokengraph, verbalunits, sentences)</code> splits that back into one <code>(sentence_tokengraph, sentence_verbalunits)</code> slice per sentence, aligned with <code>sentences</code> itself:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> read_analyses, split_analysis_by_sentence</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>tokengraph, verbalunits, sentences, lm_infos <span class="op">=</span> read_analyses(<span class="st">"analysis.txt"</span>)</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>slices <span class="op">=</span> split_analysis_by_sentence(tokengraph, verbalunits, sentences)</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> sentence, (sentence_tokengraph, sentence_verbalunits) <span class="kw">in</span> <span class="bu">zip</span>(sentences, slices):</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    ...  <span class="co"># render or inspect this one sentence's own analysis</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> read_analyses, split_analysis_by_sentence</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>tokengraph, verbalunits, sentences, lm_infos <span class="op">=</span> read_analyses(<span class="st">"analysis.txt"</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>slices <span class="op">=</span> split_analysis_by_sentence(tokengraph, verbalunits, sentences)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> sentence, (sentence_tokengraph, sentence_verbalunits) <span class="kw">in</span> <span class="bu">zip</span>(sentences, slices):</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    ...  <span class="co"># render or inspect this one sentence's own analysis</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>This is what <code>marimo/latin_syntaxer_review.py</code> (see “<code>marimo</code> notebooks” below) uses to let you pick one sentence at a time out of a saved analysis file, without needing an LM at all. An implied/elided token (see models.py’s <code>TokenAnalysis</code>) is included in whichever sentence’s slice it’s nested inside, but one sitting <em>after</em> a sentence’s own last real token (rather than between two real tokens) falls just outside that sentence’s slice – see <code>split_analysis_by_sentence()</code>’s own docstring for why, and <code>read_analyses()</code>’s note on the same underlying [first, last] real-token-position convention.</p>
 </section>
 <section id="building-an-aat-agent-action-target-graph" class="level2">
@@ -292,16 +289,16 @@ API_KEY=your-key-here</code></pre>
 <p><code>attgraph()</code> (in <code>arsgrammatica/aat_bridge.py</code>) converts an already-completed analysis to an <code>AATGraph</code> from the separate <a href="https://github.com/neelsmith/aat"><code>aat</code></a> package (<a href="https://neelsmith.github.io/aat/aat.html">API docs</a>) – a much simpler, reductive Agent-Action-Target view of the same passage, alongside arsgrammatica’s own full relational scheme. It needs <code>aat</code> installed – <code>aat</code> isn’t on PyPI, so install it straight from GitHub:</p>
 <pre><code>pip install git+https://github.com/neelsmith/aat.git</code></pre>
 <p>into whichever environment you run arsgrammatica from (its own <code>.venv</code>, most likely). <code>import arsgrammatica</code> works fine without it – only actually calling <code>attgraph()</code> raises <code>ImportError</code>, naming this same install command. (If you separately <code>pip install</code> arsgrammatica itself, rather than just running it from a checkout on <code>sys.path</code> the way this repo’s own scripts and notebooks do, <code>pip install '.[aat]'</code> from its directory reaches <code>aat</code> the same way, via <code>pyproject.toml</code>’s “aat” extra – but a bare <code>pip install 'arsgrammatica[aat]'</code> will NOT work, since arsgrammatica itself isn’t published on PyPI either.)</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> analyze_passage, attgraph</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>sentences, results <span class="op">=</span> analyze_passage(<span class="st">"urbs a Romulo condita est."</span>, citation<span class="op">=</span><span class="st">"Livy 1.7"</span>)</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>graph, warnings <span class="op">=</span> attgraph(sentences, results)</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> w <span class="kw">in</span> warnings:</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Warning: </span><span class="sc">{</span>w<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> action <span class="kw">in</span> graph.actions():</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(action.value, [a.value <span class="cf">for</span> a <span class="kw">in</span> graph.agents_for(action)], [t.value <span class="cf">for</span> t <span class="kw">in</span> graph.targets_for(action)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><code>attgraph()</code> takes <code>(sentences, results)</code> in the exact shape <code>analyze_sources()</code>/<code>analyze_passage()</code> return them, and returns <code>(graph, warnings)</code> – the same “return warnings, don’t raise” convention <code>compute_subordination_depths()</code> uses, not a bare <code>AATGraph</code>. An empty <code>warnings</code> list means nothing unusual was found, not that the underlying Latin analysis itself is correct; run <code>aat.core.validate.validate()</code> against the result (with a matching <code>CitableToken</code> list) for that.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> analyze_string, attgraph</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>sentences, results <span class="op">=</span> analyze_string(<span class="st">"urbs a Romulo condita est."</span>, citation<span class="op">=</span><span class="st">"Livy 1.7"</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>graph, warnings <span class="op">=</span> attgraph(sentences, results)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> w <span class="kw">in</span> warnings:</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Warning: </span><span class="sc">{</span>w<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> action <span class="kw">in</span> graph.actions():</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(action.value, [a.value <span class="cf">for</span> a <span class="kw">in</span> graph.agents_for(action)], [t.value <span class="cf">for</span> t <span class="kw">in</span> graph.targets_for(action)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>attgraph()</code> takes <code>(sentences, results)</code> in the exact shape <code>analyze_sources()</code>/<code>analyze_string()</code> return them, and returns <code>(graph, warnings)</code> – the same “return warnings, don’t raise” convention <code>compute_subordination_depths()</code> uses, not a bare <code>AATGraph</code>. An empty <code>warnings</code> list means nothing unusual was found, not that the underlying Latin analysis itself is correct; run <code>aat.core.validate.validate()</code> against the result (with a matching <code>CitableToken</code> list) for that.</p>
 <p>The role mapping applies the same rules <code>aat</code>’s own English pipeline documents, to Latin’s relation scheme (see <code>aat_bridge.py</code>’s module docstring for the full reasoning and worked examples):</p>
 <ul>
 <li>every verbal expression (<code>verbalunits</code> entry) becomes an <em>action</em> node. A compound form (e.g.&nbsp;“condita est”) becomes one node, anchored at arsgrammatica’s own compound-id convention (the form of <em>sum</em>), with <code>value</code> set to every component’s text joined by spaces in surface order.</li>
@@ -316,11 +313,11 @@ API_KEY=your-key-here</code></pre>
 <section id="reading-passages-from-a-delimited-text-source-file" class="level2">
 <h2 class="anchored" data-anchor-id="reading-passages-from-a-delimited-text-source-file">Reading passages from a delimited-text source file</h2>
 <p><code>read_ctsdata()</code> (in <code>arsgrammatica/ctsdata.py</code>) reads a list of citable passages – each one a CTS URN paired with its own text – out of a pipe-delimited file, as a list of <code>CitedText</code> (the same type <code>segment_sources()</code>/<code>analyze_sources()</code> already take, so a row can be handed straight to either with no conversion). This is the input-side counterpart to <code>write_analyses()</code>/<code>read_analyses()</code> above (which handle an analysis’s <em>results</em>, not the passages you’re about to analyze):</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> read_ctsdata</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> read_ctsdata(<span class="st">"passages.txt"</span>)</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> rows:</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(row.citation, <span class="st">"--"</span>, row.text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> read_ctsdata</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> read_ctsdata(<span class="st">"passages.txt"</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> rows:</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(row.citation, <span class="st">"--"</span>, row.text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The file has one or more <code>#!ctsdata</code> blocks, each with its own <code>urn|text</code> header row:</p>
 <pre><code>#!ctsdata
 urn|text
@@ -330,7 +327,7 @@ urn:cts:compnov:bible.genesis.vulgate:45.1|Non se poterat ultra tenere.</code></
 <section id="tokenizing-a-source-file-without-full-syntax-analysis" class="level2">
 <h2 class="anchored" data-anchor-id="tokenizing-a-source-file-without-full-syntax-analysis">Tokenizing a source file without full syntax analysis</h2>
 <p><code>utilities/tokenize_ctsdata.py</code> is a command-line script that reads every passage out of a <code>#!ctsdata</code> (CEX) source file, tokenizes and sentence-splits the WHOLE collected text in one shot via <code>segment_sources()</code> (the same LM-driven segmentation stage <code>analyze_sources()</code> runs before syntax analysis, and the same way <code>latin_syntaxer_ctsdata.py</code>’s own “Analyze every selected passage, together” cell does), and writes the result to standard output using <code>arsgrammatica.serialize_segmentation()</code> – no <code>SyntaxAnalysis</code> call, no <code>TokenAnalysis</code>/<code>VerbalExpression</code>, one LM call for the whole file rather than one per sentence:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/tokenize_ctsdata.py passages.txt <span class="op">&gt;</span> tokenized.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/tokenize_ctsdata.py passages.txt <span class="op">&gt;</span> tokenized.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Every row is segmented together, in file order, so a sentence may run from the end of one row’s text into the start of the next – exactly like <code>analyze_sources()</code> – and token ids (<code>t0</code>, <code>t1</code>, …) are globally unique across the whole output.</p>
 <p>The output has two <code>#!</code>-labeled, pipe-delimited blocks. The first, <code>#!sentences</code>, is in exactly the same shape <code>arsgrammatica.serialization</code> writes for its own <code>#!sentences</code> block (this script imports those constants directly, so the two can’t drift apart). The second, <code>#!tokens</code>, lists every token in every sentence; it shares that name with <code>arsgrammatica.serialization</code>’s own <code>#!tokens</code> block, but not its columns – there’s no <code>tokentype</code>/<code>lemma</code>/relation data to write here, since nothing in this script ever runs syntax analysis. Because of that column mismatch, <code>read_analyses()</code> still can’t parse this file as a whole, even though its <code>#!sentences</code> half alone is exactly what that function expects:</p>
 <pre><code>#!sentences
@@ -348,7 +345,7 @@ urn:cts:compnov:bible.genesis.vulgate:45.1|0|t1|se
 <section id="marimo-notebooks" class="level2">
 <h2 class="anchored" data-anchor-id="marimo-notebooks"><code>marimo</code> notebooks</h2>
 <ul>
-<li><code>syntaxer.py</code>: an interactive notebook wrapping <code>analyze_passage()</code> – the base URN / passage / text-to-analyze inputs each re-analyze immediately as you edit them.</li>
+<li><code>syntaxer.py</code>: an interactive notebook wrapping <code>analyze_string()</code> – the base URN / passage / text-to-analyze inputs each re-analyze immediately as you edit them.</li>
 <li><code>latin_syntaxer_workflow.py</code>: the same notebook, built for the real-world-testing loop DEVELOPMENT.md describes – the three inputs are one form (nothing re-analyzes, and no LM call happens, until you click <em>Analyze</em>, rather than on every keystroke), and there’s a <code>cex</code>/<code>txt</code> extension choice (default <code>cex</code>) plus a <em>Download analysis</em> button that hands the current analysis (built with <code>serialize_analyses()</code>, see “Saving and loading analyses” above) to the browser’s own download mechanism – no folder path to type, at the cost of the browser (not the notebook) deciding where the file actually lands. The filename defaults to the submitted citation (base URN + passage) with the chosen extension. Ready to hand-review and, if it’s a case worth keeping, turn into a fixture with <code>tests/fixtures/harvest.py</code>.</li>
 <li><code>latin_syntaxer_ctsdata.py</code>: the same notebook again, but the passage(s) to analyze come from a <code>#!ctsdata</code> source file (see “Reading passages from a delimited-text source file” above) instead of being typed in by hand – browse for the file, then pick one or more passages from the multiselect menu that appears (labelled <code>&lt;citation&gt;: &lt;first few words&gt;…</code>, e.g.&nbsp;<code>45.1: Non se poterat ultra…</code>), and click <em>Analyze</em>. Every selected passage becomes its own <code>CitedText</code> source and is analyzed together via <code>analyze_sources()</code> – always in the file’s own order regardless of the order they were clicked in, since consecutive sources can share a sentence across their boundary – with the file’s own urn supplying each source’s base URN and citation. Everything downstream (Mermaid diagram, highlighted/indented HTML, save-to-file) covers the combined result across every selected passage, same as <code>latin_syntaxer_workflow.py</code>’s own multi-sentence output. Both this notebook and <code>latin_syntaxer_workflow.py</code> also have <em>See list of tokens</em>/<em>See cost</em>/<em>See prompts</em> checkboxes, each toggling a hidden display of the raw token list, the last LM call’s own reported cost, or <code>dspy.inspect_history()</code>’s prompt/response transcript. This notebook additionally has a <em>Disable LM cache (debugging)</em> checkbox next to those three: dspy.LM caches every response it gets (keyed on the model, messages, and call kwargs), so re-clicking <em>Analyze</em> on the same passage selection normally just replays the earlier result instead of calling the LM again – check this box first if you want to deliberately re-run the same passage and see whether the LM’s actual output changes. This is dspy’s own client-side response cache, unrelated to <code>configure_lm()</code>’s separate Anthropic prompt caching (<code>cache_control_injection_points</code>, see that function’s own comments) – the Anthropic one only makes each still-genuinely-fresh call cheaper by reusing the static system-message prefix, it never replays a whole response, so it stays on regardless of this checkbox.</li>
 <li><code>latin_syntaxer_review.py</code>: no LM access at all – browse for a file previously written by <code>write_analyses()</code> (see “Saving and loading analyses” above), pick a sentence from the menu that appears (labelled <code>&lt;n&gt;. &lt;citation&gt;: &lt;first six words&gt;…</code>, via <code>split_analysis_by_sentence()</code>), and it displays that one sentence’s own Mermaid diagram, plain (uncolored) text, verbal-unit-colored HTML, and colored-and-indented-by-subordination-depth HTML – the same four views <code>latin_syntaxer_workflow.py</code>/<code>latin_syntaxer_ctsdata.py</code> show after an LM call, but reconstructed entirely from the saved file. A slider above the indented view caps it to that sentence’s own <code>max_subordination_depth()</code> or shallower, the same depth-cap control the other two notebooks offer, except here it only appears once a sentence with at least one token has actually been picked. A <em>Download Mermaid diagram (.mmd)</em> button next to the diagram hands that sentence’s raw Mermaid source (the same text <code>mo.mermaid()</code> renders) to the browser’s own download mechanism, ready to paste into mermaid.live, a README code block, or any other Mermaid-aware tool – disabled until a sentence is selected, and named from that sentence’s own menu number and citation (e.g.&nbsp;<code>1_Aeneid_1_1_mermaid.mmd</code>). Below those four views, it also builds and displays that same sentence’s AAT (Agent-Action-Target) graph – <code>attgraph()</code> (see “Building an AAT (Agent-Action-Target) graph” above) applied to just this one sentence, rendered as a Mermaid diagram via <code>aat</code>’s own <code>graph_to_mermaid()</code>, colored by action cluster; any warning either function returns is shown in a callout underneath. If the <code>aat</code> package isn’t installed, this section shows a note explaining that instead of failing – every other view in this notebook works regardless. Useful for reviewing or presenting an already-completed analysis (e.g.&nbsp;one harvested into <code>GOLD_EXAMPLES</code>) without spending an LM call, or working at all when the LM is unreachable.</li>

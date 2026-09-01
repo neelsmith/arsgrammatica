@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>technical – arsgrammatica</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-158031087360bce0ff56dc785ce39e06.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar floating nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">arsgrammatica</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../concepts/index.html"> 
+<span class="menu-text">Concepts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../tutorials/index.html"> 
+<span class="menu-text">Tutorials</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="../guides/index.html" aria-current="page"> 
+<span class="menu-text">Guides</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../reference/index.html"> 
+<span class="menu-text">Reference</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/neelsmith/arsgrammatica"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guides/technical.html">Some technical docs</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Guides</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/usage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><code>arsgrammatica</code> usage guide</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/visualization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Visualizing results</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/optimizing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Optimizing with GEPA</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/bakeoff.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Comparing task models with <code>model_bakeoff.py</code></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/development.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Developing <code>arsgrammatica</code></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/technical.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Some technical docs</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/managing_prompt_size.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Keeping requests to an LM at a manageable size</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Testing without network access</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#some-technical-docs" id="toc-some-technical-docs" class="nav-link active" data-scroll-target="#some-technical-docs">Some technical docs</a>
+  <ul class="collapse">
+  <li><a href="#estimating-and-enforcing-a-max_tokens-budget" id="toc-estimating-and-enforcing-a-max_tokens-budget" class="nav-link" data-scroll-target="#estimating-and-enforcing-a-max_tokens-budget">Estimating and enforcing a <code>max_tokens</code> budget</a></li>
+  <li><a href="#anthropic-prompt-caching" id="toc-anthropic-prompt-caching" class="nav-link" data-scroll-target="#anthropic-prompt-caching">Anthropic prompt caching</a></li>
+  <li><a href="#harvesting-gold-examples-from-real-analyses" id="toc-harvesting-gold-examples-from-real-analyses" class="nav-link" data-scroll-target="#harvesting-gold-examples-from-real-analyses">Harvesting gold examples from real analyses</a></li>
+  <li><a href="#files" id="toc-files" class="nav-link" data-scroll-target="#files">Files</a></li>
+  <li><a href="#extending-the-scheme" id="toc-extending-the-scheme" class="nav-link" data-scroll-target="#extending-the-scheme">Extending the scheme</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+
+
+
+
+<section id="some-technical-docs" class="level1">
+<h1>Some technical docs</h1>
+<section id="estimating-and-enforcing-a-max_tokens-budget" class="level2">
+<h2 class="anchored" data-anchor-id="estimating-and-enforcing-a-max_tokens-budget">Estimating and enforcing a <code>max_tokens</code> budget</h2>
+<p><code>SyntaxAnalysis</code>’s output (a <code>reasoning</code> field plus JSON-serialized <code>verbalunits</code>/<code>tokengraph</code>) grows with how long and how syntactically complex a sentence is, not by a fixed amount, so a single hard-coded <code>max_tokens</code> value is eventually wrong: too small for a long or deeply subordinated sentence (truncation), too large for a short one (wasted budget). <code>arsgrammatica/token_budget.py</code> addresses this with a calibrate-then-retry approach, and <code>pipeline.py</code>’s <code>analyze_sources()</code> already uses it – both <code>analyze_sources()</code> and <code>analyze_passage()</code> get this for free, with nothing to change in your own calling code.</p>
+<p>First, calibrate against your own configured model:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> calibrate_max_tokens.py</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This is a live-LM script (real API cost, one call per <code>GOLD_EXAMPLES</code> entry) that measures how many completion tokens the real model actually uses for each gold example, fits <code>completion_tokens ~= intercept + slope * num_input_tokens</code> by least squares, and writes the result to <code>arsgrammatica/token_budget_calibration.json</code>. Re-run it whenever the configured model, the <code>SyntaxAnalysis</code> prompt, or the <code>TokenAnalysis</code>/<code>VerbalExpression</code> schema changes substantially. Until you’ve run it at least once, <code>estimate_max_tokens()</code> falls back to an untuned, deliberately generous placeholder fit – safe, but not a real measurement of your model.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> estimate_max_tokens</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>budget <span class="op">=</span> estimate_max_tokens(num_tokens<span class="op">=</span><span class="dv">25</span>)  <span class="co"># -&gt; an int max_tokens value</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>estimate_max_tokens()</code> takes the calibrated (or fallback) fit, multiplies it by a <code>safety_margin</code> (default <code>1.4</code>, covering reasoning-length variance the fit alone doesn’t), and clamps the result to <code>[floor, ceiling]</code>. Set <code>ceiling</code> to your actual model’s real max-output-tokens limit – the module’s own <code>DEFAULT_CEILING</code> is only a placeholder stand-in, since that limit varies by provider/model and there’s no single correct default.</p>
+<p>For the retry half, <code>analyze_with_retry()</code> wraps <code>analyze()</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> analyze_with_retry</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> analyze_with_retry(passage, tokens)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>It starts from <code>estimate_max_tokens(len(tokens))</code> (or <code>initial_max_tokens</code>, if you pass one), and checks the result two ways: whether the returned <code>tokengraph</code> is missing any of <code>tokens</code>’ own ids (the primary, provider-independent signal – a real truncation, LM-JSON getting cut off mid-list, always shows up here), and, as a corroborating check, whether the LM’s own <code>finish_reason</code> was <code>"length"</code>. If either signals truncation and a retry is still available (<code>max_retries</code>, default <code>1</code>) with budget left before <code>ceiling</code>, it multiplies the budget by <code>growth_factor</code> (default <code>2.0</code>) and calls again – <code>max_tokens</code> is part of DSPy’s own LM cache key, so the retry always reaches the LM again rather than replaying the same truncated cached response. If retries run out: a call that raised re-raises (nothing to fall back to); a call that returned an incomplete result is returned anyway, with a <code>UserWarning</code> naming the missing ids, rather than treated as fatal – consistent with <code>validate()</code>’s own warn-don’t-raise convention for imperfect LM output.</p>
+<p><code>get_calibration()</code> reports which fit is currently active (the real one from <code>calibrate_max_tokens.py</code>, or the untuned fallback) if you want to check before relying on an estimate.</p>
+</section>
+<section id="anthropic-prompt-caching" class="level2">
+<h2 class="anchored" data-anchor-id="anthropic-prompt-caching">Anthropic prompt caching</h2>
+<p><code>SyntaxAnalysis</code>’s system message – its own instructions plus the full <code>TokenAnalysis</code>/<code>VerbalExpression</code> field descriptions – runs to roughly 40,000 characters and is byte-identical on every single call, regardless of passage; only the small per-sentence user message actually varies (typically well under 1,000 characters). Every <code>_configure_lm()</code> in this repo (<code>syntaxer_main.py</code>, <code>calibrate_max_tokens.py</code>, and the <code>marimo</code> notebooks) turns on Anthropic prompt caching automatically when <code>MODEL</code> routes to Anthropic – there’s no <code>.env</code> setting for this, and switching <code>MODEL</code> to a non-Anthropic backend (Ollama, OpenAI, etc.) skips it with nothing to turn off by hand:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="st">"anthropic"</span> <span class="kw">in</span> model.lower():</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    lm_kwargs[<span class="st">"cache_control_injection_points"</span>] <span class="op">=</span> [</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        {<span class="st">"location"</span>: <span class="st">"message"</span>, <span class="st">"role"</span>: <span class="st">"system"</span>}</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    ]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>cache_control_injection_points</code> is a litellm parameter (which <code>dspy.LM</code> forwards straight through, along with any other kwarg) that marks a message with Anthropic’s ephemeral <code>cache_control</code> breakpoint – everything up to and including that message can be reused by a later call within Anthropic’s cache TTL (5 minutes by default) at roughly a tenth of its normal input-token price, instead of paying full price every time. Since there are no few-shot demos attached to <code>analyze</code> today, one breakpoint on the system message covers the whole static prefix; if a compiled/optimized program with demos is ever loaded, add a second point, <code>{"location": "message", "index": -2}</code>, to fold the demo turns into the same cached prefix (the real, always-different input is always the last message, so <code>-2</code> is “whatever precedes it,” demos or not).</p>
+<p>This is a net win specifically for anything that fires several calls close together against the same system message – <code>analyze_sources()</code> walking a multi-sentence passage, <code>calibrate_max_tokens.py</code>’s run over the whole <code>GOLD_EXAMPLES</code> corpus (one call per entry, 43 as of this writing), or an interactive <code>marimo</code> session. A single, isolated call costs a little <em>more</em> than before (a modest write premium with no offsetting read), so this only pays off because these scripts are rarely run for just one call.</p>
+</section>
+<section id="harvesting-gold-examples-from-real-analyses" class="level2">
+<h2 class="anchored" data-anchor-id="harvesting-gold-examples-from-real-analyses">Harvesting gold examples from real analyses</h2>
+<p><code>gold_example_from_analysis()</code>/<code>format_gold_example_source()</code> (in <code>tests/fixtures/harvest.py</code>) turn a real analysis’s own <code>sentences</code>/<code>verbalunits</code>/<code>tokengraph</code> – the same triple <code>write_analyses()</code>/<code>serialize_analyses()</code> take – into a <code>GoldExample</code> (<code>tests/fixtures/gold_examples.py</code>), instead of hand-writing a <code>canned_answer</code> dict from scratch:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> fixtures.harvest <span class="im">import</span> gold_example_from_analysis, format_gold_example_source</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>sentences, results <span class="op">=</span> analyze_passage(<span class="st">"Some new passage you've reviewed by hand."</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> results[<span class="dv">0</span>]  <span class="co"># one result per sentence; pick whichever one you're harvesting</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>example <span class="op">=</span> gold_example_from_analysis(</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    slug<span class="op">=</span><span class="st">"some_new_construction_example"</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    tags<span class="op">=</span>[<span class="st">"the construction this example is meant to cover"</span>],</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    sentences<span class="op">=</span>sentences,</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    verbalunits<span class="op">=</span>result.verbalunits,</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    tokengraph<span class="op">=</span>result.tokengraph,</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    reasoning<span class="op">=</span>result.reasoning,  <span class="co"># dspy.ChainOfThought's own reasoning field</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(format_gold_example_source(example, <span class="st">"_SOME_NEW_CONSTRUCTION_ANSWER"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>format_gold_example_source()</code>’s output is ready-to-paste Python: a <code>_SOME_NEW_CONSTRUCTION_ANSWER = {...}</code> dict literal followed by the <code>GoldExample(...)</code> entry that references it, in the same two-part shape every existing block in <code>gold_examples.py</code> already uses. <code>gold_example_from_analysis()</code> runs <code>validate()</code> against the given <code>sentences</code>/<code>verbalunits</code>/<code>tokengraph</code> before returning (pass <code>skip_validation=True</code> to bypass) – catching a referentially-malformed analysis, but <em>not</em> judging whether the analysis is actually correct; that’s still on you, per “an analysis you’ve reviewed by hand” above.</p>
+<p><strong>Should a harvested example go into the trainset GEPA optimizes against, or into a held-out evaluation set?</strong> Usually the latter. A <em>correct</em> analysis is, by definition, something the current model/prompt already gets right – adding it to <code>optimize_gepa.py</code>’s trainset (all of <code>GOLD_EXAMPLES</code> today; see that script’s own docstring for why there’s no split at all there) mostly dilutes the trainset with an easy case GEPA gets to self-grade against, without teaching it anything new. The better default is to add the harvested example to <code>GOLD_EXAMPLES</code> <em>and</em> to <code>model_bakeoff.py</code>’s <code>HELD_OUT_SLUGS</code> (see <code>BAKEOFF.md</code>’s “The held-out evaluation set”) – growing a real regression corpus that catches a future prompt/model change breaking something that currently works, without inflating GEPA’s own self-graded trainset. The exception is a rare construction the model only sometimes gets right, where locking in a correct demonstration genuinely is useful training signal – that’s what <code>model_bakeoff.py</code>’s bootstrap stage already does on purpose with a few-shot demo pool. <code>gold_example_from_analysis()</code> itself has no opinion baked in – the choice of which list you paste the result into (and whether you also add its slug to <code>HELD_OUT_SLUGS</code>) is entirely on you.</p>
+</section>
+<section id="files" class="level2">
+<h2 class="anchored" data-anchor-id="files">Files</h2>
+<ul>
+<li><code>syntaxer_main.py</code> — command-line entry point: loads <code>.env</code>, configures the LM, and runs an analysis for a passage given on the command line.</li>
+<li><code>calibrate_max_tokens.py</code> — loads <code>.env</code>, configures the LM, and fits <code>arsgrammatica/token_budget.py</code>’s <code>max_tokens</code> estimate against real completion-token usage over <code>GOLD_EXAMPLES</code> (see “Estimating and enforcing a <code>max_tokens</code> budget” above).</li>
+<li><code>arsgrammatica/</code> — the package with the actual analysis logic:
+<ul>
+<li><code>models.py</code> — pydantic models for <code>CitedText</code>, <code>Token</code>, <code>Sentence</code>, <code>VerbalExpression</code>, and <code>TokenAnalysis</code>, matching the fields and relation labels from <code>syntax_model.md</code>.</li>
+<li><code>segmentation_dspy.py</code> — the DSPy signature (<code>SegmentPassage</code>) that segments citation-labeled source text into sentences and tokens, assigning stable ids (<code>t0</code>, <code>t1</code>, …) and tracking which citation each token came from.</li>
+<li><code>latin_syntax_dspy.py</code> is the DSPy signature (<code>SyntaxAnalysis</code>) that takes a sentence’s tokens and produces <code>verbalunits</code> + <code>tokengraph</code>, plus <code>validate()</code> and <code>print_analysis()</code>.</li>
+<li><code>pipeline.py</code> — ties the two stages together: <code>analyze_sources()</code> runs the full pipeline over citation-labeled input and analyzes every sentence it finds (via <code>token_budget.analyze_with_retry()</code>, not <code>analyze()</code> directly – see below); <code>analyze_passage()</code> is the convenience wrapper for a single bare passage string; <code>combined_tokengraph()</code> concatenates results for diagramming.</li>
+<li><code>token_budget.py</code> — <code>estimate_max_tokens()</code> picks a <code>max_tokens</code> budget for a SyntaxAnalysis call from a passage’s token count, using a fit <code>calibrate_max_tokens.py</code> writes to <code>token_budget_calibration.json</code> (or an untuned fallback before that’s ever been run); <code>analyze_with_retry()</code> wraps <code>analyze()</code> with that estimate and retries with a larger budget if the result still comes back truncated (see “Estimating and enforcing a <code>max_tokens</code> budget” above).</li>
+<li><code>serialization.py</code> — <code>serialize_analyses()</code>/<code>write_analyses()</code>/<code>read_analyses()</code> save and reload <code>sentences</code>/<code>verbalunits</code>/<code>tokengraph</code> as one deterministic, pipe-delimited plain-text file, or as an equivalent in-memory string; <code>split_analysis_by_sentence()</code> splits <code>read_analyses()</code>’s flat, whole-file lists back into one <code>(tokengraph, verbalunits)</code> slice per sentence (see “Saving and loading analyses” above).</li>
+<li><code>mermaid.py</code> — turns a <code>tokengraph</code> into a Mermaid flowchart: one node per non-punctuation token, one labelled edge per <code>relatedtoken1</code>/<code>relationship1</code> and <code>relatedtoken2</code>/<code>relationship2</code> pair, colored by verbal unit, with same-depth verbal-unit anchors chained together via Mermaid’s invisible-link syntax so the layout also respects depth of subordination (see <code>VISUALIZATION.md</code>).</li>
+<li><code>verbal_units.py</code> — <code>assign_verbal_units()</code> partitions a <code>tokengraph</code> into the verbal units its own relations imply, purely from the existing graph structure (no extra LM call); <code>assign_verbal_unit_colors()</code> builds on that to assign each verbal unit a stable palette color, in the same first-appearance order <code>mermaid.py</code> uses for its node coloring — the single shared source both <code>mermaid.py</code> and <code>rendering.py</code> draw on so their colorings always agree. <code>compute_subordination_depths()</code> computes each verbal expression’s <em>depth of subordination</em> (0 for an independent clause, 1 for a clause it introduces, 2 for one that clause in turn introduces, and so on) the same way, by chasing each anchor’s own relation to its governing verbal expression (see <code>VISUALIZATION.md</code>); <code>max_subordination_depth()</code> reduces that to the single deepest depth reached anywhere in the passage (<code>None</code> if there are no verbal expressions, or none resolve), the natural upper bound for <code>tokengraph_to_depth_html()</code>’s own <code>depth</code> parameter below. <code>find_unanchored_coordinated_verbs()</code> is a heuristic sanity check, separate from <code>validate()</code>: it flags a “coordinating conjunction” pair where one side anchors its own verbal unit and the other doesn’t – an asymmetry a correct analysis should never produce, and a real mistake a live LM has made (see that function’s own docstring for the worked example). Returns a list of warning strings (empty if nothing looks wrong); it can’t confirm the unanchored side really was meant to be a verb, only that the asymmetry is worth a human look.</li>
+<li><code>rendering.py</code> — <code>tokengraph_to_text()</code> reconstructs a continuous, readable plain-text string from a <code>tokengraph</code>, with correct spacing around punctuation, brackets, quote pairs, and enclitics (unlike a plain <code>" ".join(...)</code>, which would put a space before every token, including punctuation and enclitics – e.g.&nbsp;rendering “virumque” as “virum que”). <code>tokengraph_to_html()</code> does the same join, but as an HTML string with lexical, praenomen, and numeral tokens (and any coordinating conjunction) wrapped in verbal-unit-colored <code>&lt;span&gt;</code>s. <code>tokengraph_to_depth_html()</code> renders the same colored tokens grouped into per-verbal-unit blocks, each CSS-indented by its depth of subordination (see <code>VISUALIZATION.md</code>); its optional <code>depth</code> parameter caps rendering to blocks at or below that depth (<code>depth=0</code> through the passage’s own <code>max_subordination_depth()</code>) – a block deeper than the cap is omitted entirely, not rendered empty.</li>
+<li><code>__init__.py</code> — re-exports the public names above, so callers do <code>from arsgrammatica import ...</code> rather than reaching into submodules.</li>
+</ul></li>
+<li><code>tests/</code> — a pytest suite covering models, segmentation, analysis, validation, and coverage of the scheme’s relation/type vocabulary.</li>
+<li><code>docs/build_api_docs.py</code> — regenerates <code>docs/arsgrammatica-api-docs.html</code>, a single self-contained HTML page documenting every name in <code>arsgrammatica.__all__</code>, built with <code>pdoc</code> straight from the package’s own docstrings and type hints. Run <code>python docs/build_api_docs.py</code> after changing a public docstring or signature to refresh it; requires <code>pdoc</code> (<code>pip install pdoc --break-system-packages</code>).</li>
+</ul>
+</section>
+<section id="extending-the-scheme" class="level2">
+<h2 class="anchored" data-anchor-id="extending-the-scheme">Extending the scheme</h2>
+<p><code>syntax_model.md</code> says the current relation set is partial. To add a new relation:</p>
+<ol type="1">
+<li>Add the new label to <code>RelationLabel</code> in <code>arsgrammatica/models.py</code>.</li>
+<li>Describe when to use it in <code>SyntaxAnalysis</code>’s docstring in <code>arsgrammatica/latin_syntax_dspy.py</code>, following the pattern of the existing relations (which token gets <code>relatedtoken1</code>/<code>relationship1</code>, which gets the corresponding value on the other end).</li>
+<li>Add a gold example exercising it to <code>tests/fixtures/gold_examples.py</code> and re-run <code>pytest</code> to confirm the models still validate before trying it against the real LM.</li>
+</ol>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
