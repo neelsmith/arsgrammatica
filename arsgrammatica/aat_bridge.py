@@ -178,8 +178,8 @@ def _component_ids(anchor_id: str, tokengraph: List[TokenAnalysis]) -> List[str]
 def attgraph(sentences: List[Sentence], results: list) -> Tuple[AATGraph, List[str]]:
     """Build an `aat.core.AATGraph` from an already-completed
     arsgrammatica analysis -- `sentences`/`results`, in the exact shape
-    `pipeline.analyze_sources()` (or `analyze_passage()`) returns them:
-    `results[i]` is the SyntaxAnalysis result (with its own `.tokengraph`
+    `pipeline.analyze_sources()` (or `analyze_string()`) returns them:
+    `results[i]` is the SentenceAnalysis result (with its own `.tokengraph`
     and `.verbalunits`) for `sentences[i]`, same order, one entry per
     sentence.
 

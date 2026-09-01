@@ -66,7 +66,7 @@ def _configure_lm():
     # explicitly is unnecessary and, depending on the provider, can behave
     # differently than omitting it outright.
     # An explicit numeric baseline, not None (dspy.LM's own default): every
-    # SyntaxAnalysis call here goes through token_budget.analyze_with_retry(),
+    # SentenceAnalysis call here goes through token_budget.analyze_with_retry(),
     # which overrides max_tokens per call anyway, but segment_sources()'s own
     # LM call does NOT -- it has no calibration or retry of its own, so
     # without this it would fall through to whatever the provider/litellm
@@ -80,7 +80,7 @@ def _configure_lm():
     if api_key:
         lm_kwargs["api_key"] = api_key
 
-    # Anthropic prompt caching: SyntaxAnalysis's system message (its own
+    # Anthropic prompt caching: SentenceAnalysis's system message (its own
     # instructions plus the TokenAnalysis/VerbalExpression field
     # descriptions) runs ~40K characters and is byte-identical on every
     # single call -- only the per-sentence user message actually changes.
@@ -111,7 +111,7 @@ def _configure_lm():
  
  
  
-from arsgrammatica import print_analysis, analyze_passage
+from arsgrammatica import print_analysis, analyze_string
  
  
 if __name__ == "__main__":
@@ -131,7 +131,7 @@ if __name__ == "__main__":
 
     _configure_lm()
     #loadollama()
-    sentences, results = analyze_passage(args.passage, citation=args.citation)
+    sentences, results = analyze_string(args.passage, citation=args.citation)
  
     for i, (sentence, result) in enumerate(zip(sentences, results), start=1):
         if len(sentences) > 1:

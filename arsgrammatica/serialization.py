@@ -1,6 +1,6 @@
 """
 Deterministic plain-text serialization for a set of analyses: writes and
-reads back the three flat lists analyze_sources()/analyze_passage() (plus
+reads back the three flat lists analyze_sources()/analyze_string() (plus
 pipeline.py's combined_tokengraph()) naturally produce across however many
 sentences and citation sources were analyzed --
 

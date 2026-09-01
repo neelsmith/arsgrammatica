@@ -1,6 +1,6 @@
 """
 Represent a `tokengraph` (a list of TokenAnalysis, as produced by
-latin_syntax_dspy.analyze_passage) as a NetworkX graph, and compute a
+latin_syntax_dspy.analyze_string) as a NetworkX graph, and compute a
 handful of size/complexity/shape metrics from it -- the graph-theoretic
 counterpart to mermaid.py's visual rendering of the same data, for
 programmatic analysis (comparing two analyses' structure, characterizing

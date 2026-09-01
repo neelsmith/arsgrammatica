@@ -20,8 +20,8 @@ import pytest
 from dspy.utils.dummies import DummyLM
 from dspy.utils.exceptions import AdapterParseError
 
-from arsgrammatica import analyze_passage, analyze_with_retry, estimate_max_tokens, get_calibration
-from arsgrammatica.latin_syntax_dspy import SyntaxAnalysis
+from arsgrammatica import analyze_string, analyze_with_retry, estimate_max_tokens, get_calibration
+from arsgrammatica.latin_syntax_dspy import SentenceAnalysis
 from arsgrammatica.token_budget import DEFAULT_CEILING, DEFAULT_FLOOR
 from conftest import tokens_from_canned_answer
 from fixtures.gold_examples import GOLD_EXAMPLES
@@ -226,7 +226,7 @@ def test_analyze_with_retry_retries_once_on_malformed_non_truncated_output_then_
         if len(calls) == 1:
             raise AdapterParseError(
                 adapter_name="ChatAdapter",
-                signature=SyntaxAnalysis,
+                signature=SentenceAnalysis,
                 lm_response="[[ ## tokengraph ## ]]\n[...]",
                 message="Failed to parse field tokengraph with value [...]. Error message: "
                 "1 validation error for list[TokenAnalysis]\n21\n  Input should be a valid "
@@ -264,7 +264,7 @@ def test_analyze_with_retry_gives_up_after_max_retries_on_persistent_malformed_o
         calls.append(dict(config))
         raise AdapterParseError(
             adapter_name="ChatAdapter",
-            signature=SyntaxAnalysis,
+            signature=SentenceAnalysis,
             lm_response="[[ ## tokengraph ## ]]\n[...]",
             message="persistently malformed",
         )
@@ -312,7 +312,7 @@ def test_pipeline_handles_a_deeply_subordinated_passage_without_truncating(real_
     max_tokens would eventually truncate -- should come back with a
     complete tokengraph, covering every input token id, with no manual
     retry needed from the caller."""
-    sentences, results = analyze_passage(
+    sentences, results = analyze_string(
         "Cum Caesar in Galliam venisset, milites, qui iam diu contra hostes "
         "pugnaverant, sperabant se, postquam dux ipse adesset, celerius "
         "victuros esse."

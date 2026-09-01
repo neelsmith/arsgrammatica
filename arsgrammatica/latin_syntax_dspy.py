@@ -2,13 +2,13 @@
 DSPy program that analyzes the syntax of a Latin passage according to the scheme documented in syntax_model.md: a table of verbal expressions, plus a token-level dependency graph.
  
 This module covers only the analysis stage:
-  1. SyntaxAnalysis -- a dspy.Signature that takes a passage plus its pre-segmented token list and produces `verbalunits` and `tokengraph`, using the ids handed to it.
+  1. SentenceAnalysis -- a dspy.Signature that takes a passage plus its pre-segmented token list and produces `verbalunits` and `tokengraph`, using the ids handed to it.
   2. validate()   -- a light sanity check that every id the LM refers to in its output actually exists in the input token list, so malformed output is easy to spot.
  
 Tokens are no longer produced here. The old deterministic tokenizer.py has
 been retired; tokens now come from segmentation_dspy.py's LLM-driven,
 citation-aware segmentation stage. See pipeline.py for the module that ties
-the two stages together, including its analyze_passage() convenience
+the two stages together, including its analyze_string() convenience
 wrapper (the replacement for the function that used to live in this file).
  
 Run this file directly for a quick smoke test against the configured LM:
@@ -29,7 +29,7 @@ from .models import IMPLIED_TOKENTYPES, Token, VerbalExpression, TokenAnalysis
 # Signature
 # ---------------------------------------------------------------------------
  
-class SyntaxAnalysis(dspy.Signature):
+class SentenceAnalysis(dspy.Signature):
     """Analyze the syntax of a passage of Latin according to a two-part scheme:
  
     (1) a list of verbal expressions. Three constructions count as a verbal
@@ -456,7 +456,7 @@ class SyntaxAnalysis(dspy.Signature):
     )
  
  
-analyze = dspy.ChainOfThought(SyntaxAnalysis)
+analyze = dspy.ChainOfThought(SentenceAnalysis)
  
  
 # ---------------------------------------------------------------------------
@@ -467,12 +467,12 @@ def validate(tokens: List[Token], result) -> List[str]:
     """Check that every id the LM produced actually exists among `tokens`
     -- OR is a legitimately new implied token (tokentype in
     IMPLIED_TOKENTYPES -- 'implied sum', 'continued discourse', or
-    'implied subject'; see SyntaxAnalysis's docstring) -- and that implied
+    'implied subject'; see SentenceAnalysis's docstring) -- and that implied
     tokens themselves are well-formed. Returns a list of human-readable
     problem descriptions (empty if clean).
 
     'root' is a special sentinel value for an independent verb's own
-    relatedtoken1 (see SyntaxAnalysis's docstring) -- it is never treated as
+    relatedtoken1 (see SentenceAnalysis's docstring) -- it is never treated as
     an unknown id, but syntax_model.md also requires that no actual token
     ever be assigned the id 'root', so that's checked here too.
 
@@ -487,7 +487,7 @@ def validate(tokens: List[Token], result) -> List[str]:
     empty text) -- it does NOT also require an 'implied sum'/'continued
     discourse' token to have a matching `verbalunits` entry, or an
     'implied subject' token to lack one; that distinction is documented
-    behavior (see SyntaxAnalysis's docstring), not something this function
+    behavior (see SentenceAnalysis's docstring), not something this function
     enforces."""
     valid_ids = {t.id for t in tokens}
     problems = []

@@ -1,5 +1,5 @@
 """
-Compares SyntaxAnalysis's performance across candidate task models -- by
+Compares SentenceAnalysis's performance across candidate task models -- by
 default, a spread of openly-licensed, open-weight models -- to help decide
 which ones (if any) could realistically replace the Claude Opus model this
 program was developed against.
@@ -11,7 +11,7 @@ answered here as three STAGES per candidate (pick which to run with
 --stages):
 
   1. baseline (zero-shot): does the model do anything useful with the SAME
-     instructions (SyntaxAnalysis's docstring) that were written and tuned
+     instructions (SentenceAnalysis's docstring) that were written and tuned
      against Opus, with no optimization of its own?
   2. gepa: if GEPA is allowed to rewrite the instructions specifically for
      this model -- reading feedback on the model's OWN attempts and
@@ -226,7 +226,7 @@ from conftest import tokens_from_canned_answer  # noqa: E402
 from fixtures.gold_examples import GOLD_EXAMPLES  # noqa: E402
 
 from arsgrammatica.gepa_metric import syntax_metric
-from arsgrammatica.latin_syntax_dspy import SyntaxAnalysis
+from arsgrammatica.latin_syntax_dspy import SentenceAnalysis
 from arsgrammatica.models import TokenAnalysis, VerbalExpression
 
 
@@ -595,7 +595,7 @@ def _run_gepa_stage(candidate, task_lm, teacher_lm, trainset, heldout, args):
     # `analyze` from latin_syntax_dspy.py -- so optimizing one candidate's
     # prompt never clobbers another's or the shared instance the rest of
     # the package uses.
-    student = dspy.ChainOfThought(SyntaxAnalysis)
+    student = dspy.ChainOfThought(SentenceAnalysis)
     with dspy.context(lm=task_lm):
         optimized = gepa.compile(student=student, trainset=trainset)
 
@@ -621,7 +621,7 @@ def _run_bootstrap_stage(candidate, task_lm, teacher_lm, trainset, heldout, args
     optimizer defaults to deep-copying the student as its teacher and runs
     that copy under teacher_settings' LM regardless.
     """
-    student = dspy.ChainOfThought(SyntaxAnalysis)
+    student = dspy.ChainOfThought(SentenceAnalysis)
 
     if args.bootstrap_optimizer == "miprov2":
         # Wired per dspy/teleprompt/mipro_optimizer_v2.py's source: prompt_model
@@ -734,7 +734,7 @@ def _existing_baseline_mean(path, label, provider):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Compare SyntaxAnalysis across candidate task models on a held-out gold-example slice."
+        description="Compare SentenceAnalysis across candidate task models on a held-out gold-example slice."
     )
     parser.add_argument(
         "--provider", choices=["huggingface", "ollama"], default="huggingface",
@@ -865,7 +865,7 @@ def main():
         baseline_mean_for_gating = None
 
         if "baseline" in args.stages:
-            baseline_program = dspy.ChainOfThought(SyntaxAnalysis)
+            baseline_program = dspy.ChainOfThought(SentenceAnalysis)
             baseline = _score_program(baseline_program, heldout, task_lm)
             print(f"  baseline (zero-shot): {_format_stats_line(baseline)}")
             for slug, problem in baseline["problems"].items():

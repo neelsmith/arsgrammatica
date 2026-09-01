@@ -1,0 +1,33 @@
+---
+title: "A quick script to query a language model"
+---
+
+Install the package:
+
+```sh
+pip install git+https://github.com/neelsmith/arsgrammatica.git
+```
+
+
+
+
+
+
+Configure DSPy with a model:
+
+```python
+import dspy
+dspy.configure(lm=dspy.LM(model="litellm_proxy/anthropic/Claude Opus 5",
+                           api_base="https://api_url/litellm",
+                           api_key="your-key-here"))
+```                           
+
+
+Analyze a string:
+
+```python
+from arsgrammatica import analyze_passage, print_analysis
+sentences, results = analyze_passage("Gallia est omnis divisa in partes tres.")
+```
+
+What can you do with query results? See [guides to using `arsgrammatica`](../guides/)

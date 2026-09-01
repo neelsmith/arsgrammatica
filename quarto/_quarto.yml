@@ -10,10 +10,46 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - href: quick.qmd
-        text: Quick start
-      - href: usage.qmd
-        text: Usage guide
+
+      - text: "Concepts"
+        file: concepts/index.qmd           
+      - text: "Tutorials"
+        file: tutorials/index.qmd          
+      - text: "Guides"
+        file: guides/index.qmd           
+      - text: "Reference"
+        file: reference/index.qmd          
+
+            
+    right:   
+      - icon: github
+        href: https://github.com/neelsmith/arsgrammatica
+        aria-label: GitHub
+
+  sidebar:
+    - title: "Tutorials"
+      contents:
+        - tutorials/index.qmd
+        - tutorials/marimo.md
+        - tutorials/cli.qmd
+        - tutorials/quick.qmd
+    - title: "Concepts"
+      contents:
+        - concepts/index.qmd
+    - title: "Guides"
+      contents: 
+        - guides/index.qmd      
+        - guides/usage.qmd
+        - guides/visualization.qmd
+        - guides/optimizing.qmd
+        - guides/bakeoff.qmd
+        - guides/development.qmd
+        - guides/technical.qmd
+        - guides/managing_prompt_size.qmd
+        - guides/testing.qmd
+    - title: "Reference"
+      contents: 
+        - reference/index.qmd      
 
 format:
   html:

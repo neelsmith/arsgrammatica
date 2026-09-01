@@ -2,9 +2,17 @@
 
 Current version: **0.4.0**.
 
-**0.5.0**, *Planned for Sep. 1, 2026*: Breaking changes. Refactoring of `CitedText` class eliminates `CtsDataRow` class. Additions: 
+**0.5.0**, *Sept. 1, 2026*: 
 
-- Updated management of prompt size to prevent truncated replies from LM.
+Breaking changes: Refactoring of `CitedText` class eliminates `CtsDataRow` class.  Renamed functions and classes: 
+
+- `analyze_passage` renamed `analyze_string`
+- `SyntaxAnalysis` renamed `SentenceAnalysis`
+
+
+Additions: 
+
+- Updated system for managing prompt size to prevent truncated replies from LM.
 - Functions to instantiate syntax graph as a `NetworkX` graph for network analysis and comparison.
 - Functions to instantiate an `AATGraph` (Agent-Action-Target graph) from an `arsgrammatica` syntax graph.
 - Expanded documentation beginning to move to quarto for publicatin on gh pages.

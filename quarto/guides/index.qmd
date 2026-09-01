@@ -1,0 +1,22 @@
+---
+title: Guides
+---
+
+More detailed guides to usage.
+
+
+
+## Using the package
+
+- [quick start](./quick.qmd)
+- [usage](./usage.qmd)
+- [API documentation](https://neelsmith.github.io/arsgrammatica/arsgrammatica-api-docs.html)
+- [test suite](./testing.qmd)
+
+
+## Training a new model
+
+- [optimizing](./optimizing.qmd)
+- [comparing models](./bakeoff.qmd)
+- [a development work flow](./development.qmd)
+- Some additional [technical info](./technical.qmd)

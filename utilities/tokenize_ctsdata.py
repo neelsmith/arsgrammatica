@@ -8,7 +8,7 @@ the same way marimo/latin_syntaxer_ctsdata.py segments its own selected
 passages -- and write the result to standard output, serialized by
 `arsgrammatica.segmentation_serialization.serialize_segmentation()` (see
 that module's own docstring for the exact `#!sentences`/`#!tokens` file
-shape). No syntax analysis happens here at all: there is no SyntaxAnalysis
+shape). No syntax analysis happens here at all: there is no SentenceAnalysis
 call, no TokenAnalysis/VerbalExpression, and nothing for `validate()` to
 check -- this stops at "what are the sentences and tokens", one LM call for
 the whole file.

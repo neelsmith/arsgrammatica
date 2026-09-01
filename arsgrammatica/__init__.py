@@ -16,13 +16,13 @@ from .verbal_units import (
 )
 from .rendering import tokengraph_to_text, tokengraph_to_html, tokengraph_to_depth_html
 from .latin_syntax_dspy import (
-    SyntaxAnalysis,
+    SentenceAnalysis,
     analyze,
     validate,
     print_analysis,
 )
 from .segmentation_dspy import SegmentPassage, segment_sources
-from .pipeline import analyze_passage, analyze_sources, combined_tokengraph
+from .pipeline import analyze_string, analyze_sources, combined_tokengraph
 from .serialization import (
     LMInfo,
     serialize_analyses,
@@ -91,9 +91,9 @@ __all__ = [
     "tokengraph_to_text",
     "tokengraph_to_html",
     "tokengraph_to_depth_html",
-    "SyntaxAnalysis",
+    "SentenceAnalysis",
     "analyze",
-    "analyze_passage",
+    "analyze_string",
     "validate",
     "print_analysis",
     "SegmentPassage",

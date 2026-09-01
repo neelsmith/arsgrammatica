@@ -1,5 +1,5 @@
 """
-Estimating and enforcing a `max_tokens` output budget for SyntaxAnalysis
+Estimating and enforcing a `max_tokens` output budget for SentenceAnalysis
 calls, and retrying with a larger one when a call actually gets truncated.
 
 Background: `latin_syntax_dspy.analyze` (a `dspy.ChainOfThought`) produces a
@@ -36,7 +36,7 @@ This module takes a hybrid approach instead:
    bigger budget would fix.
 
 Re-run `calibrate_max_tokens.py` whenever the configured model, the
-SyntaxAnalysis prompt, or the shape of `TokenAnalysis`/`VerbalExpression`
+SentenceAnalysis prompt, or the shape of `TokenAnalysis`/`VerbalExpression`
 changes substantially -- all three shift how many output tokens a given
 passage actually needs.
 """
@@ -137,7 +137,7 @@ def estimate_max_tokens(
     floor: int = DEFAULT_FLOOR,
     ceiling: int = DEFAULT_CEILING,
 ) -> int:
-    """Estimate a `max_tokens` budget for a SyntaxAnalysis call over a
+    """Estimate a `max_tokens` budget for a SentenceAnalysis call over a
     sentence with `num_tokens` input tokens.
 
     `raw = intercept + slope * num_tokens` comes from the calibrated (or
@@ -282,7 +282,7 @@ def analyze_with_retry(
                 attempt += 1
                 budget = min(ceiling, math.ceil(budget * growth_factor))
                 warnings.warn(
-                    f"SyntaxAnalysis call truncated at max_tokens={old_budget} before it "
+                    f"SentenceAnalysis call truncated at max_tokens={old_budget} before it "
                     f"could be parsed at all; retrying with max_tokens={budget} "
                     f"(attempt {attempt}/{max_retries}).",
                     stacklevel=2,
@@ -301,7 +301,7 @@ def analyze_with_retry(
             attempt += 1
             bypass_cache = True
             warnings.warn(
-                f"SyntaxAnalysis call at max_tokens={old_budget} returned output that "
+                f"SentenceAnalysis call at max_tokens={old_budget} returned output that "
                 f"failed to parse, but doesn't look like a truncation (finish_reason "
                 f"wasn't 'length'): {exc} Retrying once at the same budget with the LM "
                 f"cache bypassed, in case this was a one-off malformed-output glitch "
@@ -316,7 +316,7 @@ def analyze_with_retry(
             attempt += 1
             budget = min(ceiling, math.ceil(budget * growth_factor))
             warnings.warn(
-                f"SyntaxAnalysis call at max_tokens={old_budget} returned a tokengraph "
+                f"SentenceAnalysis call at max_tokens={old_budget} returned a tokengraph "
                 f"missing {len(missing)} input token id(s) ({sorted(missing)}); retrying "
                 f"with a larger max_tokens={budget} (attempt {attempt}/{max_retries}).",
                 stacklevel=2,
@@ -326,7 +326,7 @@ def analyze_with_retry(
         if truncated:
             missing_desc = sorted(missing) if missing else "(finish_reason indicated truncation, but no ids are directly missing)"
             warnings.warn(
-                f"SyntaxAnalysis call still looks truncated after {attempt} retry(ies) "
+                f"SentenceAnalysis call still looks truncated after {attempt} retry(ies) "
                 f"(max_tokens={old_budget}) -- returning it anyway. Missing input token "
                 f"id(s): {missing_desc}.",
                 stacklevel=2,

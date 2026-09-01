@@ -1,7 +1,7 @@
 """
 DummyLM-backed tests for the segmentation stage (segmentation_dspy.py),
 including citation tracking, plus one end-to-end check that its output
-composes with the *existing, unmodified* SyntaxAnalysis.
+composes with the *existing, unmodified* SentenceAnalysis.
 """
  
 import re
@@ -91,9 +91,9 @@ def test_segmentation_round_trips_with_globally_unique_sequential_ids():
  
 def test_segmented_sentence_feeds_unmodified_syntax_analysis():
     """The point of keeping segmentation as a separate stage: its output
-    (a Sentence's tokens) must work as SyntaxAnalysis's input with zero
-    changes to SyntaxAnalysis -- even though its tokens now carry a
-    citation field SyntaxAnalysis has never heard of."""
+    (a Sentence's tokens) must work as SentenceAnalysis's input with zero
+    changes to SentenceAnalysis -- even though its tokens now carry a
+    citation field SentenceAnalysis has never heard of."""
     dspy.configure(lm=DummyLM([CANNED_ONE_UNIT]))
     sentences = segment_sources(SOURCES_ONE_UNIT)
     hercules_sentence = sentences[1]

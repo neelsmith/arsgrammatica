@@ -1,7 +1,7 @@
 """
 Orchestrates the two-stage pipeline: segmentation_dspy.py's citation-aware
 sentence/token segmentation, feeding latin_syntax_dspy.py's unmodified
-SyntaxAnalysis one sentence at a time.
+SentenceAnalysis one sentence at a time.
  
 Kept as its own module, separate from both stages, so neither stage needs
 to know the other exists -- segmentation_dspy.py doesn't import
@@ -18,11 +18,11 @@ from .token_budget import analyze_with_retry
  
 def _render_sentence_text(sentence: Sentence) -> str:
     """Reconstruct a surface string for a sentence from its tokens, to pass
-    as SyntaxAnalysis's `passage` field.
+    as SentenceAnalysis's `passage` field.
  
     This is an approximation, not a faithful re-rendering: it puts a space
     before every token, including punctuation and enclitics (so "tres."
-    round-trips as "tres ." and "virumque" as "virum que"). SyntaxAnalysis
+    round-trips as "tres ." and "virumque" as "virum que"). SentenceAnalysis
     uses `passage` for readability alongside the authoritative `tokens`
     list, not for anything validate() checks, so exact fidelity isn't
     required -- but don't reuse this helper anywhere that *does* need
@@ -33,12 +33,12 @@ def _render_sentence_text(sentence: Sentence) -> str:
  
 def analyze_sources(sources: List[CitedText]) -> Tuple[List[Sentence], list]:
     """Segment `sources` into citation-aware sentences, run each sentence's
-    tokens through SyntaxAnalysis, and validate each result.
+    tokens through SentenceAnalysis, and validate each result.
  
-    Returns (sentences, results): results[i] is the SyntaxAnalysis result
+    Returns (sentences, results): results[i] is the SentenceAnalysis result
     for sentences[i], same order, one entry per sentence.
 
-    Each sentence's SyntaxAnalysis call goes through
+    Each sentence's SentenceAnalysis call goes through
     `token_budget.analyze_with_retry()` rather than calling `analyze()`
     directly, so a sentence whose analysis needs more output than a fixed
     `max_tokens` would allow (a long or deeply subordinated sentence) gets
@@ -75,7 +75,7 @@ def combined_tokengraph(results) -> list:
     return combined
  
  
-def analyze_passage(passage: str, citation: str = "") -> Tuple[List[Sentence], list]:
+def analyze_string(passage: str, citation: str = "") -> Tuple[List[Sentence], list]:
     """Convenience wrapper for the common case of a single string rather
     than a list of citation-labeled CitedText sources -- kept here so
     existing callers (syntaxer_main.py, the marimo notebook) have a

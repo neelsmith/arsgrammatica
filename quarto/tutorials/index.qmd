@@ -1,0 +1,14 @@
+---
+title: Tutorials
+---
+
+
+## Preassembled resources
+
+- run [marimo notebooks](./marimo.md)
+- analzye a Latin string from the [command line](./cli.qmd)
+
+
+## Using the `arsgrammatica` package in python
+
+- Quick start: [query a language model](./quick.qmd)

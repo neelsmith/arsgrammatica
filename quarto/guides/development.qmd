@@ -1,5 +1,9 @@
 # Developing `arsgrammatica`
 
+
+
+
+
 `USAGE.md` describes how to call the pipeline, `TESTING.md` how to run the offline test suite, `OPTIMIZING.md` how to tune `SyntaxAnalysis`'s prompt with GEPA, and `BAKEOFF.md` how to compare candidate models. Each of those describes one tool. This document describes how they fit together into a repeatable development loop, centered on testing the analyzer against real Latin text rather than just the hand-picked `GOLD_EXAMPLES` corpus.
 
 
