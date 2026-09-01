@@ -1,17 +1,20 @@
 ---
-title: Guides
+title: Recipes
 ---
 
-More detailed guides to usage.
 
-
+Guides for using `arsgrammatica` for particular tasks.
 
 ## Using the package
 
-- [quick start](./quick.qmd)
-- [usage](./usage.qmd)
-- [API documentation](https://neelsmith.github.io/arsgrammatica/arsgrammatica-api-docs.html)
-- [test suite](./testing.qmd)
+- [Installation options](./install.md)
+- [Analyzing Latin text](./analysis.qmd)
+- [Visualizing analysis results](./visualization.qmd)
+- [Saving and loading analyses](./saving-loading.qmd)
+- [Building an Agent-Action-Target (AAT) graph](./aat.qmd)
+
+ 
+
 
 
 ## Training a new model
@@ -19,4 +22,11 @@ More detailed guides to usage.
 - [optimizing](./optimizing.qmd)
 - [comparing models](./bakeoff.qmd)
 - [a development work flow](./development.qmd)
+- [tokenizing text without analysis](./tokenizing.qmd)
+
+
+## Managing a workflow
+
+- [Keeping prompt size manageable](./managing_prompt_size.qmd)
 - Some additional [technical info](./technical.qmd)
+- [test suite](./testing.qmd)

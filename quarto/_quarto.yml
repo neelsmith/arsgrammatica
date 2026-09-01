@@ -1,10 +1,14 @@
 project:
   type: website
   output-dir: quarto-build
+
+version: "0.5.0"  
   
 
 website:
   title: "arsgrammatica"
+  page-footer:
+    center: "Documentation for release version **{{< meta version >}}**"
 
   navbar:
     left:
@@ -39,14 +43,23 @@ website:
     - title: "Guides"
       contents: 
         - guides/index.qmd      
-        - guides/usage.qmd
+        - guides/install.md
+        - guides/analysis.qmd
         - guides/visualization.qmd
+        - guides/saving-loading.qmd
+        - guides/aat.qmd
+
+        - "---"
         - guides/optimizing.qmd
         - guides/bakeoff.qmd
         - guides/development.qmd
-        - guides/technical.qmd
+        - guides/tokenizing.qmd
+        - "---"
         - guides/managing_prompt_size.qmd
+        - guides/technical.qmd
         - guides/testing.qmd
+
+        
     - title: "Reference"
       contents: 
         - reference/index.qmd      

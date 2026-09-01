@@ -1,0 +1,50 @@
+---
+title: Saving and loading analyses
+---
+
+`write_analyses()`/`read_analyses()` (in `arsgrammatica/serialization.py`) save and reload a full analysis -- `sentences`, `verbalunits` (concatenated across every sentence's result), and `tokengraph` (via `combined_tokengraph()`) -- as one deterministic, pipe-delimited plain-text file, so you can persist an analysis, diff it, hand-edit it, or reload it later without re-running the LM:
+
+```python
+from arsgrammatica import write_analyses, read_analyses, combined_tokengraph
+
+verbalunits = [vu for result in results for vu in result.verbalunits]
+tokengraph = combined_tokengraph(results)
+
+warnings = write_analyses(sentences, verbalunits, tokengraph, "analysis.txt")
+for w in warnings:
+    print(f"Warning: {w}")
+
+tokengraph, verbalunits, sentences, lm_infos = read_analyses("analysis.txt")
+```
+
+`serialize_analyses(sentences, verbalunits, tokengraph)` builds the exact same text and returns it as a string (plus the same warnings) instead of writing it to a file -- `write_analyses()` is just a thin wrapper around it. Use this whenever you want the serialized format for something other than a standalone file: embedding it in a prompt, logging it, or handing it to some other file-writing code of your own.
+
+The file has three required, labelled, pipe-delimited blocks (`#!sentences`, `#!verbal_units`, `#!tokens`), each with its own fixed header row, plus a fourth, optional block, `#!LM` -- see `serialization.py`'s module docstring for the exact format, why `sentences` is needed at all (it's the only place a citation is actually attached to a token id), and what `write_analyses()`'s warnings vs. `read_analyses()`'s errors each catch. Each of the three required labels (and `#!LM`) may appear more than once in the file; `read_analyses()` merges every instance of a label into that label's combined row list, in file order, so simply concatenating several `write_analyses()`/`serialize_analyses()` outputs together and reading the result back gives you one combined analysis. `read_analyses()` is otherwise deliberately strict: a malformed or internally inconsistent file raises `ValueError` naming the exact line and problem, rather than silently reconstructing something partial.
+
+`#!LM` records, once per sentence, which model produced that sentence's analysis, what it was given to analyze, and its own reasoning -- pass `model`/`reasoning` to write it:
+
+```python
+import os
+
+warnings = write_analyses(
+    sentences, verbalunits, tokengraph, "analysis.txt",
+    model=os.environ["MODEL"],
+    reasoning=[result.reasoning for result in results],
+)
+```
+
+Both are optional and keyword-only; omit them (as above) to skip `#!LM` entirely, exactly reproducing the file `write_analyses()` would have written before this block existed. `reasoning` needs exactly one entry per sentence (any entry can be `None`); `read_analyses()`'s fourth return value, `lm_infos`, is `[]` for a file with no `#!LM` block at all, or one `LMInfo(model, context, reasoning)` per sentence otherwise, aligned with `sentences` by position.
+
+`read_analyses()` hands back flat, whole-file lists -- every sentence's `tokengraph`/`verbalunits` concatenated together, the same shape `combined_tokengraph()` produces. `split_analysis_by_sentence(tokengraph, verbalunits, sentences)` splits that back into one `(sentence_tokengraph, sentence_verbalunits)` slice per sentence, aligned with `sentences` itself:
+
+```python
+from arsgrammatica import read_analyses, split_analysis_by_sentence
+
+tokengraph, verbalunits, sentences, lm_infos = read_analyses("analysis.txt")
+slices = split_analysis_by_sentence(tokengraph, verbalunits, sentences)
+
+for sentence, (sentence_tokengraph, sentence_verbalunits) in zip(sentences, slices):
+    ...  # render or inspect this one sentence's own analysis
+```
+
+This is what `marimo/latin_syntaxer_review.py` (see "`marimo` notebooks" below) uses to let you pick one sentence at a time out of a saved analysis file, without needing an LM at all. An implied/elided token (see models.py's `TokenAnalysis`) is included in whichever sentence's slice it's nested inside, but one sitting *after* a sentence's own last real token (rather than between two real tokens) falls just outside that sentence's slice -- see `split_analysis_by_sentence()`'s own docstring for why, and `read_analyses()`'s note on the same underlying [first, last] real-token-position convention.

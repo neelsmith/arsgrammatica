@@ -112,8 +112,7 @@ def _configure_lm():
  
  
 from arsgrammatica import print_analysis, analyze_string
- 
- 
+  
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run a Latin syntax analysis.")
     parser.add_argument(
