@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>arsgrammatica</title>
+<title>Analyzing syntax with a language model – arsgrammatica</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -23,26 +23,61 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-158031087360bce0ff56dc785ce39e06.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-158031087360bce0ff56dc785ce39e06.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -75,14 +110,14 @@ ul.task-list li input[type="checkbox"] {
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-sidebar floating nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">arsgrammatica</span>
     </a>
   </div>
@@ -93,23 +128,23 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link" href="../index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./concepts/index.html"> 
+    <a class="nav-link" href="../concepts/index.html"> 
 <span class="menu-text">Concepts</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./tutorials/index.html"> 
+    <a class="nav-link" href="../tutorials/index.html"> 
 <span class="menu-text">Tutorials</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./guides/index.html"> 
+    <a class="nav-link active" href="../guides/index.html" aria-current="page"> 
 <span class="menu-text">Guides</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./reference/index.html"> 
+    <a class="nav-link" href="../reference/index.html"> 
 <span class="menu-text">Reference</span></a>
   </li>  
 </ul>
@@ -125,17 +160,111 @@ ul.task-list li input[type="checkbox"] {
 </div>
       </div> <!-- /container-fluid -->
     </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guides/analysis.html">Analyzing syntax with a language model</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Guides</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/install.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Installation options</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/analysis.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Analyzing syntax with a language model</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/visualization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Visualizing results</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/saving-loading.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Saving and loading analyses</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/optimizing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Optimizing with GEPA</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/bakeoff.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Comparing task models with <code>model_bakeoff.py</code></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/development.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Developing <code>arsgrammatica</code></span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/managing_prompt_size.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Keeping requests to an LM at a manageable size</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/technical.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Some technical docs</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Testing without network access</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/usage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><code>arsgrammatica</code> AI slop-pile usage guide</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#related-work" id="toc-related-work" class="nav-link active" data-scroll-target="#related-work">Related work</a></li>
+  <li><a href="#analyze-a-string" id="toc-analyze-a-string" class="nav-link active" data-scroll-target="#analyze-a-string">Analyze a string</a></li>
+  <li><a href="#analyze-citable-passages" id="toc-analyze-citable-passages" class="nav-link" data-scroll-target="#analyze-citable-passages">Analyze citable passages</a></li>
+  <li><a href="#working-with-results-of-an-analysis" id="toc-working-with-results-of-an-analysis" class="nav-link" data-scroll-target="#working-with-results-of-an-analysis">Working with results of an analysis</a></li>
   </ul>
 </nav>
     </div>
@@ -144,7 +273,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">arsgrammatica</h1>
+<h1 class="title">Analyzing syntax with a language model</h1>
 </div>
 
 
@@ -161,36 +290,43 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>A python package leveraging LLMs with <a href="https://dspy.ai">dspy</a> to analyze the syntax of passages of Latin..</p>
-<p><code>arsgrammatica</code> offers an alternative analytic scheme to <a href="https://universaldependencies.org">Universal Dependencies</a>, designed to describe Latin syntax in familiar terms that are convenient for research and teaching. Released under the <a href="LICENSE">GNU General Public License v3 or later</a>.</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th></th>
-<th>Learning the package</th>
-<th>Using the package</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>Hands-on</strong></td>
-<td>Try a <a href="./tutorials/">tutorial</a> to start using the package</td>
-<td>Find <a href="./guides/">recipes</a> for specific tasks</td>
-</tr>
-<tr class="even">
-<td><strong>Understanding</strong></td>
-<td><a href="./concepts/">Modelling Latin syntax</a></td>
-<td>See <a href="./reference/">reference information</a> (including API documentation for all exported functions)</td>
-</tr>
-</tbody>
-</table>
-<section id="related-work" class="level2">
-<h2 class="anchored" data-anchor-id="related-work">Related work</h2>
-<ul>
-<li><a href="https://github.com/neelsmith/grammatike">grammatike</a>: a parallel Python package for analyzing passages of ancient Greek with LMs</li>
-<li><a href="https://github.com/neelsmith/diqduq">diqduq</a>: a parallel Python package for analyzing passages of Biblical Hebrew with LMs</li>
-<li><a href="https://github.com/neelsmith/aat">aat</a> : Agent-Action-Target model, a reductive model of natural-language syntax</li>
-</ul>
+<p>Configure dspy for your LM:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> dspy</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>dspy.configure(lm<span class="op">=</span>dspy.LM(model<span class="op">=</span><span class="st">"litellm_proxy/anthropic/Claude Opus 5"</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>                           api_base<span class="op">=</span><span class="st">"https://api_url/litellm"</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                           api_key<span class="op">=</span><span class="st">"your-key-here"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="analyze-a-string" class="level3">
+<h3 class="anchored" data-anchor-id="analyze-a-string">Analyze a string</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> analyze_string</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>sentences, results <span class="op">=</span> analyze_string(<span class="st">"Gallia est omnis divisa in partes tres."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="analyze-citable-passages" class="level3">
+<h3 class="anchored" data-anchor-id="analyze-citable-passages">Analyze citable passages</h3>
+<p>A <code>CitedText</code> has an identifier (such as a CTS URN) and a text value. Use <code>analyze_sources</code> to analyze a list of <code>CitedText</code> objects.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> analyze_sources, combined_tokengraph</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica.models <span class="im">import</span> CitedText</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>aeneid <span class="op">=</span> <span class="st">"urn:cts:latinLit:phi0690.ph003.perseus:"</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>sources <span class="op">=</span> [</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    CitedText(citation<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>aeneid<span class="sc">}</span><span class="ss">1.1"</span>, text<span class="op">=</span><span class="st">"Arma virumque canō, Trōiae quī prīmus ab ōrīs"</span>),</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    CitedText(citation<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>aeneid<span class="sc">}</span><span class="ss">1.2"</span>, text<span class="op">=</span><span class="st">"Ītaliam, fātō profugus, Lāvīniaque vēnit"</span>),</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>sentences, results <span class="op">=</span> analyze_sources(sources)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>tokengraph <span class="op">=</span> combined_tokengraph(results)  <span class="co"># one flat list, spanning every sentence</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Note that sentence boundaries don’t need to respect citation-unit boundaries (one sentence may span multiple source lines, as above)</p>
+<blockquote class="blockquote">
+<p><em>Validation</em>: the <code>validate</code> function checks the results of an analysis for internal consistency, and compiles a list of problems it detects. Both <code>analyze_string()</code> and <code>analyze_sources</code> call <code>validate</code>, and print a print a warning if any are found.</p>
+</blockquote>
+</section>
+<section id="working-with-results-of-an-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="working-with-results-of-an-analysis">Working with results of an analysis</h3>
+<p><code>analyze_string()</code> and <code>analyze_sources()</code> return a pair of lists:</p>
+<ol type="1">
+<li>a list of <code>Sentence</code> objects</li>
+<li>a corresponding list of <code>SentenceAnalysis</code> objects, one for each sentence.</li>
+</ol>
+<p>A <code>SentenceAnalysis</code> has two a list of <code>VerbalExpression</code> objects in its <code>verbalunits</code> property, and an ordered list of <code>TokenAnalysis</code> objects in its <code>tokengraph</code> property.</p>
+<p><code>validate()</code> only catches referential problems like that one – ids that don’t exist. It can’t tell you an otherwise well-formed analysis is probably still wrong.</p>
 
 
 </section>
@@ -597,19 +733,6 @@ ul.task-list li input[type="checkbox"] {
   });
   </script>
 </div> <!-- /content -->
-<footer class="footer">
-  <div class="nav-footer">
-    <div class="nav-footer-left">
-      &nbsp;
-    </div>   
-    <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.5.0</strong></p>
-</div>
-    <div class="nav-footer-right">
-      &nbsp;
-    </div>
-  </div>
-</footer>
 
 
 

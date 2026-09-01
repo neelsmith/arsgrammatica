@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>arsgrammatica</title>
+<title>Building an AAT (Agent-Action-Target) graph – arsgrammatica</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -23,26 +23,61 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-158031087360bce0ff56dc785ce39e06.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-158031087360bce0ff56dc785ce39e06.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -75,14 +110,14 @@ ul.task-list li input[type="checkbox"] {
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-sidebar floating nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">arsgrammatica</span>
     </a>
   </div>
@@ -93,23 +128,23 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link" href="../index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./concepts/index.html"> 
+    <a class="nav-link" href="../concepts/index.html"> 
 <span class="menu-text">Concepts</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./tutorials/index.html"> 
+    <a class="nav-link" href="../tutorials/index.html"> 
 <span class="menu-text">Tutorials</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./guides/index.html"> 
+    <a class="nav-link active" href="../guides/index.html" aria-current="page"> 
 <span class="menu-text">Guides</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./reference/index.html"> 
+    <a class="nav-link" href="../reference/index.html"> 
 <span class="menu-text">Reference</span></a>
   </li>  
 </ul>
@@ -125,17 +160,121 @@ ul.task-list li input[type="checkbox"] {
 </div>
       </div> <!-- /container-fluid -->
     </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guides/aat.html">Building an AAT (Agent-Action-Target) graph</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Guides</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/install.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Installation options</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Analyzing syntax with a language model</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/visualization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Visualizing results</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/saving-loading.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Saving and loading analyses</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/aat.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Building an AAT (Agent-Action-Target) graph</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/optimizing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Optimizing with GEPA</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/bakeoff.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Comparing task models with <code>model_bakeoff.py</code></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/development.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Developing <code>arsgrammatica</code></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/tokenizing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Tokenizing a source file without full syntax analysis</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/managing_prompt_size.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Keeping requests to an LM at a manageable size</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/technical.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Some technical docs</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Testing without network access</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/usage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><code>arsgrammatica</code> AI slop-pile usage guide</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#related-work" id="toc-related-work" class="nav-link active" data-scroll-target="#related-work">Related work</a></li>
+  <li><a href="#reading-passages-from-a-delimited-text-source-file" id="toc-reading-passages-from-a-delimited-text-source-file" class="nav-link active" data-scroll-target="#reading-passages-from-a-delimited-text-source-file">Reading passages from a delimited-text source file</a></li>
   </ul>
 </nav>
     </div>
@@ -144,7 +283,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">arsgrammatica</h1>
+<h1 class="title">Building an AAT (Agent-Action-Target) graph</h1>
 </div>
 
 
@@ -161,36 +300,42 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>A python package leveraging LLMs with <a href="https://dspy.ai">dspy</a> to analyze the syntax of passages of Latin..</p>
-<p><code>arsgrammatica</code> offers an alternative analytic scheme to <a href="https://universaldependencies.org">Universal Dependencies</a>, designed to describe Latin syntax in familiar terms that are convenient for research and teaching. Released under the <a href="LICENSE">GNU General Public License v3 or later</a>.</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th></th>
-<th>Learning the package</th>
-<th>Using the package</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>Hands-on</strong></td>
-<td>Try a <a href="./tutorials/">tutorial</a> to start using the package</td>
-<td>Find <a href="./guides/">recipes</a> for specific tasks</td>
-</tr>
-<tr class="even">
-<td><strong>Understanding</strong></td>
-<td><a href="./concepts/">Modelling Latin syntax</a></td>
-<td>See <a href="./reference/">reference information</a> (including API documentation for all exported functions)</td>
-</tr>
-</tbody>
-</table>
-<section id="related-work" class="level2">
-<h2 class="anchored" data-anchor-id="related-work">Related work</h2>
+<p><code>attgraph()</code> (in <code>arsgrammatica/aat_bridge.py</code>) converts an already-completed analysis to an <code>AATGraph</code> from the separate <a href="https://github.com/neelsmith/aat"><code>aat</code></a> package (<a href="https://neelsmith.github.io/aat/aat.html">API docs</a>) – a much simpler, reductive Agent-Action-Target view of the same passage, alongside arsgrammatica’s own full relational scheme. It needs <code>aat</code> installed – <code>aat</code> isn’t on PyPI, so install it straight from GitHub:</p>
+<pre><code>pip install git+https://github.com/neelsmith/aat.git</code></pre>
+<p>into whichever environment you run arsgrammatica from (its own <code>.venv</code>, most likely). <code>import arsgrammatica</code> works fine without it – only actually calling <code>attgraph()</code> raises <code>ImportError</code>, naming this same install command. (If you separately <code>pip install</code> arsgrammatica itself, rather than just running it from a checkout on <code>sys.path</code> the way this repo’s own scripts and notebooks do, <code>pip install '.[aat]'</code> from its directory reaches <code>aat</code> the same way, via <code>pyproject.toml</code>’s “aat” extra – but a bare <code>pip install 'arsgrammatica[aat]'</code> will NOT work, since arsgrammatica itself isn’t published on PyPI either.)</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> analyze_string, attgraph</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>sentences, results <span class="op">=</span> analyze_string(<span class="st">"urbs a Romulo condita est."</span>, citation<span class="op">=</span><span class="st">"Livy 1.7"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>graph, warnings <span class="op">=</span> attgraph(sentences, results)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> w <span class="kw">in</span> warnings:</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Warning: </span><span class="sc">{</span>w<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> action <span class="kw">in</span> graph.actions():</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(action.value, [a.value <span class="cf">for</span> a <span class="kw">in</span> graph.agents_for(action)], [t.value <span class="cf">for</span> t <span class="kw">in</span> graph.targets_for(action)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>attgraph()</code> takes <code>(sentences, results)</code> in the exact shape <code>analyze_sources()</code>/<code>analyze_string()</code> return them, and returns <code>(graph, warnings)</code> – the same “return warnings, don’t raise” convention <code>compute_subordination_depths()</code> uses, not a bare <code>AATGraph</code>. An empty <code>warnings</code> list means nothing unusual was found, not that the underlying Latin analysis itself is correct; run <code>aat.core.validate.validate()</code> against the result (with a matching <code>CitableToken</code> list) for that.</p>
+<p>The role mapping applies the same rules <code>aat</code>’s own English pipeline documents, to Latin’s relation scheme (see <code>aat_bridge.py</code>’s module docstring for the full reasoning and worked examples):</p>
 <ul>
-<li><a href="https://github.com/neelsmith/grammatike">grammatike</a>: a parallel Python package for analyzing passages of ancient Greek with LMs</li>
-<li><a href="https://github.com/neelsmith/diqduq">diqduq</a>: a parallel Python package for analyzing passages of Biblical Hebrew with LMs</li>
-<li><a href="https://github.com/neelsmith/aat">aat</a> : Agent-Action-Target model, a reductive model of natural-language syntax</li>
+<li>every verbal expression (<code>verbalunits</code> entry) becomes an <em>action</em> node. A compound form (e.g.&nbsp;“condita est”) becomes one node, anchored at arsgrammatica’s own compound-id convention (the form of <em>sum</em>), with <code>value</code> set to every component’s text joined by spaces in surface order.</li>
+<li>an action that’s not an independent, root-level clause is <em>subordinated</em> to its governing verbal expression, via the new <code>find_governing_verbal_expression()</code> (see below).</li>
+<li>the <em>agent</em> of a transitive-active, intransitive, or linking verb is its subject; the agent of a transitive-passive verb is its ablative-of-agent noun (resolved through the preposition that actually carries the “agent” relation label, to the noun it governs).</li>
+<li>the <em>target</em> of a transitive-active verb is its direct object; the target of a transitive-passive verb is its (surface) subject; the target of a linking verb is its predicate complement – this last rule isn’t stated anywhere in arsgrammatica’s own syntax model, but matches <code>aat</code>’s own documented convention for English and was adopted here on the premise that Latin “will work much like the English examples.”</li>
+<li>an agent/target candidate that’s an implied/elided token (<code>IMPLIED_TOKENTYPES</code>) is skipped entirely, matching <code>aat</code>’s own “omit a role the passage doesn’t express” convention – an implied <em>action</em> (an “implied sum” or “continued discourse” verbal expression) is NOT skipped, since arsgrammatica – unlike <code>aat</code>’s English pipeline – can have one; it gets <code>mermaid.token_label()</code>’s usual placeholder text as <code>value</code> instead of an empty string.</li>
 </ul>
+<p><code>aat</code>’s own model requires every node to carry a <code>context</code> (its per-passage identifier), which arsgrammatica’s <code>TokenAnalysis</code> has no equivalent field for – only the original <code>Token</code> objects in <code>Sentence.tokens</code> carry a <code>citation</code>, and only for real (non-implied) tokens. <code>attgraph()</code> resolves this by giving every node derived from one <code>Sentence</code> the SAME context: that sentence’s own first token’s citation (or <code>""</code> if it has none). This keeps every <code>related_node</code> link valid, since a relation never crosses a sentence boundary in this pipeline; a sentence whose tokens span more than one citation (arsgrammatica allows this – see “Analyzing citable sources” above) gets a warning naming which citation was used.</p>
+<p><code>verbal_units.find_governing_verbal_expression(tokengraph) -&gt; {anchor id: governing anchor id, or None}</code> is a new, separately-exported building block <code>attgraph()</code> uses for subordination – the same relation-chasing logic <code>compute_subordination_depths()</code> has always used internally, pulled out for reuse. <code>None</code> covers both “independent verb” and “chase failed to find a governing expression” alike (a distinction only <code>compute_subordination_depths()</code>, with its own warnings, needs to make); see its docstring for the one malformed-input case (two anchors relating directly to each other) it does not resolve to <code>None</code>.</p>
+<section id="reading-passages-from-a-delimited-text-source-file" class="level2">
+<h2 class="anchored" data-anchor-id="reading-passages-from-a-delimited-text-source-file">Reading passages from a delimited-text source file</h2>
+<p><code>read_ctsdata()</code> (in <code>arsgrammatica/ctsdata.py</code>) reads a list of citable passages – each one a CTS URN paired with its own text – out of a pipe-delimited file, as a list of <code>CitedText</code> (the same type <code>segment_sources()</code>/<code>analyze_sources()</code> already take, so a row can be handed straight to either with no conversion). This is the input-side counterpart to <code>write_analyses()</code>/<code>read_analyses()</code> above (which handle an analysis’s <em>results</em>, not the passages you’re about to analyze):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> read_ctsdata</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> read_ctsdata(<span class="st">"passages.txt"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> rows:</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(row.citation, <span class="st">"--"</span>, row.text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The file has one or more <code>#!ctsdata</code> blocks, each with its own <code>urn|text</code> header row:</p>
+<pre><code>#!ctsdata
+urn|text
+urn:cts:compnov:bible.genesis.vulgate:45.1|Non se poterat ultra tenere.</code></pre>
+<p>Each row’s <code>urn</code> column must be a 5-part, colon-separated CTS URN (e.g.&nbsp;<code>urn:cts:compnov:bible.genesis.vulgate:45.1</code>); <code>read_ctsdata()</code> validates that shape, then uses the URN verbatim, in full, as the resulting row’s own <code>citation</code> – there’s no separate “base URN” piece kept around, since nothing downstream needs the URN in two pieces rather than one (a caller building a shorter display label can always recover the URN’s own final segment with <code>row.citation.rpartition(":")[-1]</code>). Pass <code>delimiter=...</code> if the file itself uses something other than <code>|</code>. Like <code>read_analyses()</code>, this is deliberately strict (a malformed row or a urn that doesn’t split into exactly 5 parts raises <code>ValueError</code>, naming the line) and merges multiple <code>#!ctsdata</code> blocks in file order.</p>
 
 
 </section>
@@ -597,19 +742,6 @@ ul.task-list li input[type="checkbox"] {
   });
   </script>
 </div> <!-- /content -->
-<footer class="footer">
-  <div class="nav-footer">
-    <div class="nav-footer-left">
-      &nbsp;
-    </div>   
-    <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.5.0</strong></p>
-</div>
-    <div class="nav-footer-right">
-      &nbsp;
-    </div>
-  </div>
-</footer>
 
 
 
