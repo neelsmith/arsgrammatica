@@ -1,48 +1,72 @@
 # `arsgrammatica` usage guide
 
-## Running an analysis from the command line
-
-
-
-
 
 
 ## Installing the package
+
+
+Install directly from its github repository:
 
 ```sh
 pip install git+https://github.com/neelsmith/arsgrammatica.git
 ```
 
-Pin to a specific branch or tag by appending `@<ref>`, e.g. for the `wip` branch:
+Pin to a specific branch,  e.g. for the `wip` branch:
 
 ```sh
 pip install git+https://github.com/neelsmith/arsgrammatica.git@wip
 ```
 
-or for a tagged version:
+Pin to a tagged version, e.g., `v0.5.0`:
 
 ```sh
 pip install git+https://github.com/neelsmith/arsgrammatica.git@v0.5.0
 ```
 
 
-## Using the `arsgrammatica` package in a script
+## Analyzing syntax with a language model
 
-To call the pipeline from your own script or a REPL instead of the CLI, configure a `dspy.LM` yourself and use `arsgrammatica` directly:
+Configure dspy for your LM:
 
 ```python
 import dspy
-from arsgrammatica import analyze_passage, print_analysis
-
 dspy.configure(lm=dspy.LM(model="litellm_proxy/anthropic/Claude Opus 5",
                            api_base="https://api_url/litellm",
                            api_key="your-key-here"))
-
-sentences, results = analyze_passage("Gallia est omnis divisa in partes tres.")
-for sentence, result in zip(sentences, results):
-    print_analysis(sentence.tokens, result)
 ```
 
+
+### Analyze a string
+
+```python
+from arsgrammatica import analyze_passage
+sentences, results = analyze_passage("Gallia est omnis divisa in partes tres.")
+```
+
+
+### Analyze citable passages
+
+A `CitedText` has an identifier (such as a CTS URN) and a text value. Use `analyze_sources` to analyze a list of `CitedText` objects.
+
+
+```python
+from arsgrammatica import analyze_sources, combined_tokengraph
+from arsgrammatica.models import CitedText
+
+aeneid = "urn:cts:latinLit:phi0690.ph003.perseus:"
+sources = [
+    CitedText(citation=f"{aeneid}1.1", text="Arma virumque canō, Trōiae quī prīmus ab ōrīs"),
+    CitedText(citation=f"{aeneid}1.2", text="Ītaliam, fātō profugus, Lāvīniaque vēnit"),
+]
+sentences, results = analyze_sources(sources)
+tokengraph = combined_tokengraph(results)  # one flat list, spanning every sentence
+```
+
+
+`analyze_sources()` handles any number of sentences and citation units; sentence boundaries don't need to respect citation-unit boundaries (one sentence may span two source lines, as above), and every token still records which source unit it came from via `Token.citation`.
+
+
+### Working with results
 Explanation:
 
 - `analyze_passage()` returns `(sentences, results)`: that is, one `Sentence` and one `SyntaxAnalysis` result per sentence it finds in `passage`. 
@@ -62,27 +86,6 @@ for sentence, result in zip(sentences, results):
 ```
 
 It's a heuristic, not a guarantee -- see its own docstring -- but a clean result costs nothing to check, and a flagged one is worth a manual read before you trust the analysis.
-
-
-## Analyzing citable sources
-
-`arsgrammatica` supports tracking analyzing texts identified by some canonical citation. Under the hood, `analyze_passage()` wraps `passage` as a `CitedText` and hands this to `analyze_sources()`, which is what actually does the work. You can call `analyze_sources()` directly like this:
-
-```python
-from arsgrammatica import analyze_sources, combined_tokengraph
-from arsgrammatica.models import CitedText
-
-aeneid = "urn:cts:latinLit:phi0690:"
-sources = [
-    CitedText(citation=f"{aeneid}1.1", text="Arma virumque canō, Trōiae quī prīmus ab ōrīs"),
-    CitedText(citation=f"{aeneid}1.2", text="Ītaliam, fātō profugus, Lāvīniaque vēnit"),
-]
-sentences, results = analyze_sources(sources)
-tokengraph = combined_tokengraph(results)  # one flat list, spanning every sentence
-```
-
-
-`analyze_sources()` handles any number of sentences and citation units; sentence boundaries don't need to respect citation-unit boundaries (one sentence may span two source lines, as above), and every token still records which source unit it came from via `Token.citation`.
 
 
 ## Saving and loading analyses
