@@ -30,6 +30,7 @@ website:
     - title: "Tutorials"
       contents:
         - tutorials/index.qmd
+        - tutorials/cli.qmd
         - tutorials/quick.qmd
     - title: "Concepts"
       contents:
@@ -38,6 +39,13 @@ website:
       contents: 
         - guides/index.qmd      
         - guides/usage.qmd
+        - guides/visualization.qmd
+        - guides/optimizing.qmd
+        - guides/bakeoff.qmd
+        - guides/development.qmd
+        - guides/technical.qmd
+        - guides/managing_prompt_size.qmd
+        - guides/testing.qmd
     - title: "Reference"
       contents: 
         - reference/index.qmd      

@@ -1,0 +1,26 @@
+---
+title: Run a command-line script
+---
+
+
+
+
+`syntaxer_main.py` analyzes a passage and prints the result to standard output.
+
+
+```bash
+python3 syntaxer_main.py --passage "Gallia est omnis divisa in partes tres."
+```
+
+To include a citation reference (e.g. a CTS URN), use the `--citation` argument:
+
+```bash
+python3 syntaxer_main.py --passage "Arma virumque canō." --citation "urn:cts:latinLit:phi0690.phi003.perseus:1.1"
+```
+
+Redirect the output to a file with standard IO redirection:
+
+```bash
+python3 syntaxer_main.py --passage "Arma virumque canō." 
+    --citation "urn:cts:latinLit:phi0690.phi003.perseus:1.1" > aeneid_analysis.cex
+```

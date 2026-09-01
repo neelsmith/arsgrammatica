@@ -12,22 +12,9 @@ A python package leveraging LLMs with [dspy](https://dspy.ai) to analyze the syn
 | **Cognition** | [Latin syntax](./concepts/)   | See [reference information](./reference/) (including API documentation for all exported functions) |
 
 
-## Using the package
+## Related work
 
-- [quick start](./quick.qmd)
-- [usage](./usage.qmd)
-- [API documentation](https://neelsmith.github.io/arsgrammatica/arsgrammatica-api-docs.html)
-- [test suite](./testing.qmd)
+- [grammatike](https://github.com/neelsmith/grammatike): a parallel Python package for analyzing passages of ancient Greek with LMs
+- [diqduq](https://github.com/neelsmith/diqduq): a parallel Python package for analyzing passages of Biblical Hebrew with LMs
+- [aat](https://github.com/neelsmith/aat) : Agent-Action-Target model, a reductive model of natural-language syntax
 
-
-## Training a new model
-
-- [optimizing](./optimizing.qmd)
-- [comparing models](./bakeoff.qmd)
-- [a development work flow](./development.qmd)
-- Some additional [technical info](./technical.qmd)
-
-
-## Other resources
-
-- github: [https://github.com/neelsmith/arsgrammatica](https://github.com/neelsmith/arsgrammatica)
