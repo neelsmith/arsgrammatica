@@ -2,8 +2,20 @@
 title: Concepts
 ---
 
-Relation to UD
- 
-Relation to AAT
+## Key features of `arsgrammatica`'s syntax model
 
-Different models of syntax for different purposes.
+- designed for study of Latin texts (for research or teaching)  using familiar terminology
+- 
+
+
+## Relation to other models
+
+
+Different models of syntax serve different purposes.
+
+- Relation to Universal Dependencies (UD) *TBA*
+- Relation to Agent-Action-Target (AAT) *TBA*
+
+ 
+
+

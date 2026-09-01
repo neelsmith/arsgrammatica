@@ -30,6 +30,7 @@ website:
     - title: "Tutorials"
       contents:
         - tutorials/index.qmd
+        - tutorials/marimo.md
         - tutorials/cli.qmd
         - tutorials/quick.qmd
     - title: "Concepts"
