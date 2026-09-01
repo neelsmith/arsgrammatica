@@ -1,10 +1,14 @@
 project:
   type: website
   output-dir: quarto-build
+
+version: "0.5.0"  
   
 
 website:
   title: "arsgrammatica"
+  page-footer:
+    center: "Documentation for release version **{{< meta version >}}**"
 
   navbar:
     left:
