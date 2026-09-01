@@ -10,8 +10,8 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - href: about.qmd
-        text: About
+      - href: quick.qmd
+        text: Quick start
       - href: usage.qmd
         text: Usage guide
 

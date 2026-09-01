@@ -7,4 +7,23 @@ A python package leveraging LLMs with [dspy](https://dspy.ai) to analyze the syn
 `arsgrammatica` offers an alternative analytic scheme to [Universal Dependencies](https://universaldependencies.org), designed to describe Latin syntax in familiar terms that are convenient for research and teaching. Released under the [GNU General Public License v3 or later](LICENSE). 
 
 
-See [API documentation](https://neelsmith.github.io/arsgrammatica/arsgrammatica-api-docs.html)
+
+## Using the package
+
+- [quick start](./quick.qmd)
+- [usage](./usage.qmd)
+- [API documentation](https://neelsmith.github.io/arsgrammatica/arsgrammatica-api-docs.html)
+- [test suite](./testing.qmd)
+
+
+## Training a new model
+
+- [optimizing](./optimizing.qmd)
+- [comparing models](./bakeoff.qmd)
+- [a development work flow](./development.qmd)
+- Some additional [technical info](./technical.qmd)
+
+
+## Other resources
+
+- github: [https://github.com/neelsmith/arsgrammatica](https://github.com/neelsmith/arsgrammatica)
