@@ -1,0 +1,66 @@
+---
+title: "Quick start"
+---
+
+## Configure a model
+
+Create an `.env` with with your LM credentials, like this:
+
+```
+API_BASE=https://localmodel/api
+MODEL=litellm/modelname
+API_KEY=your-key-here
+```
+
+
+## Run a command-line script
+
+`syntaxer_main.py` analyzes a passage and prints the result to standard output.
+
+
+```bash
+python3 syntaxer_main.py --passage "Gallia est omnis divisa in partes tres."
+```
+
+To include a citation reference (e.g. a CTS URN), use the `--citation` argument:
+
+```bash
+python3 syntaxer_main.py --passage "Arma virumque canō." --citation "urn:cts:latinLit:phi0690.phi003.perseus:1.1"
+```
+
+Redirect the output to a file with standard IO redirection:
+
+```bash
+python3 syntaxer_main.py --passage "Arma virumque canō." 
+    --citation "urn:cts:latinLit:phi0690.phi003.perseus:1.1" > aeneid_analysis.cex
+```
+
+
+## Quick script to query a language model
+
+Install the package:
+
+```sh
+pip install git+https://github.com/neelsmith/arsgrammatica.git
+```
+
+Configure DSPy wiht a model:
+
+
+```python
+import dspy
+from arsgrammatica import analyze_passage, print_analysis
+
+dspy.configure(lm=dspy.LM(model="litellm_proxy/anthropic/Claude Opus 5",
+                           api_base="https://api_url/litellm",
+                           api_key="your-key-here"))
+```                           
+
+
+Analyze a string:
+
+```python
+sentences, results = analyze_passage("Gallia est omnis divisa in partes tres.")
+```
+
+What can you do with `results`? See [details about usage](../usage.qmd)
