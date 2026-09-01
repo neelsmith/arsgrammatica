@@ -4,8 +4,11 @@ each one identified by a CTS URN and paired with its own text content --
 distinct from serialization.py's format (which reads/writes the *results*
 of an analysis). This is meant as the input side of the same workflow: pick
 a passage out of a file like this one, then hand its text and citation to
-analyze_passage() exactly as if they'd been typed in by hand (see
-marimo/latin_syntaxer_ctsdata.py).
+analyze_passage()/segment_sources() exactly as if they'd been typed in by
+hand (see marimo/latin_syntaxer_ctsdata.py) -- read_ctsdata() returns
+`CitedText` (models.py) directly, the same type those functions already
+take, rather than a dedicated row type of its own that a caller would need
+to convert first.
 
 File shape: one or more blocks, each introduced by the label line
 '#!ctsdata' alone on its own line, immediately followed by the header line
@@ -17,15 +20,21 @@ character), then one data row per passage:
     urn|text
     urn:cts:compnov:bible.genesis.vulgate:45.1|Non se poterat ultra tenere.
 
-Each row's own urn column is a 5-part, colon-separated CTS URN (e.g.
-'urn:cts:compnov:bible.genesis.vulgate:45.1'); read_ctsdata() splits it into
-the first 4 parts -- rejoined with ':', plus a trailing ':' -- as `urnbase`,
-and the 5th part as `citation`. For the example above that's
-'urn:cts:compnov:bible.genesis.vulgate:' and '45.1'. This mirrors how
-latin_syntaxer_workflow.py's own manual-entry form works: `urnbase + citation`
-(direct string concatenation, no separator) reconstructs the full URN,
-same as `input_form.value["urnbase"] + input_form.value["citation_context"]`
-there.
+Each row's own urn column must be a 5-part, colon-separated CTS URN (e.g.
+'urn:cts:compnov:bible.genesis.vulgate:45.1') -- read_ctsdata() validates
+that shape, then uses the URN VERBATIM, in full, as the resulting
+CitedText's own `citation`. There is no separate "base URN" piece kept
+around the way an earlier version of this module split one out into a
+dedicated `CtsDataRow.urnbase` field: nothing downstream of read_ctsdata()
+(segment_sources(), analyze_sources()) needs the URN in two pieces rather
+than one, and CitedText.citation is already exactly "whatever citation
+label this text should carry" elsewhere in this codebase (e.g. a plain
+"Aeneid 1.1", no colons at all, for a hand-typed passage). A caller that
+does want a shorter display label covering just the URN's final,
+human-readable segment (e.g. a default filename for several passages
+sharing one work) can always recover it from `citation` itself --
+`citation.rpartition(":")` -- rather than this module keeping a second
+field around solely for that.
 
 Multiple '#!ctsdata' blocks are allowed in one file, same as
 serialization.py's own blocks -- every instance's rows are concatenated, in
@@ -41,31 +50,18 @@ ValueError immediately, naming the offending line, rather than silently
 skipping or guessing.
 """
 
-from dataclasses import dataclass
 from typing import List
+
+from .models import CitedText
 
 CTSDATA_LABEL = "#!ctsdata"
 
 
-@dataclass
-class CtsDataRow:
-    """One passage from a `#!ctsdata` source file: `urnbase` (the first 4
-    colon-separated parts of the row's own CTS URN, rejoined with ':', plus
-    a trailing ':') and `citation` (the URN's 5th part) together
-    reconstruct the full URN as `urnbase + citation` -- the same
-    concatenation latin_syntaxer_workflow.py's manual-entry form uses for its own
-    `urnbase`/`citation_context` fields. `text` is the passage's own
-    surface text, verbatim."""
-
-    urnbase: str
-    citation: str
-    text: str
-
-
-def read_ctsdata(path: str, delimiter: str = "|") -> List[CtsDataRow]:
+def read_ctsdata(path: str, delimiter: str = "|") -> List[CitedText]:
     """Read every `#!ctsdata` block in `path` and return their rows,
-    concatenated in file order, as a list of CtsDataRow -- see this
-    module's docstring for the file shape and what counts as malformed.
+    concatenated in file order, as a list of `CitedText` -- see this
+    module's docstring for the file shape, why `citation` holds the row's
+    whole URN rather than a piece of it, and what counts as malformed.
 
     `delimiter` is the column separator used both for the header line
     ('urn' + delimiter + 'text') and for splitting each data row; '|' by
@@ -90,7 +86,7 @@ def read_ctsdata(path: str, delimiter: str = "|") -> List[CtsDataRow]:
     with open(path, "r", encoding="utf-8") as f:
         raw_lines = f.read().splitlines()
 
-    rows: List[CtsDataRow] = []
+    rows: List[CitedText] = []
     seen_block = False
     awaiting_header = False
 
@@ -142,14 +138,12 @@ def read_ctsdata(path: str, delimiter: str = "|") -> List[CtsDataRow]:
                 "colon-separated part(s), expected 5 (e.g. "
                 "'urn:cts:compnov:bible.genesis.vulgate:45.1')"
             )
-        citation = urn_parts[4]
-        if citation == "":
+        if urn_parts[4] == "":
             raise ValueError(
                 f"line {line_no}: urn {urn!r} has an empty final (citation) part"
             )
-        urnbase = ":".join(urn_parts[:4]) + ":"
 
-        rows.append(CtsDataRow(urnbase=urnbase, citation=citation, text=text))
+        rows.append(CitedText(citation=urn, text=text))
 
     if not seen_block:
         raise ValueError(f"file has no {CTSDATA_LABEL!r} block")

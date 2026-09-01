@@ -27,6 +27,10 @@ block's columns, then one data line per record. Blocks may appear in any
 order (the label is what identifies a block, not its position), blank
 lines between blocks are ignored, and all three blocks are required.
 
+A fourth, OPTIONAL block, '#!LM', records what produced an analysis --
+see "The #!LM block" below for its shape and why it doesn't follow the
+label+header+pipe-rows pattern the other three do.
+
 Each of the three labels may also appear MORE THAN ONCE -- e.g. several
 '#!tokens' blocks, each with its own repeated header line, scattered
 anywhere in the file. read_analyses() concatenates every block sharing a
@@ -50,6 +54,53 @@ read_analyses() accepts, not something this module produces.
     #!tokens
     context|id|tokentype|text|lemma|verbalunit|related1|relationship1|related2|relationship2
     Aeneid 1.1|t0|lexical|Arma|arma|||||
+
+The #!LM block: unlike the three blocks above, '#!LM' has no header line
+and isn't pipe-delimited -- it records, once per sentence, which model
+produced that sentence's analysis, what it was given to analyze, and its
+own reasoning, each on its own 'KEY=value' line, three lines per sentence,
+in the same order as `sentences` itself:
+
+    #!LM
+    MODEL=litellm_proxy/anthropic/Claude Opus 5
+    CONTEXT=Aeneid 1.1.t0-Aeneid 1.1.t4
+    REASONING=The main verb is "cano" ("I sing"), independent and transitive active...
+
+When present, '#!LM' is written as a single contiguous section, entirely
+before '#!sentences'/'#!verbal_units'/'#!tokens' (for a human reader
+skimming top-to-bottom -- the discursive record before the structural
+tables), holding all of one serialize_analyses()/write_analyses() call's
+per-sentence entries back to back: sentence 0's MODEL=/CONTEXT=/REASONING=
+trio, then sentence 1's, and so on, with no blank line or repeated label
+between entries. It's optional at both ends: serialize_analyses()/
+write_analyses() only emit it when called with `reasoning=...` (see their
+own docstrings), and read_analyses() accepts a file with none at all,
+handing back an empty list rather than requiring it -- every file written
+before this block existed still reads back exactly as before, with an
+empty fourth return value. Like the other three, '#!LM' may itself be
+repeated (e.g. from concatenating two write_analyses() outputs); every
+instance's lines are concatenated in file order before being split back
+into per-sentence trios, the same merge-by-label convention the other
+three blocks use.
+
+MODEL= is a single value for the whole call, written on every sentence's
+own entry rather than once for the file, since '#!LM' entries are only
+ever grouped by sentence, not by call. CONTEXT= is a sentence-style
+identifier, not the sentence's surface text: 'CONTEXT1.ID1-CONTEXT2.ID2',
+where CONTEXT1/ID1 are the sentence's first token's own citation and id
+and CONTEXT2/ID2 are its last token's -- e.g. 'Aeneid 1.1.t0-Aeneid
+1.1.t4' -- the same first_token/last_token pair #!sentences itself
+records for that sentence, just spelled as one dash-joined string instead
+of two separate pipe-delimited columns; a token with no citation renders
+its half with an empty string before the '.' (e.g. '.t5-.t9'). REASONING=
+is that sentence's own reasoning text, with any internal newlines/
+repeated whitespace collapsed to single spaces before writing, since
+(like every other field in this format) a single '#!LM' line can't
+itself contain one. Unlike the pipe-delimited blocks' `_field()` check,
+a MODEL=/CONTEXT=/REASONING= line has nowhere to put a literal '|'
+either way, so '|' is not rejected here -- only a literal newline is
+(and REASONING='s own collapsing means one should never actually reach
+that check in practice).
 
 Why sentences/verbalunits/tokengraph aren't each self-contained: neither
 VerbalExpression nor TokenAnalysis carries its own citation (only the
@@ -109,19 +160,32 @@ exactly, a wrong column count, a token id referenced by #!sentences or
 #!verbal_units but absent from #!tokens, or a #!sentences/#!verbal_units
 row whose own context column disagrees with what #!tokens recorded for
 that same id, all raise ValueError immediately rather than silently
-reconstructing something partial or wrong. The whole point of this format
+reconstructing something partial or wrong. '#!LM' shares this strictness
+where it applies -- a line count that isn't a multiple of 3, a line
+missing its expected MODEL=/CONTEXT=/REASONING= prefix, or a number of
+entries that doesn't match the number of reconstructed sentences, all
+raise -- but being entirely optional is itself not an error: zero '#!LM'
+blocks in the file is valid and reads back as an empty list, not a
+missing-block error like the other three would give (see "The #!LM
+block" above). read_analyses() does not, however, cross-check a '#!LM'
+entry's own CONTEXT= against the tokens/citations #!tokens and
+#!sentences already establish -- it's read back verbatim, trusted as a
+human/log-facing record rather than validated structural data. The whole
+point of this format
 is a faithful round trip; a malformed file should fail loudly and
 specifically (naming the line and the problem) rather than hand back
 subtly incorrect objects.
 """
 
-from typing import Dict, List, Optional, Tuple
+import re
+from typing import Dict, List, NamedTuple, Optional, Tuple
 
 from .models import IMPLIED_TOKENTYPES, Sentence, Token, TokenAnalysis, VerbalExpression
 
 SENTENCES_LABEL = "#!sentences"
 VERBAL_UNITS_LABEL = "#!verbal_units"
 TOKENS_LABEL = "#!tokens"
+LM_LABEL = "#!LM"
 
 SENTENCES_HEADER = "context_begin|first_token|context_end|last_token"
 VERBAL_UNITS_HEADER = "context|token|syntactic_type|semantic_type"
@@ -135,6 +199,30 @@ _EXPECTED_HEADERS = {
     VERBAL_UNITS_LABEL: VERBAL_UNITS_HEADER,
     TOKENS_LABEL: TOKENS_HEADER,
 }
+
+# '#!LM' has no fixed header line (see the module docstring's "The #!LM
+# block") -- each entry is three lines, each introduced by one of these
+# inline prefixes instead of a pipe-delimited column.
+_LM_MODEL_PREFIX = "MODEL="
+_LM_CONTEXT_PREFIX = "CONTEXT="
+_LM_REASONING_PREFIX = "REASONING="
+
+_WHITESPACE_RUN = re.compile(r"\s+")
+
+
+class LMInfo(NamedTuple):
+    """One sentence's '#!LM' entry (see the module docstring) -- which
+    model produced that sentence's analysis, a sentence-style identifier
+    for what it was given to analyze ('CONTEXT1.ID1-CONTEXT2.ID2', its
+    first and last token's own citation and id -- see
+    `_sentence_context_identifier()`), and its own reasoning. Any of the
+    three may be None, the same as an empty column elsewhere in this
+    format (e.g. `model` is None whenever serialize_analyses()/
+    write_analyses() were called without a `model` argument)."""
+
+    model: Optional[str]
+    context: Optional[str]
+    reasoning: Optional[str]
 
 
 def _field(value: Optional[str], *, where: str) -> str:
@@ -159,19 +247,86 @@ def _parse_optional(value: str) -> Optional[str]:
     return value if value != "" else None
 
 
+def _lm_field(value: Optional[str], *, where: str) -> str:
+    """Render one '#!LM' MODEL=/CONTEXT=/REASONING= value: None -> '', any
+    other string verbatim -- after checking it contains no newline. Unlike
+    `_field()`, a '|' is not rejected here: a '#!LM' line isn't
+    pipe-delimited, so it has no column separator for a stray '|' to
+    collide with. A newline is still checked for since this format is
+    line-oriented either way (one MODEL=/CONTEXT=/REASONING= value per
+    line); in practice REASONING= is already collapsed to a single line
+    (see `_collapse_to_single_line()`) before ever reaching here, and
+    CONTEXT= (see `_sentence_context_identifier()`) is built from
+    citation/id strings that should never contain one either, so this
+    should only ever fire for a MODEL= value or an unusually-formed
+    citation containing a literal newline."""
+    if value is None:
+        return ""
+    if "\n" in value or "\r" in value:
+        raise ValueError(
+            f"{where}: value {value!r} contains a newline, which this "
+            "format has no way to represent inside a single MODEL=/"
+            "CONTEXT=/REASONING= line"
+        )
+    return value
+
+
+def _collapse_to_single_line(value: str) -> str:
+    """Replace any run of whitespace (including internal newlines/
+    paragraph breaks -- free-form reasoning prose can realistically
+    contain either) with a single space, and strip the ends. Used for
+    '#!LM's REASONING= value, which this format can only store as one
+    line."""
+    return _WHITESPACE_RUN.sub(" ", value).strip()
+
+
+def _sentence_context_identifier(sentence: "Sentence") -> str:
+    """Build one sentence's '#!LM' CONTEXT= value: a sentence-style
+    identifier pairing each boundary token's own citation and id --
+    'CONTEXT1.ID1-CONTEXT2.ID2', where CONTEXT1/ID1 are the first
+    token's citation and id and CONTEXT2/ID2 are the last token's, e.g.
+    'Aeneid 1.1.t0-Aeneid 1.1.t4' -- mirroring the #!sentences block's
+    own context_begin/first_token/context_end/last_token fields, rather
+    than reconstructing the sentence's surface text. A token with no
+    citation renders its half as an empty string before the '.' (e.g.
+    '.t5-.t9'), same as an empty column elsewhere in this format.
+    Requires `sentence.tokens` to be non-empty (checked by the caller,
+    same as every other place this module derives first_token/
+    last_token from a sentence)."""
+    first_tok = sentence.tokens[0]
+    last_tok = sentence.tokens[-1]
+    citation_begin = first_tok.citation or ""
+    citation_end = last_tok.citation or ""
+    return f"{citation_begin}.{first_tok.id}-{citation_end}.{last_tok.id}"
+
+
 def serialize_analyses(
     sentences: List[Sentence],
     verbalunits: List[VerbalExpression],
     tokengraph: List[TokenAnalysis],
+    *,
+    model: Optional[str] = None,
+    reasoning: Optional[List[Optional[str]]] = None,
 ) -> Tuple[str, List[str]]:
     """Build the exact text write_analyses() would write to a file, and
     return it directly as `(content, warnings)` instead of writing it
     anywhere -- see the module docstring for why this exists alongside
-    write_analyses(). All three lists are flat and span however many
-    sentences/citation sources were analyzed -- the same shape
+    write_analyses(). All three positional lists are flat and span however
+    many sentences/citation sources were analyzed -- the same shape
     analyze_sources() (for `sentences`) and combined_tokengraph() (for
     `tokengraph`; `verbalunits` needs the analogous concatenation, which
     this function does not do for you) already produce.
+
+    `model`/`reasoning` are optional and control the '#!LM' block (see the
+    module docstring's "The #!LM block"): omit both (the default) to skip
+    '#!LM' entirely, exactly reproducing this function's pre-'#!LM'
+    output. Passing `reasoning` -- one entry per sentence, in the same
+    order as `sentences`, each either that sentence's own reasoning text
+    or None -- turns it on; `model` is then written as every entry's own
+    MODEL= value (typically `os.environ["MODEL"]`, but this module has no
+    opinion on where it comes from). `reasoning` must have exactly one
+    entry per sentence; a mismatched length raises ValueError immediately,
+    before anything is written.
 
     `content` is the complete file body, including its trailing newline,
     exactly as write_analyses() would have written it. `warnings` is a
@@ -193,10 +348,21 @@ def serialize_analyses(
       correctly.
 
     Raises ValueError for a sentence with no tokens at all (nothing to
-    derive first_token/last_token from), or if any field value contains
-    '|' or a newline (see `_field`).
+    derive first_token/last_token from, or -- when `reasoning` is given --
+    nothing to derive '#!LM's CONTEXT= from either), if any field value
+    contains '|' or a newline (see `_field`), or if `reasoning` is given
+    with a different number of entries than `sentences`.
     """
     warnings: List[str] = []
+
+    if reasoning is not None and len(reasoning) != len(sentences):
+        raise ValueError(
+            f"`reasoning` has {len(reasoning)} entr"
+            f"{'y' if len(reasoning) == 1 else 'ies'}, but there "
+            f"{'is' if len(sentences) == 1 else 'are'} {len(sentences)} "
+            "sentence(s) -- '#!LM' needs exactly one reasoning entry per "
+            "sentence"
+        )
 
     id_to_citation: Dict[str, Optional[str]] = {}
     for sentence in sentences:
@@ -213,6 +379,26 @@ def serialize_analyses(
     tg_index = {tok.id: i for i, tok in enumerate(tokengraph)}
 
     lines: List[str] = []
+
+    if reasoning is not None:
+        lines.append(LM_LABEL)
+        for s_idx, sentence in enumerate(sentences):
+            if not sentence.tokens:
+                raise ValueError(
+                    f"sentence at index {s_idx} has no tokens -- cannot "
+                    "derive the '#!LM' block's CONTEXT= for an empty "
+                    "sentence"
+                )
+            where = f"'#!LM' entry for sentence {s_idx}"
+            context_value = _sentence_context_identifier(sentence)
+            reasoning_value = reasoning[s_idx]
+            collapsed_reasoning = (
+                _collapse_to_single_line(reasoning_value) if reasoning_value is not None else None
+            )
+            lines.append(_LM_MODEL_PREFIX + _lm_field(model, where=where))
+            lines.append(_LM_CONTEXT_PREFIX + _lm_field(context_value, where=where))
+            lines.append(_LM_REASONING_PREFIX + _lm_field(collapsed_reasoning, where=where))
+        lines.append("")
 
     lines.append(SENTENCES_LABEL)
     lines.append(SENTENCES_HEADER)
@@ -321,20 +507,28 @@ def write_analyses(
     verbalunits: List[VerbalExpression],
     tokengraph: List[TokenAnalysis],
     path: str,
+    *,
+    model: Optional[str] = None,
+    reasoning: Optional[List[Optional[str]]] = None,
 ) -> List[str]:
     """Write `sentences`/`verbalunits`/`tokengraph` to `path` in the format
     this module's docstring describes -- see serialize_analyses() (which
     this is a thin wrapper around) for what's actually written and for the
-    full list of warnings this can return.
+    full list of warnings this can return. `model`/`reasoning` are passed
+    straight through to serialize_analyses() and control the optional
+    '#!LM' block exactly as described there -- omit both to skip it.
 
     Returns a list of warning strings (empty if nothing looks wrong); see
     serialize_analyses()'s docstring for what each one means. Raises
     ValueError for a sentence with no tokens at all (nothing to derive
-    first_token/last_token from), or if any field value contains '|' or a
-    newline (see `_field`) -- both raised by serialize_analyses() before
-    this function ever opens `path`.
+    first_token/last_token from), if any field value contains '|' or a
+    newline (see `_field`), or if `reasoning` is given with a different
+    number of entries than `sentences` -- all raised by serialize_analyses()
+    before this function ever opens `path`.
     """
-    content, warnings = serialize_analyses(sentences, verbalunits, tokengraph)
+    content, warnings = serialize_analyses(
+        sentences, verbalunits, tokengraph, model=model, reasoning=reasoning
+    )
     with open(path, "w", encoding="utf-8") as f:
         f.write(content)
     return warnings
@@ -342,26 +536,38 @@ def write_analyses(
 
 def read_analyses(
     path: str,
-) -> Tuple[List[TokenAnalysis], List[VerbalExpression], List[Sentence]]:
+) -> Tuple[List[TokenAnalysis], List[VerbalExpression], List[Sentence], List[LMInfo]]:
     """Read `path` (as written by write_analyses()/serialize_analyses()) and
-    reconstruct `(tokengraph, verbalunits, sentences)` -- in that order,
-    matching the order these three types are usually discussed in this
+    reconstruct `(tokengraph, verbalunits, sentences, lm_infos)` -- in that
+    order, matching the order these types are usually discussed in this
     codebase (the token-level graph, then the verbal-expression table,
-    then the sentence/citation structure that supplies context for both).
+    then the sentence/citation structure that supplies context for both,
+    then the optional per-sentence '#!LM' record of what produced them).
 
-    Each of the three block labels may appear more than once in `path`
-    (see the module docstring) -- every instance contributes its own rows,
-    in file order, to that label's combined row list, as if the file were
-    the concatenation of however many separate write_analyses()/
-    serialize_analyses() outputs it actually is.
+    Each of the three required block labels may appear more than once in
+    `path` (see the module docstring) -- every instance contributes its
+    own rows, in file order, to that label's combined row list, as if the
+    file were the concatenation of however many separate write_analyses()/
+    serialize_analyses() outputs it actually is. '#!LM' may repeat the
+    same way.
+
+    `lm_infos` is `[]` if `path` has no '#!LM' block at all (every file
+    written before this block existed, or any file written without
+    passing `reasoning` to write_analyses()/serialize_analyses(), reads
+    back exactly as before) -- otherwise it's one `LMInfo` per sentence,
+    aligned with `sentences` by position, same as `tokengraph`/
+    `verbalunits` are conceptually aligned with `sentences` via token ids.
 
     Raises ValueError, naming the offending line and problem, for anything
     that isn't a faithful, internally-consistent file written by
     write_analyses() -- see this module's own docstring for exactly what's
-    checked. This function does not accept a file with warnings-worthy
-    inconsistencies silently patched over; if write_analyses() returned
-    warnings when the file was written, fix the input and re-write it
-    rather than expecting read_analyses() to compensate.
+    checked, including '#!LM's own narrower checks (a line count that
+    isn't a multiple of 3, a line missing its expected prefix, or a number
+    of entries that doesn't match the number of sentences). This function
+    does not accept a file with warnings-worthy inconsistencies silently
+    patched over; if write_analyses() returned warnings when the file was
+    written, fix the input and re-write it rather than expecting
+    read_analyses() to compensate.
     """
     with open(path, "r", encoding="utf-8") as f:
         raw_lines = f.read().splitlines()
@@ -372,8 +578,12 @@ def read_analyses(
     # by that label's header line (`awaiting_header` tracks this) before
     # any more data rows can be appended to it -- this holds per instance,
     # not just for the label's first appearance, so every repeated block
-    # must repeat its own header line too.
+    # must repeat its own header line too. '#!LM' is the one exception: it
+    # has no header line at all (see the module docstring), so a '#!LM'
+    # label line goes straight to accepting data rows -- `awaiting_header`
+    # is never set for it.
     blocks: Dict[str, List[Tuple[int, str]]] = {label: [] for label in _EXPECTED_HEADERS}
+    blocks[LM_LABEL] = []
     seen_labels = set()
     current_label: Optional[str] = None
     awaiting_header = False
@@ -382,7 +592,7 @@ def read_analyses(
         if line.strip() == "":
             continue
 
-        if line in _EXPECTED_HEADERS:
+        if line == LM_LABEL or line in _EXPECTED_HEADERS:
             if awaiting_header:
                 raise ValueError(
                     f"line {line_no}: block {current_label!r} has a label "
@@ -390,7 +600,7 @@ def read_analyses(
                 )
             current_label = line
             seen_labels.add(line)
-            awaiting_header = True
+            awaiting_header = line != LM_LABEL
             continue
 
         if current_label is None:
@@ -568,7 +778,60 @@ def read_analyses(
             )
         )
 
-    return tokengraph, verbalunits, sentences
+    # --- #!LM (optional) ---
+    lm_raw = blocks[LM_LABEL]
+    lm_infos: List[LMInfo] = []
+    if lm_raw:
+        if len(lm_raw) % 3 != 0:
+            first_line_no = lm_raw[0][0]
+            raise ValueError(
+                f"line {first_line_no}: '#!LM' block has {len(lm_raw)} "
+                "line(s), which is not a multiple of 3 -- each entry needs "
+                "exactly a MODEL=, CONTEXT=, and REASONING= line, in that "
+                "order"
+            )
+        for i in range(0, len(lm_raw), 3):
+            model_line_no, model_line = lm_raw[i]
+            context_line_no, context_line = lm_raw[i + 1]
+            reasoning_line_no, reasoning_line = lm_raw[i + 2]
+            if not model_line.startswith(_LM_MODEL_PREFIX):
+                raise ValueError(
+                    f"line {model_line_no}: expected a line starting with "
+                    f"{_LM_MODEL_PREFIX!r} in the '#!LM' block, got "
+                    f"{model_line!r}"
+                )
+            if not context_line.startswith(_LM_CONTEXT_PREFIX):
+                raise ValueError(
+                    f"line {context_line_no}: expected a line starting "
+                    f"with {_LM_CONTEXT_PREFIX!r} in the '#!LM' block, got "
+                    f"{context_line!r}"
+                )
+            if not reasoning_line.startswith(_LM_REASONING_PREFIX):
+                raise ValueError(
+                    f"line {reasoning_line_no}: expected a line starting "
+                    f"with {_LM_REASONING_PREFIX!r} in the '#!LM' block, "
+                    f"got {reasoning_line!r}"
+                )
+            lm_infos.append(
+                LMInfo(
+                    model=_parse_optional(model_line[len(_LM_MODEL_PREFIX):]),
+                    context=_parse_optional(context_line[len(_LM_CONTEXT_PREFIX):]),
+                    reasoning=_parse_optional(
+                        reasoning_line[len(_LM_REASONING_PREFIX):]
+                    ),
+                )
+            )
+
+        if len(lm_infos) != len(sentences):
+            raise ValueError(
+                f"'#!LM' block has {len(lm_infos)} "
+                f"entr{'y' if len(lm_infos) == 1 else 'ies'}, but "
+                f"#!sentences reconstructed {len(sentences)} sentence(s) -- "
+                "'#!LM' entries are recorded one per sentence, so these "
+                "must match"
+            )
+
+    return tokengraph, verbalunits, sentences, lm_infos
 
 
 def split_analysis_by_sentence(

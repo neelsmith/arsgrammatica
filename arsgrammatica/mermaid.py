@@ -33,13 +33,20 @@ latin_syntax_dspy.analyze_passage) as a Mermaid flowchart.
   implied token's presence (and what it stands in for, via its edges) is
   actually worth seeing.
 - By default (`rank_by_depth=True`), every verbal-unit anchor node is also
-  chained to every other anchor at the SAME depth of subordination (see
-  verbal_units.py's compute_subordination_depths()) using Mermaid's
+  chained to every other anchor at the SAME depth its verbal expression
+  would have in an `aat` package AATGraph built from this same tokengraph
+  (see verbal_units.py's compute_aat_depths()) using Mermaid's
   invisible-link syntax (`~~~`) -- a layout nudge only, no visible edge and
   no new relation -- so independent clauses, the clauses one level below
   them, and so on, tend to land level with each other in the rendered
   diagram instead of wherever Mermaid's layout engine would otherwise put
-  them.
+  them. This is the SAME depth aat_bridge.py's attgraph() would assign
+  that verbal expression's own AAT action node, so this diagram's layout
+  and an AAT graph of the same sentence (see latin_syntaxer_review.py's
+  own AAT display) rank things identically -- not arsgrammatica's own
+  richer, but AAT-incompatible-on-malformed-input, notion of subordination
+  depth (compute_subordination_depths()), which still powers
+  rendering.py's depth-indented HTML view and is unaffected by this.
 
 (These are the fields syntax_model.md calls `relation1`/`relationship1` and
 `relation2`/`relationship2` -- in models.py the "relation" side is named
@@ -61,7 +68,7 @@ from .verbal_units import (
     _IMPLIED_TOKEN_COLOR,
     assign_verbal_units,
     assign_verbal_unit_colors,
-    compute_subordination_depths,
+    compute_aat_depths,
 )
  
 # Characters that need escaping inside a Mermaid quoted label.
@@ -96,8 +103,30 @@ _IMPLIED_TOKEN_LABELS = {
 # live in verbal_units.py (assign_verbal_unit_colors()), shared with
 # rendering.py's tokengraph_to_html() -- so both consumers assign identical
 # colors to the same verbal units instead of each maintaining its own copy.
- 
- 
+
+
+def token_label(tok: TokenAnalysis) -> str:
+    """The display label for one token: its own surface text (`tok.token`),
+    or -- for an implied/elided token (tokentype in IMPLIED_TOKENTYPES,
+    which has no surface text of its own; `tok.token` is None) -- a
+    placeholder from `_IMPLIED_TOKEN_LABELS` ("elided sum" for "implied
+    sum", "continued discourse" verbatim), falling back to the token's own
+    tokentype string verbatim for any IMPLIED_TOKENTYPES value not listed
+    there (e.g. "implied subject").
+
+    This is the exact label `tokengraph_to_mermaid()` puts in each node's
+    diagram box; it's pulled out as its own function so anything else that
+    needs "the same label the Mermaid diagram uses" for a token --
+    graphs.py's tokengraph_to_networkx(), for one -- can reuse it directly
+    rather than re-deriving (and risking drifting from) the same fallback
+    logic."""
+    return (
+        tok.token
+        if tok.token is not None
+        else _IMPLIED_TOKEN_LABELS.get(tok.tokentype, tok.tokentype)
+    )
+
+
 def tokengraph_to_mermaid(
     tokengraph: List[TokenAnalysis],
     orientation: str = "BT",
@@ -127,21 +156,29 @@ def tokengraph_to_mermaid(
     parameter existed.
 
     `rank_by_depth` (default True) makes the diagram's layout respect each
-    verbal expression's own *depth of subordination* (see
-    verbal_units.compute_subordination_depths()): every verbal-unit anchor
-    node (any token with `verbalunitid` set to its own id, implied tokens
-    included) at the SAME depth gets chained together with Mermaid's
-    invisible-link syntax (`~~~`), e.g. `t1 ~~~ t6 ~~~ t9` for three anchors
-    all at depth 2. This draws no visible edge and adds no relation of its
-    own -- it only nudges Mermaid's layout engine to keep same-depth verbal
-    expressions level with each other, the same way independent clauses,
-    the dependent clauses one level below them, and so on, end up visually
-    aligned by rank rather than scattered. An anchor whose depth can't be
-    resolved (see compute_subordination_depths()'s own docstring for why)
-    is left out of every chain -- there's no rank to place it at -- and a
-    depth with only one anchor gets no chain at all (nothing to link).
-    Pass False to skip this and get the diagram's previous, unranked
-    layout.
+    verbal expression's own depth in the `aat` package's Agent-Action-
+    Target model (see verbal_units.compute_aat_depths()) -- the same depth
+    aat_bridge.attgraph() would give that verbal expression's own AAT
+    action node, walking related_node chains to an independent (depth 0)
+    action: every verbal-unit anchor node (any token with `verbalunitid`
+    set to its own id, implied tokens included) at the SAME depth gets
+    chained together with Mermaid's invisible-link syntax (`~~~`), e.g.
+    `t1 ~~~ t6 ~~~ t9` for three anchors all at depth 2. This draws no
+    visible edge and adds no relation of its own -- it only nudges
+    Mermaid's layout engine to keep same-depth verbal expressions level
+    with each other, the same way independent clauses, the dependent
+    clauses one level below them, and so on, end up visually aligned by
+    rank rather than scattered -- and lines this diagram's layout up with
+    an AAT graph of the same sentence (see compute_aat_depths()'s own
+    docstring for exactly how its numbers relate to arsgrammatica's own,
+    richer subordination-depth notion, which this does NOT use). A depth
+    with only one anchor gets no chain at all (nothing to link); unlike
+    the old depth-of-subordination ranking, no anchor is ever excluded for
+    having an unresolved depth -- compute_aat_depths() never leaves one
+    unresolved (see its own docstring for the one malformed-input case,
+    a relation cycle, where that means an arbitrary rather than a
+    meaningful depth, rather than an excluded one). Pass False to skip
+    this and get the diagram's previous, unranked layout.
 
     Returns (diagram_text, warnings). `warnings` lists any edges that were
     skipped because they referenced a punctuation token or an id not present
@@ -149,9 +186,8 @@ def tokengraph_to_mermaid(
     from a validation problem upstream (see latin_syntax_dspy.validate) --
     plus, if `color_by_verbal_unit` is True and the passage has more than 8
     verbal units, one warning that colors are repeating rather than staying
-    distinct (the palette has 8 slots; see _VERBAL_UNIT_PALETTE), plus, if
-    `rank_by_depth` is True, any of compute_subordination_depths()'s own
-    warnings about an anchor whose depth couldn't be resolved.
+    distinct (the palette has 8 slots; see _VERBAL_UNIT_PALETTE).
+    `rank_by_depth` itself never adds a warning -- see compute_aat_depths().
     """
     node_ids = {tok.id for tok in tokengraph if tok.tokentype != "punctuation"}
  
@@ -161,16 +197,10 @@ def tokengraph_to_mermaid(
             continue
         # An implied/elided token (see models.py's IMPLIED_TOKENTYPES) has
         # no surface text at all -- tok.token is None -- so it needs a
-        # placeholder label rather than crashing _escape_label() on None.
-        # _IMPLIED_TOKEN_LABELS supplies that ("elided sum" for "implied
-        # sum", "continued discourse" verbatim); the node's color (below)
-        # is what actually marks it as an implied token, not the label
-        # text.
-        label = (
-            tok.token
-            if tok.token is not None
-            else _IMPLIED_TOKEN_LABELS.get(tok.tokentype, tok.tokentype)
-        )
+        # placeholder label rather than crashing _escape_label() on None;
+        # token_label() supplies that. The node's color (below) is what
+        # actually marks it as an implied token, not the label text.
+        label = token_label(tok)
         # An implied/elided token (models.py's IMPLIED_TOKENTYPES) gets a
         # rounded-corner rectangle -- Mermaid's `(...)` node shape -- instead
         # of the plain `[...]` rectangle every other node uses, as a second,
@@ -207,16 +237,16 @@ def tokengraph_to_mermaid(
             lines.append(f'    {tok.id} -->|{_escape_label(label)}| {related_id}')
 
     if rank_by_depth:
-        depths, depth_warnings = compute_subordination_depths(tokengraph)
-        warnings.extend(depth_warnings)
+        depths = compute_aat_depths(tokengraph)
 
         # Group every verbal-unit anchor node still in the diagram by its
-        # own resolved depth, preserving tokengraph's own (first-appearance)
-        # order within each group -- an anchor whose depth came back
-        # unresolved (depths.get() -> None) is left out of every chain, and
-        # depths.get() is also naturally None for any non-anchor token,
-        # since compute_subordination_depths() only ever keys its result by
-        # anchor id.
+        # own AAT-graph depth, preserving tokengraph's own (first-
+        # appearance) order within each group. Unlike the old depth-of-
+        # subordination ranking, compute_aat_depths() never leaves an
+        # anchor's depth unresolved -- depths.get() is None here only for a
+        # non-anchor token (it only ever keys its result by anchor id), so
+        # this `is None` check is purely "is this token an anchor at all",
+        # not "did its depth fail to resolve".
         depth_groups: dict = {}
         for tok in tokengraph:
             if tok.id not in node_ids:

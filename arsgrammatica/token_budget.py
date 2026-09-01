@@ -27,7 +27,13 @@ This module takes a hybrid approach instead:
    says so, or -- the more robust, LM-independent check -- the result is
    missing entries for input token ids it should have covered), retries
    with a larger budget rather than silently returning an incomplete
-   result or leaving the caller to guess a bigger number by hand.
+   result or leaving the caller to guess a bigger number by hand. It also
+   retries once (at the same budget, with the LM's own response cache
+   explicitly bypassed) on a parse failure that ISN'T a truncation -- e.g.
+   the LM emitting one malformed `tokengraph` entry in an otherwise
+   well-terminated response -- since that kind of malformation is usually
+   a one-off sampling glitch a fresh call clears up, not something a
+   bigger budget would fix.
 
 Re-run `calibrate_max_tokens.py` whenever the configured model, the
 SyntaxAnalysis prompt, or the shape of `TokenAnalysis`/`VerbalExpression`
@@ -74,8 +80,15 @@ DEFAULT_FLOOR = 256
 # correct value across providers/models -- override this with whatever your
 # configured MODEL actually allows (check its provider's documentation)
 # rather than relying on this default for anything but a rough starting
-# point.
-DEFAULT_CEILING = 8192
+# point. Raised from an earlier 8192 after a real 34-token sentence
+# (Genesis 12:5's "Tulitque Sarai...") still truncated mid-JSON even after
+# analyze_with_retry()'s one retry maxed out there -- 8192 was itself just
+# a guess, never confirmed against any real configured model's actual
+# limit. If your model's own true ceiling is lower than this, a request
+# for more than it allows should surface as an explicit error from the
+# provider (naming the real limit) rather than a silent truncation --
+# lower this to match if that happens.
+DEFAULT_CEILING = 32000
 
 
 def _load_calibration() -> dict:
@@ -217,10 +230,7 @@ def analyze_with_retry(
     whenever a result exists at all, parsed or not, including under
     DummyLM in tests) and, if the call raised `AdapterParseError` instead
     of returning a result (the JSON was cut off badly enough to not parse
-    at all), `_finish_reason_was_length()` as a corroborating check before
-    deciding a retry is even worth trying -- a parse failure that ISN'T a
-    length truncation is a real formatting bug a bigger budget won't fix,
-    so it's re-raised immediately rather than retried.
+    at all), `_finish_reason_was_length()` as a corroborating check.
 
     If truncation is detected and there's still a retry available (fewer
     than `max_retries` attempts so far, and the budget hasn't already hit
@@ -228,6 +238,19 @@ def analyze_with_retry(
     `ceiling`) and the call is retried. `max_tokens` is part of DSPy's own
     LM cache key, so a retry with a different budget always reaches the LM
     again rather than replaying a cached truncated response.
+
+    An `AdapterParseError` whose `finish_reason` ISN'T "length" means the
+    response was well-terminated but still malformed somewhere -- e.g. one
+    `tokengraph` entry coming back as a bare `["id"]` list instead of a
+    full TokenAnalysis object. A bigger budget wouldn't have fixed that,
+    but the malformation itself is very often a one-off sampling glitch
+    rather than a systematic prompt/schema problem, so it's retried once
+    too (still counted against `max_retries`, at the SAME budget) with
+    dspy's own response cache explicitly bypassed for that one attempt
+    (`config={"cache": False, ...}`) -- without that, an identical request
+    would just replay the identical broken response, retrying nothing. If
+    that retry also fails to parse, or `max_retries` is already exhausted,
+    the exception propagates.
 
     Once retries are exhausted: if the last attempt raised, that exception
     propagates (there's no result to fall back to). If the last attempt
@@ -243,12 +266,19 @@ def analyze_with_retry(
     )
 
     attempt = 0
+    bypass_cache = False
     while True:
         old_budget = budget
+        call_config = {"max_tokens": budget}
+        if bypass_cache:
+            call_config["cache"] = False
+        bypass_cache = False  # only meant for the one attempt it was set for
         try:
-            result = analyze(passage=passage, tokens=tokens, config={"max_tokens": budget})
-        except AdapterParseError:
-            if attempt < max_retries and budget < ceiling and _finish_reason_was_length():
+            result = analyze(passage=passage, tokens=tokens, config=call_config)
+        except AdapterParseError as exc:
+            if attempt >= max_retries:
+                raise
+            if budget < ceiling and _finish_reason_was_length():
                 attempt += 1
                 budget = min(ceiling, math.ceil(budget * growth_factor))
                 warnings.warn(
@@ -258,7 +288,27 @@ def analyze_with_retry(
                     stacklevel=2,
                 )
                 continue
-            raise
+            # Not a (detectable) truncation -- the response finished
+            # normally but was malformed somewhere (see this function's own
+            # docstring). Retry once more at the SAME budget, but with
+            # dspy's cache explicitly bypassed for that one attempt, so a
+            # retry is a genuinely fresh LM call rather than a replay of
+            # the same broken response -- otherwise, if this exact request
+            # was already served from cache (e.g. a repeat of an earlier,
+            # already-broken run), simply calling analyze() again would
+            # just return the identical malformed result again and again,
+            # even with dspy's cache enabled as normal for every other call.
+            attempt += 1
+            bypass_cache = True
+            warnings.warn(
+                f"SyntaxAnalysis call at max_tokens={old_budget} returned output that "
+                f"failed to parse, but doesn't look like a truncation (finish_reason "
+                f"wasn't 'length'): {exc} Retrying once at the same budget with the LM "
+                f"cache bypassed, in case this was a one-off malformed-output glitch "
+                f"(attempt {attempt}/{max_retries}).",
+                stacklevel=2,
+            )
+            continue
 
         missing = _missing_token_ids(tokens, result)
         truncated = bool(missing) or _finish_reason_was_length()

@@ -11,9 +11,27 @@ import os
  
 import dspy
 from dotenv import load_dotenv
- 
- 
-load_dotenv(dotenv_path=Path(__file__).with_name(".env"))
+
+from arsgrammatica import DEFAULT_CEILING
+
+
+# override=True: without this, load_dotenv() leaves any of these vars
+# (MODEL, API_BASE, API_KEY, ...) that are ALREADY set in the process's
+# environment untouched, instead of applying .env's own value -- and a
+# fresh `python syntaxer_main.py` process still inherits whatever the
+# launching shell itself has exported (a leftover `export MODEL=...` from
+# an earlier test, a value set in .zshrc/.bashrc, etc.), even though it's
+# a brand-new process every run. That's exactly the failure mode this
+# mirrors from the marimo notebooks' own configure_lm() cell (see e.g.
+# latin_syntaxer_ctsdata.py's identical load_dotenv() call and comment) --
+# there the risk is a long-lived kernel process holding a stale value from
+# an earlier cell run; here it's a stale value inherited from the shell --
+# but the fix is the same: always let .env win. A genuinely wrong/stale
+# MODEL this way is a very plausible cause of a "prompt truncated for no
+# reason, even on a one-word passage" symptom, since token_budget.py's
+# DEFAULT_CEILING is only ever a reasonable ceiling for the model you
+# actually think you're calling.
+load_dotenv(dotenv_path=Path(__file__).with_name(".env"), override=True)
  
  
 def _env(name: str, fallback_name: str, default: str | None = None) -> str | None:
@@ -47,9 +65,45 @@ def _configure_lm():
     # don't need one at all for a local Ollama daemon -- passing api_key=""
     # explicitly is unnecessary and, depending on the provider, can behave
     # differently than omitting it outright.
-    lm_kwargs = dict(model=model, api_base=api_base)
+    # An explicit numeric baseline, not None (dspy.LM's own default): every
+    # SyntaxAnalysis call here goes through token_budget.analyze_with_retry(),
+    # which overrides max_tokens per call anyway, but segment_sources()'s own
+    # LM call does NOT -- it has no calibration or retry of its own, so
+    # without this it would fall through to whatever the provider/litellm
+    # itself defaults to. This also fixes a confusing side effect: dspy's own
+    # truncation warning (dspy.LM._check_truncation) always reports THIS
+    # baseline, not whatever a per-call `config={"max_tokens": ...}` override
+    # actually used -- leaving it at None made every truncation warning
+    # (even ones where analyze_with_retry() had already picked a much larger,
+    # correctly-applied budget) misleadingly read "max_tokens=None".
+    lm_kwargs = dict(model=model, api_base=api_base, max_tokens=DEFAULT_CEILING)
     if api_key:
         lm_kwargs["api_key"] = api_key
+
+    # Anthropic prompt caching: SyntaxAnalysis's system message (its own
+    # instructions plus the TokenAnalysis/VerbalExpression field
+    # descriptions) runs ~40K characters and is byte-identical on every
+    # single call -- only the per-sentence user message actually changes.
+    # Marking it with an ephemeral cache_control breakpoint lets a repeat
+    # call within Anthropic's cache TTL reuse that whole block at ~10% of
+    # its normal input-token price instead of paying full price every time
+    # (see VISUALIZATION.md-adjacent discussion in the project chat history
+    # -- there's no dedicated caching doc yet). litellm (which dspy.LM
+    # forwards arbitrary kwargs to) applies cache_control_injection_points
+    # provider-agnostically based solely on the param's presence, so this
+    # is gated on the model actually being Anthropic-routed -- a MODEL
+    # override pointing at Ollama/OpenAI/etc. would otherwise just carry an
+    # inert, unrecognized field. There are no few-shot demos attached to
+    # `analyze` today, so one breakpoint on the system message covers the
+    # whole static prefix; if a compiled/optimized program with demos is
+    # ever loaded here, add a second point, {"location": "message", "index":
+    # -2}, to fold the demo turns into the same cached prefix too (the
+    # real, always-different input is always the last message, so -2 is
+    # "whatever precedes it," demos or not).
+    if "anthropic" in model.lower():
+        lm_kwargs["cache_control_injection_points"] = [
+            {"location": "message", "role": "system"}
+        ]
 
     lm = dspy.LM(**lm_kwargs)
     dspy.configure(lm=lm)

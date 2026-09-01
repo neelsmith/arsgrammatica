@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.16"
+__generated_with = "0.24.0"
 app = marimo.App(width="medium")
 
 
@@ -35,6 +35,13 @@ def _(ctsdata_file_browser):
 
 
 @app.cell(hide_code=True)
+def _(mo):
+    disable_cache = mo.ui.checkbox(label="*Disable LM cache (debugging)*")
+    disable_cache
+    return (disable_cache,)
+
+
+@app.cell(hide_code=True)
 def _(analyze_button, ctsdata_error, ctsdata_rows, mo, passage_multiselect):
     if ctsdata_error is not None:
         ctsdata_status = mo.callout(
@@ -55,6 +62,14 @@ def _(analyze_button, ctsdata_error, ctsdata_rows, mo, passage_multiselect):
 @app.cell(hide_code=True)
 def _(rawpreview):
     rawpreview
+    return
+
+
+@app.cell
+def _(dspy):
+    dspy.inspect_history()
+
+
     return
 
 
@@ -109,11 +124,23 @@ def _(analysis_warnings, download_widget, mo, save_extension):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
     seetokens = mo.ui.checkbox(label="*See list of tokens*")
     seecost = mo.ui.checkbox(label="*See cost*")
     seeprompts = mo.ui.checkbox(label="*See prompts*")
+    # dspy.LM caches responses by default (model + messages + config), so
+    # re-clicking Analyze on the exact same passage selection normally just
+    # replays the earlier result instead of hitting the LM again -- correct
+    # for everyday use, but exactly the wrong behavior when you're
+    # deliberately re-running the same passage to see whether the LM's
+    # output changes (e.g. after a prompt tweak, or to check run-to-run
+    # variance). This is dspy's own client-side response cache, unrelated
+    # to configure_lm()'s Anthropic `cache_control_injection_points` prompt
+    # caching below -- that one only caches the STATIC system-message
+    # prefix to make each still-genuinely-fresh call cheaper, it never
+    # replays a whole response, so it stays on regardless of this checkbox.
+
     mo.hstack([seetokens, seeprompts, seecost], justify="start")
     return seecost, seeprompts, seetokens
 
@@ -204,14 +231,29 @@ def _(Path, mo):
 
 
 @app.function
-# Format label for one menu entry as "<citation>: <first four words>…"
-# The trailing "…" is only added when the passage actually has more words than the preview
-# shows -- a passage that's already 4 words or shorter is shown in full.
+def citation_suffix(citation):
+    """The final segment of a CitedText's own `citation` -- for a CTS URN
+    like 'urn:cts:compnov:bible.genesis.vulgate:45.1', whatever follows its
+    last ':' ('45.1'); for a citation with no ':' at all (e.g. a hand-typed
+    'Aeneid 1.1'), `citation` itself, unchanged. read_ctsdata() hands back
+    each row's own citation as the row's WHOLE urn (see arsgrammatica/
+    ctsdata.py) -- this is purely a shorter display label derived from
+    that, used everywhere below a menu/heading would otherwise repeat a
+    long shared urn prefix on every single passage; `row.citation` itself,
+    in full, is still what's actually passed to analyze_sources()."""
+    return citation.rpartition(":")[-1]
+
+
+@app.function
+# Format label for one menu entry as "<citation suffix>: <first four
+# words>…" The trailing "…" is only added when the passage actually has
+# more words than the preview shows -- a passage that's already 4 words or
+# shorter is shown in full.
 def passage_label(row):
     words = row.text.split()
     preview = " ".join(words[:4])
     ellipsis = "…" if len(words) > 4 else ""
-    return f"{row.citation}: {preview}{ellipsis}"
+    return f"{citation_suffix(row.citation)}: {preview}{ellipsis}"
 
 
 @app.cell
@@ -219,10 +261,11 @@ def _(ctsdata_rows, mo):
     # Menu for selecting one or more passages -- a multiselect rather than
     # a dropdown, since analyze_sources() (see the Analysis cell below)
     # accepts a list of sources and segments/analyzes them together, not
-    # just one at a time. Maps each label directly to a CtsDataRow, so
-    # passage_multiselect.value is a list of the selected CtsDataRows (in
-    # whatever order the widget itself reports them -- see selected_rows
-    # below for why that order isn't used directly).
+    # just one at a time. Maps each label directly to a CitedText (what
+    # read_ctsdata() returns each row as), so passage_multiselect.value is
+    # a list of the selected CitedTexts (in whatever order the widget
+    # itself reports them -- see selected_rows below for why that order
+    # isn't used directly).
     passage_options = {passage_label(row): row for row in ctsdata_rows}
     passage_multiselect = mo.ui.multiselect(
         options=passage_options,
@@ -285,15 +328,18 @@ def _(mo):
 @app.cell
 def _(selected_rows):
     # A readable default filename base, drawn from every selected row's own
-    # urn (falling back to "analysis" if nothing's been selected yet) --
-    # the first row's urnbase plus every selected row's own citation, in
-    # file order. This can get long with many passages selected at once,
-    # but stays deterministic and collision-resistant; the extension is
-    # chosen separately.
+    # citation (falling back to "analysis" if nothing's been selected yet)
+    # -- the first selection's own citation up to and including its last
+    # ':' (its shared urn prefix, if any -- see citation_suffix()'s own
+    # docstring), plus every selection's own citation_suffix(), in file
+    # order. This can get long with many passages selected at once, but
+    # stays deterministic and collision-resistant; the extension is chosen
+    # separately.
     filename_base = ""
     if selected_rows:
-        filename_base = (selected_rows[0].urnbase or "") + "_".join(
-            row.citation or "" for row in selected_rows
+        shared_prefix, sep, _ = selected_rows[0].citation.rpartition(":")
+        filename_base = shared_prefix + sep + "_".join(
+            citation_suffix(row.citation) for row in selected_rows
         )
     filename_base = "".join(c if c.isalnum() else "_" for c in filename_base).strip("_") or "analysis"
     return (filename_base,)
@@ -327,22 +373,24 @@ def _(mo):
 
 
 @app.cell
-def _(CitedText, analyze_button, analyze_sources, selected_rows):
+def _(dspy):
+    dspy.inspect_history()
+    return
+
+
+@app.cell
+def _(analyze_button, analyze_sources, selected_rows):
     # Analyze every selected passage, together, when the Analyze button is
     # clicked. analyze_button.value is True for exactly the one reactive
-    # cycle triggered by a click. Each selected row becomes its own
-    # CitedText source (same urnbase+citation concatenation the single-
-    # passage cell used to build) -- analyze_sources() segments across all
-    # of them at once (a sentence may span two consecutive sources) and
-    # returns one flat (sentences, results) pair spanning every selected
-    # passage, in the file order selected_rows already established.
+    # cycle triggered by a click. Each selected row is already a CitedText
+    # (read_ctsdata() returns them directly -- see arsgrammatica/
+    # ctsdata.py) -- analyze_sources() segments across all of them at once
+    # (a sentence may span two consecutive sources) and returns one flat
+    # (sentences, results) pair spanning every selected passage, in the
+    # file order selected_rows already established.
     sentences, results = [], []
     if analyze_button.value and selected_rows:
-        sources = [
-            CitedText(citation=row.urnbase + row.citation, text=row.text)
-            for row in selected_rows
-        ]
-        sentences, results = analyze_sources(sources)
+        sentences, results = analyze_sources(selected_rows)
     return results, sentences
 
 
@@ -406,7 +454,7 @@ def _(mo, selected_rows):
 
     if selected_rows:
         _blocks = [
-            f"## Selected passage: {_html.escape(_row.citation)}\n\n{_html.escape(_row.text)}"
+            f"## Selected passage: {_html.escape(citation_suffix(_row.citation))}\n\n{_html.escape(_row.text)}"
             for _row in selected_rows
         ]
         rawpreview = mo.md("\n\n---\n\n".join(_blocks))
@@ -417,7 +465,7 @@ def _(mo, selected_rows):
 
 @app.cell
 def _(finaltokens, mo, selected_rows, tokengraph_to_text):
-    citation_label = ", ".join(row.citation for row in selected_rows)
+    citation_label = ", ".join(citation_suffix(row.citation) for row in selected_rows)
     psghtml = mo.Html(
         f"<b><i>Reconstructed passage {citation_label}</i></b>: " + tokengraph_to_text(finaltokens)
     )
@@ -446,12 +494,23 @@ def _(mo):
 
 
 @app.cell
-def _(finaltokens, results, sentences, serialize_analyses):
+def _(finaltokens, lm, results, sentences, serialize_analyses):
     # Flatten every sentence's own verbalunits into the one flat list
     # serialize_analyses()/write_analyses() expect, matching how
     # combined_tokengraph() already flattens tokengraph across sentences.
     all_verbalunits = [vu for result in results for vu in result.verbalunits]
-    analysis_text, analysis_warnings = serialize_analyses(sentences, all_verbalunits, finaltokens)
+    # '#!LM' records which model produced each sentence's analysis
+    # (lm.model -- the actual configured model, including configure_lm()'s
+    # own fallback default, not just a raw MODEL env lookup) and that
+    # sentence's own reasoning (dspy.ChainOfThought's `reasoning` output
+    # field), one entry per sentence.
+    analysis_text, analysis_warnings = serialize_analyses(
+        sentences,
+        all_verbalunits,
+        finaltokens,
+        model=lm.model,
+        reasoning=[result.reasoning for result in results],
+    )
     return analysis_text, analysis_warnings
 
 
@@ -480,9 +539,9 @@ def _(Path):
     sys.path.insert(0, str(Path(__file__).parent.parent))
 
     from arsgrammatica import (
+        DEFAULT_CEILING,
         print_analysis,
         analyze_sources,
-        CitedText,
         tokengraph_to_mermaid,
         combined_tokengraph,
         tokengraph_to_html,
@@ -494,7 +553,7 @@ def _(Path):
     )
 
     return (
-        CitedText,
+        DEFAULT_CEILING,
         analyze_sources,
         combined_tokengraph,
         max_subordination_depth,
@@ -517,7 +576,12 @@ def _(mo):
 
 @app.cell
 def _(Path, load_dotenv):
-    load_dotenv(dotenv_path=Path(__file__).parent.parent / ".env")
+    # override=True: marimo's kernel is a long-lived process, not a fresh
+    # one per run like syntaxer_main.py -- without this, once API_KEY (or
+    # any other var here) is set in os.environ, re-running this cell after
+    # editing .env would leave the stale value in place instead of picking
+    # up the fix.
+    load_dotenv(dotenv_path=Path(__file__).parent.parent / ".env", override=True)
     return
 
 
@@ -545,11 +609,18 @@ def _(os):
 
 
 @app.cell
-def _(dspy, getenv):
+def _(DEFAULT_CEILING, disable_cache, dspy, getenv):
     def configure_lm():
-        if dspy.settings.lm is not None:
-            return dspy.settings.lm
-
+        # Always rebuild from the current environment -- no
+        # `if dspy.settings.lm is not None: return dspy.settings.lm` guard.
+        # dspy.settings is a module-level singleton that outlives any single
+        # cell run in marimo's long-lived kernel, so that guard would freeze
+        # whichever LM (and api_key) was first configured for the rest of
+        # the kernel's life, silently ignoring every later edit to .env --
+        # exactly the "works from the command line, fails in the notebook"
+        # symptom that sent us looking here. dspy.LM(...) construction and
+        # dspy.configure() are both cheap, local calls (no network round
+        # trip), so rebuilding on every call costs nothing.
         api_base = getenv("API_BASE", "API_BASE", "https://suarezai.holycross.edu/litellm")
         model = getenv("MODEL", "MODEL", "litellm_proxy/anthropic/Claude Opus 5")
         api_key = getenv("API_KEY", "API_KEY")
@@ -559,7 +630,58 @@ def _(dspy, getenv):
                 "Missing API key. Set API_KEY (preferred) or API_KEY in your .env file."
             )
 
-        lm = dspy.LM(model=model, api_base=api_base, api_key=api_key)
+        # An explicit numeric baseline, not None (dspy.LM's own default) --
+        # see arsgrammatica/token_budget.py's DEFAULT_CEILING and
+        # syntaxer_main.py's own configure_lm() for the full rationale:
+        # analyze_sources() overrides this per call via analyze_with_retry(),
+        # but segment_sources()'s own LM call does not, so without this it
+        # would fall through to whatever the provider/litellm defaults to;
+        # it also keeps dspy's own truncation warning (which always reports
+        # this baseline, never a per-call override) from misleadingly
+        # reading "max_tokens=None".
+        #
+        # cache=not disable_cache.value: dspy.LM defaults to caching every
+        # response it gets (keyed on model + messages + these very
+        # lm_kwargs), so re-clicking Analyze on an unchanged passage
+        # selection normally just replays the cached result rather than
+        # calling the LM again -- see the *Disable LM cache (debugging)*
+        # checkbox above for why that's sometimes exactly what you don't
+        # want. Reading disable_cache.value here (rather than passing
+        # `cache=False` unconditionally) means toggling the checkbox takes
+        # effect immediately: it's a parameter of this very cell, so
+        # flipping it rebuilds configure_lm's closure (and, downstream, the
+        # `lm = configure_lm()` cell) the same way editing .env does.
+        lm_kwargs = dict(
+            model=model,
+            api_base=api_base,
+            api_key=api_key,
+            max_tokens=DEFAULT_CEILING,
+            cache=not disable_cache.value,
+        )
+
+        # Anthropic prompt caching: SyntaxAnalysis's system message runs
+        # ~40K characters and is byte-identical on every single call --
+        # only the per-sentence user message actually changes. Marking it
+        # with an ephemeral cache_control breakpoint lets a repeat call
+        # within Anthropic's cache TTL reuse that whole block at ~10% of
+        # its normal input-token price. litellm (which dspy.LM forwards
+        # arbitrary kwargs to) applies cache_control_injection_points
+        # provider-agnostically based solely on the param's presence, so
+        # this is gated on the model actually being Anthropic-routed -- a
+        # MODEL override pointing at Ollama/OpenAI/etc. would otherwise
+        # just carry an inert, unrecognized field. No few-shot demos are
+        # attached to `analyze` today, so one breakpoint on the system
+        # message covers the whole static prefix; if a compiled/optimized
+        # program with demos is ever loaded here, add a second point,
+        # {"location": "message", "index": -2}, to fold the demo turns into
+        # the same cached prefix too (the real, always-different input is
+        # always the last message, so -2 is "whatever precedes it").
+        if "anthropic" in model.lower():
+            lm_kwargs["cache_control_injection_points"] = [
+                {"location": "message", "role": "system"}
+            ]
+
+        lm = dspy.LM(**lm_kwargs)
         dspy.configure(lm=lm)
         return lm
 

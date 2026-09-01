@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.16"
+__generated_with = "0.24.0"
 app = marimo.App(width="medium")
 
 
@@ -56,18 +56,6 @@ def _(mo, read_error, sentence_dropdown, sentences, split_error):
 
 
 @app.cell(hide_code=True)
-def _(diagram, mo):
-    mo.mermaid(diagram)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mermaid_download):
-    mermaid_download
-    return
-
-
-@app.cell(hide_code=True)
 def _(plaintext_html):
     plaintext_html
     return
@@ -80,14 +68,40 @@ def _(vuhtml):
 
 
 @app.cell(hide_code=True)
+def _(indentpsg):
+    indentpsg
+    return
+
+
+@app.cell(hide_code=True)
+def _(diagram, mo):
+    mo.mermaid(diagram)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mermaid_download):
+    mermaid_download
+    return
+
+
+@app.cell(hide_code=True)
 def _(maxdepth):
     maxdepth
     return
 
 
 @app.cell(hide_code=True)
-def _(indentpsg):
-    indentpsg
+def _(mo):
+    mo.md("""
+    ## Reduction to AAT graph
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(aat_display):
+    aat_display
     return
 
 
@@ -135,11 +149,11 @@ def _(analysis_file_browser, read_analyses):
     # No LM call anywhere in this notebook -- read_analyses() reconstructs
     # everything from the file's own text.
     analysis_path = analysis_file_browser.path(index=0)
-    tokengraph, verbalunits, sentences = [], [], []
+    tokengraph, verbalunits, sentences, lm_infos = [], [], [], []
     read_error = None
     if analysis_path is not None:
         try:
-            tokengraph, verbalunits, sentences = read_analyses(str(analysis_path))
+            tokengraph, verbalunits, sentences, lm_infos = read_analyses(str(analysis_path))
         except (ValueError, OSError) as e:
             read_error = str(e)
     return read_error, sentences, tokengraph, verbalunits
@@ -207,11 +221,17 @@ def _(sentence_dropdown, sentence_slices, sentences):
     # sentence_label()'s own menu-entry citation comes from.
     selected_tokengraph, selected_verbalunits = [], []
     selected_citation = None
+    selected_sentence = None
     if sentence_dropdown.value is not None and 0 <= sentence_dropdown.value < len(sentence_slices):
         selected_tokengraph, selected_verbalunits = sentence_slices[sentence_dropdown.value]
         selected_sentence = sentences[sentence_dropdown.value]
         selected_citation = selected_sentence.tokens[0].citation if selected_sentence.tokens else None
-    return selected_citation, selected_tokengraph, selected_verbalunits
+    return (
+        selected_citation,
+        selected_sentence,
+        selected_tokengraph,
+        selected_verbalunits,
+    )
 
 
 @app.cell(hide_code=True)
@@ -305,6 +325,62 @@ def _(maxdepth, mo, selected_tokengraph, tokengraph_to_depth_html):
     return (indentpsg,)
 
 
+@app.cell
+def _(
+    SimpleNamespace,
+    aat_available,
+    attgraph,
+    graph_to_mermaid,
+    selected_sentence,
+    selected_tokengraph,
+    selected_verbalunits,
+):
+    # Build the AAT (Agent-Action-Target) graph for just the currently
+    # selected sentence -- attgraph() takes (sentences, results) in
+    # analyze_sources()'s own shape, so a one-element list of each is
+    # enough here; `results[i]` only needs to duck-type `.tokengraph`/
+    # `.verbalunits`, which a bare SimpleNamespace built from this
+    # sentence's own slice already satisfies -- see USAGE.md's "Building
+    # an AAT (Agent-Action-Target) graph".
+    aat_diagram = None
+    aat_warnings = []
+    if aat_available and selected_tokengraph and selected_sentence is not None:
+        result = SimpleNamespace(tokengraph=selected_tokengraph, verbalunits=selected_verbalunits)
+        graph, attgraph_warnings = attgraph([selected_sentence], [result])
+        aat_diagram, aat_mermaid_warnings = graph_to_mermaid(graph)
+        aat_warnings = attgraph_warnings + aat_mermaid_warnings
+    return aat_diagram, aat_warnings
+
+
+@app.cell
+def _(aat_available, aat_diagram, aat_warnings, mo):
+    # Same "compute a warnings list, show it in a callout only if
+    # non-empty" convention latin_syntaxer_workflow.py's own
+    # analysis_warnings display uses.
+    if not aat_available:
+        aat_display = mo.callout(
+            mo.md(
+                "The `aat` package isn't installed, so the AAT "
+                "(Agent-Action-Target) graph can't be built here -- see "
+                "USAGE.md's \"Building an AAT (Agent-Action-Target) graph\" "
+                "section for how to install it."
+            ),
+            kind="warn",
+        )
+    elif aat_diagram is None:
+        aat_display = mo.md("*Choose a sentence above to see its AAT (Agent-Action-Target) graph.*")
+    else:
+        aat_display = mo.vstack(
+            [mo.md("**AAT (Agent-Action-Target) graph**"), mo.mermaid(aat_diagram)]
+            + (
+                [mo.callout(mo.md("\n".join(f"- {w}" for w in aat_warnings)), kind="warn")]
+                if aat_warnings
+                else []
+            )
+        )
+    return (aat_display,)
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
@@ -315,12 +391,21 @@ def _(mo):
 
 @app.cell
 def _():
+    import aat
+
+    return
+
+
+@app.cell
+def _():
     import sys
     from pathlib import Path
+    from types import SimpleNamespace
 
     sys.path.insert(0, str(Path(__file__).parent.parent))
 
     from arsgrammatica import (
+        attgraph,
         max_subordination_depth,
         read_analyses,
         split_analysis_by_sentence,
@@ -330,8 +415,27 @@ def _():
         tokengraph_to_text,
     )
 
+    # attgraph() (above) is always importable from arsgrammatica -- it
+    # only raises when actually CALLED without the separate `aat` package
+    # installed (see USAGE.md's "Building an AAT (Agent-Action-Target)
+    # graph"). graph_to_mermaid() -- aat's own Mermaid renderer for the
+    # AATGraph attgraph() builds -- has no such fallback, so its import is
+    # what actually detects whether `aat` is installed at all; the AAT
+    # display cells below check aat_available rather than calling either
+    # function and catching ImportError themselves.
+    try:
+        from aat.core import graph_to_mermaid
+
+        aat_available = True
+    except ImportError:
+        graph_to_mermaid = None
+        aat_available = False
     return (
         Path,
+        SimpleNamespace,
+        aat_available,
+        attgraph,
+        graph_to_mermaid,
         max_subordination_depth,
         read_analyses,
         split_analysis_by_sentence,

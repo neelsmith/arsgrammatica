@@ -78,7 +78,20 @@ def _configure_lm():
             "Missing API key. Set API_KEY (preferred) or API_KEY in your .env file."
         )
 
-    lm = dspy.LM(model=model, api_base=api_base, api_key=api_key)
+    lm_kwargs = dict(model=model, api_base=api_base, api_key=api_key)
+
+    # Anthropic prompt caching -- see syntaxer_main.py's own _configure_lm()
+    # for the full rationale. Especially worth it here: this script fires
+    # one real LM call per GOLD_EXAMPLES entry (43 as of this writing) back
+    # to back, all sharing the exact same ~40K-character system message, so
+    # every call after the first should hit the cache within Anthropic's
+    # TTL and cost roughly 10% of what it otherwise would on that portion.
+    if "anthropic" in model.lower():
+        lm_kwargs["cache_control_injection_points"] = [
+            {"location": "message", "role": "system"}
+        ]
+
+    lm = dspy.LM(**lm_kwargs)
     dspy.configure(lm=lm)
     return lm
 

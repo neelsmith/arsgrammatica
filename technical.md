@@ -1,0 +1,111 @@
+# Some technical docs
+
+
+
+## Estimating and enforcing a `max_tokens` budget
+
+`SyntaxAnalysis`'s output (a `reasoning` field plus JSON-serialized `verbalunits`/`tokengraph`) grows with how long and how syntactically complex a sentence is, not by a fixed amount, so a single hard-coded `max_tokens` value is eventually wrong: too small for a long or deeply subordinated sentence (truncation), too large for a short one (wasted budget). `arsgrammatica/token_budget.py` addresses this with a calibrate-then-retry approach, and `pipeline.py`'s `analyze_sources()` already uses it -- both `analyze_sources()` and `analyze_passage()` get this for free, with nothing to change in your own calling code.
+
+First, calibrate against your own configured model:
+
+```bash
+python3 calibrate_max_tokens.py
+```
+
+This is a live-LM script (real API cost, one call per `GOLD_EXAMPLES` entry) that measures how many completion tokens the real model actually uses for each gold example, fits `completion_tokens ~= intercept + slope * num_input_tokens` by least squares, and writes the result to `arsgrammatica/token_budget_calibration.json`. Re-run it whenever the configured model, the `SyntaxAnalysis` prompt, or the `TokenAnalysis`/`VerbalExpression` schema changes substantially. Until you've run it at least once, `estimate_max_tokens()` falls back to an untuned, deliberately generous placeholder fit -- safe, but not a real measurement of your model.
+
+```python
+from arsgrammatica import estimate_max_tokens
+
+budget = estimate_max_tokens(num_tokens=25)  # -> an int max_tokens value
+```
+
+`estimate_max_tokens()` takes the calibrated (or fallback) fit, multiplies it by a `safety_margin` (default `1.4`, covering reasoning-length variance the fit alone doesn't), and clamps the result to `[floor, ceiling]`. Set `ceiling` to your actual model's real max-output-tokens limit -- the module's own `DEFAULT_CEILING` is only a placeholder stand-in, since that limit varies by provider/model and there's no single correct default.
+
+For the retry half, `analyze_with_retry()` wraps `analyze()`:
+
+```python
+from arsgrammatica import analyze_with_retry
+
+result = analyze_with_retry(passage, tokens)
+```
+
+It starts from `estimate_max_tokens(len(tokens))` (or `initial_max_tokens`, if you pass one), and checks the result two ways: whether the returned `tokengraph` is missing any of `tokens`' own ids (the primary, provider-independent signal -- a real truncation, LM-JSON getting cut off mid-list, always shows up here), and, as a corroborating check, whether the LM's own `finish_reason` was `"length"`. If either signals truncation and a retry is still available (`max_retries`, default `1`) with budget left before `ceiling`, it multiplies the budget by `growth_factor` (default `2.0`) and calls again -- `max_tokens` is part of DSPy's own LM cache key, so the retry always reaches the LM again rather than replaying the same truncated cached response. If retries run out: a call that raised re-raises (nothing to fall back to); a call that returned an incomplete result is returned anyway, with a `UserWarning` naming the missing ids, rather than treated as fatal -- consistent with `validate()`'s own warn-don't-raise convention for imperfect LM output.
+
+`get_calibration()` reports which fit is currently active (the real one from `calibrate_max_tokens.py`, or the untuned fallback) if you want to check before relying on an estimate.
+
+
+## Anthropic prompt caching
+
+`SyntaxAnalysis`'s system message -- its own instructions plus the full `TokenAnalysis`/`VerbalExpression` field descriptions -- runs to roughly 40,000 characters and is byte-identical on every single call, regardless of passage; only the small per-sentence user message actually varies (typically well under 1,000 characters). Every `_configure_lm()` in this repo (`syntaxer_main.py`, `calibrate_max_tokens.py`, and the `marimo` notebooks) turns on Anthropic prompt caching automatically when `MODEL` routes to Anthropic -- there's no `.env` setting for this, and switching `MODEL` to a non-Anthropic backend (Ollama, OpenAI, etc.) skips it with nothing to turn off by hand:
+
+```python
+if "anthropic" in model.lower():
+    lm_kwargs["cache_control_injection_points"] = [
+        {"location": "message", "role": "system"}
+    ]
+```
+
+`cache_control_injection_points` is a litellm parameter (which `dspy.LM` forwards straight through, along with any other kwarg) that marks a message with Anthropic's ephemeral `cache_control` breakpoint -- everything up to and including that message can be reused by a later call within Anthropic's cache TTL (5 minutes by default) at roughly a tenth of its normal input-token price, instead of paying full price every time. Since there are no few-shot demos attached to `analyze` today, one breakpoint on the system message covers the whole static prefix; if a compiled/optimized program with demos is ever loaded, add a second point, `{"location": "message", "index": -2}`, to fold the demo turns into the same cached prefix (the real, always-different input is always the last message, so `-2` is "whatever precedes it," demos or not).
+
+This is a net win specifically for anything that fires several calls close together against the same system message -- `analyze_sources()` walking a multi-sentence passage, `calibrate_max_tokens.py`'s run over the whole `GOLD_EXAMPLES` corpus (one call per entry, 43 as of this writing), or an interactive `marimo` session. A single, isolated call costs a little *more* than before (a modest write premium with no offsetting read), so this only pays off because these scripts are rarely run for just one call.
+
+
+## Harvesting gold examples from real analyses
+
+`gold_example_from_analysis()`/`format_gold_example_source()` (in `tests/fixtures/harvest.py`) turn a real analysis's own `sentences`/`verbalunits`/`tokengraph` -- the same triple `write_analyses()`/`serialize_analyses()` take -- into a `GoldExample` (`tests/fixtures/gold_examples.py`), instead of hand-writing a `canned_answer` dict from scratch:
+
+```python
+from fixtures.harvest import gold_example_from_analysis, format_gold_example_source
+
+sentences, results = analyze_passage("Some new passage you've reviewed by hand.")
+result = results[0]  # one result per sentence; pick whichever one you're harvesting
+
+example = gold_example_from_analysis(
+    slug="some_new_construction_example",
+    tags=["the construction this example is meant to cover"],
+    sentences=sentences,
+    verbalunits=result.verbalunits,
+    tokengraph=result.tokengraph,
+    reasoning=result.reasoning,  # dspy.ChainOfThought's own reasoning field
+)
+print(format_gold_example_source(example, "_SOME_NEW_CONSTRUCTION_ANSWER"))
+```
+
+`format_gold_example_source()`'s output is ready-to-paste Python: a `_SOME_NEW_CONSTRUCTION_ANSWER = {...}` dict literal followed by the `GoldExample(...)` entry that references it, in the same two-part shape every existing block in `gold_examples.py` already uses. `gold_example_from_analysis()` runs `validate()` against the given `sentences`/`verbalunits`/`tokengraph` before returning (pass `skip_validation=True` to bypass) -- catching a referentially-malformed analysis, but *not* judging whether the analysis is actually correct; that's still on you, per "an analysis you've reviewed by hand" above.
+
+**Should a harvested example go into the trainset GEPA optimizes against, or into a held-out evaluation set?** Usually the latter. A *correct* analysis is, by definition, something the current model/prompt already gets right -- adding it to `optimize_gepa.py`'s trainset (all of `GOLD_EXAMPLES` today; see that script's own docstring for why there's no split at all there) mostly dilutes the trainset with an easy case GEPA gets to self-grade against, without teaching it anything new. The better default is to add the harvested example to `GOLD_EXAMPLES` *and* to `model_bakeoff.py`'s `HELD_OUT_SLUGS` (see `BAKEOFF.md`'s "The held-out evaluation set") -- growing a real regression corpus that catches a future prompt/model change breaking something that currently works, without inflating GEPA's own self-graded trainset. The exception is a rare construction the model only sometimes gets right, where locking in a correct demonstration genuinely is useful training signal -- that's what `model_bakeoff.py`'s bootstrap stage already does on purpose with a few-shot demo pool. `gold_example_from_analysis()` itself has no opinion baked in -- the choice of which list you paste the result into (and whether you also add its slug to `HELD_OUT_SLUGS`) is entirely on you.
+
+
+
+## Files
+
+- `syntaxer_main.py` — command-line entry point: loads `.env`, configures the LM, and runs an analysis for a passage given on the command line.
+- `calibrate_max_tokens.py` — loads `.env`, configures the LM, and fits `arsgrammatica/token_budget.py`'s `max_tokens` estimate against real completion-token usage over `GOLD_EXAMPLES` (see "Estimating and enforcing a `max_tokens` budget" above).
+- `arsgrammatica/` — the package with the actual analysis logic:
+  - `models.py` — pydantic models for `CitedText`, `Token`, `Sentence`, `VerbalExpression`, and `TokenAnalysis`, matching the fields and relation labels from `syntax_model.md`.
+  - `segmentation_dspy.py` — the DSPy signature (`SegmentPassage`) that segments citation-labeled source text into sentences and tokens, assigning stable ids (`t0`, `t1`, ...) and tracking which citation each token came from.
+  - `latin_syntax_dspy.py` is the DSPy signature (`SyntaxAnalysis`) that takes a sentence's tokens and produces `verbalunits` + `tokengraph`, plus `validate()` and `print_analysis()`.
+  - `pipeline.py` — ties the two stages together: `analyze_sources()` runs the full pipeline over citation-labeled input and analyzes every sentence it finds (via `token_budget.analyze_with_retry()`, not `analyze()` directly -- see below); `analyze_passage()` is the convenience wrapper for a single bare passage string; `combined_tokengraph()` concatenates results for diagramming.
+  - `token_budget.py` — `estimate_max_tokens()` picks a `max_tokens` budget for a SyntaxAnalysis call from a passage's token count, using a fit `calibrate_max_tokens.py` writes to `token_budget_calibration.json` (or an untuned fallback before that's ever been run); `analyze_with_retry()` wraps `analyze()` with that estimate and retries with a larger budget if the result still comes back truncated (see "Estimating and enforcing a `max_tokens` budget" above).
+  - `serialization.py` — `serialize_analyses()`/`write_analyses()`/`read_analyses()` save and reload `sentences`/`verbalunits`/`tokengraph` as one deterministic, pipe-delimited plain-text file, or as an equivalent in-memory string; `split_analysis_by_sentence()` splits `read_analyses()`'s flat, whole-file lists back into one `(tokengraph, verbalunits)` slice per sentence (see "Saving and loading analyses" above).
+  - `mermaid.py` — turns a `tokengraph` into a Mermaid flowchart: one node  per non-punctuation token, one labelled edge per
+    `relatedtoken1`/`relationship1` and `relatedtoken2`/`relationship2` pair, colored by verbal unit, with same-depth verbal-unit anchors chained together via Mermaid's invisible-link syntax so the layout also respects depth of subordination (see `VISUALIZATION.md`).
+  - `verbal_units.py` — `assign_verbal_units()` partitions a `tokengraph` into the verbal units its own relations imply, purely from the existing graph structure (no extra LM call); `assign_verbal_unit_colors()` builds on that to assign each verbal unit a stable palette color, in the same first-appearance order `mermaid.py` uses for its node coloring — the single shared source both `mermaid.py` and `rendering.py` draw on so their colorings always agree. `compute_subordination_depths()` computes each verbal expression's *depth of subordination* (0 for an independent clause, 1 for a clause it introduces, 2 for one that clause in turn introduces, and so on) the same way, by chasing each anchor's own relation to its governing verbal expression (see `VISUALIZATION.md`); `max_subordination_depth()` reduces that to the single deepest depth reached anywhere in the passage (`None` if there are no verbal expressions, or none resolve), the natural upper bound for `tokengraph_to_depth_html()`'s own `depth` parameter below. `find_unanchored_coordinated_verbs()` is a heuristic sanity check, separate from `validate()`: it flags a "coordinating conjunction" pair where one side anchors its own verbal unit and the other doesn't -- an asymmetry a correct analysis should never produce, and a real mistake a live LM has made (see that function's own docstring for the worked example). Returns a list of warning strings (empty if nothing looks wrong); it can't confirm the unanchored side really was meant to be a verb, only that the asymmetry is worth a human look.
+  - `rendering.py` — `tokengraph_to_text()` reconstructs a continuous, readable plain-text string from a `tokengraph`, with correct spacing around punctuation, brackets, quote pairs, and enclitics (unlike a plain `" ".join(...)`, which would put a space before every token, including punctuation and enclitics -- e.g. rendering "virumque" as "virum que"). `tokengraph_to_html()` does the same join, but as an HTML string with lexical, praenomen, and numeral tokens (and any coordinating conjunction) wrapped in verbal-unit-colored `<span>`s. `tokengraph_to_depth_html()` renders the same colored tokens grouped into per-verbal-unit blocks, each CSS-indented by its depth of subordination (see `VISUALIZATION.md`); its optional `depth` parameter caps rendering to blocks at or below that depth (`depth=0` through the passage's own `max_subordination_depth()`) -- a block deeper than the cap is omitted entirely, not rendered empty.
+  - `__init__.py` — re-exports the public names above, so callers do `from arsgrammatica import ...` rather than reaching into submodules.
+- `tests/` — a pytest suite covering models, segmentation, analysis, validation, and coverage of the scheme's relation/type vocabulary.
+- `docs/build_api_docs.py` — regenerates `docs/arsgrammatica-api-docs.html`, a single self-contained HTML page documenting every name in `arsgrammatica.__all__`, built with `pdoc` straight from the package's own docstrings and type hints. Run `python docs/build_api_docs.py` after changing a public docstring or signature to refresh it; requires `pdoc` (`pip install pdoc --break-system-packages`).
+
+## Extending the scheme
+
+`syntax_model.md` says the current relation set is partial. To add a new relation:
+
+1. Add the new label to `RelationLabel` in `arsgrammatica/models.py`.
+2. Describe when to use it in `SyntaxAnalysis`'s docstring in
+   `arsgrammatica/latin_syntax_dspy.py`, following the pattern of the existing relations
+   (which token gets `relatedtoken1`/`relationship1`, which gets the
+   corresponding value on the other end).
+3. Add a gold example exercising it to `tests/fixtures/gold_examples.py` and
+   re-run `pytest` to confirm the models still validate before trying it
+   against the real LM.

@@ -311,6 +311,96 @@ def assign_verbal_unit_colors(
     return colors, warnings
 
 
+def find_governing_verbal_expression(
+    tokengraph: List[TokenAnalysis],
+) -> Dict[str, Optional[str]]:
+    """For every verbal expression anchor in `tokengraph` (any token with
+    `verbalunitid` set to its own id -- the same convention
+    `assign_verbal_units()` relies on), find the *governing* verbal
+    expression it is subordinate to: the anchor id its own relatedtoken1
+    (falling back to relatedtoken2) chain eventually leads to, following
+    through as many intermediate non-anchor tokens as necessary.
+
+    Returns `{anchor id: governing anchor id, or None}`. `None` covers
+    BOTH of two different situations, deliberately not distinguished here:
+    an independent verb (relatedtoken1 == 'root', nothing to chase) and a
+    chase that dead-ends or cycles through non-anchor tokens before ever
+    reaching another anchor (a malformed or genuinely disconnected verbal
+    expression) -- either way, "no governing verbal expression" is the
+    right answer for a caller that just wants "is this subordinate to
+    something, and if so what" (e.g. aat_bridge.py's `attgraph()`,
+    building an AAT action node's `related_node`, where both cases alike
+    mean `related_node = None`). A caller that needs to tell those two
+    apart, or wants a warning when the chase genuinely fails, should use
+    `compute_subordination_depths()` instead -- it consumes this same
+    chase (via this function) but adds exactly that distinction, plus
+    warnings, on top.
+
+    One malformed-input case this function does NOT resolve to None:
+    two anchors whose own relatedtoken1/2 point directly at EACH OTHER
+    (rather than through intermediate tokens). The chase from either one
+    hits the OTHER anchor immediately -- an anchor is a hit the moment
+    it's reached, before its own further relations are ever followed --
+    so each resolves to "the other" as its governing expression, a
+    locally self-consistent but globally nonsensical mutual cycle. This
+    is unchanged from the original private helper this function was
+    extracted from; catching it requires the joint, cross-anchor
+    resolution `compute_subordination_depths()`'s own `in_progress`
+    bookkeeping does (see its "cycle detected" warning), which a single
+    anchor's local chase has no way to see on its own. A caller building
+    an AATGraph from a relation graph with this specific defect (an
+    actual LM error, not a normal input) would get a graph with two
+    actions each listing the other as its own governing action --
+    referentially valid (aat.core.validate.validate() has no cycle
+    check either) but logically circular.
+
+    The chase itself handles every documented case uniformly, without
+    needing to special-case by relationship label, because they all
+    eventually resolve to another anchor via forward pointers already in
+    the graph -- see `compute_subordination_depths()`'s own docstring for
+    the full worked-out case list (unit verb, direct quote/aside/indirect
+    statement, circumstantial participle).
+    """
+    by_id = {tok.id: tok for tok in tokengraph}
+    anchor_ids = {tok.id for tok in tokengraph if tok.verbalunitid == tok.id}
+
+    def chase(token_id: str, visited: set) -> Optional[str]:
+        """Follow relatedtoken1 (then relatedtoken2) forward from
+        `token_id`, returning the first anchor id reached, or None if the
+        chain dead-ends or cycles before reaching one. `token_id` itself
+        counts as a hit if it's already an anchor (the direct-link cases:
+        direct quote, aside, indirect statement)."""
+        if token_id in visited:
+            return None
+        visited.add(token_id)
+        if token_id in anchor_ids:
+            return token_id
+        tok = by_id.get(token_id)
+        if tok is None:
+            return None
+        for field in ("relatedtoken1", "relatedtoken2"):
+            target = getattr(tok, field)
+            if target is None or target == "root":
+                continue
+            result = chase(target, visited)
+            if result is not None:
+                return result
+        return None
+
+    def parent_of(anchor_id: str) -> Optional[str]:
+        tok = by_id[anchor_id]
+        for field in ("relatedtoken1", "relatedtoken2"):
+            target = getattr(tok, field)
+            if target is None or target == "root":
+                continue
+            result = chase(target, visited=set())
+            if result is not None and result != anchor_id:
+                return result
+        return None
+
+    return {anchor_id: parent_of(anchor_id) for anchor_id in anchor_ids}
+
+
 def compute_subordination_depths(
     tokengraph: List[TokenAnalysis],
 ) -> Tuple[Dict[str, Optional[int]], List[str]]:
@@ -360,39 +450,15 @@ def compute_subordination_depths(
 
     warnings: List[str] = []
 
-    def chase(token_id: str, visited: set) -> Optional[str]:
-        """Follow relatedtoken1 (then relatedtoken2) forward from
-        `token_id`, returning the first anchor id reached, or None if the
-        chain dead-ends or cycles before reaching one. `token_id` itself
-        counts as a hit if it's already an anchor (the direct-link cases:
-        direct quote, aside, indirect statement)."""
-        if token_id in visited:
-            return None
-        visited.add(token_id)
-        if token_id in anchor_ids:
-            return token_id
-        tok = by_id.get(token_id)
-        if tok is None:
-            return None
-        for field in ("relatedtoken1", "relatedtoken2"):
-            target = getattr(tok, field)
-            if target is None or target == "root":
-                continue
-            result = chase(target, visited)
-            if result is not None:
-                return result
-        return None
-
-    def parent_of(anchor_id: str) -> Optional[str]:
-        tok = by_id[anchor_id]
-        for field in ("relatedtoken1", "relatedtoken2"):
-            target = getattr(tok, field)
-            if target is None or target == "root":
-                continue
-            result = chase(target, visited=set())
-            if result is not None and result != anchor_id:
-                return result
-        return None
+    # The chase itself -- following relatedtoken1/relatedtoken2 forward
+    # until another anchor is reached -- now lives in
+    # find_governing_verbal_expression(), shared with aat_bridge.py's
+    # attgraph(). Computed once, up front, for every anchor; this is a
+    # pure function of `tokengraph` with no dependency on `depths`'
+    # memoization state, so precomputing it here for all anchors (instead
+    # of the original code's lazy per-call `parent_of()`) changes nothing
+    # about the result.
+    governing = find_governing_verbal_expression(tokengraph)
 
     depths: Dict[str, Optional[int]] = {}
     in_progress: set = set()
@@ -414,7 +480,7 @@ def compute_subordination_depths(
             return None
         in_progress.add(anchor_id)
 
-        parent = parent_of(anchor_id)
+        parent = governing.get(anchor_id)
         if parent is None:
             warnings.append(
                 f"could not find a governing verbal expression for "
@@ -433,6 +499,91 @@ def compute_subordination_depths(
         depth_of(anchor_id)
 
     return depths, warnings
+
+
+def compute_aat_depths(tokengraph: List[TokenAnalysis]) -> Dict[str, int]:
+    """Compute each verbal expression's depth the way it would come out if
+    you built an `aat` package AATGraph from this same `tokengraph` (via
+    `aat_bridge.attgraph()`) and walked each action node's own
+    `related_node` chain to the top -- an independent action (no governing
+    action) is depth 0, one it governs is depth 1, and so on -- WITHOUT
+    actually building that graph or depending on `aat` being installed at
+    all: `attgraph()` populates every action's `related_node` from this
+    same module's `find_governing_verbal_expression()`, so walking that
+    map directly here reproduces the identical numbers `graph.
+    governing_action()` chains would.
+
+    Returns `{anchor id: depth}` -- one entry per verbal-expression anchor
+    (same set `compute_subordination_depths()` covers), and, unlike that
+    function, EVERY anchor gets a plain `int`, never `None`, and this never
+    returns any warnings. That's not an oversight: an AATNode's
+    `related_node` is either "points at a real governing action" or
+    `None` -- there's no third state for "a governing expression should
+    exist here but the chase couldn't find one" (compute_subordination_
+    depths()'s "unresolved, needs a warning" case). So this function folds
+    that case into the same bucket as a genuinely independent verb (depth
+    0) instead of excluding it, exactly as an AATGraph itself would have
+    no way to tell the two apart. For every WELL-FORMED sentence (which is
+    to say: every one of this codebase's own gold fixtures) the two
+    functions agree exactly, hop for hop -- they're driven by the same
+    underlying chase. They can only diverge on malformed input: an anchor
+    whose own chase never reaches another anchor at all (relatedtoken1 not
+    'root', but nothing resolvable) is `None`/excluded/warned-about from
+    `compute_subordination_depths()`, but depth 0 here.
+
+    A mutual cycle -- two anchors relating directly to each other, so each
+    resolves to "the other" as its own governing expression (see
+    `find_governing_verbal_expression()`'s own docstring for why its local
+    chase can't detect this as a cycle at all) -- is the one case where
+    this function's numbers are not just "collapsed" but genuinely
+    arbitrary: walking the chain here still has to terminate somewhere, so
+    whichever anchor's own resolution happens to be demanded FIRST ends up
+    one level shallower than the other, an artifact of iteration order
+    rather than anything meaningful in the relation graph. This is the
+    same malformed-LM-output scenario `compute_subordination_depths()`
+    detects and warns about explicitly (leaving both anchors' depth
+    `None`) -- a caller that needs to tell "confidently ranked" apart from
+    "arbitrarily broke a tie in a cycle" should use that function instead,
+    or run `find_unanchored_coordinated_verbs()`/`validate()` upstream,
+    since a real cycle like this only comes from malformed relations to
+    begin with.
+
+    Used by `mermaid.tokengraph_to_mermaid()`'s `rank_by_depth` option, so
+    the invisible same-depth layout links in the full syntax diagram line
+    up with the depth an AAT graph of the same sentence would show, rather
+    than arsgrammatica's own (richer, but AAT-incompatible on unresolved
+    anchors) subordination-depth notion -- see that function's own
+    docstring. `compute_subordination_depths()`/`max_subordination_depth()`
+    /`tokengraph_to_depth_html()`'s depth-indented HTML view are unaffected
+    by this function and keep using the original notion, unchanged.
+    """
+    governing = find_governing_verbal_expression(tokengraph)
+
+    depths: Dict[str, int] = {}
+    in_progress: set = set()
+
+    def depth_of(anchor_id: str) -> int:
+        if anchor_id in depths:
+            return depths[anchor_id]
+        if anchor_id in in_progress:
+            # A cycle this function's own local walk can't resolve
+            # meaningfully (see this function's own docstring) -- treat as
+            # "no governing expression found", same as a genuinely
+            # independent action, rather than recursing forever.
+            return 0
+        in_progress.add(anchor_id)
+
+        parent = governing.get(anchor_id)
+        result = 0 if parent is None else depth_of(parent) + 1
+
+        in_progress.discard(anchor_id)
+        depths[anchor_id] = result
+        return result
+
+    for anchor_id in governing:
+        depth_of(anchor_id)
+
+    return depths
 
 
 def max_subordination_depth(

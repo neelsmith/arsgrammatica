@@ -1,15 +1,17 @@
 """
 Tests for arsgrammatica/ctsdata.py's read_ctsdata().
 
-Covers: a basic single-row read (urn split into urnbase/citation, text
-verbatim); multiple rows and multiple '#!ctsdata' blocks merged in file
-order (mirroring test_serialization.py's own repeated-block coverage); a
-custom delimiter; and every malformed-file error read_ctsdata() can raise.
+Covers: a basic single-row read (urn used verbatim as CitedText.citation,
+text verbatim); multiple rows and multiple '#!ctsdata' blocks merged in
+file order (mirroring test_serialization.py's own repeated-block
+coverage); a custom delimiter; and every malformed-file error
+read_ctsdata() can raise.
 """
 
 import pytest
 
-from arsgrammatica.ctsdata import CtsDataRow, read_ctsdata
+from arsgrammatica.ctsdata import read_ctsdata
+from arsgrammatica.models import CitedText
 
 
 def _write_raw(tmp_path, name, content):
@@ -18,7 +20,7 @@ def _write_raw(tmp_path, name, content):
     return str(path)
 
 
-def test_single_row_splits_urn_into_urnbase_and_citation(tmp_path):
+def test_single_row_uses_the_whole_urn_as_citation(tmp_path):
     content = (
         "#!ctsdata\n"
         "urn|text\n"
@@ -27,9 +29,8 @@ def test_single_row_splits_urn_into_urnbase_and_citation(tmp_path):
     path = _write_raw(tmp_path, "ctsdata.txt", content)
     rows = read_ctsdata(path)
     assert rows == [
-        CtsDataRow(
-            urnbase="urn:cts:compnov:bible.genesis.vulgate:",
-            citation="45.1",
+        CitedText(
+            citation="urn:cts:compnov:bible.genesis.vulgate:45.1",
             text="Non se poterat ultra tenere.",
         )
     ]
@@ -44,9 +45,11 @@ def test_multiple_rows_in_one_block_preserve_file_order(tmp_path):
     )
     path = _write_raw(tmp_path, "ctsdata.txt", content)
     rows = read_ctsdata(path)
-    assert [r.citation for r in rows] == ["45.1", "45.2"]
+    assert [r.citation for r in rows] == [
+        "urn:cts:compnov:bible.genesis.vulgate:45.1",
+        "urn:cts:compnov:bible.genesis.vulgate:45.2",
+    ]
     assert [r.text for r in rows] == ["Non se poterat ultra tenere.", "Clamavit ergo."]
-    assert all(r.urnbase == "urn:cts:compnov:bible.genesis.vulgate:" for r in rows)
 
 
 def test_repeated_blocks_are_merged_in_file_order(tmp_path):
@@ -63,9 +66,10 @@ def test_repeated_blocks_are_merged_in_file_order(tmp_path):
     )
     path = _write_raw(tmp_path, "ctsdata.txt", content)
     rows = read_ctsdata(path)
-    assert [r.citation for r in rows] == ["45.1", "1.1"]
-    assert rows[0].urnbase == "urn:cts:compnov:bible.genesis.vulgate:"
-    assert rows[1].urnbase == "urn:cts:compnov:bible.exodus.vulgate:"
+    assert [r.citation for r in rows] == [
+        "urn:cts:compnov:bible.genesis.vulgate:45.1",
+        "urn:cts:compnov:bible.exodus.vulgate:1.1",
+    ]
 
 
 def test_blank_lines_between_and_within_blocks_are_ignored(tmp_path):
@@ -92,9 +96,8 @@ def test_custom_delimiter(tmp_path):
     path = _write_raw(tmp_path, "ctsdata.tsv", content)
     rows = read_ctsdata(path, delimiter="\t")
     assert rows == [
-        CtsDataRow(
-            urnbase="urn:cts:compnov:bible.genesis.vulgate:",
-            citation="45.1",
+        CitedText(
+            citation="urn:cts:compnov:bible.genesis.vulgate:45.1",
             text="Non se poterat ultra tenere.",
         )
     ]

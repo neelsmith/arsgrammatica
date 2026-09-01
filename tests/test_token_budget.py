@@ -18,8 +18,10 @@ import copy
 import dspy
 import pytest
 from dspy.utils.dummies import DummyLM
+from dspy.utils.exceptions import AdapterParseError
 
 from arsgrammatica import analyze_passage, analyze_with_retry, estimate_max_tokens, get_calibration
+from arsgrammatica.latin_syntax_dspy import SyntaxAnalysis
 from arsgrammatica.token_budget import DEFAULT_CEILING, DEFAULT_FLOOR
 from conftest import tokens_from_canned_answer
 from fixtures.gold_examples import GOLD_EXAMPLES
@@ -194,6 +196,90 @@ def test_analyze_with_retry_does_not_retry_past_the_ceiling():
         )
 
     assert [tok.id for tok in result.tokengraph] == [e["id"] for e in truncated_answer["tokengraph"]]
+
+
+def test_analyze_with_retry_retries_once_on_malformed_non_truncated_output_then_succeeds(monkeypatch):
+    """A parse failure whose finish_reason ISN'T "length" (e.g. one
+    tokengraph entry coming back as a bare `["id"]` list instead of a
+    TokenAnalysis object, matching a real bug report) is a different
+    failure mode from truncation -- retried once anyway, at the SAME
+    budget, with the LM cache explicitly bypassed for that one retry.
+    DummyLM's own ChatAdapter/JSONAdapter fallback dance makes it awkward
+    to simulate this precisely (a malformed answer can get silently
+    "fixed" by the JSONAdapter fallback consuming a second queued answer),
+    so `analyze()` itself is monkeypatched here instead -- letting this
+    test assert exactly what analyze_with_retry() does with the config
+    dict on each attempt, not just the end-to-end outcome."""
+    example = _example("unit_verb_hercules_cum")
+    tokens = tokens_from_canned_answer(example.canned_answer)
+
+    good_result = dspy.Prediction(
+        reasoning="fine",
+        verbalunits=[],
+        tokengraph=[dspy.Prediction(**e) for e in example.canned_answer["tokengraph"]],
+    )
+
+    calls = []
+
+    def fake_analyze(*, passage, tokens, config):
+        calls.append(dict(config))
+        if len(calls) == 1:
+            raise AdapterParseError(
+                adapter_name="ChatAdapter",
+                signature=SyntaxAnalysis,
+                lm_response="[[ ## tokengraph ## ]]\n[...]",
+                message="Failed to parse field tokengraph with value [...]. Error message: "
+                "1 validation error for list[TokenAnalysis]\n21\n  Input should be a valid "
+                "dictionary or instance of TokenAnalysis [type=model_type, input_value=['id'], "
+                "input_type=list]",
+            )
+        return good_result
+
+    monkeypatch.setattr("arsgrammatica.token_budget.analyze", fake_analyze)
+    monkeypatch.setattr("arsgrammatica.token_budget._finish_reason_was_length", lambda: False)
+
+    with pytest.warns(UserWarning, match="doesn't look like a truncation"):
+        result = analyze_with_retry(example.passage, tokens, max_retries=1)
+
+    assert result is good_result
+    assert len(calls) == 2
+    # Same budget both times (no growth -- a bigger budget wouldn't have
+    # fixed a malformed entry), but the cache is bypassed only for the
+    # retry, not the first (normal) attempt.
+    assert calls[0]["max_tokens"] == calls[1]["max_tokens"]
+    assert "cache" not in calls[0]
+    assert calls[1]["cache"] is False
+
+
+def test_analyze_with_retry_gives_up_after_max_retries_on_persistent_malformed_output(monkeypatch):
+    """If the retry ALSO comes back malformed, the exception propagates
+    once max_retries is exhausted -- same as any other unrecoverable
+    failure, not silently swallowed."""
+    example = _example("unit_verb_hercules_cum")
+    tokens = tokens_from_canned_answer(example.canned_answer)
+
+    calls = []
+
+    def fake_analyze(*, passage, tokens, config):
+        calls.append(dict(config))
+        raise AdapterParseError(
+            adapter_name="ChatAdapter",
+            signature=SyntaxAnalysis,
+            lm_response="[[ ## tokengraph ## ]]\n[...]",
+            message="persistently malformed",
+        )
+
+    monkeypatch.setattr("arsgrammatica.token_budget.analyze", fake_analyze)
+    monkeypatch.setattr("arsgrammatica.token_budget._finish_reason_was_length", lambda: False)
+
+    with pytest.warns(UserWarning, match="doesn't look like a truncation"):
+        with pytest.raises(AdapterParseError, match="persistently malformed"):
+            analyze_with_retry(example.passage, tokens, max_retries=1)
+
+    # One normal attempt, one cache-bypassed retry, then give up -- no
+    # third attempt beyond max_retries=1.
+    assert len(calls) == 2
+    assert calls[1]["cache"] is False
 
 
 def test_analyze_with_retry_honors_initial_max_tokens_over_the_estimate():

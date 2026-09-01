@@ -14,7 +14,9 @@ import pytest
 from arsgrammatica.models import TokenAnalysis
 from arsgrammatica.verbal_units import (
     assign_verbal_units,
+    compute_aat_depths,
     compute_subordination_depths,
+    find_governing_verbal_expression,
     find_unanchored_coordinated_verbs,
 )
 from fixtures.gold_examples import GOLD_EXAMPLES
@@ -495,6 +497,148 @@ def test_cycle_in_relations_leaves_depth_unresolved_with_warning():
     assert depths == {"t0": None, "t1": None}
     assert len(warnings) >= 1
 
+
+# ---------------------------------------------------------------------------
+# find_governing_verbal_expression() -- the chase extracted out of
+# compute_subordination_depths() for reuse by aat_bridge.py's attgraph().
+# ---------------------------------------------------------------------------
+
+
+def test_root_verb_has_no_governing_expression():
+    """pergit is independent (relatedtoken1 == 'root') -- the chase itself
+    never finds another anchor (the 'root' sentinel is skipped, and
+    pergit has no relatedtoken2), so this comes back None, same value a
+    genuinely disconnected verb would produce -- see this function's own
+    docstring for why that's the right contract for attgraph()'s
+    purposes, even though compute_subordination_depths() (which needs to
+    tell the two apart) checks relatedtoken1 == 'root' itself before ever
+    consulting this function."""
+    tokengraph = _tokengraph("unit_verb_hercules_cum")
+    governing = find_governing_verbal_expression(tokengraph)
+    assert governing["t5"] is None  # pergit
+
+
+def test_dependent_verb_resolves_its_governing_expression():
+    """perlustrasset's relatedtoken1 -> cum (not itself an anchor) ->
+    cum's own relatedtoken1 -> pergit, the anchor one level up."""
+    tokengraph = _tokengraph("unit_verb_hercules_cum")
+    governing = find_governing_verbal_expression(tokengraph)
+    assert governing["t3"] == "t5"  # perlustrasset governed by pergit
+
+
+def test_every_anchor_gets_an_entry():
+    tokengraph = _tokengraph("unit_verb_hercules_cum")
+    governing = find_governing_verbal_expression(tokengraph)
+    anchor_ids = {tok.id for tok in tokengraph if tok.verbalunitid == tok.id}
+    assert set(governing.keys()) == anchor_ids
+
+
+def test_mutual_cycle_resolves_each_anchor_to_the_other():
+    """Two anchors pointing directly at each other is NOT something this
+    function's own local chase() can detect as a cycle: chase() returns
+    as soon as it reaches ANY anchor at all (even the one that started
+    the chase), so t0's chase immediately hits t1 (itself an anchor) and
+    vice versa -- each resolves to "the other" as its governing
+    expression, a locally class of malformed relation graph
+    compute_subordination_depths()'s OWN separate in_progress bookkeeping
+    is what actually detects and reports as a cycle (see
+    test_cycle_in_relations_leaves_depth_unresolved_with_warning above,
+    over the same tokengraph): that detection lives one level up, across
+    the joint resolution of every anchor together, not inside this
+    function, and this function's contract was extracted unchanged from
+    the original code's own private helper, which had this exact same
+    limitation before the extraction."""
+    tokengraph = [
+        TokenAnalysis(
+            id="t0", token="a", tokentype="lexical", verbalunitid="t0",
+            relatedtoken1="t1", relationship1="unit verb",
+        ),
+        TokenAnalysis(
+            id="t1", token="b", tokentype="lexical", verbalunitid="t1",
+            relatedtoken1="t0", relationship1="unit verb",
+        ),
+    ]
+    governing = find_governing_verbal_expression(tokengraph)
+    assert governing == {"t0": "t1", "t1": "t0"}
+
+
+# ---------------------------------------------------------------------------
+# compute_aat_depths() -- depth as an `aat` package AATGraph would show it
+# (mermaid.py's rank_by_depth uses this, not compute_subordination_depths(),
+# for its invisible same-depth layout links -- see both functions' own
+# docstrings for why they usually agree but aren't the same function).
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("example", GOLD_EXAMPLES, ids=lambda e: e.slug)
+def test_aat_depths_agree_with_subordination_depths_on_every_gold_example(example):
+    """For any well-formed sentence (every gold fixture is one -- none of
+    them trips compute_subordination_depths()'s own cycle/unresolved
+    warning), compute_aat_depths() and compute_subordination_depths() are
+    driven by the identical chase (find_governing_verbal_expression()) and
+    must agree exactly, anchor for anchor -- the two functions only differ
+    on malformed input (see test_cyclic_anchors_get_an_arbitrary_but_never_none_depth
+    below)."""
+    tokengraph = _tokengraph(example.slug)
+    subordination_depths, warnings = compute_subordination_depths(tokengraph)
+    assert warnings == []  # gold fixtures are all well-formed
+    aat_depths = compute_aat_depths(tokengraph)
+    assert aat_depths == subordination_depths
+
+
+def test_independent_verb_is_aat_depth_zero():
+    tokengraph = _tokengraph("unit_verb_hercules_cum")
+    aat_depths = compute_aat_depths(tokengraph)
+    assert aat_depths["t5"] == 0  # pergit
+
+
+def test_dependent_verb_is_aat_depth_one():
+    tokengraph = _tokengraph("unit_verb_hercules_cum")
+    aat_depths = compute_aat_depths(tokengraph)
+    assert aat_depths["t3"] == 1  # perlustrasset, subordinate to pergit
+
+
+def test_aat_depth_two_nesting_matches_subordination_depth():
+    tokengraph = _tokengraph("depth_two_cum_sciret_peccavisse_doluit")
+    aat_depths = compute_aat_depths(tokengraph)
+    assert aat_depths["t5"] == 0  # doluit, independent
+    assert aat_depths["t1"] == 1  # sciret, dependent on doluit via cum
+    assert aat_depths["t3"] == 2  # peccavisse, indirect statement governed by sciret
+
+
+def test_every_anchor_gets_a_plain_int_depth():
+    tokengraph = _tokengraph("unit_verb_hercules_cum")
+    aat_depths = compute_aat_depths(tokengraph)
+    anchor_ids = {tok.id for tok in tokengraph if tok.verbalunitid == tok.id}
+    assert set(aat_depths.keys()) == anchor_ids
+    assert all(isinstance(d, int) for d in aat_depths.values())
+
+
+def test_cyclic_anchors_get_an_arbitrary_but_never_none_depth():
+    """Two anchors relating directly to each other (see
+    test_mutual_cycle_resolves_each_anchor_to_the_other above) is the one
+    case compute_aat_depths() diverges from compute_subordination_depths():
+    where that function leaves both anchors' depth None with a warning,
+    compute_aat_depths() still gives each a real int -- one level apart,
+    per its own docstring's account of why that's an arbitrary tie-break
+    rather than a meaningful depth -- and never warns at all."""
+    tokengraph = [
+        TokenAnalysis(
+            id="t0", token="a", tokentype="lexical", verbalunitid="t0",
+            relatedtoken1="t1", relationship1="unit verb",
+        ),
+        TokenAnalysis(
+            id="t1", token="b", tokentype="lexical", verbalunitid="t1",
+            relatedtoken1="t0", relationship1="unit verb",
+        ),
+    ]
+    subordination_depths, warnings = compute_subordination_depths(tokengraph)
+    assert subordination_depths == {"t0": None, "t1": None}
+    assert warnings
+
+    aat_depths = compute_aat_depths(tokengraph)
+    assert None not in aat_depths.values()
+    assert abs(aat_depths["t0"] - aat_depths["t1"]) == 1
 
 
 # ---------------------------------------------------------------------------
