@@ -43,16 +43,18 @@ website:
         - guides/analysis.qmd
         - guides/visualization.qmd
         - guides/saving-loading.qmd
+        - guides/aat.qmd
+
         - "---"
         - guides/optimizing.qmd
         - guides/bakeoff.qmd
         - guides/development.qmd
+        - guides/tokenizing.qmd
         - "---"
         - guides/managing_prompt_size.qmd
         - guides/technical.qmd
         - guides/testing.qmd
-        - "---"
-        - guides/usage.qmd
+
         
     - title: "Reference"
       contents: 

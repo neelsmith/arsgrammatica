@@ -1,12 +1,9 @@
 ---
-title: Guides
+title: Recipes
 ---
 
-More detailed guides to usage.
 
-
-- slop pile [guide to usage](./usage.qmd)
-
+Guides for using `arsgrammatica` for particular tasks.
 
 ## Using the package
 
@@ -14,6 +11,7 @@ More detailed guides to usage.
 - [Analyzing Latin text](./analysis.qmd)
 - [Visualizing analysis results](./visualization.qmd)
 - [Saving and loading analyses](./saving-loading.qmd)
+- [Building an Agent-Action-Target (AAT) graph](./aat.qmd)
 
  
 
@@ -24,9 +22,10 @@ More detailed guides to usage.
 - [optimizing](./optimizing.qmd)
 - [comparing models](./bakeoff.qmd)
 - [a development work flow](./development.qmd)
+- [tokenizing text without analysis](./tokenizing.qmd)
 
 
-## Managing
+## Managing a workflow
 
 - [Keeping prompt size manageable](./managing_prompt_size.qmd)
 - Some additional [technical info](./technical.qmd)
