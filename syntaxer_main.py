@@ -15,7 +15,23 @@ from dotenv import load_dotenv
 from arsgrammatica import DEFAULT_CEILING
 
 
-load_dotenv(dotenv_path=Path(__file__).with_name(".env"))
+# override=True: without this, load_dotenv() leaves any of these vars
+# (MODEL, API_BASE, API_KEY, ...) that are ALREADY set in the process's
+# environment untouched, instead of applying .env's own value -- and a
+# fresh `python syntaxer_main.py` process still inherits whatever the
+# launching shell itself has exported (a leftover `export MODEL=...` from
+# an earlier test, a value set in .zshrc/.bashrc, etc.), even though it's
+# a brand-new process every run. That's exactly the failure mode this
+# mirrors from the marimo notebooks' own configure_lm() cell (see e.g.
+# latin_syntaxer_ctsdata.py's identical load_dotenv() call and comment) --
+# there the risk is a long-lived kernel process holding a stale value from
+# an earlier cell run; here it's a stale value inherited from the shell --
+# but the fix is the same: always let .env win. A genuinely wrong/stale
+# MODEL this way is a very plausible cause of a "prompt truncated for no
+# reason, even on a one-word passage" symptom, since token_budget.py's
+# DEFAULT_CEILING is only ever a reasonable ceiling for the model you
+# actually think you're calling.
+load_dotenv(dotenv_path=Path(__file__).with_name(".env"), override=True)
  
  
 def _env(name: str, fallback_name: str, default: str | None = None) -> str | None:

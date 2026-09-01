@@ -1,8 +1,10 @@
-# Latin Syntax Analyzer — Usage Guide
+# `arsgrammatica` usage guide
 
 ## Running an analysis from the command line
 
-*Prerequisite*: an `.env` with with your LM credentials, like this:
+### Prerequisite
+
+Create an `.env` with with your LM credentials, like this:
 
 ```
 API_BASE=https://localmodel/api
@@ -10,23 +12,50 @@ MODEL=litellm/modelname
 API_KEY=your-key-here
 ```
 
-Then:
+## Command-line script
+
+`syntaxer_main.py` analyzes a passage and prints the result to standard output.
+
 
 ```bash
 python3 syntaxer_main.py --passage "Gallia est omnis divisa in partes tres."
 ```
 
-`--citation` is an optional second argument giving a citation label for the passage (e.g. a CTS URN):
+To include a citation reference (e.g. a CTS URN), use the `--citation` argument:
 
 ```bash
-python3 syntaxer_main.py --passage "Arma virumque canō." --citation "urn:cts:latinLit:phi0690:1.1"
+python3 syntaxer_main.py --passage "Arma virumque canō." --citation "urn:cts:latinLit:phi0690.phi003.perseus:1.1"
 ```
 
-`syntaxer_main.py` just prints the analysis to standard output.
+Redirect the output to a file with standard IO redirection:
+
+```bash
+python3 syntaxer_main.py --passage "Arma virumque canō." 
+    --citation "urn:cts:latinLit:phi0690.phi003.perseus:1.1" > aeneid_analysis.cex
+```
 
 
 
-## Using `arsgrammatica` in a script
+## Installing the package
+
+```sh
+pip install git+https://github.com/neelsmith/arsgrammatica.git
+```
+
+Pin to a specific branch or tag by appending `@<ref>`, e.g. for the `wip` branch:
+
+```sh
+pip install git+https://github.com/neelsmith/arsgrammatica.git@wip
+```
+
+or for a tagged version:
+
+```sh
+pip install git+https://github.com/neelsmith/arsgrammatica.git@v0.5.0
+```
+
+
+## Using the `arsgrammatica` package in a script
 
 To call the pipeline from your own script or a REPL instead of the CLI, configure a `dspy.LM` yourself and use `arsgrammatica` directly:
 

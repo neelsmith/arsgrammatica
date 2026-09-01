@@ -1,26 +1,18 @@
 # arsgrammatica
 
-> *See [release history](https://github.com/neelsmith/arsgrammatica/blob/main/releases.md)*.
-
-`arsgrammatica` is a python package leveraging LLMs with [dspy](https://dspy.ai) to analyze the syntax of passages of Latin.
-
-It offers an alternative analytic scheme to [Universal Dependencies](https://universaldependencies.org), designed to describe Latin syntax in familiar terms that are convenient for research and teaching.
-
-Released under the [GNU General Public License v3 or later](LICENSE).
+> A python package leveraging LLMs with [dspy](https://dspy.ai) to analyze the syntax of passages of Latin..
 
 
-## Installing
 
-To use `arsgrammatica` from another project, install it from this repository:
+`arsgrammatica` offers an alternative analytic scheme to [Universal Dependencies](https://universaldependencies.org), designed to describe Latin syntax in familiar terms that are convenient for research and teaching. Released under the [GNU General Public License v3 or later](LICENSE). 
 
-```sh
-pip install git+https://github.com/neelsmith/arsgrammatica.git
-```
+- See [release history](https://github.com/neelsmith/arsgrammatica/blob/main/releases.md).
 
-That installs whatever's currently on the `main` branch. Pin to a specific branch or tag by appending `@<ref>`, e.g. `pip install git+https://github.com/neelsmith/arsgrammatica.git@wip` for the development branch, or `@v0.2.0` for a tagged version. `arsgrammatica` itself is installed, and brigns `dspy` and `pydantic` as declared dependencies; the marimo notebooks, tests, and other repo scripts are not part of the installed package and are not needed to use it.
 
 ## Using `arsgrammatica`
 
+
+- quick start
 - [USAGE.md](https://github.com/neelsmith/arsgrammatica/blob/main/USAGE.md)
 - [API documentation](https://neelsmith.github.io/arsgrammatica/arsgrammatica-api-docs.html)
 - [TESTING.md](https://github.com/neelsmith/arsgrammatica/blob/main/TESTING.md)

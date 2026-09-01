@@ -1,0 +1,27 @@
+project:
+  type: website
+  output-dir: quarto-build
+  
+
+website:
+  title: "arsgrammatica"
+
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: about.qmd
+        text: About
+      - href: usage.qmd
+        text: Usage guide
+
+format:
+  html:
+    theme:
+      - cosmo
+      - brand
+    css: styles.css
+    toc: true
+
+
+
