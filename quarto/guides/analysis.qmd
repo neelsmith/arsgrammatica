@@ -1,0 +1,59 @@
+---
+title: Analyzing syntax with a language model
+---
+
+Configure dspy for your LM:
+
+```python
+import dspy
+dspy.configure(lm=dspy.LM(model="litellm_proxy/anthropic/Claude Opus 5",
+                           api_base="https://api_url/litellm",
+                           api_key="your-key-here"))
+```
+
+
+### Analyze a string
+
+```python
+from arsgrammatica import analyze_string
+sentences, results = analyze_string("Gallia est omnis divisa in partes tres.")
+```
+
+
+### Analyze citable passages
+
+A `CitedText` has an identifier (such as a CTS URN) and a text value. Use `analyze_sources` to analyze a list of `CitedText` objects.
+
+
+```python
+from arsgrammatica import analyze_sources, combined_tokengraph
+from arsgrammatica.models import CitedText
+
+aeneid = "urn:cts:latinLit:phi0690.ph003.perseus:"
+sources = [
+    CitedText(citation=f"{aeneid}1.1", text="Arma virumque canō, Trōiae quī prīmus ab ōrīs"),
+    CitedText(citation=f"{aeneid}1.2", text="Ītaliam, fātō profugus, Lāvīniaque vēnit"),
+]
+sentences, results = analyze_sources(sources)
+tokengraph = combined_tokengraph(results)  # one flat list, spanning every sentence
+```
+
+Note that sentence boundaries don't need to respect citation-unit boundaries (one sentence may span multiple source lines, as above)
+
+> *Validation*: the `validate` function checks the results of an analysis for internal consistency, and compiles a list of problems it detects. Both `analyze_string()` and `analyze_sources` call `validate`, and print a print a warning if any are found.
+
+
+### Working with results of an analysis
+
+`analyze_string()` and `analyze_sources()` return a pair of lists:
+
+1.  a list of `Sentence` objects
+2.  a corresponding list of `SentenceAnalysis` objects, one for each sentence.
+
+
+A `SentenceAnalysis` has two a list of `VerbalExpression` objects in its `verbalunits` property, and an ordered list of  `TokenAnalysis` objects in its `tokengraph` property.
+
+
+
+`validate()` only catches referential problems like that one -- ids that don't exist. It can't tell you an otherwise well-formed analysis is probably still wrong. 
+
