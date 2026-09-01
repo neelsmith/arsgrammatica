@@ -2,7 +2,14 @@
 
 Current version: **0.4.0**.
 
-**0.5.0**, ?: No breaking changes. improved documentation. Added info to serialization about LM. Caching stuff that I don't really understand. More than 800 tests. REAL ADDITION: Network analysis and comparison! Refactoring of `CitedText` class: breaking eliminates `CtsDataRow`.
+**0.5.0**, *Planned for Sep. 1, 2026*: Breaking changes. Refactoring of `CitedText` class eliminates `CtsDataRow` class. Additions: 
+
+- Updated management of prompt size to prevent truncated replies from LM.
+- Functions to instantiate syntax graph as a `NetworkX` graph for network analysis and comparison.
+- Functions to instantiate an `AATGraph` (Agent-Action-Target graph) from an `arsgrammatica` syntax graph.
+- Expanded documentation beginning to move to quarto for publicatin on gh pages.
+- More than 900 tests.
+
 
 **0.4.0**, *Aug. 26, 2026*: Non-breaking update. Numerous small bug fixes, expands handling of vocative case and of repeated series of conjunctions, adds annotating participles with implicit subjects, adds marimo utilities, improves formatting of alignment by depth of subordination in Mermaid diagrams.
 
