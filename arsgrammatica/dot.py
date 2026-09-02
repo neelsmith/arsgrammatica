@@ -37,16 +37,22 @@ SVG yourself (however you like -- `subprocess` to the `dot` binary, or the
 wrap the result in `mo.Html(svg_text)`.
 
 tokengraph_to_dot()'s `depth` parameter is a SEPARATE feature from the
-rank-alignment one above, and uses a different depth notion entirely: it
-caps the diagram to verbal-unit blocks at or below a given *subordination*
-depth (verbal_units.compute_subordination_depths()), the same notion and
-cutoff rule as rendering.tokengraph_to_depth_html()'s own `depth`
-parameter -- not verbal_units.compute_aat_depths(), which `rank_by_depth`
-above uses. See tokengraph_to_dot()'s own docstring for the full rationale,
-including how a dropped block's dangling edges are handled.
+rank-alignment one above, and uses a THIRD depth notion, distinct from
+both compute_aat_depths() (rank_by_depth's) and
+verbal_units.compute_subordination_depths() (the clause-level notion
+behind rendering.tokengraph_to_depth_html()'s own indented-HTML `depth`
+slider): compute_graph_depths(), a plain graph distance -- the number of
+edges from a token back to the nearest root/independent verbal anchor,
+following the exact same relatedtoken1/relatedtoken2 edges this module
+draws as `->` lines. A clause's ordinary dependents (subject, object,
+dative, adjectival modifiers, ...) are each their own hop from their
+governing verb, so `depth=0` shows ONLY root verbal-unit anchors -- not
+"the whole root clause" the way tokengraph_to_depth_html()'s block-level
+depth would. See tokengraph_to_dot()'s own docstring for the full
+rationale, including how a dropped node's dangling edges are handled.
 """
 
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from .models import IMPLIED_TOKENTYPES, TokenAnalysis
 from .verbal_units import (
@@ -54,7 +60,6 @@ from .verbal_units import (
     assign_verbal_units,
     assign_verbal_unit_colors,
     compute_aat_depths,
-    compute_subordination_depths,
 )
 from .mermaid import token_label
 
@@ -106,57 +111,101 @@ def _node_attrs(tok: TokenAnalysis, color: Optional[Tuple[str, str, str]] = None
     return ", ".join(attrs)
 
 
-def _tokens_excluded_by_depth(
-    tokengraph: List[TokenAnalysis], depth: int
-) -> Tuple[set, List[str]]:
-    """Token ids belonging to a verbal-unit "block" deeper than `depth` --
-    i.e. the same tokens rendering.tokengraph_to_depth_html()'s own `depth`
-    parameter would drop entirely. Uses that function's exact grouping and
-    cutoff rule (duplicated here rather than imported, since it's an
-    internal detail of tokengraph_to_depth_html() and not itself a public
-    helper): tokens are grouped into consecutive-run "blocks" by
-    verbal_units.assign_verbal_units(), with a token whose own assignment
-    is None or which is an enclitic never starting a new block (folding
-    into whichever block is currently open instead); a block is dropped
-    WHOLE when its own verbal_units.compute_subordination_depths() depth
-    exceeds `depth` -- NOT verbal_units.compute_aat_depths(), the different
-    depth notion tokengraph_to_dot()'s own `rank_by_depth` uses for rank
-    alignment. See tokengraph_to_depth_html()'s docstring for the full
-    rationale (leading/trailing unassigned tokens, unresolved-depth
-    fallback to 0, etc.) -- this mirrors it exactly, just returning a set
-    of excluded ids instead of rendered HTML.
+def compute_graph_depths(tokengraph: List[TokenAnalysis]) -> Dict[str, int]:
+    """Each non-punctuation token's *graph depth*: the number of edges
+    separating it from the nearest root/independent verbal-unit anchor,
+    following the exact same relatedtoken1/relatedtoken2 edges
+    tokengraph_to_dot() itself draws as `->` lines (dependent -> governor)
+    -- the depth notion behind tokengraph_to_dot()'s own `depth` parameter.
+    See this module's own docstring for how this differs from
+    verbal_units.compute_subordination_depths() (rendering.
+    tokengraph_to_depth_html()'s clause-level notion) and
+    verbal_units.compute_aat_depths() (`rank_by_depth`'s notion).
 
-    Returns `(excluded_ids, warnings)` -- `warnings` is
-    compute_subordination_depths()'s own (an unresolved governing verbal
-    expression); depth filtering itself never adds a warning, same as
-    tokengraph_to_depth_html().
+    A root anchor (relatedtoken1 == 'root') is depth 0. Every other
+    token's depth is one more than its PARENT's -- relatedtoken1, falling
+    back to relatedtoken2 only when relatedtoken1 itself doesn't resolve
+    to a usable parent (None, or an id not in `tokengraph`) -- the SAME
+    "relatedtoken1, fall back to relatedtoken2" preference
+    verbal_units.compute_subordination_depths() already uses to chase a
+    verbal expression's own governor. This matters for a token that plays
+    two roles at once, most notably a relative pronoun: e.g. "qui"
+    pointing at its antecedent via relatedtoken1 ('relative pronoun') AND
+    at the dependent verb it's ALSO the subject of via relatedtoken2
+    ('subject') -- that second edge points forward, toward a token that in
+    turn points back at the pronoun itself (its own 'unit verb' relation),
+    a genuine two-way link the data model allows. Taking the shallower of
+    BOTH edges (rather than preferring relatedtoken1) would let that
+    forward edge "cheat" the pronoun's own depth down to whatever the
+    dependent verb's -- itself only computable FROM the pronoun -- happens
+    to resolve to first, collapsing what should be a deeper chain. Only
+    ever falling back to relatedtoken2, never averaging or taking a
+    minimum over both, avoids that: relatedtoken1 alone already resolves
+    to the antecedent here, so relatedtoken2 is simply never consulted for
+    depth (it's still drawn as its own edge below, same as always -- this
+    only affects which relation DEPTH follows).
+
+    A token whose relatedtoken1 AND any fallback relatedtoken2 both fail
+    to resolve (neither set, or pointing at ids not in `tokengraph`), or
+    which is caught in a relation cycle even after preferring
+    relatedtoken1, defaults to depth 0 -- the same "can't determine,
+    default to root level" fallback verbal_units.compute_subordination_
+    depths() and rendering.tokengraph_to_depth_html() both use for their
+    own unresolved cases, rather than raising.
+
+    Returns `{token id: depth}`, one entry per non-punctuation token in
+    `tokengraph` (punctuation is never part of the diagram, so never
+    included here either).
     """
-    assignment = assign_verbal_units(tokengraph)
-    depths, warnings = compute_subordination_depths(tokengraph)
+    by_id = {tok.id: tok for tok in tokengraph}
+    depths: Dict[str, int] = {}
+    in_progress: set = set()
 
-    blocks: List[Tuple[Optional[str], List[TokenAnalysis]]] = []
+    def depth_of(tok_id: str) -> int:
+        if tok_id in depths:
+            return depths[tok_id]
+        tok = by_id[tok_id]
+        if tok.relatedtoken1 == "root":
+            depths[tok_id] = 0
+            return 0
+
+        if tok_id in in_progress:
+            # A relation cycle -- fall back to 0 rather than recursing
+            # forever; NOT cached, so a non-cyclic call further up the
+            # stack still computes (and caches) this token's real depth if
+            # some other path reaches it.
+            return 0
+        in_progress.add(tok_id)
+
+        parent_id = None
+        if tok.relatedtoken1 is not None and tok.relatedtoken1 != "root" and tok.relatedtoken1 in by_id:
+            parent_id = tok.relatedtoken1
+        elif tok.relatedtoken2 is not None and tok.relatedtoken2 in by_id:
+            parent_id = tok.relatedtoken2
+
+        result = 1 + depth_of(parent_id) if parent_id is not None else 0
+
+        in_progress.discard(tok_id)
+        depths[tok_id] = result
+        return result
+
     for tok in tokengraph:
-        unit_id = assignment.get(tok.id)
-        starts_new_block = (
-            unit_id is not None
-            and tok.tokentype != "enclitic"
-            and (not blocks or blocks[-1][0] != unit_id)
-        )
-        if starts_new_block:
-            blocks.append((unit_id, []))
-        elif not blocks:
-            blocks.append((None, []))
-        blocks[-1][1].append(tok)
+        if tok.tokentype == "punctuation":
+            continue
+        depth_of(tok.id)
 
-    excluded_ids: set = set()
-    for unit_id, block_tokens in blocks:
-        block_depth = depths.get(unit_id) if unit_id is not None else 0
-        if block_depth is None:
-            block_depth = 0
-        if block_depth > depth:
-            excluded_ids.update(tok.id for tok in block_tokens)
+    return depths
 
-    return excluded_ids, warnings
+
+def max_graph_depth(tokengraph: List[TokenAnalysis]) -> Optional[int]:
+    """The highest value compute_graph_depths() assigns to any token in
+    `tokengraph` -- the upper end of the meaningful range for
+    tokengraph_to_dot()'s own `depth` parameter, the same role
+    verbal_units.max_subordination_depth() plays for
+    tokengraph_to_depth_html()'s unrelated depth notion. Returns None for
+    an empty tokengraph, or one with only punctuation."""
+    depths = compute_graph_depths(tokengraph)
+    return max(depths.values()) if depths else None
 
 
 def tokengraph_to_dot(
@@ -206,52 +255,50 @@ def tokengraph_to_dot(
     False to skip this and let Graphviz's own layout heuristics place
     every node.
 
-    `depth`, if given, caps the diagram to verbal-unit "blocks" at or
-    below that *subordination* depth -- the SAME depth notion and cutoff
-    rule as rendering.tokengraph_to_depth_html()'s own `depth` parameter
-    (verbal_units.compute_subordination_depths(): an independent clause is
-    depth 0, a clause it introduces is depth 1, and so on), NOT the
-    verbal_units.compute_aat_depths() notion `rank_by_depth` above uses for
-    rank alignment -- the two are unrelated and can disagree on a given
-    tokengraph. A block deeper than `depth` is dropped whole: every one of
-    its tokens is omitted as a node, exactly as if it had never been in
-    `tokengraph`. `depth=0` shows only root/independent-clause blocks
-    (direct quotes, asides, and other depth-0 constructions included);
-    omit `depth` (or pass `None`, the default) to show every block, same as
-    before this parameter existed. A `depth` at or beyond
-    verbal_units.max_subordination_depth()'s own return value for this
-    `tokengraph` shows everything, identical to leaving `depth` unset; a
-    negative `depth` raises ValueError, matching
-    tokengraph_to_depth_html()'s own validation.
+    `depth`, if given, caps the diagram to nodes at or within that many
+    edges of a root/independent verbal-unit anchor -- compute_graph_depths()
+    above, a plain GRAPH distance along the same relatedtoken1/
+    relatedtoken2 edges drawn as `->` lines below, NOT
+    verbal_units.compute_subordination_depths() (the CLAUSE-level notion
+    behind tokengraph_to_depth_html()'s own indented-HTML `depth` slider --
+    a whole clause's subject, object, and other ordinary dependents share
+    ONE subordination depth with their verb, but each is its own hop of
+    GRAPH depth) and NOT verbal_units.compute_aat_depths() (`rank_by_depth`
+    above). `depth=0` shows ONLY root anchors -- an independent verb with
+    no dependents at all; `depth=1` adds every token one edge away from a
+    root anchor (its subject, object, adverbials, ...); and so on. A token
+    farther than `depth` is dropped entirely: omitted as a node, exactly as
+    if it had never been in `tokengraph`. Omit `depth` (or pass `None`, the
+    default) to show every node, same as before this parameter existed. A
+    `depth` at or beyond max_graph_depth()'s own return value for this
+    `tokengraph` shows everything too; a negative `depth` raises
+    ValueError.
 
-    Dropping a block can leave a KEPT node's edge pointing at a now-
-    excluded token -- something tokengraph_to_depth_html() never has to
-    handle, since it only ever drops whole blocks, never an edge between
-    two blocks. Such an edge is skipped, with the same combined warning
-    already used for an edge targeting punctuation or a genuinely absent
-    id (see Returns below) -- `depth` filtering degrades visibly rather
-    than emitting a dangling `->` line Graphviz would reject.
+    Dropping a node can leave a KEPT node's edge pointing at a now-excluded
+    one. Such an edge is skipped, with the same combined warning already
+    used for an edge targeting punctuation or a genuinely absent id (see
+    Returns below) -- `depth` filtering degrades visibly rather than
+    emitting a dangling `->` line Graphviz would reject.
 
     Returns `(dot_source, warnings)` -- same shape and same warnings as
     tokengraph_to_mermaid(): an edge skipped because it targets a
     punctuation token, a token excluded by the `depth` cutoff, or an id not
     present in `tokengraph` (except the 'root' sentinel, skipped silently,
     same as there); if `color_by_verbal_unit` is True and the passage has
-    more than 8 verbal units, one warning that colors are repeating; and,
-    if `depth` is given, compute_subordination_depths()'s own warnings (an
-    unresolved governing verbal expression) -- `depth` filtering itself
-    never adds a warning beyond those, same as tokengraph_to_depth_html().
-    `rank_by_depth` itself never adds a warning -- see compute_aat_depths().
+    more than 8 verbal units, one warning that colors are repeating.
+    `depth` filtering itself never adds a warning (compute_graph_depths()
+    has no unresolved state -- an unrelated or cyclic token just defaults
+    to depth 0), same as `rank_by_depth` -- see compute_aat_depths().
     """
     if depth is not None and depth < 0:
-        raise ValueError(f"depth must be >= 0 (root clauses only), got {depth!r}")
+        raise ValueError(f"depth must be >= 0 (root nodes only), got {depth!r}")
 
     node_ids = {tok.id for tok in tokengraph if tok.tokentype != "punctuation"}
 
     warnings: List[str] = []
     if depth is not None:
-        depth_excluded_ids, depth_warnings = _tokens_excluded_by_depth(tokengraph, depth)
-        warnings.extend(depth_warnings)
+        graph_depths = compute_graph_depths(tokengraph)
+        depth_excluded_ids = {tok_id for tok_id, d in graph_depths.items() if d > depth}
         node_ids -= depth_excluded_ids
 
     colors_by_unit = {}
@@ -308,25 +355,29 @@ def tokengraph_to_dot(
             lines.append(f'    {tok.id} -> {related_id} [label="{_escape_label(label)}"];')
 
     if rank_by_depth:
-        depths = compute_aat_depths(tokengraph)
+        aat_depths = compute_aat_depths(tokengraph)
 
         # Same grouping tokengraph_to_mermaid() builds for its `~~~`
-        # chains -- see that function's own comment for why depths.get()
-        # being None here means "not an anchor", never "unresolved depth"
-        # (compute_aat_depths() has no such state).
+        # chains -- see that function's own comment for why
+        # aat_depths.get() being None here means "not an anchor", never
+        # "unresolved depth" (compute_aat_depths() has no such state).
+        # Named aat_depths (not `depths`, and this loop's own variable not
+        # `depth`) to avoid shadowing the `depth` PARAMETER above -- a
+        # different depth notion entirely, see this function's own
+        # docstring.
         depth_groups: dict = {}
         for tok in tokengraph:
             if tok.id not in node_ids:
                 continue
-            depth = depths.get(tok.id)
-            if depth is None:
+            aat_depth = aat_depths.get(tok.id)
+            if aat_depth is None:
                 continue
-            depth_groups.setdefault(depth, []).append(tok.id)
+            depth_groups.setdefault(aat_depth, []).append(tok.id)
 
         rank_lines = [
             "    {rank=same; " + "; ".join(ids) + ";}"
-            for depth in sorted(depth_groups)
-            for ids in (depth_groups[depth],)
+            for aat_depth in sorted(depth_groups)
+            for ids in (depth_groups[aat_depth],)
             if len(ids) > 1
         ]
         if rank_lines:

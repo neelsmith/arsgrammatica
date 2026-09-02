@@ -262,132 +262,200 @@ def test_cyclic_anchors_still_get_ranked_with_no_warning():
 
 # ---------------------------------------------------------------------------
 # Depth filtering (`depth` parameter) -- a SEPARATE feature from the
-# rank_by_depth tests above, and a separate depth notion: this uses
-# compute_subordination_depths(), the same one
-# rendering.tokengraph_to_depth_html()'s own `depth` parameter uses, not
-# compute_aat_depths() (what rank_by_depth uses). See tokengraph_to_dot()'s
-# own docstring for the full rationale, including why a dropped block can
-# leave a KEPT node's edge pointing at an excluded one -- something
-# tokengraph_to_depth_html() never has to handle, since it only ever drops
-# whole blocks, never a cross-block edge.
+# rank_by_depth tests above, and a THIRD depth notion, distinct from both
+# compute_aat_depths() (rank_by_depth's) and
+# compute_subordination_depths() (the clause-level notion behind
+# rendering.tokengraph_to_depth_html()'s own indented-HTML `depth`
+# parameter): compute_graph_depths() -- a plain graph distance, in edges,
+# from a token back to the nearest root anchor, following the same
+# relatedtoken1/relatedtoken2 edges drawn as `->` lines. A whole clause's
+# subject, object, and other ordinary dependents are each their own hop
+# of graph depth (unlike subordination depth, which gives them all the
+# SAME depth as their governing verb) -- so depth=0 shows ONLY root
+# verbal-unit anchors, not "the whole root clause." See
+# tokengraph_to_dot()'s own docstring for the full rationale, including
+# why a dropped node can leave a KEPT node's edge pointing at an excluded
+# one.
 # ---------------------------------------------------------------------------
 
 
-def test_depth_cap_drops_deeper_block_entirely():
-    """Same fixture as test_rendering.py's own
-    test_depth_html_depth_cap_drops_deeper_blocks_entirely: "Taurum ...
-    cum quo Pasiphae concubuit ... ex Creta insula Mycenis uiuum adduxit"
-    -- three blocks at depths 0/1/0. depth=0 must drop the middle
-    (depth-1) block -- "cum quo Pasiphae concubuit" (t1-t4) -- entirely:
-    no node lines, no warnings just from the filtering itself."""
-    example = _example("depth_taurum_cum_quo_concubuit")
+def test_depth_zero_shows_only_root_anchors():
+    """"Hercules cum gregem perlustrasset, pergit ad proximam speluncam":
+    pergit is the only root anchor (relatedtoken1='root'); everything
+    else -- including its own subject/adverbial dependents -- is at least
+    one edge away. depth=0 must show ONLY pergit, not the rest of its
+    clause -- the exact distinction from tokengraph_to_depth_html()'s
+    block-level `depth` this parameter deliberately does NOT share."""
+    example = _example("unit_verb_hercules_cum")
     tokens, result = run_gold_example(example)
     diagram, warnings = tokengraph_to_dot(result.tokengraph, depth=0)
     assert warnings == []
+    assert re.search(r"^    t5 \[", diagram, re.MULTILINE)  # pergit, the root anchor
+    for other_id in ("t0", "t1", "t2", "t3", "t6", "t8"):
+        assert f"{other_id} [" not in diagram, other_id
+    # t7 "proximam" has no coded relation at all in this fixture (an
+    # "Incomplete status" token, per assign_verbal_units()'s own
+    # docstring) -- compute_graph_depths() defaults an unrelated token to
+    # depth 0, the same root-level fallback compute_subordination_depths()
+    # and tokengraph_to_depth_html() both use for their own unresolved
+    # cases, so it appears even at depth=0.
+    assert re.search(r"^    t7 \[", diagram, re.MULTILINE)
 
-    for dropped_id in ("t1", "t2", "t3", "t4"):
+
+def test_depth_one_adds_direct_dependents_of_the_root():
+    """depth=1 on the same fixture adds pergit's own direct dependents --
+    Hercules (subject), cum (subordinating conjunction), ad (adverbial) --
+    but not perlustrasset/speluncam/gregem, which are two or more edges
+    from pergit."""
+    example = _example("unit_verb_hercules_cum")
+    tokens, result = run_gold_example(example)
+    diagram, warnings = tokengraph_to_dot(result.tokengraph, depth=1)
+    assert warnings == []
+    for kept_id in ("t0", "t1", "t5", "t6", "t7"):
+        assert re.search(rf"^    {kept_id} \[", diagram, re.MULTILINE), kept_id
+    for dropped_id in ("t2", "t3", "t8"):
         assert f"{dropped_id} [" not in diagram, dropped_id
-    for kept_id in ("t0", "t5", "t6", "t7", "t8", "t9", "t10"):
-        assert re.search(rf"^\s*{kept_id} \[", diagram, re.MULTILINE), kept_id
 
 
 def test_depth_at_or_beyond_passage_max_matches_depth_none():
-    """depth=1 (the passage's own maximum subordination depth) must render
-    identically to leaving `depth` unset -- same as
-    tokengraph_to_depth_html()'s own behavior."""
-    example = _example("depth_taurum_cum_quo_concubuit")
+    """A `depth` at or beyond the passage's own max_graph_depth() must
+    render identically to leaving `depth` unset."""
+    example = _example("unit_verb_hercules_cum")
     tokens, result = run_gold_example(example)
-    diagram_1, warnings_1 = tokengraph_to_dot(result.tokengraph, depth=1)
+    from arsgrammatica.dot import max_graph_depth
+
+    maxd = max_graph_depth(result.tokengraph)
+    diagram_max, warnings_max = tokengraph_to_dot(result.tokengraph, depth=maxd)
     diagram_none, warnings_none = tokengraph_to_dot(result.tokengraph, depth=None)
-    assert diagram_1 == diagram_none
-    assert warnings_1 == warnings_none
+    assert diagram_max == diagram_none
+    assert warnings_max == warnings_none
 
 
 def test_depth_negative_raises():
-    example = _example("depth_taurum_cum_quo_concubuit")
+    example = _example("unit_verb_hercules_cum")
     tokens, result = run_gold_example(example)
     with pytest.raises(ValueError, match="depth must be >= 0"):
         tokengraph_to_dot(result.tokengraph, depth=-1)
 
 
 def test_depth_and_coloring_compose():
-    example = _example("depth_taurum_cum_quo_concubuit")
+    example = _example("unit_verb_hercules_cum")
     tokens, result = run_gold_example(example)
-    diagram, _warnings = tokengraph_to_dot(result.tokengraph, depth=0)
+    diagram, _warnings = tokengraph_to_dot(result.tokengraph, depth=1)
     assert "fillcolor" in diagram  # kept nodes still get colored
 
 
 def test_depth_and_ranking_compose():
     """A rank_by_depth `{rank=same; ...}` statement must never name an
     anchor `depth` filtering has excluded."""
-    example = _example("coordinating_conjunction_dedit_et_dixit_esse")
+    example = _example("unit_verb_hercules_cum")
     tokens, result = run_gold_example(example)
-    # depth=1 keeps everything except the lone depth-2 anchor (tinctas,
-    # t9) -- see test_multiple_depth_groups_each_get_their_own_rank_
-    # statement above, which already confirms t9 gets no rank=same
-    # statement of its own even at depth=None (nothing to align it with).
     diagram, _warnings = tokengraph_to_dot(result.tokengraph, depth=1)
-    assert "t9 [" not in diagram
+    node_ids = set(re.findall(r"^    (\S+) \[", diagram, re.MULTILINE))
     rank_lines = [line for line in diagram.splitlines() if "rank=same" in line]
-    assert not any("t9" in line for line in rank_lines)
+    ranked_ids = {tid for line in rank_lines for tid in re.findall(r"t\d+\w*", line)}
+    assert ranked_ids <= node_ids
 
 
-def test_depth_dangling_edge_from_kept_node_is_skipped_with_a_warning():
-    """A hand-built case exercising the one behavior
-    tokengraph_to_depth_html() never has to handle: t3 is assigned to t0's
-    depth-0 block (its own relatedtoken1 -> t0), but also carries a
-    relatedtoken2 pointing at t2 -- the anchor of the depth-1 block depth=0
-    drops. Once t2's whole block is excluded, that edge would dangle;
-    tokengraph_to_dot() must skip it (not emit a `t3 -> t2` line pointing
-    at a token with no node) and warn, rather than producing DOT Graphviz
-    would reject."""
+def test_depth_relative_pronoun_double_duty_deepens_correctly():
+    """A relative pronoun that is BOTH an anaphoric pointer (relatedtoken1
+    -> its antecedent) and its own dependent clause's subject
+    (relatedtoken2 -> that clause's verb, which in turn points BACK at the
+    pronoun via its own 'unit verb' relation) must not let that
+    forward/backward pair short-circuit its depth: relatedtoken1 alone
+    already resolves to the antecedent, so depth follows THAT chain,
+    giving each link of "Domino (dative, depth 1) <- qui (relative
+    pronoun, depth 2) <- apparuerat (unit verb, depth 3) <- ei (dative,
+    depth 4)" its own increasing depth, not all collapsing together via
+    the relatedtoken2 back-edge. Same shape as the real bug report this
+    was written for: 'Qui aedificavit ibi altare Domino, qui apparuerat
+    ei.'"""
     tokengraph = [
         TokenAnalysis(
-            id="t0", token="pergit", tokentype="lexical", verbalunitid="t0",
+            id="t16", token="aedificavit", tokentype="lexical", verbalunitid="t16",
             relatedtoken1="root", relationship1="unit verb",
         ),
         TokenAnalysis(
-            id="t1", token="cum", tokentype="lexical",
-            relatedtoken1="t0", relationship1="subordinating conjunction",
+            id="t19", token="Domino", tokentype="lexical",
+            relatedtoken1="t16", relationship1="dative",
         ),
         TokenAnalysis(
-            id="t2", token="perlustrasset", tokentype="lexical", verbalunitid="t2",
-            relatedtoken1="t1", relationship1="unit verb",
+            id="t21", token="qui", tokentype="lexical",
+            relatedtoken1="t19", relationship1="relative pronoun",
+            relatedtoken2="t22", relationship2="subject",
         ),
         TokenAnalysis(
-            id="t3", token="stray", tokentype="lexical",
-            relatedtoken1="t0", relationship1="subject",
-            relatedtoken2="t2", relationship2="coordinating conjunction",
+            id="t22", token="apparuerat", tokentype="lexical", verbalunitid="t22",
+            relatedtoken1="t21", relationship1="unit verb",
+        ),
+        TokenAnalysis(
+            id="t23", token="ei", tokentype="lexical",
+            relatedtoken1="t22", relationship1="dative",
         ),
     ]
-    diagram, warnings = tokengraph_to_dot(tokengraph, depth=0, color_by_verbal_unit=False)
+    from arsgrammatica.dot import compute_graph_depths
 
-    assert "t0 [" in diagram
-    assert "t3 [" in diagram
-    for dropped_id in ("t1", "t2"):
-        assert f"{dropped_id} [" not in diagram
-    assert "-> t2" not in diagram  # the dangling edge itself must not appear
+    depths = compute_graph_depths(tokengraph)
+    assert depths == {"t16": 0, "t19": 1, "t21": 2, "t22": 3, "t23": 4}
+
+    diagram0, warnings0 = tokengraph_to_dot(tokengraph, depth=0, color_by_verbal_unit=False)
+    assert warnings0 == []
+    assert re.search(r"^    t16 \[", diagram0, re.MULTILINE)
+    for other_id in ("t19", "t21", "t22", "t23"):
+        assert f"{other_id} [" not in diagram0, other_id
+
+
+def test_depth_dangling_edge_from_kept_node_is_skipped_with_a_warning():
+    """The relative-pronoun fixture above, at depth=2: "qui" (t21, depth 2)
+    is kept, and its relatedtoken2 edge to "apparuerat" (t22, depth 3) --
+    excluded at this cutoff -- must be skipped with a warning rather than
+    producing a `t21 -> t22` line pointing at a token with no node."""
+    tokengraph = [
+        TokenAnalysis(
+            id="t16", token="aedificavit", tokentype="lexical", verbalunitid="t16",
+            relatedtoken1="root", relationship1="unit verb",
+        ),
+        TokenAnalysis(
+            id="t19", token="Domino", tokentype="lexical",
+            relatedtoken1="t16", relationship1="dative",
+        ),
+        TokenAnalysis(
+            id="t21", token="qui", tokentype="lexical",
+            relatedtoken1="t19", relationship1="relative pronoun",
+            relatedtoken2="t22", relationship2="subject",
+        ),
+        TokenAnalysis(
+            id="t22", token="apparuerat", tokentype="lexical", verbalunitid="t22",
+            relatedtoken1="t21", relationship1="unit verb",
+        ),
+    ]
+    diagram, warnings = tokengraph_to_dot(tokengraph, depth=2, color_by_verbal_unit=False)
+
+    assert "t21 [" in diagram
+    assert "t22 [" not in diagram
+    assert "-> t22" not in diagram  # the dangling edge itself must not appear
     assert any(
-        "t3 -[coordinating conjunction]-> t2" in w and "excluded by the depth cutoff" in w
+        "t21 -[subject]-> t22" in w and "excluded by the depth cutoff" in w
         for w in warnings
     )
 
 
 @pytest.mark.parametrize("example", GOLD_EXAMPLES, ids=lambda e: e.slug)
 def test_depth_filtering_never_leaves_a_dangling_edge(example):
-    """Property check across every gold example: capping `depth` at one
-    less than the passage's own maximum subordination depth (0 for a
-    passage with none) must never leave an edge whose source or target has
-    no node line of its own -- the general form of the hand-built case
-    above, run against real data instead of a synthetic fixture."""
+    """Property check across every gold example, at every depth level from
+    0 up to that passage's own max_graph_depth(): no edge may be left
+    whose source or target has no node line of its own."""
+    from arsgrammatica.dot import max_graph_depth
+
     tokens, result = run_gold_example(example)
     tokengraph = result.tokengraph
-    depths, _warnings = compute_subordination_depths(tokengraph)
-    resolved = [d for d in depths.values() if d is not None]
-    cap = max(resolved) - 1 if resolved and max(resolved) > 0 else 0
+    maxd = max_graph_depth(tokengraph)
+    if maxd is None:
+        return
 
-    diagram, _warnings = tokengraph_to_dot(tokengraph, depth=cap)
-    node_ids = set(re.findall(r"^\s*(\S+) \[", diagram, re.MULTILINE))
-    for source, target in re.findall(r"^\s*(\S+) -> (\S+) \[", diagram, re.MULTILINE):
-        assert source in node_ids, f"{example.slug}: edge source {source} has no node"
-        assert target in node_ids, f"{example.slug}: edge target {target} has no node"
+    for cap in range(0, maxd + 1):
+        diagram, _warnings = tokengraph_to_dot(tokengraph, depth=cap)
+        node_ids = set(re.findall(r"^    (\S+) \[", diagram, re.MULTILINE))
+        for source, target in re.findall(r"^    (\S+) -> (\S+) \[", diagram, re.MULTILINE):
+            assert source in node_ids, f"{example.slug} depth={cap}: edge source {source} has no node"
+            assert target in node_ids, f"{example.slug} depth={cap}: edge target {target} has no node"

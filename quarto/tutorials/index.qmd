@@ -5,8 +5,9 @@ title: Tutorials
 
 ## Preassembled resources
 
-- run [marimo notebooks](./marimo.md)
-- analzye a Latin string from the [command line](./cli.qmd)
+- [marimo notebooks](./marimo.md) for syntax analysis
+- analyze Latin with a [command line script](./cli.qmd)
+- [diagram analyses](./diagrams.qmd)
 
 
 ## Using the `arsgrammatica` package in python

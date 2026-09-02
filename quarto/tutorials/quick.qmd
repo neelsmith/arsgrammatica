@@ -1,5 +1,5 @@
 ---
-title: "A quick script to query a language model"
+title: "Quick start to write a script querying a language model"
 ---
 
 Install the package:
@@ -30,4 +30,3 @@ from arsgrammatica import analyze_passage, print_analysis
 sentences, results = analyze_passage("Gallia est omnis divisa in partes tres.")
 ```
 
-What can you do with query results? See [guides to using `arsgrammatica`](../guides/)

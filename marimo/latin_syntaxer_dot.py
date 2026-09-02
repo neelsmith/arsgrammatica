@@ -22,7 +22,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    > No LM access needed -- browse a previously-saved analysis file (the same format `write_analyses()` produces, e.g. from `latin_syntaxer_workflow.py`'s own "Save analysis" section or `syntaxer_main.py`'s stdout), pick one sentence, and view its dependency graph as a Graphviz diagram. Unlike the Mermaid diagram (`latin_syntaxer_review.py`), same-depth verbal expressions are forced onto the same rank, not just nudged toward it -- see `notes/dot_diagrams.md` for why. A depth slider, same idea as the indented-HTML view's own, lets you cap how many levels of subordination the diagram includes.
+    > No LM access needed -- browse a previously-saved analysis file (the same format `write_analyses()` produces, e.g. from `latin_syntaxer_workflow.py`'s own "Save analysis" section or `syntaxer_main.py`'s stdout), pick one sentence, and view its dependency graph as a Graphviz diagram. Unlike the Mermaid diagram (`latin_syntaxer_review.py`), same-depth verbal expressions are forced onto the same rank, not just nudged toward it -- see `notes/dot_diagrams.md` for why. A depth slider lets you cap the diagram to nodes within a given number of edges of a root verb -- `0` shows only the root verb(s) themselves.
     """)
     return
 
@@ -226,23 +226,27 @@ def _(mo):
 
 
 @app.cell
-def _(max_subordination_depth, mo, selected_tokengraph):
-    # Same depth-cap slider as latin_syntaxer_review.py's own maxdepth --
-    # left None until a sentence with at least one token is selected. This
-    # caps by *subordination* depth (verbal_units.compute_subordination_
-    # depths()) -- the same notion and cutoff rule as
-    # tokengraph_to_depth_html()'s own `depth` parameter behind that
-    # indented-HTML slider -- NOT the AAT depth rank_checkbox's `rank=same`
-    # alignment above uses; the two can disagree on a given sentence. See
-    # tokengraph_to_dot()'s own docstring and notes/dot_diagrams.md.
+def _(max_graph_depth, mo, selected_tokengraph):
+    # Left None until a sentence with at least one token is selected, same
+    # guard latin_syntaxer_review.py's own maxdepth slider uses. This caps
+    # by GRAPH depth (dot.compute_graph_depths()) -- the number of edges
+    # back to the nearest root verb, following the same relatedtoken1/
+    # relatedtoken2 edges drawn as `->` lines -- NOT
+    # verbal_units.compute_subordination_depths() (the CLAUSE-level notion
+    # behind tokengraph_to_depth_html()'s own indented-HTML slider, where a
+    # whole clause's subject/object/etc. share ONE depth with their verb)
+    # and NOT the AAT depth rank_checkbox's `rank=same` alignment above
+    # uses. depth=0 shows ONLY root verbal-unit anchors, not the whole root
+    # clause. See tokengraph_to_dot()'s own docstring and
+    # notes/dot_diagrams.md.
     depth_slider = None
     if selected_tokengraph:
         depth_slider = mo.ui.slider(
             start=0,
-            stop=max_subordination_depth(selected_tokengraph),
-            label="*Maximum depth of subordination to include*:",
+            stop=max_graph_depth(selected_tokengraph),
+            label="*Maximum graph depth from a root verb to include*:",
             show_value=True,
-            value=max_subordination_depth(selected_tokengraph),
+            value=max_graph_depth(selected_tokengraph),
         )
     return (depth_slider,)
 
@@ -372,7 +376,7 @@ def _():
     sys.path.insert(0, str(Path(__file__).parent.parent))
 
     from arsgrammatica import (
-        max_subordination_depth,
+        max_graph_depth,
         read_analyses,
         split_analysis_by_sentence,
         tokengraph_to_dot,
@@ -397,7 +401,7 @@ def _():
         Path,
         graphviz,
         graphviz_available,
-        max_subordination_depth,
+        max_graph_depth,
         read_analyses,
         split_analysis_by_sentence,
         tokengraph_to_dot,

@@ -34,8 +34,11 @@ website:
     - title: "Tutorials"
       contents:
         - tutorials/index.qmd
+        - "---"
         - tutorials/marimo.md
         - tutorials/cli.qmd
+        - tutorials/diagrams.qmd
+        - "---"
         - tutorials/quick.qmd
     - title: "Concepts"
       contents:
@@ -62,7 +65,8 @@ website:
         
     - title: "Reference"
       contents: 
-        - reference/index.qmd      
+        - reference/index.qmd   
+        - reference/relationshipvalues.qmd   
 
 format:
   html:

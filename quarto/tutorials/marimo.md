@@ -36,13 +36,15 @@ Citable passage to analyze come from a source file in CEX format. Load a file, t
 
 ### `latin_syntaxer_review.py`
 
-For review and visualization of an analysis. Load a file with one or more saved analyses, pick a sentence from the menu that appears, and visualize it, as well as the interpretation of the analysis as an Agent-Action-Target (AAT)) graph.
+Review and visualize an analysis. Load a file with one or more saved analyses, pick a sentence from the menu that appears, and visualize it, as well as the interpretation of the analysis as an Agent-Action-Target (AAT)) graph.
 
 
 
 ### `latin_syntaxer_compose_diagram.py`
 
-Compose diagrams in the `dot` format used by the open-source `graphviz` software. Load a file with one or more saved analyses, pick a sentence from the menu that appears, and set diagramming opens. If you have installed `graphviz` on your system, displays within the notebook with option to save the `dot` file.
+Compose diagrams of an analysis in the `dot` format used by the open-source `graphviz` software. Load a file with one or more saved analyses, pick a sentence from the menu that appears, and set diagramming opens. If you have installed `graphviz` on your system, displays within the notebook with option to save the `dot` file.
+
+> How to [install dot](./diagrams.qmd)
 
 
 
@@ -51,4 +53,4 @@ Compose diagrams in the `dot` format used by the open-source `graphviz` software
 
 ### `latin_syntaxer_graphs.py`
 
-For graph analysis. Similar to `latin_syntaxer_review.py`, but pick one *or more* sentences from a multiselect (rather than a single sentence from a dropdown). The dependency graph for each sentence is instantiated as a NetworkX `MultiDiGraph` and basic graph metrics are computed to compare the syntactic form and complexity of the chosen sentences.
+Compute graph metrics for an analysis. Similar to `latin_syntaxer_review.py`, but pick one *or more* sentences from a multiselect (rather than a single sentence from a dropdown). The dependency graph for each sentence is instantiated as a NetworkX `MultiDiGraph` and basic graph metrics are computed to compare the syntactic form and complexity of the chosen sentences.
