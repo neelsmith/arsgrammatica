@@ -83,6 +83,23 @@ python analysis_to_dot.py analysis.cex | dot -Tsvg > analysis.svg
 
 Unlike the notebook, it operates on the file's whole tokengraph as `read_analyses()` returns it -- one flat list spanning every sentence in the file, not split by sentence -- so use `marimo/latin_syntaxer_dot.py` instead if you want to pick a single sentence out of a multi-sentence file. No LM access needed, same as the notebook. No dedicated test file, matching `syntaxer_main.py`'s own precedent of no pytest coverage for CLI entry points -- it's a thin wrapper around `read_analyses()` and `tokengraph_to_dot()`, which are both already covered. It doesn't yet expose `tokengraph_to_dot()`'s `depth` parameter as a flag -- only the notebook's slider does, for now.
 
+## `analyses_to_dot_pngs.py`
+
+A batch counterpart to the two above: reads one or more saved analysis files, and writes one PNG per sentence -- across every file -- to an output directory. Unlike `analysis_to_dot.py`, this one DOES split each file by sentence (`split_analysis_by_sentence()`), since a PNG is naturally one-diagram-per-image rather than one combined text stream:
+
+```sh
+python analyses_to_dot_pngs.py analysis.cex --output-dir diagrams/
+python analyses_to_dot_pngs.py a.cex b.cex c.cex --output-dir diagrams/
+python analyses_to_dot_pngs.py analysis.cex --output-dir diagrams/ --orientation LR
+python analyses_to_dot_pngs.py analysis.cex --output-dir diagrams/ --no-color --no-rank
+```
+
+Each PNG is named `<file_stem>_<sentence_number>_<citation>.png`, alphanumeric-sanitized the same way `marimo/latin_syntaxer_dot.py`'s own download button names its `.dot` file -- prefixed with the source file's own stem so sentences from different input files never collide in one output directory. The output directory is created if it doesn't already exist.
+
+Actually rendering a PNG needs both the `graphviz` package AND Graphviz's own `dot` executable (see "Rendering" above and `notes/graphviz_install.md`) -- unlike `analysis_to_dot.py`, which only ever produces DOT text. The script checks for the `graphviz` package up front and fails fast with install instructions if it's missing; a missing `dot` executable is only discovered on the first actual render (`graphviz.ExecutableNotFound`), which also exits immediately with install instructions, since every subsequent sentence would fail the same way. Same two failure modes the notebook degrades through, just fail-fast here instead of a per-diagram callout.
+
+A file that can't be read, or can't be split by sentence, is skipped with a message on stderr rather than aborting the whole run -- everything else still gets rendered. The script exits non-zero if any file was skipped, or if nothing was written at all. Warnings from `tokengraph_to_dot()` itself (a skipped edge, colors repeating) go to stderr per sentence, same convention as `analysis_to_dot.py`. No `--depth` flag either, same reason as `analysis_to_dot.py`.
+
 ## Tests
 
 `tests/test_dot.py` covers generation only (node/edge selection, coloring, ranking, depth filtering) via plain string assertions on the DOT text -- no Graphviz binary needed to run `pytest`, matching this codebase's offline/DummyLM test philosophy. The depth-filtering tests include a property check across every gold example, at every depth level from 0 up to that passage's own `max_graph_depth()`, confirming no edge is ever left dangling -- a KEPT node's edge pointing at a token `depth` excluded -- plus a hand-built relative-pronoun fixture (the shape of a real bug report: a pronoun that's both an anaphoric pointer and its own clause's subject) exercising both the depth-computation preference rule and that exact dangling-edge warning. Every gold example was also spot-checked against a real `dot` binary during development (all 48 examples × 4 option combinations, plus depth-filtered diagrams at every level, rendered cleanly) -- not part of the automated suite, since that would add a system dependency to `pytest` itself.
