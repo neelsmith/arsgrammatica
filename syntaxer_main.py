@@ -8,7 +8,8 @@ A runnable script to run the syntaxer module.
 import argparse
 from pathlib import Path
 import os
- 
+import sys
+
 import dspy
 from dotenv import load_dotenv
 
@@ -111,8 +112,9 @@ def _configure_lm():
  
  
  
-from arsgrammatica import print_analysis, analyze_string
-  
+from arsgrammatica import analyze_string, combined_tokengraph, serialize_analyses
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run a Latin syntax analysis.")
     parser.add_argument(
@@ -128,20 +130,37 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    _configure_lm()
+    lm = _configure_lm()
     #loadollama()
     sentences, results = analyze_string(args.passage, citation=args.citation)
- 
-    for i, (sentence, result) in enumerate(zip(sentences, results), start=1):
-        if len(sentences) > 1:
-            print(f"\n=== Sentence {i} ===")
-        print_analysis(sentence.tokens, result)
- 
- 
- 
- 
-    #diagram, mermaid_warnings = tokengraph_to_mermaid(res.tokengraph)
-    #print("\nMermaid diagram:")
-    #print(diagram)
-    #for w in mermaid_warnings:
-    #    print(f"  warning: {w}")
+
+    # Write the result using the same pipe-delimited format
+    # serialize_analyses()/write_analyses() use everywhere else in this
+    # codebase (see USAGE.md's "Saving and loading analyses") -- one
+    # format the whole codebase reads and writes, rather than this
+    # script's own separate print_analysis()-based display. Flattening
+    # verbalunits/tokengraph across sentences first matches
+    # combined_tokengraph()'s own convention (see e.g. the marimo
+    # notebook's "Save analysis" cell). '#!LM' records which model
+    # produced the analysis (lm.model -- the actual configured model,
+    # including _configure_lm()'s own fallback default, not just a raw
+    # MODEL env lookup) and each sentence's own reasoning
+    # (dspy.ChainOfThought's `reasoning` output field).
+    verbalunits = [vu for result in results for vu in result.verbalunits]
+    tokengraph = combined_tokengraph(results)
+    analysis_text, warnings = serialize_analyses(
+        sentences,
+        verbalunits,
+        tokengraph,
+        model=lm.model,
+        reasoning=[result.reasoning for result in results],
+    )
+
+    # Only the serialized analysis goes to stdout, so
+    # `python syntaxer_main.py ... > analysis.cex` redirects cleanly (see
+    # quick.qmd's own redirection example); warnings go to stderr instead,
+    # so they stay visible on the terminal without polluting the saved
+    # file.
+    print(analysis_text, end="")
+    for w in warnings:
+        print(f"Warning: {w}", file=sys.stderr)

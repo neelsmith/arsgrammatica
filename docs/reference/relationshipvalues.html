@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.38">
+<meta name="generator" content="quarto-1.9.33">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>usage – arsgrammatica</title>
+<title>Values for syntactic relationships – arsgrammatica</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -39,7 +39,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-6d4e4c6c342646cac9792aff734a6985.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-158031087360bce0ff56dc785ce39e06.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -105,11 +105,11 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Tutorials</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="../guides/index.html" aria-current="page"> 
+    <a class="nav-link" href="../guides/index.html"> 
 <span class="menu-text">Guides</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../reference/index.html"> 
+    <a class="nav-link active" href="../reference/index.html" aria-current="page"> 
 <span class="menu-text">Reference</span></a>
   </li>  
 </ul>
@@ -130,7 +130,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guides/usage.html"><code>arsgrammatica</code> AI slop-pile usage guide</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/relationshipvalues.html">Values for syntactic relationships</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -144,89 +144,14 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Guides</span></a>
+  <a href="../reference/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Reference</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/install.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Installation options</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/analysis.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Analyzing syntax with a language model</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/visualization.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Visualizing results</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/saving-loading.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Saving and loading analyses</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/aat.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Building an AAT (Agent-Action-Target) graph</span></a>
-  </div>
-</li>
-        <li class="px-0"><hr class="sidebar-divider hi "></li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/optimizing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Optimizing with GEPA</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/bakeoff.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Comparing task models with <code>model_bakeoff.py</code></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/development.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Developing <code>arsgrammatica</code></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/tokenizing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Tokenizing a source file without full syntax analysis</span></a>
-  </div>
-</li>
-        <li class="px-0"><hr class="sidebar-divider hi "></li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/managing_prompt_size.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Keeping requests to an LM at a manageable size</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/technical.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Some technical docs</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/testing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Testing without network access</span></a>
-  </div>
-</li>
-        <li class="px-0"><hr class="sidebar-divider hi "></li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/usage.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><code>arsgrammatica</code> AI slop-pile usage guide</span></a>
+  <a href="../reference/relationshipvalues.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Values for syntactic relationships</span></a>
   </div>
 </li>
     </ul>
@@ -234,26 +159,61 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#arsgrammatica-ai-slop-pile-usage-guide" id="toc-arsgrammatica-ai-slop-pile-usage-guide" class="nav-link active" data-scroll-target="#arsgrammatica-ai-slop-pile-usage-guide"><code>arsgrammatica</code> AI slop-pile usage guide</a></li>
-  </ul>
-</nav>
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Values for syntactic relationships</h1>
+</div>
 
 
 
+<div class="quarto-title-meta">
 
-<section id="arsgrammatica-ai-slop-pile-usage-guide" class="level1">
-<h1><code>arsgrammatica</code> AI slop-pile usage guide</h1>
+    
+  
+    
+  </div>
+  
 
 
-</section>
+</header>
+
+
+<ol type="1">
+<li><strong>unit verb</strong> – the finite verb of a clause, linked either to its subordinating word in subordinate epxressions, or to the reserved node value <code>root</code>. for independent clauses.</li>
+<li><strong>subordinating conjunction</strong> – a subordinating word, linked to the verb of the governing clause.</li>
+<li><strong>relative pronoun</strong> – a relative pronoun, linked both to its antecedent and to its function in the relative clause.</li>
+<li><strong>subject</strong> – a substantive linked to the verb of its verbal expression.</li>
+<li><strong>direct object</strong> – a substantive linked to its transitive-active verbal expression.</li>
+<li><strong>predicate</strong> – a substantive linked to a linking verb.</li>
+<li><strong>agent</strong> – the head of a prepositional phrase expressing agent with <em>a</em>/<em>ab</em>, linked to a passive verb.</li>
+<li><strong>auxiliary</strong> – a participle linked to a form of <em>sum</em> in compound forms of the perfect-passive/future-active systems.</li>
+<li><strong>object of preposition</strong> – a substantive linked to its governing preposition.</li>
+<li><strong>adverbial</strong> – an adverb, or a prepositional phrase used adverbially, linked to the verb it modifies.</li>
+<li><strong>attributive</strong> – a prepositional phrase linking to the noun it modifies.</li>
+<li><strong>adjectival</strong> – an adjective (or gerundive) linking to the noun it agrees with.</li>
+<li><strong>genitive</strong> – a genitive substantive linked to the noun or verb it modifies.</li>
+<li><strong>dative</strong> – a dative substantive linked to the noun or verb it relates to.</li>
+<li><strong>ablative</strong> – an ablative substantive linked to the noun or verb it relates to.</li>
+<li><strong>accusative</strong> – an accusative substantive that is not the special case of a direct object, linked to the verb or noun it relates to.</li>
+<li><strong>vocative</strong> – a vocative substantive, linked to the verb of the clause it appears in.</li>
+<li><strong>direct quote</strong> – verbal expression of directly quoted speech, linked to the verb introducing the direct speech.</li>
+<li><strong>aside</strong> – verb of a a parenthetical aside, linked to the verb of the clause it interrupts.</li>
+<li><strong>indirect statement</strong> – an infinitive in indirect-statement, linked to the governing verb.</li>
+<li><strong>circumstantial participle</strong> – a participle linked to the substantive it agrees with.</li>
+<li><strong>ablative absolute</strong> – an ablative substantive syntactically absolute from the verbal expression where it appears, linked to the verb of the verbal expression.</li>
+<li><strong>coordinating conjunction</strong> – a coordinating conjunction, linked to the two items (nouns, adjectives, prepositional phrases, or verbal expressions) it joins.</li>
+<li><strong>apposition</strong> – a subtantive in apposition, linked to the subtantive it stands in apposition to.</li>
+<li><strong>complementary infinitive</strong> – an infinitive completing a governing verb like <em>volo</em>/<em>incipio</em>/<em>audeo</em>/<em>licet</em>/<em>decet</em>, linked to that verb.</li>
+<li><strong>praenomen</strong> – an abbreviated Roman first-name token, linked to the associated <code>nomen</code> or <code>cognomen</code>.</li>
+</ol>
+
+
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -657,6 +617,19 @@ ul.task-list li input[type="checkbox"] {
   });
   </script>
 </div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Documentation for release version <strong>0.6.0</strong></p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
 
 
 

@@ -1,0 +1,42 @@
+---
+title: Diagramming syntactic analyses
+---
+
+If you have saved an analysis from a marimo notebook or a command-line script, you can use the open-source `graphviz` application to diagram the analysis. The command-line script `analysis_to_dot.py` creates a graph in the `dot` format used by `graphviz`.
+
+
+Create a `dot` file from an analysis file::
+
+```bash
+python3 analysis_to_dot.py analysis_file.cex > analysis_diagram.dot
+```
+
+
+
+If `dot` is installed, you can directly create a `.png` file:
+
+```bash
+python3 analysis_to_dot.py analysis_file.cex | dot -Tpng  > analysis_diagram.png
+```
+
+ 
+
+## How to install `dot`
+
+
+Mac OS:
+```sh
+brew install graphviz
+```
+
+Windows: download from [https://graphviz.org/download/](https://graphviz.org/download/)  or 
+
+```powershell
+winget install --id Graphviz.Graphviz
+```
+
+Verify it worked: print a version string.
+
+```sh
+dot -V
+```

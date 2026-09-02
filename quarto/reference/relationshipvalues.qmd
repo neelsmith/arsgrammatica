@@ -1,0 +1,32 @@
+---
+title: Values for syntactic relationships
+---
+
+
+
+1. **unit verb** -- the finite verb of a clause, linked either to its subordinating word in subordinate epxressions, or to the reserved node value `root`. for independent clauses.
+2. **subordinating conjunction** -- a subordinating word, linked to the verb of the governing clause.
+3. **relative pronoun** -- a relative pronoun, linked both to its antecedent and to its function in the relative clause.
+4. **subject** -- a substantive linked to the verb of its verbal expression.
+5. **direct object** -- a substantive linked to its transitive-active verbal expression.
+6. **predicate** -- a substantive linked to a linking verb.
+7. **agent** -- the head of a prepositional phrase expressing agent with *a*/*ab*, linked to a passive verb.
+8. **auxiliary** -- a participle linked to a form of *sum* in compound forms of the perfect-passive/future-active systems.
+9. **object of preposition** -- a substantive linked to its  governing preposition.
+10. **adverbial** -- an adverb, or a prepositional phrase used adverbially, linked to the verb it modifies.
+11. **attributive** -- a prepositional phrase linking to the noun it modifies.
+12. **adjectival** -- an adjective (or gerundive) linking to the noun it agrees with.
+13. **genitive** -- a genitive substantive linked to the noun or verb it modifies.
+14. **dative** -- a dative substantive linked to the noun or verb it relates to.
+15. **ablative** -- an ablative substantive linked to the noun or verb it relates to.
+16. **accusative** -- an accusative substantive that is not the special case of a direct object, linked to the verb or noun it relates to.
+17. **vocative** -- a vocative substantive, linked to the verb of the clause it appears in.
+18. **direct quote** -- verbal expression of  directly quoted speech, linked to the verb introducing the direct speech.
+19. **aside** -- verb of a a parenthetical aside, linked to the verb of the clause it interrupts.
+20. **indirect statement** -- an infinitive in indirect-statement, linked to the governing verb.
+21. **circumstantial participle** -- a participle linked to the substantive it agrees with.
+22. **ablative absolute** -- an ablative substantive syntactically absolute from the verbal expression where it appears, linked to the verb of the verbal expression.
+23. **coordinating conjunction** -- a coordinating conjunction, linked to the two items (nouns, adjectives, prepositional phrases, or verbal expressions) it joins.
+24. **apposition** -- a subtantive in apposition, linked to the subtantive it stands in apposition to.
+25. **complementary infinitive** -- an infinitive completing a governing verb like *volo*/*incipio*/*audeo*/*licet*/*decet*, linked to that verb.
+26. **praenomen** -- an abbreviated Roman first-name token, linked to the associated `nomen` or `cognomen`.

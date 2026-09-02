@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.38">
+<meta name="generator" content="quarto-1.9.33">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Run a command-line script – arsgrammatica</title>
+<title>A command-line script for analyzing Latin syntax – arsgrammatica</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -74,7 +74,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-6d4e4c6c342646cac9792aff734a6985.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-158031087360bce0ff56dc785ce39e06.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -165,7 +165,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../tutorials/cli.html">Run a command-line script</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../tutorials/cli.html">A command-line script for analyzing Latin syntax</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -183,22 +183,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Tutorials</span></a>
   </div>
 </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../tutorials/marimo.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">marimo notebooks</span></a>
+ <span class="menu-text">Marimo notebooks for Latin syntactic analysis</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../tutorials/cli.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Run a command-line script</span></a>
+ <span class="menu-text">A command-line script for analyzing Latin syntax</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../tutorials/diagrams.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Diagramming syntactic analyses</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../tutorials/quick.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">A quick script to query a language model</span></a>
+ <span class="menu-text">Quick start to write a script querying a language model</span></a>
   </div>
 </li>
     </ul>
@@ -214,7 +222,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Run a command-line script</h1>
+<h1 class="title">A command-line script for analyzing Latin syntax</h1>
 </div>
 
 
@@ -231,17 +239,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p><code>syntaxer_main.py</code> uses a configured language model to analyze a passage and print the result to standard output. Create an <code>.env</code> to configure your LM credentials, like this:</p>
+<p><code>syntaxer_main.py</code> reads authentication credentials for your LM from your environment and analyzes a passage. It writes the result in to standard output in <code>arsgrammatica</code>’s standard serialization format. Create an <code>.env</code> to configure your LM credentials, like this:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="va">API_BASE</span><span class="op">=</span>https://localmodel/api</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="va">MODEL</span><span class="op">=</span>litellm/modelname</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="va">API_KEY</span><span class="op">=</span>your-key-here</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Then run <code>syntaxer_main.py</code>:</p>
+<p>Then run <code>syntaxer_main.py</code> with a <code>passage</code> argument:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> syntaxer_main.py <span class="at">--passage</span> <span class="st">"Gallia est omnis divisa in partes tres."</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>To include a citation reference (e.g.&nbsp;a CTS URN), use the <code>--citation</code> argument:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> syntaxer_main.py <span class="at">--passage</span> <span class="st">"Arma virumque canō."</span> <span class="at">--citation</span> <span class="st">"urn:cts:latinLit:phi0690.phi003.perseus:1.1"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Redirect the output to a file with standard IO redirection:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> syntaxer_main.py <span class="at">--passage</span> <span class="st">"Arma virumque canō."</span> </span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">--citation</span> <span class="st">"urn:cts:latinLit:phi0690.phi003.perseus:1.1"</span> <span class="op">&gt;</span> aeneid_analysis.cex</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>THe results look like this:</p>
+<pre><code>#!sentences
+context_begin|first_token|context_end|last_token
+urn:cts:latinLit:phi0690.phi003.perseus:1.1|t0|urn:cts:latinLit:phi0690.phi003.perseus:1.1|t4
+
+#!verbal_units
+context|token|syntactic_type|semantic_type
+urn:cts:latinLit:phi0690.phi003.perseus:1.1|t3|independent|transitive active
+
+#!tokens
+context|id|tokentype|text|lemma|verbalunit|related1|relationship1|related2|relationship2
+urn:cts:latinLit:phi0690.phi003.perseus:1.1|t0|lexical|Arma|arma||t3|direct object||
+urn:cts:latinLit:phi0690.phi003.perseus:1.1|t1|lexical|virum|vir||t3|direct object||
+urn:cts:latinLit:phi0690.phi003.perseus:1.1|t2|enclitic|que|que||t0|coordinating conjunction|t1|coordinating conjunction
+urn:cts:latinLit:phi0690.phi003.perseus:1.1|t3|lexical|canō|cano|t3|root|unit verb||
+urn:cts:latinLit:phi0690.phi003.perseus:1.1|t4|punctuation|.||||||</code></pre>
 
 
 
@@ -647,6 +671,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   });
   </script>
 </div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Documentation for release version <strong>0.6.0</strong></p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
 
 
 

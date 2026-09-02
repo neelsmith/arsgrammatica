@@ -4,4 +4,4 @@ title: Reference
 
 
 - [API docs](../arsgrammatica-api-docs.html)
-- list of all edge values used in syntax graph
+- list of all [values used for relationships](./relationshipvalues.qmd) in syntax graph
