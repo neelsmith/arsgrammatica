@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.38">
+<meta name="generator" content="quarto-1.9.33">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>optimizing – arsgrammatica</title>
+<title>Diagramming syntactic analyses – arsgrammatica</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -61,23 +61,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-158031087360bce0ff56dc785ce39e06.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-6d4e4c6c342646cac9792aff734a6985.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-158031087360bce0ff56dc785ce39e06.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -110,14 +110,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-sidebar floating nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">arsgrammatica</span>
     </a>
   </div>
@@ -128,16 +128,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./index.html"> 
+    <a class="nav-link" href="../index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
-<span class="menu-text">About</span></a>
+    <a class="nav-link" href="../concepts/index.html"> 
+<span class="menu-text">Concepts</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./usage.html"> 
-<span class="menu-text">Usage guide</span></a>
+    <a class="nav-link active" href="../tutorials/index.html" aria-current="page"> 
+<span class="menu-text">Tutorials</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../guides/index.html"> 
+<span class="menu-text">Guides</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../reference/index.html"> 
+<span class="menu-text">Reference</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/neelsmith/arsgrammatica"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -145,42 +160,104 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
       </div> <!-- /container-fluid -->
     </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../tutorials/diagrams.html">Diagramming syntactic analyses</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../tutorials/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Tutorials</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../tutorials/marimo.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Marimo notebooks for Latin syntactic analysis</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../tutorials/cli.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">A command-line script for analyzing Latin syntax</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../tutorials/diagrams.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Diagramming syntactic analyses</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../tutorials/quick.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Quick start to write a script querying a language model</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#optimizing-with-gepa" id="toc-optimizing-with-gepa" class="nav-link active" data-scroll-target="#optimizing-with-gepa">Optimizing with GEPA</a></li>
+  <li><a href="#how-to-install-dot" id="toc-how-to-install-dot" class="nav-link active" data-scroll-target="#how-to-install-dot">How to install <code>dot</code></a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Diagramming syntactic analyses</h1>
+</div>
 
 
 
+<div class="quarto-title-meta">
 
-<section id="optimizing-with-gepa" class="level1">
-<h1>Optimizing with GEPA</h1>
-<p><code>optimize_gepa.py</code> uses <a href="https://dspy.ai">dspy.GEPA</a> – a reflective prompt optimizer – to improve <code>SyntaxAnalysis</code>’s instructions against the gold examples in <code>tests/fixtures/gold_examples.py</code>. Unlike <code>pytest</code> (entirely <code>DummyLM</code>-backed), this is a <strong>live-LM script</strong>: every trial makes a real call to the configured task model, plus a reflection model GEPA uses to read scoring feedback and propose better instructions. Expect it to use real API usage against the configured proxy.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> optimize_gepa.py                    <span class="co"># --auto light (cheapest; default)</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> optimize_gepa.py <span class="at">--auto</span> medium       <span class="co"># more thorough, more expensive</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> optimize_gepa.py <span class="at">--auto</span> heavy        <span class="co"># most thorough, most expensive</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> optimize_gepa.py <span class="at">--max-metric-calls</span> 40   <span class="co"># exact call budget instead of a preset</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> optimize_gepa.py <span class="at">--skip-baseline</span>     <span class="co"># skip the pre-GEPA scoring pass (saves N calls)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Needs the same <code>.env</code> as <code>syntaxer_main.py</code> (<code>API_BASE</code>/<code>MODEL</code>/<code>API_KEY</code>). Optionally set <code>REFLECTION_MODEL</code> (and <code>REFLECTION_API_BASE</code>/<code>REFLECTION_API_KEY</code>, if they differ) to use a different model specifically for GEPA’s reflective step – GEPA’s own docs recommend a strong reasoning model for this. Without <code>REFLECTION_MODEL</code> set, the task model doubles as the reflection model, a reasonable default for a first run.</p>
-<p><strong>Scope and data</strong>: this optimizes only <code>SyntaxAnalysis</code> (the <code>analyze</code> module in <code>latin_syntax_dspy.py</code>), not the segmentation stage. It trains on all gold examples in <code>GOLD_EXAMPLES</code> (20 as of this writing) with no separate held-out valset – per <code>dspy.GEPA</code>’s own behavior when no valset is given, it uses the trainset for both reflective updates and Pareto-score tracking. That’s a reasonable starting point while the gold set is still small, but expect the optimized prompt to fit these exact sentences well without a guarantee it generalizes to new ones – worth revisiting (holding out a few examples as a valset) once there are more gold examples to spare.</p>
-<p><strong>Scoring</strong>: <code>arsgrammatica/gepa_metric.py</code>’s <code>syntax_metric</code> compares a prediction’s <code>verbalunits</code>/<code>tokengraph</code> against the gold answer and returns a score in [0, 1] (a weighted blend: relations 50%, verbal-expression classification 30%, basic per-token fields 20% – a judgment call, easy to retune in that file) plus specific, human-readable feedback naming every mismatched token/relation/classification, for GEPA’s reflection model to read. Relations are compared as an unordered set, not by <code>relatedtoken1</code>/<code>relatedtoken2</code> position, since that pairing is documented as an interchangeable overflow slot (see <code>models.py</code>’s <code>RelationLabel</code> comment) – see <code>tests/test_gepa_metric.py</code> for fully offline tests of the metric itself (including that a relation-slot swap scores as a perfect match, not an error).</p>
-<p><strong>Using the result</strong>: <code>optimize_gepa.py</code> saves the optimized program’s instructions to <code>optimized_syntax_analysis.json</code> (configurable via <code>--out</code>).</p>
-<p>To use it:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica.latin_syntax_dspy <span class="im">import</span> analyze</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>analyze.load(<span class="st">"optimized_syntax_analysis.json"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>right after import and before calling <code>analyze_passage()</code>/ <code>analyze_sources()</code> – <code>analyze</code> is the same module-level <code>ChainOfThought</code> instance the whole pipeline uses, so loading into it in place is enough; nothing else needs to change. <code>gepa_logs/</code> (GEPA’s own run logs) is gitignored; <code>optimized_syntax_analysis.json</code> is not – commit it once you’re satisfied with a run, or gitignore it yourself if you’d rather treat it as a local, disposable artifact.</p>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>If you have saved an analysis from a marimo notebook or a command-line script, you can use the open-source <code>graphviz</code> application to diagram the analysis. The command-line script <code>analysis_to_dot.py</code> creates a graph in the <code>dot</code> format used by <code>graphviz</code>.</p>
+<p>Create a <code>dot</code> file from an analysis file::</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> analysis_to_dot.py analysis_file.cex <span class="op">&gt;</span> analysis_diagram.dot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>If <code>dot</code> is installed, you can directly create a <code>.png</code> file:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> analysis_to_dot.py analysis_file.cex <span class="kw">|</span> <span class="ex">dot</span> <span class="at">-Tpng</span>  <span class="op">&gt;</span> analysis_diagram.png</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="how-to-install-dot" class="level2">
+<h2 class="anchored" data-anchor-id="how-to-install-dot">How to install <code>dot</code></h2>
+<p>Mac OS:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">brew</span> install graphviz</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Windows: download from <a href="https://graphviz.org/download/">https://graphviz.org/download/</a> or</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode powershell code-with-copy"><code class="sourceCode powershell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>winget install <span class="op">--</span>id Graphviz<span class="op">.</span><span class="fu">Graphviz</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Verify it worked: print a version string.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">dot</span> <span class="at">-V</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
 </section>
@@ -587,6 +664,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   });
   </script>
 </div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Documentation for release version <strong>0.6.0</strong></p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
 
 
 

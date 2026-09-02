@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.38">
+<meta name="generator" content="quarto-1.9.33">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>marimo notebooks – arsgrammatica</title>
+<title>Marimo notebooks for Latin syntactic analysis – arsgrammatica</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -74,7 +74,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-6d4e4c6c342646cac9792aff734a6985.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-158031087360bce0ff56dc785ce39e06.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -165,7 +165,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../tutorials/marimo.html">marimo notebooks</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../tutorials/marimo.html">Marimo notebooks for Latin syntactic analysis</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -183,22 +183,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Tutorials</span></a>
   </div>
 </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../tutorials/marimo.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">marimo notebooks</span></a>
+ <span class="menu-text">Marimo notebooks for Latin syntactic analysis</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../tutorials/cli.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Run a command-line script</span></a>
+ <span class="menu-text">A command-line script for analyzing Latin syntax</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../tutorials/diagrams.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Diagramming syntactic analyses</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../tutorials/quick.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">A quick script to query a language model</span></a>
+ <span class="menu-text">Quick start to write a script querying a language model</span></a>
   </div>
 </li>
     </ul>
@@ -219,6 +227,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#notebooks-for-working-with-saved-analyses" id="toc-notebooks-for-working-with-saved-analyses" class="nav-link" data-scroll-target="#notebooks-for-working-with-saved-analyses">Notebooks for working with saved analyses</a>
   <ul class="collapse">
   <li><a href="#latin_syntaxer_review.py" id="toc-latin_syntaxer_review.py" class="nav-link" data-scroll-target="#latin_syntaxer_review.py"><code>latin_syntaxer_review.py</code></a></li>
+  <li><a href="#latin_syntaxer_compose_diagram.py" id="toc-latin_syntaxer_compose_diagram.py" class="nav-link" data-scroll-target="#latin_syntaxer_compose_diagram.py"><code>latin_syntaxer_compose_diagram.py</code></a></li>
   <li><a href="#latin_syntaxer_graphs.py" id="toc-latin_syntaxer_graphs.py" class="nav-link" data-scroll-target="#latin_syntaxer_graphs.py"><code>latin_syntaxer_graphs.py</code></a></li>
   </ul></li>
   </ul>
@@ -229,7 +238,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">marimo notebooks</h1>
+<h1 class="title">Marimo notebooks for Latin syntactic analysis</h1>
 </div>
 
 
@@ -279,11 +288,18 @@ Warning
 <h2 class="anchored" data-anchor-id="notebooks-for-working-with-saved-analyses">Notebooks for working with saved analyses</h2>
 <section id="latin_syntaxer_review.py" class="level3">
 <h3 class="anchored" data-anchor-id="latin_syntaxer_review.py"><code>latin_syntaxer_review.py</code></h3>
-<p>Load a file with one or more saved analyses, pick a sentence fromthe menu that appears, and visualize it, as well as the interpretation of the analysis as an Agent-Action-Target (AAT)) graph.</p>
+<p>Review and visualize an analysis. Load a file with one or more saved analyses, pick a sentence from the menu that appears, and visualize it, as well as the interpretation of the analysis as an Agent-Action-Target (AAT)) graph.</p>
+</section>
+<section id="latin_syntaxer_compose_diagram.py" class="level3">
+<h3 class="anchored" data-anchor-id="latin_syntaxer_compose_diagram.py"><code>latin_syntaxer_compose_diagram.py</code></h3>
+<p>Compose diagrams of an analysis in the <code>dot</code> format used by the open-source <code>graphviz</code> software. Load a file with one or more saved analyses, pick a sentence from the menu that appears, and set diagramming opens. If you have installed <code>graphviz</code> on your system, displays within the notebook with option to save the <code>dot</code> file.</p>
+<blockquote class="blockquote">
+<p>How to <a href="../tutorials/diagrams.html">install dot</a></p>
+</blockquote>
 </section>
 <section id="latin_syntaxer_graphs.py" class="level3">
 <h3 class="anchored" data-anchor-id="latin_syntaxer_graphs.py"><code>latin_syntaxer_graphs.py</code></h3>
-<p>Similar to <code>latin_syntaxer_review.py</code>, but pick one <em>or more</em> sentences from a multiselect (rather than a single sentence from a dropdown). The dependency graph for each sentence is instantiated as a NetworkX <code>MultiDiGraph</code> and basic graph metrics are computed to compare the syntactic form and complexity of the chosen sentences.</p>
+<p>Compute graph metrics for an analysis. Similar to <code>latin_syntaxer_review.py</code>, but pick one <em>or more</em> sentences from a multiselect (rather than a single sentence from a dropdown). The dependency graph for each sentence is instantiated as a NetworkX <code>MultiDiGraph</code> and basic graph metrics are computed to compare the syntactic form and complexity of the chosen sentences.</p>
 
 
 </section>
@@ -691,6 +707,19 @@ Warning
   });
   </script>
 </div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Documentation for release version <strong>0.6.0</strong></p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
 
 
 
