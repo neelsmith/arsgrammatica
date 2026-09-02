@@ -2,7 +2,7 @@
 title: Generate PNG diagrams for multiple analyses
 ---
 
-You can generate PNG diagrams for any number of saved analyses with the `analyses_to_dot_pngs.py` script. Like `analysis_to_dot.py`, it uses the open source graphviz program, so [install graphviz first](../diagrams.qmd).
+You can generate PNG diagrams for any number of saved analyses with the `analyses_to_dot_pngs.py` script. Like `analysis_to_dot.py`, it uses the open source graphviz program, so [install graphviz first](../tutorials/diagrams.qmd).
 
 Name a directory for output and list any number of files to diagram:
 

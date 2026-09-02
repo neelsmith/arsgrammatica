@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Marimo notebooks for Latin syntactic analysis – arsgrammatica</title>
+<title>Generate PNG diagrams for multiple analyses – arsgrammatica</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -165,7 +165,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../tutorials/marimo.html">Marimo notebooks for Latin syntactic analysis</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../tutorials/batch-images.html">Generate PNG diagrams for multiple analyses</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -186,7 +186,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../tutorials/marimo.html" class="sidebar-item-text sidebar-link active">
+  <a href="../tutorials/marimo.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Marimo notebooks for Latin syntactic analysis</span></a>
   </div>
 </li>
@@ -204,7 +204,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../tutorials/batch-images.html" class="sidebar-item-text sidebar-link">
+  <a href="../tutorials/batch-images.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Generate PNG diagrams for multiple analyses</span></a>
   </div>
 </li>
@@ -220,31 +220,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#marimo-notebooks-for-analysis-with-a-configured-language-model" id="toc-marimo-notebooks-for-analysis-with-a-configured-language-model" class="nav-link active" data-scroll-target="#marimo-notebooks-for-analysis-with-a-configured-language-model">Marimo notebooks for analysis with a configured language model</a>
-  <ul class="collapse">
-  <li><a href="#latin_syntaxer_workflow.py" id="toc-latin_syntaxer_workflow.py" class="nav-link" data-scroll-target="#latin_syntaxer_workflow.py"><code>latin_syntaxer_workflow.py</code></a></li>
-  <li><a href="#latin_syntaxer_ctsdata.py" id="toc-latin_syntaxer_ctsdata.py" class="nav-link" data-scroll-target="#latin_syntaxer_ctsdata.py"><code>latin_syntaxer_ctsdata.py</code></a></li>
-  </ul></li>
-  <li><a href="#notebooks-for-working-with-saved-analyses" id="toc-notebooks-for-working-with-saved-analyses" class="nav-link" data-scroll-target="#notebooks-for-working-with-saved-analyses">Notebooks for working with saved analyses</a>
-  <ul class="collapse">
-  <li><a href="#latin_syntaxer_review.py" id="toc-latin_syntaxer_review.py" class="nav-link" data-scroll-target="#latin_syntaxer_review.py"><code>latin_syntaxer_review.py</code></a></li>
-  <li><a href="#latin_syntaxer_compose_diagram.py" id="toc-latin_syntaxer_compose_diagram.py" class="nav-link" data-scroll-target="#latin_syntaxer_compose_diagram.py"><code>latin_syntaxer_compose_diagram.py</code></a></li>
-  <li><a href="#latin_syntaxer_graphs.py" id="toc-latin_syntaxer_graphs.py" class="nav-link" data-scroll-target="#latin_syntaxer_graphs.py"><code>latin_syntaxer_graphs.py</code></a></li>
-  </ul></li>
-  </ul>
-</nav>
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Marimo notebooks for Latin syntactic analysis</h1>
+<h1 class="title">Generate PNG diagrams for multiple analyses</h1>
 </div>
 
 
@@ -261,55 +245,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p><a href="https://marimo.io">marimo</a> is a reactive notebook system written in Python. You can find the notebooks listed in the <code>marimo</code> directory of the <code>arsgrammatica</code> github repository, here are available in the <code>marimo</code> directory, and run them as you would any marimo notebook, e.g., <code>marimo run NOTEBOOKNAME.py</code>.</p>
-<div class="callout callout-style-default callout-warning callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Warning
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>The poorly chosen names for these notebooks will certainly be changed (and improved!) in a future release of <code>arsgrammatica</code>.</p>
-</div>
-</div>
-<section id="marimo-notebooks-for-analysis-with-a-configured-language-model" class="level2">
-<h2 class="anchored" data-anchor-id="marimo-notebooks-for-analysis-with-a-configured-language-model">Marimo notebooks for analysis with a configured language model</h2>
-<p><code>latin_syntaxer_workflow.py</code> and <code>latin_syntaxer_ctsdata.py</code> use a configured language model to analyze the syntax of Latin text. To configure your model, create an <code>.env</code> file like this:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="va">API_BASE</span><span class="op">=</span>https://localmodel/api</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="va">MODEL</span><span class="op">=</span>litellm/modelname</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="va">API_KEY</span><span class="op">=</span>your-key-here</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<section id="latin_syntaxer_workflow.py" class="level3">
-<h3 class="anchored" data-anchor-id="latin_syntaxer_workflow.py"><code>latin_syntaxer_workflow.py</code></h3>
-<p>A notebook for a real-world testing loop. Enter text content and identifier for a passage, analyze it, and visualize the results. Optionally download the analysis results.</p>
-</section>
-<section id="latin_syntaxer_ctsdata.py" class="level3">
-<h3 class="anchored" data-anchor-id="latin_syntaxer_ctsdata.py"><code>latin_syntaxer_ctsdata.py</code></h3>
-<p>Citable passage to analyze come from a source file in CEX format. Load a file, then pick one or more passages to analyze from a multiselect menu. Note: this can be handy when you want to analyze sentences that span more than one citation unit, as frequently or usually happens in Latin poetry. Analyze and visualize the result. Optionally download the analysis results</p>
-</section>
-</section>
-<section id="notebooks-for-working-with-saved-analyses" class="level2">
-<h2 class="anchored" data-anchor-id="notebooks-for-working-with-saved-analyses">Notebooks for working with saved analyses</h2>
-<section id="latin_syntaxer_review.py" class="level3">
-<h3 class="anchored" data-anchor-id="latin_syntaxer_review.py"><code>latin_syntaxer_review.py</code></h3>
-<p>Review and visualize an analysis. Load a file with one or more saved analyses, pick a sentence from the menu that appears, and visualize it, as well as the interpretation of the analysis as an Agent-Action-Target (AAT)) graph.</p>
-</section>
-<section id="latin_syntaxer_compose_diagram.py" class="level3">
-<h3 class="anchored" data-anchor-id="latin_syntaxer_compose_diagram.py"><code>latin_syntaxer_compose_diagram.py</code></h3>
-<p>Compose diagrams of an analysis in the <code>dot</code> format used by the open-source <code>graphviz</code> software. Load a file with one or more saved analyses, pick a sentence from the menu that appears, and set diagramming opens. If you have installed <code>graphviz</code> on your system, displays within the notebook with option to save the <code>dot</code> file.</p>
-<blockquote class="blockquote">
-<p>How to <a href="../tutorials/diagrams.html">install dot</a></p>
-</blockquote>
-</section>
-<section id="latin_syntaxer_graphs.py" class="level3">
-<h3 class="anchored" data-anchor-id="latin_syntaxer_graphs.py"><code>latin_syntaxer_graphs.py</code></h3>
-<p>Compute graph metrics for an analysis. Similar to <code>latin_syntaxer_review.py</code>, but pick one <em>or more</em> sentences from a multiselect (rather than a single sentence from a dropdown). The dependency graph for each sentence is instantiated as a NetworkX <code>MultiDiGraph</code> and basic graph metrics are computed to compare the syntactic form and complexity of the chosen sentences.</p>
+<p>You can generate PNG diagrams for any number of saved analyses with the <code>analyses_to_dot_pngs.py</code> script. Like <code>analysis_to_dot.py</code>, it uses the open source graphviz program, so <a href="../diagrams.qmd">install graphviz first</a>.</p>
+<p>Name a directory for output and list any number of files to diagram:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> analyses_to_dot_pngs.py analysis_folder/<span class="pp">*</span>.cex <span class="at">--output</span> dot_diagrams</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>You can specify the orientation as <code>RL</code> or <code>BT</code>. (Since the token dependencies run from <em>subordinated</em> item towards the <em>verb</em>, e.g., <em>subject</em> –&gt; <em>verb</em>, independent verbs will be at the top of a <code>BT</code> diagram, and the left of <code>RL</code> diagram.)</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> analyses_to_dot_pngs.py analysis_folder/<span class="pp">*</span>.cex <span class="at">--output</span> dot_diagrams <span class="at">--orientation</span> RL</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>See the <a href="../arsgrammatica-api-docs.html">API documentation</a> for other options.</p>
 
 
-</section>
-</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
