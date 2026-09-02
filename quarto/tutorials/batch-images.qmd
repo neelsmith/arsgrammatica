@@ -1,0 +1,20 @@
+---
+title: Generate PNG diagrams for multiple analyses
+---
+
+You can generate PNG diagrams for any number of saved analyses with the `analyses_to_dot_pngs.py` script. Like `analysis_to_dot.py`, it uses the open source graphviz program, so [install graphviz first](../diagrams.qmd).
+
+Name a directory for output and list any number of files to diagram:
+
+```bash
+python3 analyses_to_dot_pngs.py analysis_folder/*.cex --output dot_diagrams
+```
+
+
+You can specify the orientation as `RL` or `BT`. (Since the token dependencies run from *subordinated* item towards the *verb*, e.g., *subject* --> *verb*, independent verbs will be at the top of a `BT` diagram, and the left of `RL` diagram.)
+
+```bash
+python3 analyses_to_dot_pngs.py analysis_folder/*.cex --output dot_diagrams --orientation RL
+```
+
+See the [API documentation](../arsgrammatica-api-docs.html) for other options.

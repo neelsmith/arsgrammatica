@@ -38,6 +38,7 @@ website:
         - tutorials/marimo.md
         - tutorials/cli.qmd
         - tutorials/diagrams.qmd
+        - tutorials/batch-images.qmd
         - "---"
         - tutorials/quick.qmd
     - title: "Concepts"

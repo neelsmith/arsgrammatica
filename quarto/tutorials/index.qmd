@@ -7,7 +7,8 @@ title: Tutorials
 
 - [marimo notebooks](./marimo.md) for syntax analysis
 - analyze Latin with a [command line script](./cli.qmd)
-- [diagram analyses](./diagrams.qmd)
+- [diagram analyses](./diagrams.qmd) with graphviz
+- generate [PNG diagrams from saved analyses](./batch-images.qmd) with graphviz
 
 
 ## Using the `arsgrammatica` package in python
