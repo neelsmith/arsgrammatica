@@ -1,5 +1,5 @@
 ---
-title: marimo notebooks
+title: Marimo notebooks for Latin syntactic analysis
 ---
 
 [marimo](https://marimo.io) is a reactive notebook system written in Python. You can find the notebooks listed in the `marimo` directory of the `arsgrammatica` github repository,  here are available in the `marimo` directory, and run them as you would any marimo notebook, e.g., `marimo run NOTEBOOKNAME.py`.
@@ -36,9 +36,19 @@ Citable passage to analyze come from a source file in CEX format. Load a file, t
 
 ### `latin_syntaxer_review.py`
 
-Load a file with one or more saved analyses, pick a sentence fromthe menu that appears, and visualize it, as well as the interpretation of the analysis as an Agent-Action-Target (AAT)) graph.
+For review and visualization of an analysis. Load a file with one or more saved analyses, pick a sentence from the menu that appears, and visualize it, as well as the interpretation of the analysis as an Agent-Action-Target (AAT)) graph.
+
+
+
+### `latin_syntaxer_compose_diagram.py`
+
+Compose diagrams in the `dot` format used by the open-source `graphviz` software. Load a file with one or more saved analyses, pick a sentence from the menu that appears, and set diagramming opens. If you have installed `graphviz` on your system, displays within the notebook with option to save the `dot` file.
+
+
+
+
 
 
 ### `latin_syntaxer_graphs.py`
 
-Similar to `latin_syntaxer_review.py`, but pick one *or more* sentences from a multiselect (rather than a single sentence from a dropdown). The dependency graph for each sentence is instantiated as a NetworkX `MultiDiGraph` and basic graph metrics are computed to compare the syntactic form and complexity of the chosen sentences.
+For graph analysis. Similar to `latin_syntaxer_review.py`, but pick one *or more* sentences from a multiselect (rather than a single sentence from a dropdown). The dependency graph for each sentence is instantiated as a NetworkX `MultiDiGraph` and basic graph metrics are computed to compare the syntactic form and complexity of the chosen sentences.

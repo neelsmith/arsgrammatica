@@ -1,14 +1,21 @@
 # Installing arsgrammatica
 
-Just use the package
+Not on PyPI -- every install here is a direct git reference. Two cases: using the package as-is, or checking it out to develop/test it.
+
+## Just use the package
 
 ```sh
 pip install git+https://github.com/neelsmith/arsgrammatica.git
 ```
 
+Pin to a branch or tag if you don't want `main`:
+
+```sh
+pip install git+https://github.com/neelsmith/arsgrammatica.git@wip
+pip install git+https://github.com/neelsmith/arsgrammatica.git@v0.5.0
 ```
 
-Include `aat` :
+### Optional: the `aat` extra
 
 Only needed for `attgraph()` (`arsgrammatica/aat_bridge.py`), converting an analysis to an Agent-Action-Target graph. The separate `aat` package isn't on PyPI either, so pick one:
 
@@ -20,7 +27,7 @@ pip install git+https://github.com/neelsmith/aat.git
 pip install "arsgrammatica[aat] @ git+https://github.com/neelsmith/arsgrammatica.git"
 ```
 
-Developing (checkout + tests)
+## Developing (checkout + tests)
 
 ```sh
 git clone https://github.com/neelsmith/arsgrammatica.git
@@ -51,7 +58,7 @@ pip install -e ".[aat]"
 
 ### Dev-only tools
 
-`pyproject.toml` has a `dev` extra covering all of this in one shot (pytest, python-dotenv, pdoc, marimo) -- combine it with the editable install above:
+`pyproject.toml` has a `dev` extra covering all of this in one shot (pytest, python-dotenv, pdoc, marimo, graphviz) -- combine it with the editable install above:
 
 ```sh
 pip install -e ".[dev]"
@@ -65,7 +72,10 @@ Without the editable install, the same tools can still be installed by hand:
 pip install pytest python-dotenv       # running the test suite, .env-based LM config
 pip install pdoc                       # regenerating docs/arsgrammatica-api-docs.html
 pip install marimo                     # the notebooks in marimo/
+pip install graphviz                   # rendering DOT diagrams in marimo/latin_syntaxer_dot.py
 ```
+
+The `graphviz` *package* is only a subprocess wrapper -- rendering a diagram (not generating its DOT source, which needs no dependency at all) also needs Graphviz's own `dot` executable installed separately and on your PATH (e.g. `brew install graphviz` on macOS, `apt install graphviz` on Linux). See `notes/dot_diagrams.md`.
 
 ### Running tests
 

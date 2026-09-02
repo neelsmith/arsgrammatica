@@ -1,6 +1,12 @@
 # Release history
 
-Current version: **0.4.0**.
+Current version: **0.5.0**.
+
+
+**0.6.0**: *??*:
+
+Additions: generate graphviz dot graphs. CL tool for that, too. More than 1000 tests.
+
 
 **0.5.0**, *Sept. 1, 2026*: 
 
