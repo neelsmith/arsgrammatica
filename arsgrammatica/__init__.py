@@ -44,6 +44,7 @@ from .segmentation_serialization import (
     read_segmentation,
 )
 from .token_budget import estimate_max_tokens, analyze_with_retry, get_calibration, DEFAULT_CEILING
+from .lm_cost import LMCostSummary, summarize_lm_cost, format_lm_cost
 
 # attgraph() depends on the separate `aat` package, which most callers of
 # arsgrammatica have no need to install at all -- not on PyPI, so
@@ -125,5 +126,8 @@ __all__ = [
     "analyze_with_retry",
     "get_calibration",
     "DEFAULT_CEILING",
+    "LMCostSummary",
+    "summarize_lm_cost",
+    "format_lm_cost",
     "attgraph",
 ]

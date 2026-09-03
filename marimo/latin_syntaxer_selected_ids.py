@@ -50,9 +50,9 @@ def _(ctsdata_error, ctsdata_rows, mo):
     return
 
 
-@app.cell
-def _():
-    # available_ids_display
+@app.cell(hide_code=True)
+def _(available_ids_display):
+    available_ids_display
     return
 
 
@@ -150,10 +150,10 @@ def _(finaltokens, seetokens):
 
 
 @app.cell(hide_code=True)
-def _(cost, mo, seecost):
+def _(cost_summary, format_lm_cost, mo, seecost):
     costdisplay = None
     if seecost.value:
-        costdisplay = mo.md(f"**Cost of last LM call**: {cost}")
+        costdisplay = mo.md(f"**LM cost so far**: {format_lm_cost(cost_summary)}")
     costdisplay
     return
 
@@ -264,7 +264,7 @@ def _(ctsdata_rows, mo):
         )
     else:
         available_ids_display = mo.md("")
-    return
+    return (available_ids_display,)
 
 
 @app.cell
@@ -342,7 +342,7 @@ def _(ctsdata_rows, missing_ids, mo, parsed_passage_ids, selected_rows):
 
 
 @app.cell
-def _(ctsdata_rows, missing_ids, mo, parsed_passage_ids):
+def _(ctsdata_rows, id_status, mo, missing_ids, parsed_passage_ids):
     # A new instance is created (and analyze_button.value resets to False)
     # every time the id text box or the loaded file changes, same
     # rationale as latin_syntaxer_ctsdata.py's own analyze_button -- so
@@ -420,12 +420,7 @@ def _(mo):
 
 
 @app.cell
-def _(
-    analyze_button,
-    analyze_selected_passages,
-    ctsdata_rows,
-    parsed_passage_ids,
-):
+def _(analyze_button, analyze_selected_passages, ctsdata_rows, parsed_passage_ids):
     # Analyze exactly the passages named in parsed_passage_ids, when the
     # Analyze button is clicked. analyze_selected_passages() (pipeline.py)
     # selects those ids out of ctsdata_rows in the SOURCE FILE'S OWN
@@ -484,17 +479,26 @@ def _():
 
 
 @app.cell
-def _(lm):
-    last_call = None
-    if lm.history:
-        last_call = lm.history[-1]
-    return (last_call,)
-
-
-@app.cell
-def _(last_call):
-    cost = last_call.get('cost')
-    return (cost,)
+def _(lm, results, summarize_lm_cost):
+    # The `_ = results` line below doesn't do anything with `results` --
+    # it exists purely so marimo sees this cell as depending on it (marimo
+    # derives a cell's inputs from actual name usage in its body, not just
+    # the function signature) and re-runs the cell on every Analyze click.
+    # Depending on `lm` alone doesn't do that: lm.history is mutated in
+    # place by each LM call, and marimo only re-runs a cell when a
+    # variable it actually reads is REASSIGNED -- `lm` itself never is,
+    # after configure_lm() first creates it -- see
+    # latin_syntaxer_ctsdata.py's identical cell/comment for the full
+    # explanation.
+    _ = results
+    #
+    # summarize_lm_cost() (arsgrammatica/lm_cost.py) sums cost across
+    # EVERY call in lm.history, not just the last one, and never crashes
+    # on an empty history (true before the first Analyze click) or a call
+    # served from dspy's own cache (cost=None) -- see that module's own
+    # docstring.
+    cost_summary = summarize_lm_cost(lm.history)
+    return (cost_summary,)
 
 
 @app.cell(hide_code=True)
@@ -604,7 +608,9 @@ def _(Path):
         tokengraph_to_depth_html,
         serialize_analyses,
         read_ctsdata,
-        max_subordination_depth
+        max_subordination_depth,
+        summarize_lm_cost,
+        format_lm_cost,
     )
 
     return (
@@ -618,6 +624,8 @@ def _(Path):
         tokengraph_to_html,
         tokengraph_to_mermaid,
         tokengraph_to_text,
+        summarize_lm_cost,
+        format_lm_cost,
     )
 
 

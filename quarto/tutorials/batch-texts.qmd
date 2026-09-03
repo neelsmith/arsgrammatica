@@ -1,0 +1,23 @@
+---
+title: Utilities to simplify analyzing a corpus
+---
+
+
+## Analyzing a corpus
+
+If you want to analyze an entire corpus that you have in a CEX-format file, use`analyze_ctsdata_to_files.py`
+
+```sh
+python utilities/analyze_ctsdata_to_files.py corpus.cex 
+     --output-dir analyses/
+```
+
+## Working with part of a corpus
+
+`group_ctsdata_by_sentence.py`: get URNs grouped by sentences. Does not require LM.
+
+`tokenize_ctsdata.py`: get a table of tokens with stable ids for a specific version (edition/translation) of a text. Does not require LM.
+
+
+
+

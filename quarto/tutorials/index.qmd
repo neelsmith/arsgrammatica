@@ -9,6 +9,7 @@ title: Tutorials
 - analyze Latin with a [command line script](./cli.qmd)
 - [diagram analyses](./diagrams.qmd) with graphviz
 - generate [PNG diagrams from saved analyses](./batch-images.qmd) with graphviz
+- simplify [batch-processing texts](./batch-texts.qmd)
 
 
 ## Using the `arsgrammatica` package in python
