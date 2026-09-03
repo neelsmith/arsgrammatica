@@ -16,6 +16,7 @@ dspy.configure(lm=dspy.LM(model="litellm_proxy/anthropic/Claude Opus 5",
 
 ```python
 from arsgrammatica import analyze_string
+
 sentences, results = analyze_string("Gallia est omnis divisa in partes tres.")
 ```
 
@@ -35,7 +36,7 @@ sources = [
     CitedText(citation=f"{aeneid}1.2", text="Ītaliam, fātō profugus, Lāvīniaque vēnit"),
 ]
 sentences, results = analyze_sources(sources)
-tokengraph = combined_tokengraph(results)  # one flat list, spanning every sentence
+
 ```
 
 Note that sentence boundaries don't need to respect citation-unit boundaries (one sentence may span multiple source lines, as above)
@@ -48,7 +49,7 @@ Note that sentence boundaries don't need to respect citation-unit boundaries (on
 
 ```python
 from arsgrammatica import analyze_ctsdata
-sents, res = analyze_ctsdata("path/to/cexfile")
+sentences, results = analyze_ctsdata("path/to/cexfile")
 ```
 
 ### Working with results of an analysis
