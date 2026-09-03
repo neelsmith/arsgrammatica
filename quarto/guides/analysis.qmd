@@ -51,9 +51,6 @@ Note that sentence boundaries don't need to respect citation-unit boundaries (on
 2.  a corresponding list of `SentenceAnalysis` objects, one for each sentence.
 
 
-A `SentenceAnalysis` has two a list of `VerbalExpression` objects in its `verbalunits` property, and an ordered list of  `TokenAnalysis` objects in its `tokengraph` property.
+A `SentenceAnalysis` has a list of `VerbalExpression` objects in its `verbalunits` property, and an ordered list of  `TokenAnalysis` objects in its `tokengraph` property.
 
-
-
-`validate()` only catches referential problems like that one -- ids that don't exist. It can't tell you an otherwise well-formed analysis is probably still wrong. 
-
+For examples of things you can do with lists of `VerbalExpression` and `TokenAnalysis` objects, such as visualizing and analyzing syntax graphs, see [further recipes](../guides/)

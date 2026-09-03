@@ -27,6 +27,7 @@ from .pipeline import (
     analyze_string,
     analyze_sources,
     analyze_selected_passages,
+    analyze_ctsdata,
     combined_tokengraph,
 )
 from .passage_grouping import group_passages_by_sentence_boundary
@@ -111,6 +112,7 @@ __all__ = [
     "segment_sources",
     "analyze_sources",
     "analyze_selected_passages",
+    "analyze_ctsdata",
     "combined_tokengraph",
     "group_passages_by_sentence_boundary",
     "LMInfo",

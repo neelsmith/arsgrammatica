@@ -1,17 +1,22 @@
-# Testing without network access
+# Running tests with `pytest`
+
+
+The `arsgrammatica` package includes two kinds of tests: 
+
+1. off-line tests of the package's fundamental structures (models of syntax, DSPy signatures for interacting with language models, etc) without any connection to a language model
+2. live tests that make calls to a configured language model
+
+Tests that call the configured LM are marked `live` and skipped by default. To run all offline tests:
 
 ```bash
 pytest
 ```
 
-Runs the whole suite against `tests/`, using DSPy's `DummyLM` in place of a real LM call — useful for confirming the models/signatures/pipeline still fit together after you change something, without spending API calls. Tests that call the actual configured LM are marked `live` and skipped by default (they're the only way to check the LM itself gets a scenario right, not just that the code can represent a correct answer); run them explicitly
-with:
+Run the live tests:
 
 ```bash
 pytest -m live
 ```
-
-(`live` tests need a working `.env`, same as `syntaxer_main.py`; they skip gracefully if `API_KEY` isn't set.)
 
 Some standard `pytest` shorthands:
 

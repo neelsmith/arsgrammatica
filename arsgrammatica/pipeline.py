@@ -14,6 +14,7 @@ from .models import CitedText, Sentence
 from .segmentation_dspy import segment_sources
 from .latin_syntax_dspy import validate
 from .token_budget import analyze_with_retry
+from .ctsdata import read_ctsdata
  
  
 def _render_sentence_text(sentence: Sentence) -> str:
@@ -135,3 +136,33 @@ def analyze_selected_passages(
         )
 
     return analyze_sources(selected)
+
+
+def analyze_ctsdata(path: str, delimiter: str = "|") -> Tuple[List[Sentence], list]:
+    """Convenience wrapper for the common case of a whole `#!ctsdata` (CEX)
+    source file on disk, rather than an in-memory `List[CitedText]` --
+    reads `path` with `read_ctsdata()` (ctsdata.py) and runs the result
+    straight through `analyze_sources()`, the same "read a CEX corpus,
+    then analyze it" pair every entry point in this codebase that starts
+    from a CEX file already does by hand (`utilities/tokenize_ctsdata.py`,
+    `utilities/analyze_ctsdata_to_files.py`, `utilities/
+    group_ctsdata_by_sentence.py`, each of the marimo ctsdata notebooks).
+
+    `delimiter` is passed straight through to `read_ctsdata()` -- it's the
+    SOURCE file's own column delimiter ('|' by default, matching every
+    other serialized format in this codebase), not related to anything
+    `analyze_sources()` itself does.
+
+    Returns `(sentences, results)` -- the exact same shape
+    `analyze_sources()` returns, spanning every passage in `path`, in the
+    file's own order. Every passage in the file is analyzed; use
+    `analyze_selected_passages()` instead if only some of them are wanted.
+
+    Propagates `read_ctsdata()`'s own `ValueError`/`OSError` as-is for a
+    missing file or a malformed `#!ctsdata` block (see that function's own
+    docstring for exactly what's checked) -- raised before any LM call is
+    made, same as every CLI entry point that reads a CEX file up front for
+    the same reason.
+    """
+    cited_texts = read_ctsdata(path, delimiter=delimiter)
+    return analyze_sources(cited_texts)

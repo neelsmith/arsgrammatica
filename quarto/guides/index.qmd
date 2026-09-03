@@ -7,15 +7,24 @@ Guides for using `arsgrammatica` for particular tasks.
 
 ## Using the package
 
+
+### Analyzing Latin texts
+
 - [Installation options](./install.md)
 - [Analyzing Latin text](./analysis.qmd)
-- [Visualizing analysis results](./visualization.qmd)
 - [Saving and loading analyses](./saving-loading.qmd)
+
+### Visualizing analyses
+
+- [Highlighting text](./texthiliting.qmd) syntactically in HTML
+- Visualizing [syntax graphs with Mermaid](./mermaid.qmd)
+- Visualizing [syntax graphs with `graphviz`](./dotgraphs.qmd)
+
+### Analyzing analyses as graph structures
+
 - [Building an Agent-Action-Target (AAT) graph](./aat.qmd)
 
  
-
-
 
 ## Training a new model
 

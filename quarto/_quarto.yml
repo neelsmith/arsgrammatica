@@ -48,10 +48,15 @@ website:
     - title: "Guides"
       contents: 
         - guides/index.qmd      
+        - "---"
         - guides/install.md
         - guides/analysis.qmd
-        - guides/visualization.qmd
         - guides/saving-loading.qmd
+        - "---"        
+        - guides/texthiliting.qmd
+        - guides/mermaid.qmd
+        - guides/graphviz.qmd
+        - "---"
         - guides/aat.qmd
 
         - "---"

@@ -1,4 +1,4 @@
-# Selecting passages to analyze (`pipeline.analyze_selected_passages()`)
+# Selecting passages to analyze (`pipeline.analyze_selected_passages()`, `pipeline.analyze_ctsdata()`)
 
 `analyze_sources()` (`pipeline.py`) already takes a `List[CitedText]` and analyzes all of it. `analyze_selected_passages()` is a thin wrapper in front of it, for the common case of a bigger source list (e.g. everything `read_ctsdata()` loaded from a file) where only some passages are wanted for a given run.
 
@@ -37,3 +37,35 @@ A reference listing of every id actually available in the loaded file is shown a
 Everything downstream of selection -- the Mermaid diagram, the highlighted/indented HTML views, the `#!LM`-tagged `write_analyses()`-format download -- is unchanged from `latin_syntaxer_ctsdata.py`, since both notebooks feed the exact same `(sentences, results)` shape into the same rendering cells.
 
 No dedicated test file, matching this codebase's existing convention for marimo notebooks (none of them have one) -- its own new logic (`parse_passage_ids()`, the id-validation cells) is plain, easily-inspected list/set comprehensions, and the notebook's cell graph itself was checked with `marimo export script` (confirms every cell's dependencies resolve, with no undefined variables) plus a run of the exported script against a dummy `.env`, both cross-checked against an identical run of `latin_syntaxer_ctsdata.py` itself to confirm the two behave the same way outside marimo's interactive kernel.
+
+## `pipeline.analyze_ctsdata()`: read a whole CEX file and analyze it, in one call
+
+`analyze_selected_passages()` (above) still needs the caller to have already called `read_ctsdata()` themselves to get a `List[CitedText]`. `analyze_ctsdata(path, delimiter="|")` skips that step for the common case where every passage in a CEX file should be analyzed: it calls `read_ctsdata(path, delimiter=delimiter)` itself, then runs the result straight through `analyze_sources()`. It's the one-liner every entry point that starts from a `#!ctsdata` file on disk (`utilities/analyze_ctsdata_to_files.py`, `utilities/group_ctsdata_by_sentence.py`, each marimo `ctsdata` notebook) was already assembling by hand from those same two calls.
+
+### Usage
+
+```python
+from arsgrammatica import analyze_ctsdata
+
+sentences, results = analyze_ctsdata("genesis.ctsdata")
+```
+
+`delimiter` is `read_ctsdata()`'s own column delimiter (the character separating a line's URN from its text, `"|"` by default) -- it has nothing to do with `analyze_sources()` or the LM, it's just passed straight through:
+
+```python
+sentences, results = analyze_ctsdata("genesis.ctsdata", delimiter=";")
+```
+
+Same return shape as `analyze_sources()`/`analyze_selected_passages()`: `(sentences, results)`, one entry per sentence, spanning every passage in the file, in the file's own order.
+
+### Scope: everything in the file, no filtering
+
+Unlike `analyze_selected_passages()`, there's no `passage_ids` argument -- every passage `read_ctsdata()` finds in `path` gets analyzed. Use `read_ctsdata()` plus `analyze_selected_passages()` instead, by hand, when only some of a file's passages are wanted for a given run.
+
+### Errors surface before any LM call
+
+`analyze_ctsdata()` doesn't catch or wrap anything -- a missing file (`FileNotFoundError`, via plain `open()`) or a malformed `#!ctsdata` block (`ValueError`, naming the offending line -- see `read_ctsdata()`'s own docstring for exactly what's checked) propagates straight out of `read_ctsdata()`, before `analyze_sources()` -- and so before any LM call -- ever runs. Same ordering every CLI entry point that reads a CEX file up front already relies on.
+
+### Tests
+
+`tests/test_analyze_ctsdata.py` covers: reading and analyzing a single-passage file end to end, with citations flowing through from the file's own URNs; every passage in a multi-passage file gets analyzed, in file order; the `delimiter` argument is actually passed through to `read_ctsdata()` (a file using `;` instead of `|` still reads correctly); a missing file raises `FileNotFoundError` with no `DummyLM` configured at all, so an unexpected LM call would surface as a different, more confusing failure instead of silently passing; a malformed file raises `read_ctsdata()`'s own `ValueError`, also with no LM configured.
