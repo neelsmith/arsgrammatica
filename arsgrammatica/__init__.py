@@ -23,7 +23,13 @@ from .latin_syntax_dspy import (
     print_analysis,
 )
 from .segmentation_dspy import SegmentPassage, segment_sources
-from .pipeline import analyze_string, analyze_sources, combined_tokengraph
+from .pipeline import (
+    analyze_string,
+    analyze_sources,
+    analyze_selected_passages,
+    combined_tokengraph,
+)
+from .passage_grouping import group_passages_by_sentence_boundary
 from .serialization import (
     LMInfo,
     serialize_analyses,
@@ -103,7 +109,9 @@ __all__ = [
     "SegmentPassage",
     "segment_sources",
     "analyze_sources",
+    "analyze_selected_passages",
     "combined_tokengraph",
+    "group_passages_by_sentence_boundary",
     "LMInfo",
     "serialize_analyses",
     "write_analyses",

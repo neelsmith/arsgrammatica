@@ -96,4 +96,42 @@ def analyze_string(passage: str, citation: str = "") -> Tuple[List[Sentence], li
     contract need to change to unpack (sentences, results) and iterate.)
     """
     return analyze_sources([CitedText(citation=citation, text=passage)])
- 
+
+
+def analyze_selected_passages(
+    passage_ids: List[str], cited_texts: List[CitedText]
+) -> Tuple[List[Sentence], list]:
+    """Select the entries of `cited_texts` whose `citation` is in
+    `passage_ids`, then run exactly those through analyze_sources() --
+    e.g. after read_ctsdata() has loaded a whole source file but only some
+    of its passages are wanted for this run.
+
+    Selected passages are analyzed in `cited_texts`' OWN order, not
+    `passage_ids`' order -- the same convention
+    marimo/latin_syntaxer_ctsdata.py's own `selected_rows` cell already
+    uses, and for the same reason: segment_sources() (inside
+    analyze_sources()) treats consecutive sources as potentially sharing a
+    sentence, so an out-of-file-order source list could segment
+    incorrectly, or produce citations in a confusing order.
+    `passage_ids` therefore acts purely as a filter -- which passages to
+    include -- never as a sort key.
+
+    Raises ValueError, naming every missing id at once, if any entry of
+    `passage_ids` doesn't match any `cited_texts` citation -- a typo'd or
+    stale passage id fails loudly here rather than silently analyzing
+    fewer passages than asked for.
+
+    Returns (sentences, results) -- the exact same shape analyze_sources()
+    returns, spanning only the selected passages.
+    """
+    wanted = set(passage_ids)
+    selected = [ct for ct in cited_texts if ct.citation in wanted]
+
+    found = {ct.citation for ct in selected}
+    missing = sorted(pid for pid in wanted if pid not in found)
+    if missing:
+        raise ValueError(
+            f"passage id(s) not found in cited_texts: {missing!r}"
+        )
+
+    return analyze_sources(selected)
