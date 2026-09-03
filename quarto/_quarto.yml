@@ -69,6 +69,7 @@ website:
       contents: 
         - reference/index.qmd   
         - reference/relationshipvalues.qmd   
+        - reference/outputformats.qmd
 
 format:
   html:
