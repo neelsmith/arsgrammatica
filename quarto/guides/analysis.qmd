@@ -43,6 +43,14 @@ Note that sentence boundaries don't need to respect citation-unit boundaries (on
 > *Validation*: the `validate` function checks the results of an analysis for internal consistency, and compiles a list of problems it detects. Both `analyze_string()` and `analyze_sources` call `validate`, and print a print a warning if any are found.
 
 
+
+## Analyze a corpus
+
+```python
+from arsgrammatica import analyze_ctsdata
+sents, res = analyze_ctsdata("path/to/cexfile")
+```
+
 ### Working with results of an analysis
 
 `analyze_string()` and `analyze_sources()` return a pair of lists:
