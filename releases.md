@@ -2,9 +2,9 @@
 
 Current version: **0.6.0**.
 
-**0.7.0** *??*: Adds CL script to batch process analyses and create PNGs using graphviz. Scripts and notebooks to batch analyse text into sentences and process from grouped listtings. Script ot anlayze a whole text.  Reworking of figuring LM cost. expanded docs
+**0.7.0** *??*: Adds CL script to batch process analyses and create PNGs using graphviz. Scripts and notebooks to batch analyse text into sentences and process from grouped listtings. Script ot anlayze a whole text.  Reworking of figuring LM cost. expanded docs. Adds Lewis-Short coordination.
 
-**0.6.0**: *Sept. 2, 2026*: Adds functions to represent token graphs in `dot` format, along with command-line tools and a new marimo notebook for creating and viewing `dot` graphs if `graphviz` is available. More than 1000 tests.
+**0.6.0**: *Sept. 2, 2026*: Adds functions to represent token graphs in `dot` format, along with command-line tools and a new marimo notebook for creating and viewing `dot` graphs if `graphviz` is available. More than 1000 tests. 
 
 
 **0.5.0**, *Sept. 1, 2026*: 
