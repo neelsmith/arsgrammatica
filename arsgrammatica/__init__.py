@@ -46,6 +46,14 @@ from .segmentation_serialization import (
 )
 from .token_budget import estimate_max_tokens, analyze_with_retry, get_calibration, DEFAULT_CEILING
 from .lm_cost import LMCostSummary, summarize_lm_cost, format_lm_cost
+from .lewis_short import (
+    LewisShortEntry,
+    LewisShortMatch,
+    LewisShortLexicon,
+    LEWIS_SHORT_URL,
+    read_lewis_short,
+    read_lewis_short_from_url,
+)
 
 # attgraph() depends on the separate `aat` package, which most callers of
 # arsgrammatica have no need to install at all -- not on PyPI, so
@@ -131,5 +139,11 @@ __all__ = [
     "LMCostSummary",
     "summarize_lm_cost",
     "format_lm_cost",
+    "LewisShortEntry",
+    "LewisShortMatch",
+    "LewisShortLexicon",
+    "LEWIS_SHORT_URL",
+    "read_lewis_short",
+    "read_lewis_short_from_url",
     "attgraph",
 ]
