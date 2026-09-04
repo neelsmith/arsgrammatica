@@ -16,18 +16,24 @@ marimo/latin_syntaxer_dot.py instead if you want to pick a single sentence
 out of a multi-sentence file.
 
 Usage:
-    python analysis_to_dot.py analysis.cex > analysis.dot
-    python analysis_to_dot.py analysis.cex --orientation LR > analysis.dot
-    python analysis_to_dot.py analysis.cex --no-color --no-rank > analysis.dot
+    python utilities/analysis_to_dot.py analysis.cex > analysis.dot
+    python utilities/analysis_to_dot.py analysis.cex --orientation LR > analysis.dot
+    python utilities/analysis_to_dot.py analysis.cex --no-color --no-rank > analysis.dot
 
     # Piped straight into Graphviz, if it's installed (see notes/install.md):
-    python analysis_to_dot.py analysis.cex | dot -Tsvg > analysis.svg
+    python utilities/analysis_to_dot.py analysis.cex | dot -Tsvg > analysis.svg
 """
 
 import argparse
 import sys
+from pathlib import Path
 
-from arsgrammatica import read_analyses, tokengraph_to_dot
+# utilities/ isn't the repo root -- add the root to sys.path so
+# "from arsgrammatica import ..." resolves the same way it does for a
+# script run straight from the repo root (see tokenize_ctsdata.py's own
+# copy of this comment/pattern).
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from arsgrammatica import read_analyses, tokengraph_to_dot  # noqa: E402
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

@@ -5,7 +5,7 @@ call fail the same way?
 
 Run this from the arsgrammatica folder with your .venv active:
 
-    python3 diagnose_max_tokens.py
+    python3 utilities/diagnose_max_tokens.py
 
 Paste back the full output. Whichever of the two calls below fails (one,
 both, or neither) tells us where to look next:

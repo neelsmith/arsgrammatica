@@ -12,7 +12,7 @@ entirely.)
 
 Run from the arsgrammatica folder with your .venv active:
 
-    python3 diagnose_proxy_raw.py
+    python3 utilities/diagnose_proxy_raw.py
 
 What to look for:
   - HTTP 200 with a real completion -> the proxy itself is fine; something
@@ -47,7 +47,7 @@ if not (api_base and model and api_key):
     raise SystemExit(
         "Missing API_BASE/MODEL/API_KEY -- run this from the arsgrammatica "
         "folder (the one with .env in it), e.g. `cd ~/Desktop/arsgrammatica "
-        "&& python3 diagnose_proxy_raw.py`."
+        "&& python3 utilities/diagnose_proxy_raw.py`."
     )
 
 # "litellm_proxy/anthropic/Claude Opus 5" -> the proxy itself expects the
