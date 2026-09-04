@@ -2,31 +2,35 @@
 title: Visualizing syntax graphs with Mermaid
 ---
 
-Compose a Mermaid diagram for a token graph:
+[Mermaid](https://mermaid.ai) is a lightweight diagramming language that is easily used in many Markdown viewers and editors, web environments, the [https://mermaid.live](https://mermaid.live) mermaid editor, and others. To compose a Mermaid diagram for a token graph:
 
 ```python
 from arsgrammatica import tokengraph_to_mermaid
 diagram, warnings = tokengraph_to_mermaid(result.tokengraph)
 ```
 
-`diagram` is Mermaid `graph` syntax you can use anywhere that renders Mermaid (many Markdown viewers, mermaid.live, etc.). 
+`warnings` lists any edge that got skipped because it pointed at a punctuation token or an id missing from `tokengraph`.
 
-`warnings` lists any edge that got skipped because it pointed at a punctuation token or an id missing from `tokengraph` — worth checking, since it usually traces back to a problem `validate()` already flagged. 
+You can save the diagram to a file with `save_mermaid`.
+
+```python
+from arsgrammatica import save_mermaid
+save_mermaid(diagram,"diagram.mmd")
+```
 
 
-### Options
-
-Both `tokengraph_to_mermaid()` and `save_mermaid()` take an optional `orientation` argument -- one of Mermaid's own flowchart orientation codes (`BT`, `TB`, `LR`, `RL`; see the [Mermaid flowchart docs](https://mermaid.js.org/syntax/flowchart.html)), used verbatim in the diagram's opening line. It defaults to `BT` (bottom-to-top):
+Both `tokengraph_to_mermaid` and `save_mermaid` accept one of Mermaid's orientation codes (`BT`, `TB`, `LR`, `RL`) in an optional `orientation` argument, with default value `BT` (bottom-to-top). Remember that the token graph is directed from subordinate to governing nodes. `BT` will result in root elements at the top, and `RL` will place root elements at the left of the diagram.
 
 ```python
 diagram, warnings = tokengraph_to_mermaid(
     result.tokengraph, 
-    orientation="LR")
+    orientation="RL")
 ```
 
 
-### Saving Mermaid diagrams
+
+## Limitations
 
 
-`save_mermaid()` in `arsgrammatica/mermaid.py` (import it as
-`from arsgrammatica.mermaid import save_mermaid`) writes the diagram straight to a `.mmd` file if you'd rather not copy/paste from the terminal. 
+Mermaid's layout engine cannot enforce aligning nodes by rank. (You can think of *rank* as the syntactic depth of the node, like the generations in a family tree.) This kind of alignment can make the diagram of very complex sentences easier to read. If you want diagrams aligned by rank, you can use the open-source `graphviz` program: see
+ "[Diagramming syntactic analyses](../tutorials/diagrams.qmd)".
