@@ -1,5 +1,5 @@
 ---
-title: Installation options
+title: Installing `arsgrammatica`
 ---
 
 
