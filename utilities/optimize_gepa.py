@@ -22,10 +22,10 @@ sentences well without a guarantee it generalizes to new ones. Revisit this
 once there are enough gold examples to hold some out.
 
 Usage:
-    python optimize_gepa.py                       # --auto light (default)
-    python optimize_gepa.py --auto medium
-    python optimize_gepa.py --max-metric-calls 40
-    python optimize_gepa.py --skip-baseline        # skip the pre-GEPA scoring pass
+    python utilities/optimize_gepa.py                       # --auto light (default)
+    python utilities/optimize_gepa.py --auto medium
+    python utilities/optimize_gepa.py --max-metric-calls 40
+    python utilities/optimize_gepa.py --skip-baseline        # skip the pre-GEPA scoring pass
 
 Needs the same .env as syntaxer_main.py (API_BASE/MODEL/API_KEY). Optionally
 set REFLECTION_MODEL (and REFLECTION_API_BASE/REFLECTION_API_KEY, if they
@@ -41,9 +41,13 @@ from pathlib import Path
 
 import dspy
 
+# utilities/ isn't the repo root -- add the root to sys.path (not just
+# ".parent", now that this script itself lives one level deeper) so
+# "import syntaxer_main" and "from arsgrammatica import ..." below resolve
+# the same way they do for a script run straight from the repo root.
+sys.path.insert(0, str(Path(__file__).parent.parent))
 # Reuse syntaxer_main.py's own .env-loading + LM-config helpers rather than
 # duplicating them.
-sys.path.insert(0, str(Path(__file__).parent))
 from syntaxer_main import _configure_lm, _env  # noqa: E402
 
 # tests/ isn't an installed package -- add it to sys.path the same way
@@ -51,7 +55,7 @@ from syntaxer_main import _configure_lm, _env  # noqa: E402
 # "from fixtures.gold_examples import GOLD_EXAMPLES" and
 # "from conftest import tokens_from_canned_answer" resolve the same way
 # they do under pytest, without duplicating either helper here.
-sys.path.insert(0, str(Path(__file__).parent / "tests"))
+sys.path.insert(0, str(Path(__file__).parent.parent / "tests"))
 from conftest import tokens_from_canned_answer  # noqa: E402
 from fixtures.gold_examples import GOLD_EXAMPLES  # noqa: E402
 
@@ -162,7 +166,11 @@ def main():
         metric=syntax_metric,
         reflection_lm=reflection_lm,
         track_stats=True,
-        log_dir=str(Path(__file__).parent / "gepa_logs"),
+        # gepa_logs/ stays at the repo root (matching .gitignore's own
+        # "gepa_logs/" entry and model_bakeoff.py's identical convention),
+        # not inside utilities/ -- .parent.parent, not .parent, now that
+        # this script lives one level deeper.
+        log_dir=str(Path(__file__).parent.parent / "gepa_logs"),
     )
     if args.max_metric_calls is not None:
         optimizer_kwargs["max_metric_calls"] = args.max_metric_calls

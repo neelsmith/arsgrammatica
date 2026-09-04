@@ -18,10 +18,10 @@ notes/install.md. `pip install -e ".[dev]"` covers the `graphviz` package;
 the `dot` executable itself is always a separate install, on top of that.
 
 Usage:
-    python analyses_to_dot_pngs.py analysis.cex --output-dir diagrams/
-    python analyses_to_dot_pngs.py a.cex b.cex c.cex --output-dir diagrams/
-    python analyses_to_dot_pngs.py analysis.cex --output-dir diagrams/ --orientation LR
-    python analyses_to_dot_pngs.py analysis.cex --output-dir diagrams/ --no-color --no-rank
+    python utilities/analyses_to_dot_pngs.py analysis.cex --output-dir diagrams/
+    python utilities/analyses_to_dot_pngs.py a.cex b.cex c.cex --output-dir diagrams/
+    python utilities/analyses_to_dot_pngs.py analysis.cex --output-dir diagrams/ --orientation LR
+    python utilities/analyses_to_dot_pngs.py analysis.cex --output-dir diagrams/ --no-color --no-rank
 
 One PNG per sentence, named "<file_stem>_<sentence_number>_<citation>.png"
 (alphanumeric-sanitized, same convention marimo/latin_syntaxer_dot.py's
@@ -39,7 +39,12 @@ import argparse
 import sys
 from pathlib import Path
 
-from arsgrammatica import read_analyses, split_analysis_by_sentence, tokengraph_to_dot
+# utilities/ isn't the repo root -- add the root to sys.path so
+# "from arsgrammatica import ..." resolves the same way it does for a
+# script run straight from the repo root (see tokenize_ctsdata.py's own
+# copy of this comment/pattern).
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from arsgrammatica import read_analyses, split_analysis_by_sentence, tokengraph_to_dot  # noqa: E402
 
 try:
     import graphviz
