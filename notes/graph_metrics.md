@@ -63,7 +63,7 @@ For `tokengraph_to_networkx()`: node/label/tokentype parity with `tokengraph_to_
 
 For `graph_metrics()`: a plain 3-token chain (bona puella venit) reading as a pure tree, fully hand-computed; a coordinating-conjunction fixture (Arma virumque cano) showing `cyclomatic_number == 1`, also fully hand-computed; an empty tokengraph and an all-punctuation tokengraph both producing an all-zero `GraphMetrics` rather than raising; and a malformed 2-token cycle reporting `is_acyclic=False`/`longest_chain=None` rather than raising.
 
-## `marimo/latin_syntaxer_graphs.py`
+## `marimo/latin_syntaxer_graph_metrics.py`
 
 A no-LM notebook UI for this module: browse a previously-saved analysis file (`write_analyses()`'s own format), pick one or more sentences from a multiselect (comparing several side by side is the whole point of a metrics view, unlike `latin_syntaxer_review.py`'s single-sentence dropdown), and see each selected sentence's own `graph_metrics()` output rendered as two small markdown tables -- "Size & complexity" and "Shape" -- plus a relationship-type tally line and any skipped-edge warnings for that sentence. `split_analysis_by_sentence()` slices the file's flat, whole-passage lists into one tokengraph per sentence first, so the rest of the notebook only ever has to think about "this one sentence's own tokengraph", exactly what `tokengraph_to_networkx()` expects. Selected sentences are always shown in file order regardless of click order, matching `latin_syntaxer_ctsdata.py`'s own `selected_rows` convention.
 
