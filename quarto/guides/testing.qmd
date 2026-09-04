@@ -1,4 +1,6 @@
-# Running tests with `pytest`
+---
+title: Running tests with `pytest`
+---
 
 
 The `arsgrammatica` package includes two kinds of tests: 

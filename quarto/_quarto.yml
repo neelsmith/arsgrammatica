@@ -63,12 +63,13 @@ website:
         - guides/optimizing.qmd
         - guides/bakeoff.qmd
         - guides/development.qmd
+        - guides/harvesting.qmd
+        - guides/testing.qmd
         - guides/tokenizing.qmd
         - "---"
         - guides/budgetingtokens.qmd
         - guides/managing_prompt_size.qmd
-        - guides/technical.qmd
-        - guides/testing.qmd
+
 
         
     - title: "Reference"
@@ -78,6 +79,7 @@ website:
         - reference/relationshipvalues.qmd   
         - reference/extendingscheme.qmd
         - reference/outputformats.qmd
+        - reference/testing.qmd
 
 format:
   html:

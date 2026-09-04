@@ -5,7 +5,7 @@ title: Recipes
 
 Guides for using `arsgrammatica` for particular tasks.
 
-## Using the package
+## Analyzing and visualizing syntax
 
 
 ### Analyzing Latin texts
@@ -28,15 +28,16 @@ Guides for using `arsgrammatica` for particular tasks.
 
 ## Training a new model
 
-- [optimizing](./optimizing.qmd)
-- [comparing models](./bakeoff.qmd)
-- [a development work flow](./development.qmd)
-- [tokenizing text without analysis](./tokenizing.qmd)
+- [Optimizing](./optimizing.qmd)
+- [Comparing models](./bakeoff.qmd)
+- [A development work flow](./development.qmd)
+- [Harvesting gold examples from real analyses](./harvesting.qmd)
+- [Test suite](./testing.qmd)
+- [Tokenizing text without analysis](./tokenizing.qmd)
 
 
-## Managing a workflow
+## Managing a language model
 
 - [Estimating tokens budget](./budgetingtokens.qmd)
 - [Keeping prompt size manageable](./managing_prompt_size.qmd)
-- Some additional [technical info](./technical.qmd)
-- [test suite](./testing.qmd)
+
