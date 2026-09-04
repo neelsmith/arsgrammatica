@@ -22,7 +22,13 @@ Same signature shape as `tokengraph_to_mermaid()`:
 - `depth` (default `None`) -- caps the diagram to nodes within a given *graph* distance of a root verb, dropping farther ones entirely. See "Depth filtering" below -- this is a THIRD depth notion, distinct from `rank_by_depth`'s, and easy to conflate with either that one or `tokengraph_to_depth_html()`'s own `depth`.
 - Returns `(dot_source, warnings)` -- same warnings as the Mermaid version (a skipped edge pointing at punctuation, a token excluded by the `depth` cutoff, or a missing id; more than 8 verbal units repeating colors). `depth` filtering itself never adds a warning.
 
-`save_dot(tokengraph, path, ...)` (in `arsgrammatica.dot`, not re-exported from the top-level package -- same treatment as `mermaid.save_mermaid()`) writes the diagram straight to a `.dot` file, and takes the same `depth` parameter.
+`save_dot(tokengraph, path, ...)` writes the diagram straight to a `.dot` file, and takes the same `depth` parameter. Both it and its Mermaid-side equivalent, `mermaid.save_mermaid()`, went unexported from the top-level package at first -- an oversight, not a deliberate design choice -- and are now both re-exported (`arsgrammatica.save_dot`, `arsgrammatica.save_mermaid`; see `arsgrammatica/__init__.py`).
+
+```python
+from arsgrammatica import save_dot
+
+warnings = save_dot(tokengraph, "analysis.dot")
+```
 
 ## Depth filtering
 
