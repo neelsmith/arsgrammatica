@@ -2,60 +2,20 @@
 title: Building an AAT (Agent-Action-Target) graph
 ---
 
-`attgraph()` (in `arsgrammatica/aat_bridge.py`) converts an already-completed analysis to an `AATGraph` from the separate [`aat`](https://github.com/neelsmith/aat) package ([API docs](https://neelsmith.github.io/aat/aat.html)) -- a much simpler, reductive Agent-Action-Target view of the same passage, alongside arsgrammatica's own full relational scheme. It needs `aat` installed -- `aat` isn't on PyPI, so install it straight from GitHub:
 
-```
-pip install git+https://github.com/neelsmith/aat.git
-```
+The [`aat`](https://github.com/neelsmith/aat) package defines a reductive model of natural language syntax focusing only on Agent-Action-Target relations, instantiated in an `AATGraph`. You can construct an `AATGraph` from an `arsgrammatica` analysis with the `attgraph` function.
 
-into whichever environment you run arsgrammatica from (its own `.venv`, most likely). `import arsgrammatica` works fine without it -- only actually calling `attgraph()` raises `ImportError`, naming this same install command. (If you separately `pip install` arsgrammatica itself, rather than just running it from a checkout on `sys.path` the way this repo's own scripts and notebooks do, `pip install '.[aat]'` from its directory reaches `aat` the same way, via `pyproject.toml`'s "aat" extra -- but a bare `pip install 'arsgrammatica[aat]'` will NOT work, since arsgrammatica itself isn't published on PyPI either.)
+Load a saved analysis, or analyze some Latin text (as here):
 
 ```python
-from arsgrammatica import analyze_string, attgraph
+from arsgrammatica import analyze_string
+sentences, results = analyze_string("Troia et huic loco nomen est.", citation="Livy 1.1.4:")
+```
 
-sentences, results = analyze_string("urbs a Romulo condita est.", citation="Livy 1.7")
+You can then construct an `AATGraph` from the resulting sentences and analyses.
+
+```python
+from arsgrammatica import attgraph
 graph, warnings = attgraph(sentences, results)
-for w in warnings:
-    print(f"Warning: {w}")
-
-for action in graph.actions():
-    print(action.value, [a.value for a in graph.agents_for(action)], [t.value for t in graph.targets_for(action)])
 ```
-
-`attgraph()` takes `(sentences, results)` in the exact shape `analyze_sources()`/`analyze_string()` return them, and returns `(graph, warnings)` -- the same "return warnings, don't raise" convention `compute_subordination_depths()` uses, not a bare `AATGraph`. An empty `warnings` list means nothing unusual was found, not that the underlying Latin analysis itself is correct; run `aat.core.validate.validate()` against the result (with a matching `CitableToken` list) for that.
-
-The role mapping applies the same rules `aat`'s own English pipeline documents, to Latin's relation scheme (see `aat_bridge.py`'s module docstring for the full reasoning and worked examples):
-
-- every verbal expression (`verbalunits` entry) becomes an *action* node. A compound form (e.g. "condita est") becomes one node, anchored at arsgrammatica's own compound-id convention (the form of *sum*), with `value` set to every component's text joined by spaces in surface order.
-- an action that's not an independent, root-level clause is *subordinated* to its governing verbal expression, via the new `find_governing_verbal_expression()` (see below).
-- the *agent* of a transitive-active, intransitive, or linking verb is its subject; the agent of a transitive-passive verb is its ablative-of-agent noun (resolved through the preposition that actually carries the "agent" relation label, to the noun it governs).
-- the *target* of a transitive-active verb is its direct object; the target of a transitive-passive verb is its (surface) subject; the target of a linking verb is its predicate complement -- this last rule isn't stated anywhere in arsgrammatica's own syntax model, but matches `aat`'s own documented convention for English and was adopted here on the premise that Latin "will work much like the English examples."
-- an agent/target candidate that's an implied/elided token (`IMPLIED_TOKENTYPES`) is skipped entirely, matching `aat`'s own "omit a role the passage doesn't express" convention -- an implied *action* (an "implied sum" or "continued discourse" verbal expression) is NOT skipped, since arsgrammatica -- unlike `aat`'s English pipeline -- can have one; it gets `mermaid.token_label()`'s usual placeholder text as `value` instead of an empty string.
-
-`aat`'s own model requires every node to carry a `context` (its per-passage identifier), which arsgrammatica's `TokenAnalysis` has no equivalent field for -- only the original `Token` objects in `Sentence.tokens` carry a `citation`, and only for real (non-implied) tokens. `attgraph()` resolves this by giving every node derived from one `Sentence` the SAME context: that sentence's own first token's citation (or `""` if it has none). This keeps every `related_node` link valid, since a relation never crosses a sentence boundary in this pipeline; a sentence whose tokens span more than one citation (arsgrammatica allows this -- see "Analyzing citable sources" above) gets a warning naming which citation was used.
-
-`verbal_units.find_governing_verbal_expression(tokengraph) -> {anchor id: governing anchor id, or None}` is a new, separately-exported building block `attgraph()` uses for subordination -- the same relation-chasing logic `compute_subordination_depths()` has always used internally, pulled out for reuse. `None` covers both "independent verb" and "chase failed to find a governing expression" alike (a distinction only `compute_subordination_depths()`, with its own warnings, needs to make); see its docstring for the one malformed-input case (two anchors relating directly to each other) it does not resolve to `None`.
-
-
-## Reading passages from a delimited-text source file
-
-`read_ctsdata()` (in `arsgrammatica/ctsdata.py`) reads a list of citable passages -- each one a CTS URN paired with its own text -- out of a pipe-delimited file, as a list of `CitedText` (the same type `segment_sources()`/`analyze_sources()` already take, so a row can be handed straight to either with no conversion). This is the input-side counterpart to `write_analyses()`/`read_analyses()` above (which handle an analysis's *results*, not the passages you're about to analyze):
-
-```python
-from arsgrammatica import read_ctsdata
-
-rows = read_ctsdata("passages.txt")
-for row in rows:
-    print(row.citation, "--", row.text)
-```
-
-The file has one or more `#!ctsdata` blocks, each with its own `urn|text` header row:
-
-```
-#!ctsdata
-urn|text
-urn:cts:compnov:bible.genesis.vulgate:45.1|Non se poterat ultra tenere.
-```
-
-Each row's `urn` column must be a 5-part, colon-separated CTS URN (e.g. `urn:cts:compnov:bible.genesis.vulgate:45.1`); `read_ctsdata()` validates that shape, then uses the URN verbatim, in full, as the resulting row's own `citation` -- there's no separate "base URN" piece kept around, since nothing downstream needs the URN in two pieces rather than one (a caller building a shorter display label can always recover the URN's own final segment with `row.citation.rpartition(":")[-1]`). Pass `delimiter=...` if the file itself uses something other than `|`. Like `read_analyses()`, this is deliberately strict (a malformed row or a urn that doesn't split into exactly 5 parts raises `ValueError`, naming the line) and merges multiple `#!ctsdata` blocks in file order.
 

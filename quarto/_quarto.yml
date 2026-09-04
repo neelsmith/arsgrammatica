@@ -55,7 +55,7 @@ website:
         - "---"        
         - guides/texthiliting.qmd
         - guides/mermaid.qmd
-        - guides/graphviz.qmd
+        - guides/dotgraphs.qmd
         - "---"
         - guides/aat.qmd
 
