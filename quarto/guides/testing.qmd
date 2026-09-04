@@ -6,17 +6,26 @@ The `arsgrammatica` package includes two kinds of tests:
 1. off-line tests of the package's fundamental structures (models of syntax, DSPy signatures for interacting with language models, etc) without any connection to a language model
 2. live tests that make calls to a configured language model
 
+
+## Off-line testing
+
+The whole `pytest` suite runs against `DummyLM`, not a real model. In `tests/fixtures/gold_examples.py`'s, `GOLD_EXAMPLES` defines a deliberately curated corpus. `test_coverage.py` enforces that every documented relation label, verbal-expression classification, and token type has at least one example exercising it.
+
 Tests that call the configured LM are marked `live` and skipped by default. To run all offline tests:
 
 ```bash
 pytest
 ```
 
-Run the live tests:
+## Testing with a real model
+
+Testing uses the model configured in your `.env` file. Run the live tests:
 
 ```bash
 pytest -m live
 ```
+
+## `pytest` cheat sheet
 
 Some standard `pytest` shorthands:
 
@@ -25,3 +34,4 @@ Some standard `pytest` shorthands:
 - `pytest tests/test_gold_examples.py` to run just one file. 
 - `pytest -k agent` to run only tests matching a substring. 
 - `pytest --collect-only` if you just want to see what it discovered without running anything.
+
