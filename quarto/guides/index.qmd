@@ -22,6 +22,7 @@ Guides for using `arsgrammatica` for particular tasks.
 
 ### Analyzing analyses as graph structures
 
+- Characterizing syntactic analyses with [graph metrics](./graphmetrics.qmd)
 - [Building an Agent-Action-Target (AAT) graph](./aat.qmd)
 
  
