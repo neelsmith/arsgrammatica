@@ -65,6 +65,7 @@ website:
         - guides/development.qmd
         - guides/tokenizing.qmd
         - "---"
+        - guides/budgetingtokens.qmd
         - guides/managing_prompt_size.qmd
         - guides/technical.qmd
         - guides/testing.qmd
@@ -75,6 +76,7 @@ website:
         - reference/index.qmd   
         - "---"
         - reference/relationshipvalues.qmd   
+        - reference/extendingscheme.qmd
         - reference/outputformats.qmd
 
 format:

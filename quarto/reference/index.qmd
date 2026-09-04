@@ -5,4 +5,5 @@ title: Reference
 
 - [API docs](../arsgrammatica-api-docs.html)
 - list of all [values used for relationships](./relationshipvalues.qmd) in syntax graph
+- [extending the syntax scheme](./extendingscheme.qmd)
 - format of [delimited-text serialization](./outputformats.qmd)

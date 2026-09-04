@@ -36,6 +36,7 @@ Guides for using `arsgrammatica` for particular tasks.
 
 ## Managing a workflow
 
+- [Estimating tokens budget](./budgetingtokens.qmd)
 - [Keeping prompt size manageable](./managing_prompt_size.qmd)
 - Some additional [technical info](./technical.qmd)
 - [test suite](./testing.qmd)

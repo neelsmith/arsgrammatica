@@ -1,38 +1,28 @@
-# Using and training language models with `arsgrammatica`
+# Improving  `arsgrammatica` by reading Latin
 
 
 
-This document describes how you can incorporate your results from reading real Latin texts with `arsgrammatica` into a repeatable development loop that constantly improves the package.
+You can incorporate the results of reading real Latin texts with `arsgrammatica` into a repeatable development loop that constantly improves the package. 
 
 
-## Why real-world testing, not just the gold-example suite
+When `arsgrammatica` fails to analyze the syntax of a passage correctly, we can use it to improve the model in one of three ways:
 
-`tests/fixtures/gold_examples.py`'s `GOLD_EXAMPLES` is a deliberately curated corpus: `test_coverage.py` enforces that every documented relation label, verbal-expression classification, and token type in `syntax_model.md` has at least one example exercising it, and the whole `pytest` suite runs against `DummyLM`, not a real model. That combination is exactly right for what it's for -- proving the code (`models.py`'s pydantic models, `validate()`, `verbal_units.py`, `rendering.py`, `mermaid.py`, `serialization.py`) correctly *represents* a correct answer -- but it can't tell you whether a live model actually *produces* one, and it can't surface a construction nobody has thought to write a fixture for yet.
-
-Running the analyzer against real Latin passages -- actual prose, not fixtures written to order -- is where you find the things the gold-example suite structurally can't show you:
-
-- a construction `syntax_model.md` doesn't document at all yet (this is exactly how the implied/elided-token feature -- `implied sum` and `continued discourse` in `TokenAnalysis.tokentype` -- came about: a real passage needed it, `syntax_model.md` was extended first, then the models/prompt/fixtures followed; see "A worked precedent" below);
-- a construction the scheme already documents, but the current prompt still gets wrong;
-- a genuinely ambiguous case that exposes a modeling choice worth deciding and flagging explicitly (`syntax_model.md` calling a construction a "circumstantial participle" when `VerbalExpression.syntactic_type` has no such value is a real example already resolved this way in `models.py`'s own docstrings -- flag the judgment call in a comment near the fixture, don't just quietly pick one and move on);
-- an ordinary, everyday construction the model already handles correctly -- not new information about the scheme, but real evidence worth locking in as a regression guardrail so a future prompt or model change can't silently break it without anyone noticing.
+- we need to add a new construction to the basic document `syntax_model.md`
+- we need better training on a construction that the scheme already documents, but the current prompt still gets wrong
+- a genuinely ambiguous case that exposes a modeling choice worth deciding and flagging explicitly 
 
 
-## The core loop: analyze, check automatically, review by hand, triage, act
+When `arsgrammatica` *correctly* handles a passage, that is real evidence that the model is working correctly. We can use manually vetted examples as checks to ensure that a future change to a prompt or model can't silently break this case without anyone noticing.
 
-1. **Analyze a real passage.** `analyze_passage(passage)` for a single string, or `analyze_sources(sources)` for a list of citation-labeled `CitedText` (see USAGE.md's "Analyzing citable sources") -- either returns `(sentences, results)`, one `SyntaxAnalysis` result per sentence found.
+Steps to take:
 
-2. **Run the automated checks first, before reading anything by hand.** `analyze_sources()` already calls `validate()` for you and prints any referential problems it finds (a token id that doesn't exist, a malformed implied token); `find_unanchored_coordinated_verbs(result.tokengraph)` (`verbal_units.py`) catches one more specific, observed live-LM mistake (a coordinating-conjunction pair where only one side anchors its own verbal unit) that's self-consistent enough to slip past `validate()`. Both are cheap and mechanical -- let them rule out the "obviously broken" cases before you spend a human read on anything.
-
-3. **Read the surviving result against `syntax_model.md` by hand.** This is the one step nothing in the codebase can do for you: `validate()` only checks referential integrity, never correctness, and neither `find_unanchored_coordinated_verbs()` nor any metric can substitute for actually knowing the Latin. `tokengraph_to_html()`/`tokengraph_to_depth_html()` (`rendering.py`, see `VISUALIZATION.md`) or `tokengraph_to_mermaid()` (`mermaid.py`) are worth rendering here -- seeing the verbal-unit coloring and subordination depth laid out is usually faster to check by eye than reading the raw `tokengraph` rows.
-
+1. **Analyze a real passage.**
+3. **Read the surviving result against `syntax_model.md` by hand.** 
 4. **Triage what you found into one of three outcomes, and act accordingly** (see the next section). Every outcome below can be turned into a `GoldExample` with `tests/fixtures/harvest.py`'s `gold_example_from_analysis()` -- the difference between them is what you do with the result afterward, not how you build it.
 
 
-## The three outcomes, and what to do with each
-
 ### Outcome A: a failure
 
-Something is referentially broken (`validate()`/`find_unanchored_coordinated_verbs()` caught it) or substantively wrong (you caught it by hand). Don't just note it and move on -- a failure is the most valuable signal this loop produces, because it's the main way the scheme and the prompt actually improve. Triage it further, in this order:
 
 1. **Is `syntax_model.md` actually silent or ambiguous about this construction?** If so, this is a scheme gap, not a model mistake. Extend `syntax_model.md` first, then follow USAGE.md's "Extending the scheme" steps: add the new relation label / `tokentype` / `syntactic_type` value to the relevant `Literal` in `arsgrammatica/models.py`, describe when to use it in `SyntaxAnalysis`'s docstring in `arsgrammatica/latin_syntax_dspy.py`, and hand-write a `GoldExample` with a *correct* `canned_answer` exercising it (since the live model, by definition, didn't produce one) in `tests/fixtures/gold_examples.py`. This is exactly how the implied-token feature was built.
 2. **Is the scheme already clear, but the prompt/model got it wrong anyway?** Hand-write a corrected `GoldExample` for the passage the same way, so the failure becomes a concrete, checkable trainset entry rather than an anecdote. If you're unsure between two defensible readings, say so explicitly in a comment above the fixture (matching the existing convention in `gold_examples.py` for judgment calls like the circumstantial-participle-of-*sum* case) rather than silently committing to one.
@@ -51,13 +41,16 @@ The model got something right that it was already expected to get right -- a pla
 The dividing line, in short: rare-and-tricky successes are worth teaching the optimizer with; common-and-already-reliable successes are worth protecting with a regression check. "Which bucket does this belong in" is a judgment call about how common the construction already is in `GOLD_EXAMPLES`, not about whether the analysis happened to be correct -- both outcomes started from a correct analysis.
 
 
-## How this feeds `OPTIMIZING.md` and `BAKEOFF.md`
+## How this feeds optimization and comparison of models
 
-`optimize_gepa.py` (OPTIMIZING.md) trains `SyntaxAnalysis`'s prompt against *all* of `GOLD_EXAMPLES`, with no separate held-out valset at all -- per `dspy.GEPA`'s own behavior when none is given, the trainset doubles as the Pareto-tracking set GEPA scores itself against. That means every fixture this loop adds to `GOLD_EXAMPLES` -- a corrected failure (Outcome A) or a harvested rare-construction success (Outcome B) -- becomes real trainset material the next time `optimize_gepa.py` runs, which is the main way the shipped prompt actually improves over time: not synthetic examples, but real passages that either broke something or demonstrated something worth reinforcing.
+`optimize_gepa.py`trains `SyntaxAnalysis`'s prompt against *all* of `GOLD_EXAMPLES`, with no separate held-out valset at all  (see [optimizing with GEPA](./optimizing.qmd))  -- per `dspy.GEPA`'s own behavior when none is given, the trainset doubles as the Pareto-tracking set GEPA scores itself against. 
+
+
+That means every fixture this loop adds to `GOLD_EXAMPLES` -- a corrected failure (Outcome A) or a harvested rare-construction success (Outcome B) -- becomes real trainset material the next time `optimize_gepa.py` runs, which is the main way the shipped prompt actually improves over time: not synthetic examples, but real passages that either broke something or demonstrated something worth reinforcing.
 
 **A known gap worth being aware of**: `optimize_gepa.py` has no mechanism today to *exclude* anything from its trainset -- unlike `model_bakeoff.py`, it doesn't consult `HELD_OUT_SLUGS` (or anything else) to keep held-out examples out of what it trains against. So an Outcome-C fixture you add specifically to protect as a held-out regression check for `model_bakeoff.py` purposes still gets folded into `optimize_gepa.py`'s trainset the next time it runs -- the two scripts don't currently share one consistent notion of "held out." Until that's addressed (e.g. by teaching `optimize_gepa.py` to skip `HELD_OUT_SLUGS` too), treat the held-out/trainset distinction described above as meaningful specifically *for `model_bakeoff.py`'s cross-model comparisons*, not as an airtight guarantee that held-out examples never influence the production prompt.
 
-`model_bakeoff.py` (BAKEOFF.md) is the one place in this repo with an actual train/eval firewall: its `gepa`/`bootstrap` stages never train against `HELD_OUT_SLUGS`, so every candidate model is compared on the same untouched slice. That slice was deliberately stratified by hand when it was first built (one plain independent clause, a couple of dependent-clause shapes, a coordinated-verb pair, an indirect statement, a circumstantial participle, a depth-2 nesting case, three newer relations); every Outcome-C fixture this loop produces is a natural way to keep growing that stratification with real passages rather than more hand-constructed ones, making `model_bakeoff.py`'s cross-model comparisons more representative as the held-out set grows.
+`model_bakeoff.py` (see [comparing models](./bakeoff.qmd)) is the one place in this repo with an actual train/eval firewall: its `gepa`/`bootstrap` stages never train against `HELD_OUT_SLUGS`, so every candidate model is compared on the same untouched slice. That slice was deliberately stratified by hand when it was first built (one plain independent clause, a couple of dependent-clause shapes, a coordinated-verb pair, an indirect statement, a circumstantial participle, a depth-2 nesting case, three newer relations); every Outcome-C fixture this loop produces is a natural way to keep growing that stratification with real passages rather than more hand-constructed ones, making `model_bakeoff.py`'s cross-model comparisons more representative as the held-out set grows.
 
 Put together: this loop is the thing that keeps both downstream tools honest over time. Without it, `optimize_gepa.py` only ever optimizes against a fixed, hand-written snapshot of the scheme, and `model_bakeoff.py` only ever compares candidates against that same fixed snapshot -- neither one improves just by running the scripts again. Real-world testing is what actually grows and diversifies the corpus both scripts depend on.
 
