@@ -1,0 +1,70 @@
+# Analyzing a token graph with NetworkX (`arsgrammatica.graphs`)
+
+`tokengraph_to_networkx()` turns a `tokengraph` (the `List[TokenAnalysis]` `latin_syntax_dspy.analyze_string()` produces) into a `networkx.MultiDiGraph`, and `graph_metrics()` computes a handful of size/complexity/shape numbers from it. This is the graph-theoretic counterpart to `mermaid.py`'s visual rendering of the same data -- same nodes, same edges -- but meant for programmatic analysis (comparing two analyses' structure, characterizing a corpus, eventually topological-equivalence checks) rather than display.
+
+## Usage
+
+```python
+from arsgrammatica import tokengraph_to_networkx, graph_metrics
+
+graph, warnings = tokengraph_to_networkx(tokengraph)
+metrics = graph_metrics(graph)
+
+print(metrics.node_count, metrics.edge_count, metrics.cyclomatic_number)
+```
+
+`tokengraph_to_networkx()` mirrors `tokengraph_to_mermaid()` exactly: the same nodes (non-punctuation tokens, labelled via `mermaid.token_label()` -- so an implied/elided token gets the same placeholder label the diagram shows), the same edges (one per `relatedtoken1`/`relationship1` and `relatedtoken2`/`relationship2` pair, skipping the `"root"` sentinel silently and any punctuation/missing target with a warning). `warnings` is the same list shape `tokengraph_to_mermaid()` returns, and means the same thing: a relation that would have been a dangling arrow is just left out, both here and in the diagram.
+
+A `MultiDiGraph`, not a plain `DiGraph`, is used deliberately: `relatedtoken1` and `relatedtoken2` could in principle both target the same related token with two different relationship labels, and a plain `DiGraph` would silently keep only the second edge in that case.
+
+Every node carries two attributes: `label` (the same text/placeholder the Mermaid diagram shows) and `tokentype` (the token's own tokentype string, so a caller doesn't have to look anything up in the original `tokengraph` again -- useful for a label-aware isomorphism check later). Every edge carries one attribute, `relationship` (the relatedtoken's own relationship1/relationship2 label).
+
+## Edge orientation: in-degree is "how many dependents"
+
+An edge always points FROM a token TO the token *it* relates to -- e.g. a subject noun's edge points at its verb -- the same direction Mermaid draws its arrows in. So a token with many dependents (an independent verb, which every one of its clause's arguments and modifiers ultimately points toward) has high **in**-degree, not high out-degree; a leaf token with no dependents of its own has in-degree 0. Every "dependent"/"leaf" metric below is built entirely around this in-degree-as-branching convention -- it's easy to reach for out-degree instead when reading `graph_metrics()`'s numbers, and get the opposite of the intended reading.
+
+## Most tokengraphs are nearly trees
+
+Most tokengraphs are very nearly out-trees rooted at whichever token(s) have `relatedtoken1 == "root"` (that sentinel is never a real node, so a root token simply has no outgoing edge at all) -- the same rooted structure `verbal_units.compute_subordination_depths()` already assumes. The handful of constructions that make a tokengraph more than a tree -- a coordinating conjunction's `relatedtoken1` AND `relatedtoken2` both pointing at the pair it joins, an apposition's second noun pointing back at the first, and similar overflow uses of `relatedtoken2` -- are exactly what `cyclomatic_number` (below) counts.
+
+## `GraphMetrics`
+
+A `NamedTuple` (matching `LMCostSummary`'s own precedent -- nothing here is DSPy-facing) with ten fields, in two groups:
+
+**Size and complexity**
+
+- `node_count`/`edge_count` -- tokens (excluding punctuation) and relations between them.
+- `cyclomatic_number` -- edges beyond a spanning tree (`edge_count - node_count + weakly_connected_components`). `0` for a pure tree; each coordinating conjunction, apposition, or similar construction that gives a token a second governor/dependent beyond strict tree shape adds `1`. A direct, single-number answer to "how much non-tree structure does this sentence have".
+- `is_acyclic`/`longest_chain` -- whether the graph is a DAG (it always should be for a well-formed analysis; a cycle means something is malformed, mirroring `compute_subordination_depths()`'s own cycle-detection warning) and, if so, the length in edges of its longest directed path -- the deepest raw token-to-token embedding chain in the sentence. `longest_chain` is `None` when a cycle makes it undefined, or the graph is empty.
+
+**Shape**
+
+- `leaf_count`/`leaf_fraction` -- tokens with no dependents of their own (in-degree 0), i.e. terminal tokens in the dependency structure.
+- `mean_dependents`/`max_dependents` -- the in-degree distribution's mean and max: how many other tokens point at the typical/busiest token. A sentence with a high max relative to its node count reads as "one token governs almost everything"; a low, even mean/max reads as "shallow and bushy" rather than "deep and chainy".
+- `relationship_counts` -- how many edges carry each relationship label (e.g. `{"subject": 2, "direct object": 1, ...}`) -- what KIND of structure the sentence leans on, not just how much of it there is.
+
+All fields are `0`/`0.0`/empty (never raised) for an empty graph, or a tokengraph that's all punctuation -- see "Degrades visibly, never raises" below.
+
+## Worked example: a plain chain vs. a coordinating conjunction
+
+"bona puella venit" ("the good girl comes") is a plain 3-token dependency chain -- `bona` -> `puella` -> `venit` -- with no coordination or other overflow edges, so it reads as a pure tree: `cyclomatic_number` 0, one leaf (`bona`, since nothing points at an adjective), `longest_chain` 2 (two edges from the leaf to the root verb).
+
+"Arma virumque cano" ("I sing of arms and the man") is different: `que` coordinates `Arma` and `virum`, each of which is a direct object of `cano`. The coordinating conjunction's own two out-edges (`relatedtoken1` -> `Arma`, `relatedtoken2` -> `virum`) are the one construction in this scheme that genuinely makes a token's structure more than a tree, so this reads as `cyclomatic_number` 1 (one edge beyond a 3-edge spanning tree of 4 nodes), and `cano` shows `max_dependents` 2 -- it's pointed at by both `Arma` and `virum`. Both fixtures are fully hand-computed in `tests/test_graphs.py` (see "Tests" below) -- worth reading alongside this note for the exact numbers.
+
+## Degrades visibly, never raises
+
+A cycle should never occur in a well-formed analysis, but `graph_metrics()` doesn't raise on one -- it reports `is_acyclic=False` and `longest_chain=None`, the same "degrade visibly rather than crash" convention this codebase's other warnings already follow (`compute_subordination_depths()`'s own cycle-detection warning, `tokengraph_to_mermaid()`'s skipped-edge warnings). An empty tokengraph, or one that's entirely punctuation, similarly produces an all-zero `GraphMetrics` rather than a division-by-zero error or an empty-graph exception from NetworkX.
+
+## Tests
+
+`tests/test_graphs.py` covers two things separately: `tokengraph_to_networkx()`'s own node/edge selection, and `graph_metrics()`'s arithmetic.
+
+For `tokengraph_to_networkx()`: node/label/tokentype parity with `tokengraph_to_mermaid()` across every gold fixture; edges and warnings independently re-derived straight from each token's own `relatedtoken1`/`relatedtoken2` fields (not by comparing against `tokengraph_to_mermaid()`'s own output, so a shared bug in both wouldn't hide behind agreement between the two); the `"root"` sentinel producing no edge and no warning; an edge to punctuation or a missing target being skipped with a warning; an implied token getting its Mermaid-matching placeholder label.
+
+For `graph_metrics()`: a plain 3-token chain (bona puella venit) reading as a pure tree, fully hand-computed; a coordinating-conjunction fixture (Arma virumque cano) showing `cyclomatic_number == 1`, also fully hand-computed; an empty tokengraph and an all-punctuation tokengraph both producing an all-zero `GraphMetrics` rather than raising; and a malformed 2-token cycle reporting `is_acyclic=False`/`longest_chain=None` rather than raising.
+
+## `marimo/latin_syntaxer_graphs.py`
+
+A no-LM notebook UI for this module: browse a previously-saved analysis file (`write_analyses()`'s own format), pick one or more sentences from a multiselect (comparing several side by side is the whole point of a metrics view, unlike `latin_syntaxer_review.py`'s single-sentence dropdown), and see each selected sentence's own `graph_metrics()` output rendered as two small markdown tables -- "Size & complexity" and "Shape" -- plus a relationship-type tally line and any skipped-edge warnings for that sentence. `split_analysis_by_sentence()` slices the file's flat, whole-passage lists into one tokengraph per sentence first, so the rest of the notebook only ever has to think about "this one sentence's own tokengraph", exactly what `tokengraph_to_networkx()` expects. Selected sentences are always shown in file order regardless of click order, matching `latin_syntaxer_ctsdata.py`'s own `selected_rows` convention.
+
+No dedicated test file for the notebook itself, matching this codebase's existing convention for marimo notebooks -- its own new logic (`sentence_label()`, `render_sentence_metrics()`) is thin formatting code over already-tested `graph_metrics()` output.
