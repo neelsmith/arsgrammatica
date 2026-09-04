@@ -33,4 +33,4 @@ diagram, warnings = tokengraph_to_mermaid(
 
 
 Mermaid's layout engine cannot enforce aligning nodes by rank. (You can think of *rank* as the syntactic depth of the node, like the generations in a family tree.) This kind of alignment can make the diagram of very complex sentences easier to read. If you want diagrams aligned by rank, you can use the open-source `graphviz` program: see
- "[Visualizing syntax graphs with `graphviz`](./dotgraphs.qmd)".
+ "[Diagramming syntactic analyses](../tutorials/diagrams.qmd)".
