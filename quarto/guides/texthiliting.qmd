@@ -1,47 +1,28 @@
 ---
-title: Syntax highlighting text in HTML
+title: Highlighting syntactic analysis in HTML
 ---
 
+`arsgrammatica` includes utilities for displaying a text with  highlighting of its syntactic structure.
 
-`tokengraph_to_html()` in `arsgrammatica/rendering.py` renders a tokengraph as one continuous HTML string, using the exact same spacing rules as `tokengraph_to_text()` (correct handling of punctuation, brackets, quote pairs, and enclitics -- see that function's own docstring), except every **lexical** token's text is wrapped in a `<span style="background-color: ...; color: ...;">` colored by the verbal unit it belongs to:
+## Coloring by verbal expression
+
+`tokengraph_to_html`
+(same colors as `tokengraph_to_mermaid`)
+
+If you have an analysis result, then:
 
 ```python
 from arsgrammatica import tokengraph_to_html
-
 html = tokengraph_to_html(result.tokengraph)
 ```
 
-The colors are the *same* colors `tokengraph_to_mermaid()` assigns to that verbal unit's nodes -- same palette, same first-appearance ordering -- so a passage rendered this way and that passage's Mermaid diagram always agree on which clause is which color. (Both draw on `arsgrammatica.assign_verbal_unit_colors()`, so there's one shared definition to keep them in sync rather than two that could drift apart.) `tokentype == "lexical"`, `tokentype == "praenomen"`, and `tokentype == "numeral"` tokens get a span, as does any coordinating conjunction (e.g. an enclitic "-que") regardless of its own tokentype -- a praenomen (e.g. "Sex.") always has a real `assign_verbal_units()`-resolvable relation per `syntax_model.md`'s "Praenomina" section, same as a coordinating conjunction does, so it's colored the same way; a numeral (e.g. "XII") is likewise an ordinary participant in the clause able to carry a real relation (e.g. "adjectival", the same relation a spelled-out number like "decem" would use), per `syntax_model.md`'s numeral-vs-lexical clarification, so it's colored the same way too. Punctuation, non-conjunction enclitics, and abbreviations are emitted as plain (escaped) text even when they resolve to a verbal unit. A lexical, praenomen, or numeral token with no verbal unit at all (an unrelated bare accusative, an interjection, or a praenomen like "L." in "L. f." with no lexical name to relate to) is left unwrapped too.
+Use this in an environment like Marimo to see the real deal!
 
-All token text is HTML-escaped (`&`, `<`, `>`, and quote characters) before being emitted, so real Latin text using literal `"`/`'` marks round-trips safely through the output. Since this reuses the same 8-color pastel palette described below, the same caveat applies: past 8 simultaneous verbal units in one passage, colors repeat.
 
-## Depth of subordination
 
-Every verbal expression (finite verb, indirect-statement infinitive, or predicate-sense participle) has a *depth of subordination*: the number of verbal expressions it's removed from the root. An independent clause is depth 0; a clause it introduces is depth 1; if that dependent clause in turn introduces an indirect statement, that's depth 2; and so on.
+##  Add indentation by depth of subordination
 
-`compute_subordination_depths()` in `arsgrammatica/verbal_units.py` computes this directly from the tokengraph's own relations, the same way `assign_verbal_units()` does -- no extra LM call:
-
-```python
-from arsgrammatica import compute_subordination_depths
-
-depths, warnings = compute_subordination_depths(result.tokengraph)
-```
-
-`depths` is a `{verbal unit anchor id: depth or None}` mapping, one entry per anchor (a token with `verbalunitid` set to its own id). It works uniformly across every documented governing-relation pattern -- subordinating conjunction, relative pronoun, direct quote, aside, circumstantial participle, ablative absolute, and indirect statement -- by following the anchor's own outgoing relation through any number of intermediate (non-anchor) tokens until it reaches another anchor, that anchor's own depth plus one. An anchor whose governing verbal expression can't be resolved (or that sits in a relation cycle) gets `None`, with a matching entry in `warnings` explaining why, rather than raising.
-
-`max_subordination_depth()`, also in `arsgrammatica/verbal_units.py`, returns the single deepest depth reached anywhere in a tokengraph -- the highest value in `depths` above:
-
-```python
-from arsgrammatica import max_subordination_depth
-
-deepest = max_subordination_depth(result.tokengraph)
-```
-
-Pass an already-computed `depths` dict (`max_subordination_depth(result.tokengraph, depths=depths)`) to avoid recomputing it. Returns `None` for a passage with no verbal expressions at all, or where every anchor's depth is unresolved; otherwise the max of whichever anchors DID resolve. This is the natural upper bound for `tokengraph_to_depth_html()`'s own `depth` parameter, below -- e.g. to build a "show more detail" slider from 0 up to a passage's actual maximum instead of guessing a fixed cap.
-
-### `tokengraph_to_depth_html()`
-
-Renders a tokengraph as a sequence of indented HTML blocks, one per run of consecutive tokens belonging to the same verbal unit, each indented by its verbal expression's depth of subordination:
+`tokengraph_to_depth_html()`
 
 ```python
 from arsgrammatica import tokengraph_to_depth_html
@@ -49,11 +30,6 @@ from arsgrammatica import tokengraph_to_depth_html
 html, warnings = tokengraph_to_depth_html(result.tokengraph)
 ```
 
-Tokens within each block are rendered exactly as `tokengraph_to_html()` renders them -- same spacing, escaping, and verbal-unit color spans (in fact both share the same underlying per-token rendering code, so colors always agree between the two views). Each block becomes its own `<div style="margin-left: {depth * indent_em}em; ...">...</div>`; indentation is pure CSS margin, not a table or nested list. `indent_em` defaults to `2.0` and can be overridden:
-
-```python
-html, warnings = tokengraph_to_depth_html(result.tokengraph, indent_em=1.5)
-```
 
 Pass `depth` to cap how deep the rendering goes -- only blocks whose own depth of subordination is `<= depth` are included; a deeper block is dropped entirely, not rendered empty:
 
@@ -62,13 +38,4 @@ Pass `depth` to cap how deep the rendering goes -- only blocks whose own depth o
 html, warnings = tokengraph_to_depth_html(result.tokengraph, depth=0)
 ```
 
-`depth=0` shows root-level clauses only; leaving `depth` unset (the default, `None`) shows every block, same as before this parameter existed. Valid values run from `0` up to `max_subordination_depth(result.tokengraph)` for the same tokengraph -- a `depth` above the passage's own maximum is accepted and just means "show everything," but a negative `depth` raises `ValueError`, since there's no clause shallower than root.
-
-For example, in *taurum cum quo Pasiphae concubuit ex Creta insula Mycenis uiuum adduxit*, there are two verbal expressions: *adduxit* (independent, depth 0) and *concubuit* (dependent, introduced by the relative pronoun *quo*, depth 1). This renders as three blocks -- *taurum* (depth 0), *cum quo Pasiphae concubuit* (depth 1), and *ex Creta insula Mycenis uiuum adduxit* (depth 0) -- since the tokens before and after the relative clause both belong to *adduxit*'s verbal unit but aren't contiguous with each other.
-
-Block boundaries otherwise follow `assign_verbal_units()`'s token-to-unit assignment, with two exceptions: an **enclitic** token never starts a new block, even when it resolves to a different verbal unit than the token it's orthographically glued to (an enclitic coordinating conjunction like *-que* can join two different verbs' clauses while staying attached to whichever word it followed in the source text -- splitting that single Latin word across two `<div>`s would be wrong), and a token with **no verbal-unit assignment at all** (punctuation, an unrelated bare accusative, a postpositive particle) likewise never starts a new block, folding into whichever block is currently open instead.
-
-One consequence of `assign_verbal_units()`'s own established behavior, not specific to this function: a circumstantial-participle or ablative-absolute noun (e.g. *Anco* in *Anco regnante...*) resolves to whatever its own relation reaches -- typically the outer clause -- while the participle itself is always its own singleton unit. That phrase therefore renders as the noun staying in the outer clause's block and the bare participle as its own one-word indented block, rather than the whole phrase indenting together.
-
-`warnings` combines `assign_verbal_unit_colors()`'s warnings (more than 8 simultaneous verbal units) and `compute_subordination_depths()`'s (an unresolved governing verbal expression, rendered at depth 0 rather than raising).
  

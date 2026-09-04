@@ -2,44 +2,31 @@
 title: Visualizing syntax graphs with Mermaid
 ---
 
+Compose a Mermaid diagram for a token graph:
 
-In the current version of `arsgrammatica`, you can generate mermaid diagrams from the token graph.
-
-`arsgrammatica` includes utilities
 ```python
 from arsgrammatica import tokengraph_to_mermaid
-
 diagram, warnings = tokengraph_to_mermaid(result.tokengraph)
-print(diagram)
 ```
 
 `diagram` is Mermaid `graph` syntax you can use anywhere that renders Mermaid (many Markdown viewers, mermaid.live, etc.). 
 
 `warnings` lists any edge that got skipped because it pointed at a punctuation token or an id missing from `tokengraph` — worth checking, since it usually traces back to a problem `validate()` already flagged. 
 
-`save_mermaid()` in `arsgrammatica/mermaid.py` (import it as
-`from arsgrammatica.mermaid import save_mermaid`) writes the diagram straight to a `.mmd` file if you'd rather not copy/paste from the terminal. 
 
-### Orientation
+### Options
 
 Both `tokengraph_to_mermaid()` and `save_mermaid()` take an optional `orientation` argument -- one of Mermaid's own flowchart orientation codes (`BT`, `TB`, `LR`, `RL`; see the [Mermaid flowchart docs](https://mermaid.js.org/syntax/flowchart.html)), used verbatim in the diagram's opening line. It defaults to `BT` (bottom-to-top):
 
 ```python
-diagram, warnings = tokengraph_to_mermaid(result.tokengraph, orientation="LR")
+diagram, warnings = tokengraph_to_mermaid(
+    result.tokengraph, 
+    orientation="LR")
 ```
 
-### Coloring by verbal unit
 
-By default, every token is also colored by which verbal unit's clause it belongs to -- so a sentence's clauses are visually distinguishable at a glance, not just inferable by following edges by hand. This is on by default; pass `color_by_verbal_unit=False` for a plain, uncolored diagram (the old behavior):
+### Saving Mermaid diagrams
 
-```python
-diagram, warnings = tokengraph_to_mermaid(result.tokengraph, color_by_verbal_unit=False)
-```
 
-Under the hood, `arsgrammatica.assign_verbal_units(tokengraph)` computes a `{token id: verbal unit id or None}` mapping directly from the tokengraph's own relations (no extra LM call) -- every token that's part of a verbal unit's clause resolves to that unit's anchor token id; a token with no relation at all (an unrelated bare accusative, an enclitic, punctuation) maps to `None` and is left with Mermaid's default node styling. This mapping is exposed separately from the diagram itself, and a second function, `arsgrammatica.assign_verbal_unit_colors(tokengraph)`, exposes the palette-slot assignment too -- both are what `tokengraph_to_html()` (see "HTML formatting" above) uses to color its spans identically to this diagram's nodes.
-
-Verbal units are assigned colors from a fixed 8-color palette, in the order their tokens first appear in the sentence; `warnings` gets one extra entry if a passage has more than 8 verbal units, since colors then repeat and stop being unambiguous.
-
-The palette is pastel: each swatch is a light, low-saturation fill with a vivid outline in that same hue, and black text throughout. Pastel and the `dataviz` skill's usual accessibility ceiling are in real tension -- pushing this light necessarily exceeds the lightness cap that skill's validator enforces for un-labeled marks (dots, bars) where color alone has to carry identity. That ceiling doesn't fully apply here, since every node already carries its own visible text label -- but rather than dropping accessibility checking altogether, the ordering was still tuned against the same validator for the checks that don't assume an unlabeled mark: adjacent-pair color-vision-deficiency separation and normal-vision separation both still clear their targets, so any two simultaneous colors in one diagram should still read as clearly different, even if a colorblind viewer or a printed black-and-white copy will need the node labels (already always present) to disambiguate further.
-
-An implied/elided token (`models.py`'s `IMPLIED_TOKENTYPES` -- "implied sum", "continued discourse", "implied subject"; see `syntax_model.md`) is the one exception to ordinary verbal-unit coloring: instead of blending into whichever unit it anchors or resolves into, it always gets its own dedicated "caution" amber, independent of `color_by_verbal_unit`'s palette-slot assignment -- flagging "a real word is missing here" rather than reading as an ordinary clause member. Its node is also drawn as a rounded-corner rectangle (Mermaid's `id("label")` shape) rather than the plain `id["label"]` rectangle every other node uses, a second, shape-based cue that survives even a black-and-white copy where the amber fill itself wouldn't. Its label is "elided sum" or "continued discourse", or else its own tokentype string verbatim ("implied subject" has no friendlier label), since it has no surface text of its own (`token` is `None`). This is the one place these tokens are shown at all -- `tokengraph_to_html()`/`tokengraph_to_depth_html()` omit them entirely, same as `tokengraph_to_text()` does, since there's no real word to display in reconstructed prose.
+`save_mermaid()` in `arsgrammatica/mermaid.py` (import it as
+`from arsgrammatica.mermaid import save_mermaid`) writes the diagram straight to a `.mmd` file if you'd rather not copy/paste from the terminal. 
