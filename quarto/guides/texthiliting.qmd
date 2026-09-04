@@ -8,7 +8,7 @@ title: Highlighting syntactic analysis in HTML
 
 ## Coloring by verbal expression
 
-Once you have an analysis result, you can compose an HTML string that colors tokens by the verbal expression they belong to, using the same colors as `arsgramamtica`'s Mermaid diagrams.
+Once you have an analysis result, you can compose an HTML string that colors tokens by the verbal expression they belong to, using the same colors as `arsgramamtica`'s [Mermaid diagrams](./mermaid.qmd).
 
 ```python
 from arsgrammatica import tokengraph_to_html
