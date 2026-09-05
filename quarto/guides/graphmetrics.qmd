@@ -2,49 +2,82 @@
 title: Characterizing syntax analyses with graph metrics
 ---
 
-Once we have [analyzed a passage](./analysis.qmd), we can use graph metrics to characterize the resulting syntax graph with Python's NetworkX package. `arsgrammatica` includes functions for analyzing graphs from Python, and a Marimo notebook, `latin_syntaxer_graphs.py`, where you can interactively explore some of these metrics.
+Once we have [analyzed a passage](./analysis.qmd), we can characterize the resulting syntax graph with standard graph metrics. `arsgrammatica` includes functions for analyzing graphs in Python, and a Marimo notebook, `latin_syntaxer_graphs.py`, where you can interactively explore some of these metrics.
 
 
-First we create a NetworkX graph from a token graph with the `tokengraph_to_networkx` function.
+
+## Finding graph metrics
+
+First, from a token graph, we create a graph in the format of the Python NetworkX package:  
 
 ```python
 from arsgrammatica import tokengraph_to_networkx, graph_metrics
 nxgraph, warnings = tokengraph_to_networkx(tokengraph)
 ```
+We can compute graph metrics directly from the NetworkX graph:
 
-`arsgrammatica` has a `graph_metrics` function that computes several standard measurements that can help us understand the size, complexity, and "shape" of the syntax analysis' graph structure.
 
 ```python
 metrics = graph_metrics(nxgraph)
 ```
 
 
-
-## Size and complexity of a graph
-
-
-- `node_count`/`edge_count` -- tokens (excluding punctuation) and relations between them.
-
-- `is_acyclic`/`longest_chain` -- whether the graph is a DAG (it always should be for a well-formed analysis; a cycle means something is malformed, mirroring `compute_subordination_depths()`'s own cycle-detection warning) and, if so, the length in edges of its longest directed path -- the deepest raw token-to-token embedding chain in the sentence. `longest_chain` is `None` when a cycle makes it undefined, or the graph is empty.
+::: {.callout-note}
+Like the diagramming utilities for visualizing graphs in [Mermaid](./mermaid.qmd) or [`graphviz`](../tutorials/diagrams.qmd), `arsgrammatica` ignores punctuation tokens in these metrics.
+:::
 
 
+The resulting variable `metrics`  has a number of properties that  can help us understand the size, complexity, and "shape" of the syntax analysis' graph structure.
+
+
+## Size
+
+`node_count` and `edge_count` properties tell us the number of tokens and the number of relations connecting tokens in our syntax graph. If the graph is not cyclic, `longest_chain` tells us the deepest level of token relations in the sentence. `longest_chain` is `None` when a a graph includes a cycle. 
+
+If we analyzed an artificial sentence like *Rosa pulchra est*, we could visualize the graph like this:
+
+![Toy example of a syntax graph.](./imgs/rosa.png)
+
+It has a node count of 3, edge count of 2, and a longest chain of 1.
+
+
+
+## "Shape" (topology)  
+
+`leaf_count` tells you the number of tokens that no other tokens depend on (the "leaves" in a tree visiualization). `leaf_fraction` gives you the proportion of nodes in the graph that are leaf nodes. In the toy example, two nodes are leaf nodes (*Rosa* and *pulchra*), and the leaf fraction is 67% (2/3).
+
+The example syntax graph is a *tree*: every node is connected and there are no cycles or loops in the graph. Most syntax graphs come close to a tree structure, but tokens like relative pronouns (that are related both to their antecedent and to their function in the relative clause) can create cycles.  The `cyclomatic_number` gives a measure of "how much non-tree structure does this sentence have?" (More techncially, it gives the number edges beyond a spanning tree, computed as `edge_count - node_count + weakly_connected_components`). The cyclomatic number in the example is 0, because the entire graph is a true tree.
+
+## Organization of the graph
+
+`arsgrammatica`'s syntax graphs are *directed*:  pairs of nodes are connected *from* one node *to* another (e.g., the *subject* relationship makes a connection *from* a subject *to* its verb). For any node, the *in-degree* is the number of relations point *to* it, and the *out-degree*  is the number of relations it points out to. In the example above, *est* has an in-degree of 2, and an out-degree of 0.
+
+The `mean_dependents` and `max_dependents` measure the average and maximum in-degree of the graph. If a sentence has a high maximum compare to its node count, that tells us one token controls most of the syntax. Lower values with mean and maximum closer to each other suggests a "shallow and bushy" structure rather than a "deep and chainy" organization.
+
+
+
+## Real examples
+
+To illustrate how graph metrics can describe syntax, compare the toy example with two sentences from the Latin Vulgate Bible. *Genesis* 1.1, *In principio creavit Deus caelum et terram.* is a syntactically straightforward sentence with a single verbal unit:
+
+![*Genesis* 1.1](./imgs/genesis_1_1.png)
 
 
 
 
+*Genesis* 47.1 is much more complex syntactically: circumstantial participles include *dicens* introducing two clauses in direct speech.
 
-## "Shape" (topology)
-
-- `cyclomatic_number` -- edges beyond a spanning tree (`edge_count - node_count + weakly_connected_components`). `0` for a pure tree; each coordinating conjunction, apposition, or similar construction that gives a token a second governor/dependent beyond strict tree shape adds `1`. A direct, single-number answer to "how much non-tree structure does this sentence have".
-
-- `leaf_count`/`leaf_fraction` -- tokens with no dependents of their own (in-degree 0), i.e. terminal tokens in the dependency structure.
-- `mean_dependents`/`max_dependents` -- the in-degree distribution's mean and max: how many other tokens point at the typical/busiest token. A sentence with a high max relative to its node count reads as "one token governs almost everything"; a low, even mean/max reads as "shallow and bushy" rather than "deep and chainy".
-- `relationship_counts` -- how many edges carry each relationship label (e.g. `{"subject": 2, "direct object": 1, ...}`) -- what KIND of structure the sentence leans on, not just how much of it there is.
-
-All fields are `0`/`0.0`/empty (never raised) for an empty graph, or a tokengraph that's all punctuation -- see "Degrades visibly, never raises" below.
+*Ingressus ergo Joseph nuntiavit Pharaoni, dicens: Pater meus et fratres, oves eorum et armenta, et cuncta quae possident, venerunt de terra Chanaan: et ecce consistunt in terra Gessen.*
 
 
-## Worked example
+
+![*Genesis* 47.1](./imgs/genesis_47_1.png)
+
+::: {.callout-tip}
+If the diagram is too small to read, open it in a separate browser tab or window to enlarge it.
+:::
+
+Here are the metrics for each example:
 
 | metric| Example | *Genesis* 1.1| *Genesis* 47.1 | 
 | --- | ---| --- | --- |
@@ -57,55 +90,26 @@ All fields are `0`/`0.0`/empty (never raised) for an empty graph, or a tokengrap
 | mean dependents | 0.67 | 1.0 | 4 |
 | max dependents | 2 | 1.09| 7 |
 
-> Rosa pulchra est.
 
-![Toy example](./imgs/rosa.png)
-
-> In principio creavit Deus caelum et terram.
-
-![*Genesis* 1.1](./imgs/genesis_1_1.png)
-
-
-> Ingressus ergo Joseph nuntiavit Pharaoni, dicens: Pater meus et fratres, oves eorum et armenta, et cuncta quae possident, venerunt de terra Chanaan: et ecce consistunt in terra Gessen.
-
-![*Genesis* 47.1](./imgs/genesis_47_1.png)
-
+Finally we should note that the output of `graph_metrics` also has a `relationship_counts` property. This property is a dictionary giving the counts of each value of relationship. Here is what the `relationship_counts` property looks like for *Genesis* 1.1:
 
 ```
-metrics.relationship_counts
-{'circumstantial participle': 2, 'adverbial': 6, 'subject': 8, 'dative': 1, 'adjectival': 6, 'coordinating conjunction': 12, 'genitive': 4, 'relative pronoun': 2, 'direct object': 4, 'unit verb': 2, 'direct quote': 4, 'object of preposition': 3, 'apposition': 4, 'predicate': 1}
-```
-
-```
-metricsgen1.relationship_counts
 {'adverbial': 1, 'object of preposition': 1, 'subject': 1, 'direct object': 2, 'coordinating conjunction': 2}
 ```
 
+and for *Genesis* 47.1:
 
-## Edge orientation: in-degree is "how many dependents"
-
-An edge always points FROM a token TO the token *it* relates to -- e.g. a subject noun's edge points at its verb -- the same direction Mermaid draws its arrows in. So a token with many dependents (an independent verb, which every one of its clause's arguments and modifiers ultimately points toward) has high **in**-degree, not high out-degree; a leaf token with no dependents of its own has in-degree 0. Every "dependent"/"leaf" metric below is built entirely around this in-degree-as-branching convention -- it's easy to reach for out-degree instead when reading `graph_metrics()`'s numbers, and get the opposite of the intended reading.
-
-## Most tokengraphs are nearly trees
-
-Most tokengraphs are very nearly out-trees rooted at whichever token(s) have `relatedtoken1 == "root"` (that sentinel is never a real node, so a root token simply has no outgoing edge at all) -- the same rooted structure `verbal_units.compute_subordination_depths()` already assumes. The handful of constructions that make a tokengraph more than a tree -- a coordinating conjunction's `relatedtoken1` AND `relatedtoken2` both pointing at the pair it joins, an apposition's second noun pointing back at the first, and similar overflow uses of `relatedtoken2` -- are exactly what `cyclomatic_number` (below) counts.
-
-
-
-## Worked example: a plain chain vs. a coordinating conjunction
-
-"bona puella venit" ("the good girl comes") is a plain 3-token dependency chain -- `bona` -> `puella` -> `venit` -- with no coordination or other overflow edges, so it reads as a pure tree: `cyclomatic_number` 0, one leaf (`bona`, since nothing points at an adjective), `longest_chain` 2 (two edges from the leaf to the root verb).
-
-"Arma virumque cano" ("I sing of arms and the man") is different: `que` coordinates `Arma` and `virum`, each of which is a direct object of `cano`. The coordinating conjunction's own two out-edges (`relatedtoken1` -> `Arma`, `relatedtoken2` -> `virum`) are the one construction in this scheme that genuinely makes a token's structure more than a tree, so this reads as `cyclomatic_number` 1 (one edge beyond a 3-edge spanning tree of 4 nodes), and `cano` shows `max_dependents` 2 -- it's pointed at by both `Arma` and `virum`. Both fixtures are fully hand-computed in `tests/test_graphs.py` (see "Tests" below) -- worth reading alongside this note for the exact numbers.
+```
+{'circumstantial participle': 2, 'adverbial': 6, 'subject': 8, 'dative': 1, 'adjectival': 6, 'coordinating conjunction': 12, 'genitive': 4, 'relative pronoun': 2, 'direct object': 4, 'unit verb': 2, 'direct quote': 4, 'object of preposition': 3, 'apposition': 4, 'predicate': 1}
+```
 
 
 
 
 
-## A Marimo notebook
+## `latin_syntaxer_graphs.py`
 
-`marimo/latin_syntaxer_graphs.py`
+With the `latin_syntaxer_graphs.py` marimo notebook, you can apply these graph metrics to saved analyses. The user picks one or more sentences to analayze, and the compiles tables comparing their metrics.
 
-A no-LM notebook UI for this module: browse a previously-saved analysis file (`write_analyses()`'s own format), pick one or more sentences from a multiselect (comparing several side by side is the whole point of a metrics view, unlike `latin_syntaxer_review.py`'s single-sentence dropdown), and see each selected sentence's own `graph_metrics()` output rendered as two small markdown tables -- "Size & complexity" and "Shape" -- plus a relationship-type tally line and any skipped-edge warnings for that sentence. `split_analysis_by_sentence()` slices the file's flat, whole-passage lists into one tokengraph per sentence first, so the rest of the notebook only ever has to think about "this one sentence's own tokengraph", exactly what `tokengraph_to_networkx()` expects. Selected sentences are always shown in file order regardless of click order, matching `latin_syntaxer_ctsdata.py`'s own `selected_rows` convention.
 
-No dedicated test file for the notebook itself, matching this codebase's existing convention for marimo notebooks -- its own new logic (`sentence_label()`, `render_sentence_metrics()`) is thin formatting code over already-tested `graph_metrics()` output.
+

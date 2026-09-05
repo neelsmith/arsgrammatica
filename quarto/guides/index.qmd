@@ -18,7 +18,7 @@ Guides for using `arsgrammatica` for particular tasks.
 
 - [Highlighting text](./texthiliting.qmd) syntactically in HTML
 - Visualizing [syntax graphs with Mermaid](./mermaid.qmd)
-- Visualizing [syntax graphs with `graphviz`](./dotgraphs.qmd)
+
 
 ### Analyzing analyses as graph structures
 
