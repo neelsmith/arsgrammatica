@@ -1,15 +1,3 @@
----
-title: Format of delimited-text serializations
----
-
-
-## Serialization format of analyses
-
-*TBA*
-
-## Serialization format of token analysis
-
-*TBA*
 # Two plain-text output formats: full analyses vs. tokenization-only
 
 This codebase has two separate pipe-delimited, line-oriented plain-text formats for saving pipeline output to a file. Which one applies depends on how far a passage has gotten: has syntax analysis actually run over it, or has it only been segmented into sentences/tokens so far. The two formats share one block (`#!sentences`) but are otherwise not interchangeable -- a file in one format cannot be read by the other module's reader.
