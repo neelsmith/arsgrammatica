@@ -5,7 +5,7 @@ title: Building an AAT (Agent-Action-Target) graph
 
 The [`aat`](https://github.com/neelsmith/aat) package defines a reductive model of natural language syntax focusing only on Agent-Action-Target relations, instantiated in an `AATGraph`. You can construct an `AATGraph` from an `arsgrammatica` analysis with the `attgraph` function.
 
-Load a saved analysis, or analyze some Latin text (as here):
+Load a [saved analysis](./saving-loading.qmd), or analyze some Latin text:
 
 ```python
 from arsgrammatica import analyze_string
@@ -19,3 +19,4 @@ from arsgrammatica import attgraph
 graph, warnings = attgraph(sentences, results)
 ```
 
+For more information about AAT graphs, see the [`aat` github repository](https://github.com/neelsmith/aat).
