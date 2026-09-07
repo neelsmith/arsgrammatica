@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.16"
+__generated_with = "0.24.0"
 app = marimo.App(width="medium")
 
 
@@ -31,6 +31,12 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(input_form):
     input_form
+    return
+
+
+@app.cell
+def _(disable_cache):
+    disable_cache
     return
 
 
@@ -85,13 +91,36 @@ def _(download_mermaid):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
     seetokens = mo.ui.checkbox(label="*See list of tokens*")
     seecost = mo.ui.checkbox(label="*See cost*")
     seeprompts = mo.ui.checkbox(label="*See prompts*")
+    # dspy.LM caches responses by default (model + messages + config), so
+    # re-submitting the exact same form values normally just replays the
+    # earlier result instead of hitting the LM again -- correct for
+    # everyday use, but exactly the wrong behavior when you're
+    # deliberately re-running the same passage to see whether the LM's
+    # output changes (e.g. after a prompt tweak, or to check run-to-run
+    # variance, or to get a fresh sample after a truncated/malformed
+    # response -- see token_budget.py's analyze_with_retry(), which
+    # already bypasses the cache on its own internal retries but has no
+    # way to force a fresh *first* attempt). This is dspy's own
+    # client-side response cache, unrelated to configure_lm()'s Anthropic
+    # `cache_control_injection_points` prompt caching below -- that one
+    # only caches the STATIC system-message prefix to make each
+    # still-genuinely-fresh call cheaper, it never replays a whole
+    # response, so it stays on regardless of this checkbox.
+    disable_cache = mo.ui.checkbox(label="*Disable LM cache (debugging)*")
     mo.hstack([seetokens, seeprompts, seecost], justify="start")
-    return seecost, seeprompts, seetokens
+    return disable_cache, seecost, seeprompts, seetokens
+
+
+@app.cell
+def _(dspy):
+    dspy.inspect_history()
+
+    return
 
 
 @app.cell(hide_code=True)
@@ -392,13 +421,13 @@ def _(Path):
         DEFAULT_CEILING,
         analyze_string,
         combined_tokengraph,
+        format_lm_cost,
         serialize_analyses,
+        summarize_lm_cost,
         tokengraph_to_depth_html,
         tokengraph_to_html,
         tokengraph_to_mermaid,
         tokengraph_to_text,
-        summarize_lm_cost,
-        format_lm_cost,
     )
 
 
@@ -445,7 +474,7 @@ def _(os):
 
 
 @app.cell
-def _(DEFAULT_CEILING, dspy, getenv):
+def _(DEFAULT_CEILING, disable_cache, dspy, getenv):
     def configure_lm():
         # Always rebuild from the current environment -- no
         # `if dspy.settings.lm is not None: return dspy.settings.lm` guard.
@@ -475,7 +504,25 @@ def _(DEFAULT_CEILING, dspy, getenv):
         # litellm defaults to; it also keeps dspy's own truncation warning
         # (which always reports this baseline, never a per-call override)
         # from misleadingly reading "max_tokens=None".
-        lm_kwargs = dict(model=model, api_base=api_base, api_key=api_key, max_tokens=DEFAULT_CEILING)
+        #
+        # cache=not disable_cache.value: dspy.LM defaults to caching every
+        # response it gets (keyed on model + messages + these very
+        # lm_kwargs), so re-submitting the form with an unchanged passage
+        # normally just replays the cached result rather than calling the
+        # LM again -- see the *Disable LM cache (debugging)* checkbox
+        # above for why that's sometimes exactly what you don't want.
+        # Reading disable_cache.value here (rather than passing
+        # `cache=False` unconditionally) means toggling the checkbox takes
+        # effect immediately: it's a parameter of this very cell, so
+        # flipping it rebuilds configure_lm's closure (and, downstream,
+        # the `lm = configure_lm()` cell) the same way editing .env does.
+        lm_kwargs = dict(
+            model=model,
+            api_base=api_base,
+            api_key=api_key,
+            max_tokens=DEFAULT_CEILING,
+            cache=not disable_cache.value,
+        )
 
         # Anthropic prompt caching: SentenceAnalysis's system message runs
         # ~40K characters and is byte-identical on every single call --
