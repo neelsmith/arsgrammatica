@@ -35,6 +35,12 @@ def _(input_form):
 
 
 @app.cell
+def _(dspy):
+    dspy.inspect_history()
+    return
+
+
+@app.cell
 def _(disable_cache):
     disable_cache
     return
@@ -119,7 +125,6 @@ def _(mo):
 @app.cell
 def _(dspy):
     dspy.inspect_history()
-
     return
 
 
