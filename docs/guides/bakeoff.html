@@ -165,7 +165,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guides/bakeoff.html">Comparing task models with <code>model_bakeoff.py</code></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guides/bakeoff.html">Comparing models with <code>model_bakeoff.py</code></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -183,10 +183,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Recipes</span></a>
   </div>
 </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../guides/install.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Installation options</span></a>
+ <span class="menu-text">Installing <code>arsgrammatica</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -197,14 +198,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/visualization.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Visualizing results</span></a>
+  <a href="../guides/saving-loading.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Saving and loading analyses</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/texthiliting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Highlighting syntactic analysis in HTML</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/saving-loading.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Saving and loading analyses</span></a>
+  <a href="../guides/mermaid.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Visualizing syntax graphs with Mermaid</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/graphmetrics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Characterizing syntax analyses with graph metrics</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -222,14 +237,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../guides/harvesting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Harvesting gold examples from real analyses</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../guides/bakeoff.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Comparing task models with <code>model_bakeoff.py</code></span></a>
+ <span class="menu-text">Comparing models with <code>model_bakeoff.py</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../guides/development.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Developing <code>arsgrammatica</code></span></a>
+ <span class="menu-text">Improving <code>arsgrammatica</code> by reading Latin</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Running tests with <code>pytest</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -241,20 +268,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../guides/budgetingtokens.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Estimating and enforcing a <code>max_tokens</code> budget</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../guides/managing_prompt_size.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Keeping requests to an LM at a manageable size</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/technical.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Some technical docs</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/testing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Testing without network access</span></a>
   </div>
 </li>
     </ul>
@@ -267,13 +288,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#comparing-task-models-with-model_bakeoff.py" id="toc-comparing-task-models-with-model_bakeoff.py" class="nav-link active" data-scroll-target="#comparing-task-models-with-model_bakeoff.py">Comparing task models with <code>model_bakeoff.py</code></a>
+  <li><a href="#comparing-models-with-model_bakeoff.py" id="toc-comparing-models-with-model_bakeoff.py" class="nav-link active" data-scroll-target="#comparing-models-with-model_bakeoff.py">Comparing models with <code>model_bakeoff.py</code></a>
   <ul class="collapse">
-  <li><a href="#the-three-questions-as-three-stages" id="toc-the-three-questions-as-three-stages" class="nav-link" data-scroll-target="#the-three-questions-as-three-stages">The three questions, as three stages</a></li>
-  <li><a href="#two-providers-two-different-rhythms" id="toc-two-providers-two-different-rhythms" class="nav-link" data-scroll-target="#two-providers-two-different-rhythms">Two providers, two different rhythms</a></li>
+  <li><a href="#three-stages-of-evaluation" id="toc-three-stages-of-evaluation" class="nav-link" data-scroll-target="#three-stages-of-evaluation">Three stages of evaluation</a></li>
+  <li><a href="#providers" id="toc-providers" class="nav-link" data-scroll-target="#providers">Providers</a></li>
   <li><a href="#the-held-out-evaluation-set" id="toc-the-held-out-evaluation-set" class="nav-link" data-scroll-target="#the-held-out-evaluation-set">The held-out evaluation set</a></li>
   <li><a href="#reading-the-scores" id="toc-reading-the-scores" class="nav-link" data-scroll-target="#reading-the-scores">Reading the scores</a></li>
-  <li><a href="#setting-up-.env" id="toc-setting-up-.env" class="nav-link" data-scroll-target="#setting-up-.env">Setting up <code>.env</code></a></li>
   <li><a href="#running-it" id="toc-running-it" class="nav-link" data-scroll-target="#running-it">Running it</a></li>
   <li><a href="#the-results-file" id="toc-the-results-file" class="nav-link" data-scroll-target="#the-results-file">The results file</a></li>
   <li><a href="#the-candidate-roster" id="toc-the-candidate-roster" class="nav-link" data-scroll-target="#the-candidate-roster">The candidate roster</a></li>
@@ -287,30 +307,50 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="comparing-task-models-with-model_bakeoff.py" class="level1">
-<h1>Comparing task models with <code>model_bakeoff.py</code></h1>
-<p><code>model_bakeoff.py</code> answers a practical question: <strong>which models, if any, could realistically replace the model this program was developed against?</strong> <code>arsgrammatica</code> was developed with Claude Opus 5. This script lets you check open-weight models hosted on Hugging Face, or running locally under Ollama against the same held-out slice of gold examples, and see not just whether each one is “good enough” but <em>where</em> it falls short and <em>whether that performance can be improved with prompting or demos</em>.</p>
-<p>It’s a separate, standalone script from <code>optimize_gepa.py</code> — it doesn’t touch <code>optimized_syntax_analysis.json</code> or anything <code>syntaxer_main.py</code> uses at runtime. Run it whenever you want to evaluate a candidate; it never changes the production pipeline.</p>
-<section id="the-three-questions-as-three-stages" class="level2">
-<h2 class="anchored" data-anchor-id="the-three-questions-as-three-stages">The three questions, as three stages</h2>
-<p>“Can model X run this program” is really three separate questions. <code>model_bakeoff.py</code> answers each one as its own stage, selectable with <code>--stages</code>:</p>
+<section id="comparing-models-with-model_bakeoff.py" class="level1">
+<h1>Comparing models with <code>model_bakeoff.py</code></h1>
+<p><code>arsgrammatica</code> was developed with Claude Opus 5 hosted at the College of the Holy Cross. <code>dspy</code> lets us plug in other models and use the same code with them. What open-weight models hosted on Hugging Face, or running locally under Ollama could realistically run <code>arsgrammatica</code>?</p>
+<p><code>model_bakeoff.py</code> lets you compare multiple models against the same held-out slice of gold examples, and see not just whether each one is “good enough” but <em>where</em> it falls short and <em>whether that performance can be improved</em>. You can run <code>model_bakeoff.py</code> whenever you want to evaluate a candidate; it never affects the production pipeline.</p>
+<section id="three-stages-of-evaluation" class="level2">
+<h2 class="anchored" data-anchor-id="three-stages-of-evaluation">Three stages of evaluation</h2>
+<p>“Can a given model run <code>arsgrammatica</code>?” is really three separate questions:</p>
 <ol type="1">
-<li><strong><code>baseline</code></strong> (zero-shot) — does the candidate do anything useful with the exact instructions already written and tuned against Opus 5, no optimization at all? This is the cheapest stage by far (one call per held-out example) and worth running alone first.</li>
-<li><strong><code>gepa</code></strong> — if <code>dspy.GEPA</code> is allowed to rewrite the instructions specifically for this candidate — reading feedback on the candidate’s <em>own</em> attempts and proposing better wording — how much of the gap closes? The candidate still solves every example itself, both during optimization and at final scoring; only the wording changes.</li>
-<li><strong><code>bootstrap</code></strong> — if Opus itself is allowed to solve some of the training passages (acting as a <em>teacher</em>), and the verified-correct traces are attached to the candidate’s own prompt as worked few-shot examples, how much closes? Here the candidate never has to solve a training example itself — only the held-out scoring examples afterward.</li>
+<li>How good is the model with the instructions already written and tuned against Opus 5, without optimization?</li>
+<li>How much does the performance improve if we let <code>dspy.GEPA</code> optimize instructions for the model?</li>
+<li>How much does the performance improve if we use Opus 5 as a “teacher” model and modify the candidate model’s instructions?</li>
 </ol>
-<p>Comparing <code>baseline</code> against <code>gepa</code>/<code>bootstrap</code> separates “does this model already get it” from “can it be brought up to speed”; comparing <code>gepa</code> against <code>bootstrap</code> separates two different ways of doing that bringing-up. A candidate that’s mediocre at <code>baseline</code> but closes most of the gap at <code>gepa</code> or <code>bootstrap</code> is a much better prospect than one that’s mediocre at all three — the latter suggests a real capability ceiling, not just a prompting mismatch.</p>
-<p><code>gepa</code>/<code>bootstrap</code> make many more LM calls than <code>baseline</code> (both the candidate’s own calls and the teacher’s), so start with <code>--stages baseline</code> across every candidate you’re curious about, then spend the heavier stages only on the ones worth the API usage.</p>
+<p>You can answer each of those questions with the <code>model_bakeoff.py</code> script, selecting from these values for the <code>--stages</code>:</p>
+<ol type="1">
+<li><strong><code>baseline</code></strong> : zero-shot testing answering question 1, how good is the model without optimization? The cheapest stage by far (one call per held-out example) and worth running alone first.</li>
+<li><strong><code>gepa</code></strong> — uses <code>dspy.GEPA</code> is allowed to rewrite the instructions for this candidate (question 2). The candidate still solves every example itself, both during optimization and at final scoring; only the wording changes.</li>
+<li><strong><code>bootstrap</code></strong> uses Opus as a “teacher” model, and attaches verified correct traces to the model’s instructions as few-shot examples. Here the candidate never has to solve a <em>training</em> example itself — only the held-out <em>scoring</em> examples afterward.</li>
+</ol>
+<p>Comparing <code>baseline</code> against <code>gepa</code> and <code>bootstrap</code> distinguishes “Does this model already perform adequately?” from “How much can it be improved?”. Comparing <code>gepa</code> against <code>bootstrap</code> separates two different ways of improving the model (with or without a separate “teacher” model). A candidate that is mediocre at <code>baseline</code> but closes most of the gap at <code>gepa</code> or <code>bootstrap</code> might be a good prospect for <a href="../guides/optimizing.html">optimization</a>. A mediocre performance on all three stages probably reflects a real ceiling on the model’s capabilities.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Managing cost
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>gepa</code> and <code>bootstrap</code> make many more LM calls than <code>baseline</code> (since they involve calls both to the candidate and the “teacher” model). so start with <code>--stages baseline</code> across every candidate you’re curious about, then spend the heavier stages only on the ones worth the API usage.</p>
+</div>
+</div>
 </section>
-<section id="two-providers-two-different-rhythms" class="level2">
-<h2 class="anchored" data-anchor-id="two-providers-two-different-rhythms">Two providers, two different rhythms</h2>
-<p><strong><code>--provider huggingface</code></strong> (the default) routes each candidate through Hugging Face’s Inference Providers layer. You can run several candidates in one invocation, one after another, since each is just an API call.</p>
-<p><strong><code>--provider ollama</code></strong> is for models you pull and run locally with <code>ollama</code>. Realistically you can only have one model loaded in Ollama at a time, so this script’s shape is built around that constraint: <code>--provider ollama</code> refuses to run unless exactly one candidate is selected. The intended workflow is:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ollama</span> pull llama3.1:8b            <span class="co"># or whichever candidate; make sure ollama serve is running</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> model_bakeoff.py <span class="at">--provider</span> ollama <span class="at">--candidates</span> llama-3.1-8b <span class="at">--stages</span> baseline</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ...stop that model, pull/load the next one...</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> model_bakeoff.py <span class="at">--provider</span> ollama <span class="at">--candidates</span> gpt-oss-20b <span class="at">--stages</span> baseline</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Every invocation is a normal one-shot run, not a long-lived process — the results CSV (see below) is what accumulates scores across separate invocations, so you can score one currently-loaded model, save, swap models, and repeat, and nothing you scored earlier gets overwritten.</p>
+<section id="providers" class="level2">
+<h2 class="anchored" data-anchor-id="providers">Providers</h2>
+<p><strong><code>--provider huggingface</code></strong> (the default) routes each candidate through Hugging Face’s Inference Providers layer. You can run several candidates in one invocation, one after another, since each is just an API call. Be sure you have included a Hugging Face access token in your <code>.env</code> file.</p>
+<pre><code>HUGGINGFACE_API_KEY=hf_...</code></pre>
+<p><strong><code>--provider ollama</code></strong> is for models you pull and run locally with <code>ollama</code>. This needs no special configuration since it talks to ollama’s default port of <code>http://localhost:11434</code>. (Set <code>OLLAMA_API_BASE</code> in <code>.env</code>, or pass <code>--ollama-api-base</code>, if Ollama is running somewhere else on your network.)</p>
+<p>Realistically you can only have one model loaded in Ollama at a time, so this script’s shape is built around that constraint: <code>--provider ollama</code> refuses to run unless exactly one candidate is selected. The resulting workflow will look like this:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ollama</span> pull llama3.1:8b            <span class="co"># or whichever candidate; make sure ollama serve is running</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> model_bakeoff.py <span class="at">--provider</span> ollama <span class="at">--candidates</span> llama-3.1-8b <span class="at">--stages</span> baseline</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ...stop that model, pull/load the next one...</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> model_bakeoff.py <span class="at">--provider</span> ollama <span class="at">--candidates</span> gpt-oss-20b <span class="at">--stages</span> baseline</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Every invocation is a normal one-shot run, not a long-lived process . Scores are collected in a cumulative results file (see below), so you can score one model, save the results, swap models, and repeat, without overwriting earlier results.</p>
 </section>
 <section id="the-held-out-evaluation-set" class="level2">
 <h2 class="anchored" data-anchor-id="the-held-out-evaluation-set">The held-out evaluation set</h2>
@@ -325,16 +365,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><strong><code>relation_mean</code></strong> — the actual dependency relations, weighted highest (0.5 of the blend) since they’re the heart of the scheme.</li>
 <li><strong><code>vu_mean</code></strong> — verbal-expression classification (<code>syntactic_type</code>/<code>semantic_type</code>).</li>
 </ul>
-<p>A candidate that nails <code>field_mean</code> but collapses on <code>relation_mean</code> is failing at multi-hop structural reasoning specifically — a different (and probably less prompt-fixable) problem than one that’s just generally worse across the board. The console output also prints, per held-out example, any that raised an outright error (a request that failed, or output that didn’t parse into the expected shape) rather than silently folding those into the average — worth reading before trusting a low score.</p>
+<p>A model that scores well on <code>field_mean</code> but collapses on <code>relation_mean</code> is failing at multi-hop structural reasoning specifically — a different problem (and probably less susceptible to fixing with prompts) than a model that is just generally worse across the board. The console output also prints, per held-out example, any that raised an outright error (a request that failed, or output that didn’t parse into the expected shape) rather than silently folding those into the average — worth reading before trusting a low score.</p>
 <p>This script doesn’t compute a malformed-output rate as its own number (<code>validate()</code>/<code>find_unanchored_coordinated_verbs()</code> in the main package can do that over raw predictions if you want it), and it doesn’t do real weight-level fine-tuning — the <code>bootstrap</code> stage attaches Opus-solved examples to the candidate’s <em>prompt</em>, never touching its weights. <code>dspy.BootstrapFinetune</code> is real fine-tuning, but needs different infrastructure than either provider here and isn’t wired in.</p>
-</section>
-<section id="setting-up-.env" class="level2">
-<h2 class="anchored" data-anchor-id="setting-up-.env">Setting up <code>.env</code></h2>
-<p><code>--provider huggingface</code> needs a Hugging Face access token:</p>
-<pre><code>HUGGINGFACE_API_KEY=hf_...</code></pre>
-<p>(a token with Inference Providers access — see huggingface.co/settings/tokens). Some candidates specify their own <code>api_key_env</code>/<code>api_base_env</code> in <code>CANDIDATES</code> if they need a different credential or a dedicated endpoint.</p>
-<p><code>--provider ollama</code> needs nothing by default — it talks to <code>http://localhost:11434</code>. Set <code>OLLAMA_API_BASE</code> in <code>.env</code>, or pass <code>--ollama-api-base</code>, if Ollama is running somewhere else on your network.</p>
-<p>The <strong>teacher model</strong> — used as GEPA’s <code>reflection_lm</code> in the <code>gepa</code> stage, and as the program that actually solves training passages in the <code>bootstrap</code> stage — is fixed across every candidate and provider, and defaults to this repo’s already-configured main model (<code>API_BASE</code>/<code>MODEL</code>/<code>API_KEY</code>, the same <code>.env</code> <code>syntaxer_main.py</code> and <code>optimize_gepa.py</code> use). Override it with <code>REFLECTION_MODEL</code> (and <code>REFLECTION_API_BASE</code>/<code>REFLECTION_API_KEY</code> if they differ) — exactly like <code>optimize_gepa.py</code>. If you only run <code>--stages baseline</code>, no teacher credentials are needed at all.</p>
 </section>
 <section id="running-it" class="level2">
 <h2 class="anchored" data-anchor-id="running-it">Running it</h2>
@@ -374,14 +406,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>--min-baseline-to-optimize</code> — skip <code>gepa</code>/<code>bootstrap</code> for a candidate whose zero-shot mean is below this threshold, whether that baseline came from this invocation or a previously recorded row.</li>
 <li><code>--out</code> — the results file to merge into (default <code>model_bakeoff_results.csv</code>).</li>
 </ul>
-<p>Expect real calls against whichever provider serves each candidate, plus the teacher model’s calls for <code>gepa</code>/<code>bootstrap</code>. Start with <code>--stages baseline</code> and one candidate before running more stages or more candidates.</p>
 </section>
 <section id="the-results-file" class="level2">
 <h2 class="anchored" data-anchor-id="the-results-file">The results file</h2>
-<p>Results accumulate in a CSV (<code>model_bakeoff_results.csv</code> by default), keyed by <code>(label, provider, stage)</code>. Each invocation reads whatever’s already there, merges in its own new rows, and writes the whole thing back out sorted by <code>CANDIDATES</code>’ own order and then by stage — so:</p>
+<p>Results accumulate in a CSV file (<code>model_bakeoff_results.csv</code> by default), keyed by <code>(label, provider, stage)</code>. Each invocation reads the contents, merges in new rows, and writes the whole thing back out, sorted by <code>CANDIDATES</code> order and then by stage. You could, for example, run a Hugging Face pass today and an Ollama pass tomorrow, or score one Ollama model per day as you cycle through them, and the results all accumulate in the same file. If you re-run the same combination of <code>label</code>, <code>provider</code> and <code>stage</code>, that overwrites only that single row; other rows are untouched.</p>
 <ul>
-<li>Running a Hugging Face pass today and an Ollama pass tomorrow, or scoring one Ollama model per day as you cycle through them, all lands in the same file.</li>
-<li>Re-running the same <code>(label, provider, stage)</code> combination overwrites just that row; every other row survives untouched.</li>
 <li>Columns: <code>label</code>, <code>provider</code>, <code>model</code> (the resolved model string actually called), <code>family</code>, <code>tier</code>, <code>stage</code>, <code>n</code> (held-out example count), <code>mean</code>/<code>min</code>/<code>max</code> (blended score), <code>field_mean</code>/<code>relation_mean</code>/<code>vu_mean</code>, <code>elapsed_s</code>, <code>n_calls</code>, <code>total_cost</code> (blank when the provider doesn’t report per-call cost — Ollama never will, since it’s local), and <code>error</code> (set instead of scores if the candidate was skipped entirely, e.g.&nbsp;a missing API key).</li>
 </ul>
 <p>Each optimized <code>gepa</code>/<code>bootstrap</code> run is also saved to disk as <code>optimized_&lt;label&gt;_&lt;provider&gt;_&lt;stage&gt;.json</code>, alongside the CSV row — load one of these into a <code>dspy.ChainOfThought(SyntaxAnalysis)</code> instance with <code>.load(...)</code> if you want to inspect or reuse the actual optimized program, not just its score.</p>
@@ -450,8 +479,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
-<p>Two caveats worth knowing before running these on Ollama specifically: the <em>bare</em> tag <code>deepseek-r1:8b</code> has been repointed to a Qwen3-based checkpoint rather than the Llama-based distill this entry is actually about — the explicit <code>-llama-distill</code> suffix in <code>ollama_model</code> is required to get the right model, so double-check against <code>ollama list</code>/the library page before a real run. And Ollama’s library currently only carries “Mistral Small 3” (2501), while the Hugging Face entry points at the newer 3.2 (2506) — the two providers aren’t quite testing the same checkpoint for <code>mistral-small-24b</code>, so treat any HF-vs-Ollama comparison for that label with that in mind.</p>
-<p>Model availability and naming move fast on both sides; treat this roster as a snapshot worth re-checking against Hugging Face’s Inference Providers docs, each model’s Hub page, and <code>ollama list</code>/the Ollama library before a real run, not a guarantee. The largest candidates (70B/120B-class) are realistic mainly through <code>--provider huggingface</code> — running them locally via Ollama needs serious hardware.</p>
+<p>Model availability and naming move fast on both sides. This roster is just a snapshot, so recheck against Hugging Face’s Inference Providers docs, each model’s Hub page, and <code>ollama list</code> before running.</p>
 <p>To add a new candidate permanently, add a <code>dict(...)</code> entry to <code>CANDIDATES</code> with at least <code>label</code>, <code>model</code> (the <code>huggingface/org/repo</code> string), and <code>ollama_model</code> (the exact Ollama pull tag); for a one-off you don’t want to add to the roster at all, use <code>--model</code>/<code>--label</code> instead (see the Running it examples above).</p>
 
 
@@ -866,7 +894,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.6.0</strong></p>
+<p>Documentation for release version <strong>0.7.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

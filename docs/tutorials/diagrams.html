@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Diagramming syntactic analyses – arsgrammatica</title>
+<title>Diagramming syntactic analyses with graphviz – arsgrammatica</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -165,7 +165,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../tutorials/diagrams.html">Diagramming syntactic analyses</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../tutorials/diagrams.html">Diagramming syntactic analyses with <code>graphviz</code></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -199,13 +199,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../tutorials/diagrams.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Diagramming syntactic analyses</span></a>
+ <span class="menu-text">Diagramming syntactic analyses with <code>graphviz</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../tutorials/batch-images.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Generate PNG diagrams for multiple analyses</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../tutorials/batch-texts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Utilities to simplify analyzing a corpus</span></a>
   </div>
 </li>
         <li class="px-0"><hr class="sidebar-divider hi "></li>
@@ -234,7 +240,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Diagramming syntactic analyses</h1>
+<h1 class="title">Diagramming syntactic analyses with <code>graphviz</code></h1>
 </div>
 
 
@@ -253,9 +259,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <p>If you have saved an analysis from a marimo notebook or a command-line script, you can use the open-source <code>graphviz</code> application to diagram the analysis. The command-line script <code>analysis_to_dot.py</code> creates a graph in the <code>dot</code> format used by <code>graphviz</code>.</p>
 <p>Create a <code>dot</code> file from an analysis file::</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> analysis_to_dot.py analysis_file.cex <span class="op">&gt;</span> analysis_diagram.dot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/analysis_to_dot.py analysis_file.cex <span class="op">&gt;</span> analysis_diagram.dot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>If <code>dot</code> is installed, you can directly create a <code>.png</code> file:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> analysis_to_dot.py analysis_file.cex <span class="kw">|</span> <span class="ex">dot</span> <span class="at">-Tpng</span>  <span class="op">&gt;</span> analysis_diagram.png</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/analysis_to_dot.py analysis_file.cex <span class="kw">|</span> <span class="ex">dot</span> <span class="at">-Tpng</span>  <span class="op">&gt;</span> analysis_diagram.png</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <section id="how-to-install-dot" class="level2">
 <h2 class="anchored" data-anchor-id="how-to-install-dot">How to install <code>dot</code></h2>
 <p>Mac OS:</p>
@@ -676,7 +682,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.6.0</strong></p>
+<p>Documentation for release version <strong>0.7.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

@@ -183,10 +183,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Recipes</span></a>
   </div>
 </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../guides/install.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Installation options</span></a>
+ <span class="menu-text">Installing <code>arsgrammatica</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -197,14 +198,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/visualization.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Visualizing results</span></a>
+  <a href="../guides/saving-loading.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Saving and loading analyses</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/texthiliting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Highlighting syntactic analysis in HTML</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/saving-loading.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Saving and loading analyses</span></a>
+  <a href="../guides/mermaid.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Visualizing syntax graphs with Mermaid</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/graphmetrics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Characterizing syntax analyses with graph metrics</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -222,14 +237,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../guides/harvesting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Harvesting gold examples from real analyses</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../guides/bakeoff.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Comparing task models with <code>model_bakeoff.py</code></span></a>
+ <span class="menu-text">Comparing models with <code>model_bakeoff.py</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../guides/development.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Developing <code>arsgrammatica</code></span></a>
+ <span class="menu-text">Improving <code>arsgrammatica</code> by reading Latin</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Running tests with <code>pytest</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -241,20 +268,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../guides/budgetingtokens.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Estimating and enforcing a <code>max_tokens</code> budget</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../guides/managing_prompt_size.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Keeping requests to an LM at a manageable size</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/technical.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Some technical docs</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/testing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Testing without network access</span></a>
   </div>
 </li>
     </ul>
@@ -269,7 +290,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#analyze-a-string" id="toc-analyze-a-string" class="nav-link active" data-scroll-target="#analyze-a-string">Analyze a string</a></li>
   <li><a href="#analyze-citable-passages" id="toc-analyze-citable-passages" class="nav-link" data-scroll-target="#analyze-citable-passages">Analyze citable passages</a></li>
+  <li><a href="#analyze-a-corpus" id="toc-analyze-a-corpus" class="nav-link" data-scroll-target="#analyze-a-corpus">Analyze a corpus</a>
+  <ul class="collapse">
   <li><a href="#working-with-results-of-an-analysis" id="toc-working-with-results-of-an-analysis" class="nav-link" data-scroll-target="#working-with-results-of-an-analysis">Working with results of an analysis</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -303,7 +327,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="analyze-a-string" class="level3">
 <h3 class="anchored" data-anchor-id="analyze-a-string">Analyze a string</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> analyze_string</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>sentences, results <span class="op">=</span> analyze_string(<span class="st">"Gallia est omnis divisa in partes tres."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>sentences, results <span class="op">=</span> analyze_string(<span class="st">"Gallia est omnis divisa in partes tres."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="analyze-citable-passages" class="level3">
 <h3 class="anchored" data-anchor-id="analyze-citable-passages">Analyze citable passages</h3>
@@ -316,13 +341,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    CitedText(citation<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>aeneid<span class="sc">}</span><span class="ss">1.1"</span>, text<span class="op">=</span><span class="st">"Arma virumque canō, Trōiae quī prīmus ab ōrīs"</span>),</span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    CitedText(citation<span class="op">=</span><span class="ss">f"</span><span class="sc">{</span>aeneid<span class="sc">}</span><span class="ss">1.2"</span>, text<span class="op">=</span><span class="st">"Ītaliam, fātō profugus, Lāvīniaque vēnit"</span>),</span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>sentences, results <span class="op">=</span> analyze_sources(sources)</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>tokengraph <span class="op">=</span> combined_tokengraph(results)  <span class="co"># one flat list, spanning every sentence</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>sentences, results <span class="op">=</span> analyze_sources(sources)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Note that sentence boundaries don’t need to respect citation-unit boundaries (one sentence may span multiple source lines, as above)</p>
 <blockquote class="blockquote">
 <p><em>Validation</em>: the <code>validate</code> function checks the results of an analysis for internal consistency, and compiles a list of problems it detects. Both <code>analyze_string()</code> and <code>analyze_sources</code> call <code>validate</code>, and print a print a warning if any are found.</p>
 </blockquote>
 </section>
+<section id="analyze-a-corpus" class="level2">
+<h2 class="anchored" data-anchor-id="analyze-a-corpus">Analyze a corpus</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> analyze_ctsdata</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>sentences, results <span class="op">=</span> analyze_ctsdata(<span class="st">"path/to/cexfile"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <section id="working-with-results-of-an-analysis" class="level3">
 <h3 class="anchored" data-anchor-id="working-with-results-of-an-analysis">Working with results of an analysis</h3>
 <p><code>analyze_string()</code> and <code>analyze_sources()</code> return a pair of lists:</p>
@@ -330,10 +358,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>a list of <code>Sentence</code> objects</li>
 <li>a corresponding list of <code>SentenceAnalysis</code> objects, one for each sentence.</li>
 </ol>
-<p>A <code>SentenceAnalysis</code> has two a list of <code>VerbalExpression</code> objects in its <code>verbalunits</code> property, and an ordered list of <code>TokenAnalysis</code> objects in its <code>tokengraph</code> property.</p>
-<p><code>validate()</code> only catches referential problems like that one – ids that don’t exist. It can’t tell you an otherwise well-formed analysis is probably still wrong.</p>
+<p>A <code>SentenceAnalysis</code> has a list of <code>VerbalExpression</code> objects in its <code>verbalunits</code> property, and an ordered list of <code>TokenAnalysis</code> objects in its <code>tokengraph</code> property.</p>
+<p>For examples of things you can do with lists of <code>VerbalExpression</code> and <code>TokenAnalysis</code> objects, such as visualizing and analyzing syntax graphs, see <a href="../guides/">further recipes</a></p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -744,7 +773,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.6.0</strong></p>
+<p>Documentation for release version <strong>0.7.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

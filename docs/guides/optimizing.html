@@ -183,10 +183,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Recipes</span></a>
   </div>
 </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../guides/install.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Installation options</span></a>
+ <span class="menu-text">Installing <code>arsgrammatica</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -197,14 +198,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/visualization.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Visualizing results</span></a>
+  <a href="../guides/saving-loading.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Saving and loading analyses</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/texthiliting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Highlighting syntactic analysis in HTML</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/saving-loading.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Saving and loading analyses</span></a>
+  <a href="../guides/mermaid.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Visualizing syntax graphs with Mermaid</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/graphmetrics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Characterizing syntax analyses with graph metrics</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -222,14 +237,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../guides/harvesting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Harvesting gold examples from real analyses</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../guides/bakeoff.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Comparing task models with <code>model_bakeoff.py</code></span></a>
+ <span class="menu-text">Comparing models with <code>model_bakeoff.py</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../guides/development.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Developing <code>arsgrammatica</code></span></a>
+ <span class="menu-text">Improving <code>arsgrammatica</code> by reading Latin</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Running tests with <code>pytest</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -241,20 +268,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../guides/budgetingtokens.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Estimating and enforcing a <code>max_tokens</code> budget</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../guides/managing_prompt_size.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Keeping requests to an LM at a manageable size</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/technical.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Some technical docs</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/testing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Testing without network access</span></a>
   </div>
 </li>
     </ul>
@@ -267,7 +288,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#optimizing-with-gepa" id="toc-optimizing-with-gepa" class="nav-link active" data-scroll-target="#optimizing-with-gepa">Optimizing with GEPA</a></li>
+  <li><a href="#optimizing-with-gepa" id="toc-optimizing-with-gepa" class="nav-link active" data-scroll-target="#optimizing-with-gepa">Optimizing with GEPA</a>
+  <ul class="collapse">
+  <li><a href="#configuration" id="toc-configuration" class="nav-link" data-scroll-target="#configuration">Configuration</a></li>
+  <li><a href="#running-optimize_gepa" id="toc-running-optimize_gepa" class="nav-link" data-scroll-target="#running-optimize_gepa">Running <code>optimize_gepa</code></a></li>
+  <li><a href="#scoring" id="toc-scoring" class="nav-link" data-scroll-target="#scoring">Scoring</a></li>
+  <li><a href="#using-the-result" id="toc-using-the-result" class="nav-link" data-scroll-target="#using-the-result">Using the result</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -279,22 +306,56 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="optimizing-with-gepa" class="level1">
 <h1>Optimizing with GEPA</h1>
-<p><code>optimize_gepa.py</code> uses <a href="https://dspy.ai">dspy.GEPA</a> – a reflective prompt optimizer – to improve <code>SyntaxAnalysis</code>’s instructions against the gold examples in <code>tests/fixtures/gold_examples.py</code>. Unlike <code>pytest</code> (entirely <code>DummyLM</code>-backed), this is a <strong>live-LM script</strong>: every trial makes a real call to the configured task model, plus a reflection model GEPA uses to read scoring feedback and propose better instructions. Expect it to use real API usage against the configured proxy.</p>
+<p>One of <code>dspy</code>’s strengths is its streamlined path to optimize a program for a specific configured langauge model without you having to change any code.</p>
+<section id="configuration" class="level2">
+<h2 class="anchored" data-anchor-id="configuration">Configuration</h2>
+<p><code>dspy</code> allows you to configure <em>two</em> models: the “teacher” and the “student.”</p>
+<p><code>arsgrammatica</code> uses an <code>.env</code> file with the same values as the rest of <code>arsgrammatica</code>’s programs to configure the target (“student”) model: <code>API_BASE</code>, <code>MODEL</code>, and <code>API_KEY</code>.If you add a parallel trio <code>REFLECTION_API_BASE</code>, <code>REFLECTION_MODEL</code>, and <code>REFLECTION_API_KEY</code> to configure a more powerful reasoning model as the “teacher”, <code>arsgrammatica</code> will take that as the “teacher” model, and GEPA will reason with the “teacher” model while optimizing for the “student” mode. If you do not configure a second reflection model, GEPA will the same model for both “teacher” and “student.”</p>
+</section>
+<section id="running-optimize_gepa" class="level2">
+<h2 class="anchored" data-anchor-id="running-optimize_gepa">Running <code>optimize_gepa</code></h2>
+<p>The script <code>optimize_gepa.py</code> runs one of <code>dspy</code>’s most advanced optimizers, GEPA (<a href="https://dspy.ai">dspy.GEPA</a>) to improve <code>SyntaxAnalysis</code>’s instructions against the gold examples in <code>tests/fixtures/gold_examples.py</code>. Since this requires making the specified request, and then a further request to a reflection model, this can potentially be expensive, so <code>optimize_gepa</code> lets you regulate this stage of work with these parameters:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> optimize_gepa.py                    <span class="co"># --auto light (cheapest; default)</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> optimize_gepa.py <span class="at">--auto</span> medium       <span class="co"># more thorough, more expensive</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> optimize_gepa.py <span class="at">--auto</span> heavy        <span class="co"># most thorough, most expensive</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> optimize_gepa.py <span class="at">--max-metric-calls</span> 40   <span class="co"># exact call budget instead of a preset</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> optimize_gepa.py <span class="at">--skip-baseline</span>     <span class="co"># skip the pre-GEPA scoring pass (saves N calls)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Needs the same <code>.env</code> as <code>syntaxer_main.py</code> (<code>API_BASE</code>/<code>MODEL</code>/<code>API_KEY</code>). Optionally set <code>REFLECTION_MODEL</code> (and <code>REFLECTION_API_BASE</code>/<code>REFLECTION_API_KEY</code>, if they differ) to use a different model specifically for GEPA’s reflective step – GEPA’s own docs recommend a strong reasoning model for this. Without <code>REFLECTION_MODEL</code> set, the task model doubles as the reflection model, a reasonable default for a first run.</p>
-<p><strong>Scope and data</strong>: this optimizes only <code>SyntaxAnalysis</code> (the <code>analyze</code> module in <code>latin_syntax_dspy.py</code>), not the segmentation stage. It trains on all gold examples in <code>GOLD_EXAMPLES</code> (20 as of this writing) with no separate held-out valset – per <code>dspy.GEPA</code>’s own behavior when no valset is given, it uses the trainset for both reflective updates and Pareto-score tracking. That’s a reasonable starting point while the gold set is still small, but expect the optimized prompt to fit these exact sentences well without a guarantee it generalizes to new ones – worth revisiting (holding out a few examples as a valset) once there are more gold examples to spare.</p>
-<p><strong>Scoring</strong>: <code>arsgrammatica/gepa_metric.py</code>’s <code>syntax_metric</code> compares a prediction’s <code>verbalunits</code>/<code>tokengraph</code> against the gold answer and returns a score in [0, 1] (a weighted blend: relations 50%, verbal-expression classification 30%, basic per-token fields 20% – a judgment call, easy to retune in that file) plus specific, human-readable feedback naming every mismatched token/relation/classification, for GEPA’s reflection model to read. Relations are compared as an unordered set, not by <code>relatedtoken1</code>/<code>relatedtoken2</code> position, since that pairing is documented as an interchangeable overflow slot (see <code>models.py</code>’s <code>RelationLabel</code> comment) – see <code>tests/test_gepa_metric.py</code> for fully offline tests of the metric itself (including that a relation-slot swap scores as a perfect match, not an error).</p>
-<p><strong>Using the result</strong>: <code>optimize_gepa.py</code> saves the optimized program’s instructions to <code>optimized_syntax_analysis.json</code> (configurable via <code>--out</code>).</p>
-<p>To use it:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica.latin_syntax_dspy <span class="im">import</span> analyze</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>analyze.load(<span class="st">"optimized_syntax_analysis.json"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>right after import and before calling <code>analyze_passage()</code>/ <code>analyze_sources()</code> – <code>analyze</code> is the same module-level <code>ChainOfThought</code> instance the whole pipeline uses, so loading into it in place is enough; nothing else needs to change. <code>gepa_logs/</code> (GEPA’s own run logs) is gitignored; <code>optimized_syntax_analysis.json</code> is not – commit it once you’re satisfied with a run, or gitignore it yourself if you’d rather treat it as a local, disposable artifact.</p>
+<p>This optimizes <code>SyntaxAnalysis</code> by training on all the gold examples in <code>GOLD_EXAMPLES</code> (a small, hand-curated set built to exercise every documented construction at least once) with no separate held-out evaluation set. If you have files of analyses you have verified, you can add those to the pool <code>optimize_gepa</code> uses and specify the fraction to be used for an evaluation set.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The <code>data</code> directory of the <code>arsgrammatica</code> repository includes hand-vetted analyses you can use in optimizing the package for a new model.</p>
+</div>
+</div>
+<pre><code># Include individual files with analyses:
+python3 utilities/optimize_gepa.py --eval-file urn_cts_compnov_bible_genesis_vulgate_42_1.cex urn_cts_compnov_bible_genesis_vulgate_42_2.cex
+
+# Include all files in a directory, and hold out 25% for evaluation set:
+python3 utilities/optimize_gepa.py --eval-dir data/vulgate/ --val-fraction 0.25
+
+# Include all files in a directory with no separate evaluation set:
+python3 utilities/optimize_gepa.py --eval-dir data/vulgate/ --val-fraction 0 </code></pre>
+</section>
+<section id="scoring" class="level2">
+<h2 class="anchored" data-anchor-id="scoring">Scoring</h2>
+<p><code>arsgrammatica</code> defines a <code>syntax_metric</code>. This compares the responses <code>verbalunits</code> and <code>tokengraph</code> against the gold answer and returns a score from 0 to 1. The score is computed weighing score for correct relations at 50%, score for classifying verbal-expressions at 30%, scoring for basic fields for each token fields at 20%. It includes specific, human-readable feedback naming every mismatched token/relation/classification, which GEPA’s reflection model can read and take advantage of.</p>
+</section>
+<section id="using-the-result" class="level2">
+<h2 class="anchored" data-anchor-id="using-the-result">Using the result</h2>
+<p><code>optimize_gepa.py</code> saves the optimized program’s instructions to a JSON file named in the <code>--out</code> parameter or defaulting to <code>optimized_syntax_analysis.json</code>.</p>
+<p>To use the saved model, load it right after importing <code>analyze</code> and before calling any analysis functions:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica.latin_syntax_dspy <span class="im">import</span> analyze</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>analyze.load(<span class="st">"optimized_syntax_analysis.json"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -705,7 +766,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.6.0</strong></p>
+<p>Documentation for release version <strong>0.7.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

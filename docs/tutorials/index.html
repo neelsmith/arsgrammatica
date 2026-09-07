@@ -23,6 +23,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -164,13 +199,19 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../tutorials/diagrams.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Diagramming syntactic analyses</span></a>
+ <span class="menu-text">Diagramming syntactic analyses with <code>graphviz</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../tutorials/batch-images.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Generate PNG diagrams for multiple analyses</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../tutorials/batch-texts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Utilities to simplify analyzing a corpus</span></a>
   </div>
 </li>
         <li class="px-0"><hr class="sidebar-divider hi "></li>
@@ -190,7 +231,8 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#preassembled-resources" id="toc-preassembled-resources" class="nav-link active" data-scroll-target="#preassembled-resources">Preassembled resources</a></li>
+  <li><a href="#prerequisites" id="toc-prerequisites" class="nav-link active" data-scroll-target="#prerequisites">Prerequisites</a></li>
+  <li><a href="#preassembled-resources" id="toc-preassembled-resources" class="nav-link" data-scroll-target="#preassembled-resources">Preassembled resources</a></li>
   <li><a href="#using-the-arsgrammatica-package-in-python" id="toc-using-the-arsgrammatica-package-in-python" class="nav-link" data-scroll-target="#using-the-arsgrammatica-package-in-python">Using the <code>arsgrammatica</code> package in python</a></li>
   </ul>
 </nav>
@@ -217,6 +259,15 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="prerequisites" class="level2">
+<h2 class="anchored" data-anchor-id="prerequisites">Prerequisites</h2>
+<p>Install <code>arsgrammatica</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install git+https://github.com/neelsmith/arsgrammatica.git</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Configure your language model in a <code>.env</code> file ilke this:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="va">API_BASE</span><span class="op">=</span>https://serviceprovider</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="va">MODEL</span><span class="op">=</span>litellm_proxy/Claude <span class="ex">Opus</span> 5</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="va">API_KEY</span><span class="op">=</span>your_key</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
 <section id="preassembled-resources" class="level2">
 <h2 class="anchored" data-anchor-id="preassembled-resources">Preassembled resources</h2>
 <ul>
@@ -224,6 +275,7 @@ ul.task-list li input[type="checkbox"] {
 <li>analyze Latin with a <a href="../tutorials/cli.html">command line script</a></li>
 <li><a href="../tutorials/diagrams.html">diagram analyses</a> with graphviz</li>
 <li>generate <a href="../tutorials/batch-images.html">PNG diagrams from saved analyses</a> with graphviz</li>
+<li>simplify <a href="../tutorials/batch-texts.html">batch-processing texts</a></li>
 </ul>
 </section>
 <section id="using-the-arsgrammatica-package-in-python" class="level2">
@@ -643,7 +695,7 @@ ul.task-list li input[type="checkbox"] {
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.6.0</strong></p>
+<p>Documentation for release version <strong>0.7.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

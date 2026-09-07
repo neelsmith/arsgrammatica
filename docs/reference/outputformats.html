@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Saving and loading analyses – arsgrammatica</title>
+<title>Format of delimited-text serializations – arsgrammatica</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -22,41 +22,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -140,11 +105,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Tutorials</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="../guides/index.html" aria-current="page"> 
+    <a class="nav-link" href="../guides/index.html"> 
 <span class="menu-text">Guides</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../reference/index.html"> 
+    <a class="nav-link active" href="../reference/index.html" aria-current="page"> 
 <span class="menu-text">Reference</span></a>
   </li>  
 </ul>
@@ -165,7 +130,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guides/saving-loading.html">Saving and loading analyses</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/outputformats.html">Format of delimited-text serializations</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -179,105 +144,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Recipes</span></a>
+  <a href="../reference/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Reference</span></a>
   </div>
 </li>
         <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/install.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Installing <code>arsgrammatica</code></span></a>
+  <a href="../reference/relationshipvalues.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Values for syntactic relationships</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/analysis.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Analyzing syntax with a language model</span></a>
+  <a href="../reference/extendingscheme.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Extending the syntax scheme</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/saving-loading.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Saving and loading analyses</span></a>
-  </div>
-</li>
-        <li class="px-0"><hr class="sidebar-divider hi "></li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/texthiliting.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Highlighting syntactic analysis in HTML</span></a>
+  <a href="../reference/outputformats.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Format of delimited-text serializations</span></a>
   </div>
 </li>
         <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/mermaid.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Visualizing syntax graphs with Mermaid</span></a>
-  </div>
-</li>
-        <li class="px-0"><hr class="sidebar-divider hi "></li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/graphmetrics.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Characterizing syntax analyses with graph metrics</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/aat.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Building an AAT (Agent-Action-Target) graph</span></a>
-  </div>
-</li>
-        <li class="px-0"><hr class="sidebar-divider hi "></li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/optimizing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Optimizing with GEPA</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/harvesting.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Harvesting gold examples from real analyses</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/bakeoff.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Comparing models with <code>model_bakeoff.py</code></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/development.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Improving <code>arsgrammatica</code> by reading Latin</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/testing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Running tests with <code>pytest</code></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/tokenizing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Tokenizing a source file without full syntax analysis</span></a>
-  </div>
-</li>
-        <li class="px-0"><hr class="sidebar-divider hi "></li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/budgetingtokens.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Estimating and enforcing a <code>max_tokens</code> budget</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/managing_prompt_size.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Keeping requests to an LM at a manageable size</span></a>
-  </div>
-</li>
+ <span class="menu-text">reference/testing.qmd</span>
+  </li>
     </ul>
     </div>
 </nav>
@@ -288,8 +180,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#saving-analyses" id="toc-saving-analyses" class="nav-link active" data-scroll-target="#saving-analyses">Saving analyses</a></li>
-  <li><a href="#reading-saved-analyses" id="toc-reading-saved-analyses" class="nav-link" data-scroll-target="#reading-saved-analyses">Reading saved analyses</a></li>
+  <li><a href="#serialization-format-of-analyses" id="toc-serialization-format-of-analyses" class="nav-link active" data-scroll-target="#serialization-format-of-analyses">Serialization format of analyses</a></li>
+  <li><a href="#serialization-format-of-token-analysis" id="toc-serialization-format-of-token-analysis" class="nav-link" data-scroll-target="#serialization-format-of-token-analysis">Serialization format of token analysis</a></li>
+  <li><a href="#serializing-analyses-serialization.py" id="toc-serializing-analyses-serialization.py" class="nav-link" data-scroll-target="#serializing-analyses-serialization.py">1. Serializing analyses (<code>serialization.py</code>)</a></li>
+  <li><a href="#tokenizations-without-analysis-segmentation_serialization.py" id="toc-tokenizations-without-analysis-segmentation_serialization.py" class="nav-link" data-scroll-target="#tokenizations-without-analysis-segmentation_serialization.py">2. Tokenizations without analysis (<code>segmentation_serialization.py</code>)</a></li>
   </ul>
 </nav>
     </div>
@@ -298,7 +192,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Saving and loading analyses</h1>
+<h1 class="title">Format of delimited-text serializations</h1>
 </div>
 
 
@@ -315,44 +209,90 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>You can serialize analyses to a delimited-text file, and read saved analyses back using the <code>write_analyses</code> and <code>read_analyses</code> functions.</p>
-<section id="saving-analyses" class="level2">
-<h2 class="anchored" data-anchor-id="saving-analyses">Saving analyses</h2>
-<p>If you have analyzed one or more passages into two variables <code>sentences</code> and <code>results</code> (like <a href="../guides/analysis.html">these examples</a>), here’s how to serialize them.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> write_analyses, combined_tokengraph</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>tokengraph <span class="op">=</span> combined_tokengraph(results)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>verbalunits <span class="op">=</span> [vu <span class="cf">for</span> result <span class="kw">in</span> results <span class="cf">for</span> vu <span class="kw">in</span> result.verbalunits]</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>warnings <span class="op">=</span> write_analyses(sentences, verbalunits, tokengraph, <span class="st">"analysis.txt"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><code>write_analyses</code> expects sentences, verbal units, and tokens to be separately organized, and writes them to a named file. We already have a <code>sentences</code> variable. We can extract from the <code>results</code> variable separate lists for verbal units (the nested <code>for</code> comprehension) and the token graph (the <code>combined_tokengraph</code> function).</p>
-<p><code>write_analyses</code> returns a list with any warnings encountered in serializing the analyses. We could check those:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> w <span class="kw">in</span> warnings:</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Warning: </span><span class="sc">{</span>w<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>You may also optionally record in a separate block of the delimited-text file the language model and its reasoning as part of the sentence-by-sentence record, using the optional parameters <code>model</code> and <code>reasoning</code>.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>warnings <span class="op">=</span> write_analyses(</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    sentences, verbalunits, tokengraph, <span class="st">"analysis.txt"</span>,</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>os.environ[<span class="st">"MODEL"</span>],</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    reasoning<span class="op">=</span>[result.reasoning <span class="cf">for</span> result <span class="kw">in</span> results],</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="serialization-format-of-analyses" class="level2">
+<h2 class="anchored" data-anchor-id="serialization-format-of-analyses">Serialization format of analyses</h2>
+<p><em>TBA</em></p>
 </section>
-<section id="reading-saved-analyses" class="level2">
-<h2 class="anchored" data-anchor-id="reading-saved-analyses">Reading saved analyses</h2>
-<p>You can read back a flat list of all the four parts of a serialization with the <code>read_analyses</code> function.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> read_analyses</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>tokengraph, verbalunits, sentences, lm_infos <span class="op">=</span> </span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    read_analyses(<span class="st">"analysis.txt"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>To split up the composite token graph by sentence, use <code>split_analysis_by_sentence</code>.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> split_analysis_by_sentence</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>sentencetokens <span class="op">=</span> split_analysis_by_sentence(tokengraph, verbalunits, sentences)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (sentence_tokengraph, sentence_verbalunits) <span class="kw">in</span> </span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">zip</span>(sentences, sentencetokens):</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    ...  <span class="co"># work with analysis data per sentence</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>For details of the serialization format, see <a href="../reference/">the reference documentation</a></p>
+<section id="serialization-format-of-token-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="serialization-format-of-token-analysis">Serialization format of token analysis</h2>
+<p><em>TBA</em> # Two plain-text output formats: full analyses vs.&nbsp;tokenization-only</p>
+<p>This codebase has two separate pipe-delimited, line-oriented plain-text formats for saving pipeline output to a file. Which one applies depends on how far a passage has gotten: has syntax analysis actually run over it, or has it only been segmented into sentences/tokens so far. The two formats share one block (<code>#!sentences</code>) but are otherwise not interchangeable – a file in one format cannot be read by the other module’s reader.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Module</th>
+<th>Written by</th>
+<th>Read by</th>
+<th>Covers</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>1. Full analyses</strong></td>
+<td><code>arsgrammatica/serialization.py</code></td>
+<td><code>write_analyses()</code>/<code>serialize_analyses()</code></td>
+<td><code>read_analyses()</code></td>
+<td><code>Sentence</code>, <code>VerbalExpression</code>, <code>TokenAnalysis</code> – the complete syntax-analysis result</td>
+</tr>
+<tr class="even">
+<td><strong>2. Tokenization only</strong></td>
+<td><code>arsgrammatica/segmentation_serialization.py</code></td>
+<td><code>write_segmentation()</code>/<code>serialize_segmentation()</code></td>
+<td><code>read_segmentation()</code></td>
+<td><code>Sentence</code> only, from <code>segment_sources()</code> – no analysis run at all</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="serializing-analyses-serialization.py" class="level2">
+<h2 class="anchored" data-anchor-id="serializing-analyses-serialization.py">1. Serializing analyses (<code>serialization.py</code>)</h2>
+<p>Three required pipe-delimited blocks, each a label line alone on its own line, then a fixed header, then one data row per record. Blocks may appear in any order and may each repeat (e.g.&nbsp;from concatenating two files); <code>read_analyses()</code> merges same-label blocks before parsing.</p>
+<pre><code>#!sentences
+context_begin|first_token|context_end|last_token
+Aeneid 1.1|t0|Aeneid 1.1|t9
+
+#!verbal_units
+context|token|syntactic_type|semantic_type
+Aeneid 1.1|t5|independent|transitive active
+
+#!tokens
+context|id|tokentype|text|lemma|verbalunit|related1|relationship1|related2|relationship2
+Aeneid 1.1|t0|lexical|Arma|arma|||||</code></pre>
+<p>A fourth block, <code>#!LM</code>, is optional and shaped differently – no header line, not pipe-delimited, three <code>KEY=value</code> lines per sentence (<code>MODEL=</code>/<code>CONTEXT=</code>/<code>REASONING=</code>) recording what model produced that sentence’s analysis, a <code>CONTEXT1.ID1-CONTEXT2.ID2</code> identifier for what it analyzed, and its own reasoning (collapsed to one line):</p>
+<pre><code>#!LM
+MODEL=litellm_proxy/anthropic/Claude Opus 5
+CONTEXT=Aeneid 1.1.t0-Aeneid 1.1.t4
+REASONING=The main verb is "cano" ("I sing"), independent and transitive active...</code></pre>
+<p>It’s written only when <code>serialize_analyses()</code>/<code>write_analyses()</code> are called with <code>reasoning=...</code>; <code>read_analyses()</code> accepts a file with none at all, returning an empty list for it.</p>
+<p>Key points: <code>None</code> fields serialize as an empty string (<code>""</code>) and parse back as <code>None</code>; the literal string <code>"root"</code> (an independent verb’s own <code>relatedtoken1</code>) is a real value, never confused with empty. Sentence boundaries aren’t stored redundantly on every row – <code>#!sentences</code>’ <code>first_token</code>/<code>last_token</code> ids are looked up by <em>position</em> in <code>#!tokens</code>’ own row order, so a sentence’s tokens must form a contiguous, matching-order run in <code>tokengraph</code> (checked, and warned about, not silently trusted). Implied/elided tokens round-trip in <code>#!tokens</code> like any other row but are excluded from a sentence’s reconstructed <code>tokens</code> list in both directions, since they were never part of the original per-sentence segmentation.</p>
+<p><code>read_analyses(path)</code> returns <code>(tokengraph, verbalunits, sentences, lm_infos)</code>, in that order. <code>read_analyses()</code> is strict, not degrade-visibly: a missing block, a mismatched header, a wrong column count, a dangling id reference, or a <code>#!sentences</code>/<code>#!tokens</code> disagreement all raise <code>ValueError</code> immediately, naming the problem.</p>
+<p><code>split_analysis_by_sentence(tokengraph, verbalunits, sentences)</code> is the usual next step after reading a file back: it slices the flat <code>tokengraph</code>/<code>verbalunits</code> into one <code>(sentence_tokengraph, sentence_verbalunits)</code> pair per sentence, for anything that wants to review or render one sentence at a time (e.g.&nbsp;<code>marimo/latin_syntaxer_review.py</code>, <code>marimo/latin_syntaxer_graph_metrics.py</code>).</p>
+<p><code>tests/test_serialization.py</code> (56 tests) covers round-tripping every field including <code>None</code>/<code>"root"</code>, the optional <code>#!LM</code> block, multiple concatenated blocks, every documented <code>ValueError</code> case, and <code>split_analysis_by_sentence()</code>’s own slicing including its one documented edge case (a trailing implied token past a sentence’s last real token falls just outside the slice).</p>
+</section>
+<section id="tokenizations-without-analysis-segmentation_serialization.py" class="level2">
+<h2 class="anchored" data-anchor-id="tokenizations-without-analysis-segmentation_serialization.py">2. Tokenizations without analysis (<code>segmentation_serialization.py</code>)</h2>
+<p>A lighter counterpart for <code>segment_sources()</code>’s own output – sentences and their tokens, with no syntax analysis run (or paid for) at all. Two required blocks, same label/header/one-row-per-record shape as above, but neither repeatable nor optional (this format is always written whole by one <code>serialize_segmentation()</code> call):</p>
+<pre><code>#!sentences
+context_begin|first_token|context_end|last_token
+Aeneid 1.1|t0|Aeneid 1.1|t4
+
+#!tokens
+context|sentence_index|id|text
+Aeneid 1.1|0|t0|Arma
+Aeneid 1.1|0|t1|virumque</code></pre>
+<p><code>#!sentences</code> is <em>exactly</em> <code>serialization.py</code>‘s own block (same label, header, and meaning – imported directly from there so the two can’t drift apart). <code>#!tokens</code> shares its name with <code>serialization.py</code>’s block but not its columns: no <code>tokentype</code>/<code>lemma</code>/relation data, since nothing here has been analyzed yet. It adds one column <code>#!tokens</code> (analyses) doesn’t have – <code>sentence_index</code>, the token’s own sentence’s 0-based position in the file – so sentence boundaries don’t need to be inferred from row position at all. <code>read_segmentation()</code> groups rows by <code>sentence_index</code> first, then cross-checks that grouping against <code>#!sentences</code>’ own first_token/last_token/citations, raising <code>ValueError</code> on any disagreement (e.g.&nbsp;a hand-edited file) rather than trusting one block over the other.</p>
+<p>Because of the <code>#!tokens</code> column mismatch, a file in this format is never readable by <code>serialization.read_analyses()</code>, even though its <code>#!sentences</code> half alone matches exactly.</p>
+<p><code>read_segmentation(path)</code> returns a plain <code>List[Sentence]</code> – there’s no <code>verbalunits</code>/<code>tokengraph</code>/<code>lm_infos</code> to return, since none exist yet. Same strict, raise-immediately posture as <code>read_analyses()</code>: a missing block, mismatched header, wrong column count, non-contiguous <code>sentence_index</code> values, a duplicate token id, or a <code>#!sentences</code>/<code>#!tokens</code> disagreement all raise.</p>
+<p><code>utilities/tokenize_ctsdata.py</code> is this format’s main producer (reads a <code>#!ctsdata</code> source, segments it, writes the result here); <code>marimo/latin_syntaxer_tokenized.py</code> is its main consumer (reads a file this format wrote, lets you pick one sentence, and runs syntax analysis on just that sentence on demand).</p>
+<p><code>tests/test_segmentation_serialization.py</code> (28 tests) covers round-tripping, the shared-<code>#!sentences</code>-block guarantee, and every documented <code>ValueError</code> case.</p>
 
 
 </section>

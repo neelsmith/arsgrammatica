@@ -148,10 +148,11 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">Recipes</span></a>
   </div>
 </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../guides/install.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Installation options</span></a>
+ <span class="menu-text">Installing <code>arsgrammatica</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -162,14 +163,28 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/visualization.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Visualizing results</span></a>
+  <a href="../guides/saving-loading.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Saving and loading analyses</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/texthiliting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Highlighting syntactic analysis in HTML</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/saving-loading.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Saving and loading analyses</span></a>
+  <a href="../guides/mermaid.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Visualizing syntax graphs with Mermaid</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/graphmetrics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Characterizing syntax analyses with graph metrics</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -187,14 +202,26 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../guides/harvesting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Harvesting gold examples from real analyses</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../guides/bakeoff.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Comparing task models with <code>model_bakeoff.py</code></span></a>
+ <span class="menu-text">Comparing models with <code>model_bakeoff.py</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../guides/development.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Developing <code>arsgrammatica</code></span></a>
+ <span class="menu-text">Improving <code>arsgrammatica</code> by reading Latin</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Running tests with <code>pytest</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -206,20 +233,14 @@ ul.task-list li input[type="checkbox"] {
         <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../guides/budgetingtokens.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Estimating and enforcing a <code>max_tokens</code> budget</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../guides/managing_prompt_size.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Keeping requests to an LM at a manageable size</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/technical.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Some technical docs</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/testing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Testing without network access</span></a>
   </div>
 </li>
     </ul>
@@ -232,9 +253,14 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#using-the-package" id="toc-using-the-package" class="nav-link active" data-scroll-target="#using-the-package">Using the package</a></li>
-  <li><a href="#training-a-new-model" id="toc-training-a-new-model" class="nav-link" data-scroll-target="#training-a-new-model">Training a new model</a></li>
-  <li><a href="#managing-a-workflow" id="toc-managing-a-workflow" class="nav-link" data-scroll-target="#managing-a-workflow">Managing a workflow</a></li>
+  <li><a href="#analyzing-and-visualizing-syntax" id="toc-analyzing-and-visualizing-syntax" class="nav-link active" data-scroll-target="#analyzing-and-visualizing-syntax">Analyzing and visualizing syntax</a>
+  <ul class="collapse">
+  <li><a href="#analyzing-latin-texts" id="toc-analyzing-latin-texts" class="nav-link" data-scroll-target="#analyzing-latin-texts">Analyzing Latin texts</a></li>
+  <li><a href="#visualizing-analyses" id="toc-visualizing-analyses" class="nav-link" data-scroll-target="#visualizing-analyses">Visualizing analyses</a></li>
+  <li><a href="#analyzing-analyses-as-graph-structures" id="toc-analyzing-analyses-as-graph-structures" class="nav-link" data-scroll-target="#analyzing-analyses-as-graph-structures">Analyzing analyses as graph structures</a></li>
+  </ul></li>
+  <li><a href="#training-a-language-model" id="toc-training-a-language-model" class="nav-link" data-scroll-target="#training-a-language-model">Training a language model</a></li>
+  <li><a href="#managing-a-language-model" id="toc-managing-a-language-model" class="nav-link" data-scroll-target="#managing-a-language-model">Managing a language model</a></li>
   </ul>
 </nav>
     </div>
@@ -261,31 +287,47 @@ ul.task-list li input[type="checkbox"] {
 
 
 <p>Guides for using <code>arsgrammatica</code> for particular tasks.</p>
-<section id="using-the-package" class="level2">
-<h2 class="anchored" data-anchor-id="using-the-package">Using the package</h2>
+<section id="analyzing-and-visualizing-syntax" class="level2">
+<h2 class="anchored" data-anchor-id="analyzing-and-visualizing-syntax">Analyzing and visualizing syntax</h2>
+<section id="analyzing-latin-texts" class="level3">
+<h3 class="anchored" data-anchor-id="analyzing-latin-texts">Analyzing Latin texts</h3>
 <ul>
-<li><a href="../guides/install.html">Installation options</a></li>
-<li><a href="../guides/analysis.html">Analyzing Latin text</a></li>
-<li><a href="../guides/visualization.html">Visualizing analysis results</a></li>
+<li><a href="../guides/install.html">Installing <code>arsgrammatica</code></a></li>
+<li><a href="../guides/analysis.html">Analyzing Latin syntax with a configured language model</a></li>
 <li><a href="../guides/saving-loading.html">Saving and loading analyses</a></li>
+</ul>
+</section>
+<section id="visualizing-analyses" class="level3">
+<h3 class="anchored" data-anchor-id="visualizing-analyses">Visualizing analyses</h3>
+<ul>
+<li><a href="../guides/texthiliting.html">Highlighting text</a> syntactically in HTML</li>
+<li>Visualizing <a href="../guides/mermaid.html">syntax graphs with Mermaid</a></li>
+</ul>
+</section>
+<section id="analyzing-analyses-as-graph-structures" class="level3">
+<h3 class="anchored" data-anchor-id="analyzing-analyses-as-graph-structures">Analyzing analyses as graph structures</h3>
+<ul>
+<li>Characterizing syntactic analyses with <a href="../guides/graphmetrics.html">graph metrics</a></li>
 <li><a href="../guides/aat.html">Building an Agent-Action-Target (AAT) graph</a></li>
 </ul>
 </section>
-<section id="training-a-new-model" class="level2">
-<h2 class="anchored" data-anchor-id="training-a-new-model">Training a new model</h2>
+</section>
+<section id="training-a-language-model" class="level2">
+<h2 class="anchored" data-anchor-id="training-a-language-model">Training a language model</h2>
 <ul>
-<li><a href="../guides/optimizing.html">optimizing</a></li>
-<li><a href="../guides/bakeoff.html">comparing models</a></li>
-<li><a href="../guides/development.html">a development work flow</a></li>
-<li><a href="../guides/tokenizing.html">tokenizing text without analysis</a></li>
+<li><a href="../guides/optimizing.html">Optimizing</a></li>
+<li><a href="../guides/harvesting.html">Harvesting gold examples from real analyses</a></li>
+<li><a href="../guides/bakeoff.html">Comparing models</a></li>
+<li><a href="../guides/development.html">A development work flow</a></li>
+<li><a href="../guides/testing.html">Test suite</a></li>
+<li><a href="../guides/tokenizing.html">Tokenizing text without analysis</a></li>
 </ul>
 </section>
-<section id="managing-a-workflow" class="level2">
-<h2 class="anchored" data-anchor-id="managing-a-workflow">Managing a workflow</h2>
+<section id="managing-a-language-model" class="level2">
+<h2 class="anchored" data-anchor-id="managing-a-language-model">Managing a language model</h2>
 <ul>
+<li><a href="../guides/budgetingtokens.html">Estimating tokens budget</a></li>
 <li><a href="../guides/managing_prompt_size.html">Keeping prompt size manageable</a></li>
-<li>Some additional <a href="../guides/technical.html">technical info</a></li>
-<li><a href="../guides/testing.html">test suite</a></li>
 </ul>
 
 
@@ -699,7 +741,7 @@ ul.task-list li input[type="checkbox"] {
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.6.0</strong></p>
+<p>Documentation for release version <strong>0.7.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

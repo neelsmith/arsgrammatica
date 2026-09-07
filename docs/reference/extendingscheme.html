@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Saving and loading analyses – arsgrammatica</title>
+<title>Extending the syntax scheme – arsgrammatica</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -22,41 +22,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -140,11 +105,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Tutorials</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="../guides/index.html" aria-current="page"> 
+    <a class="nav-link" href="../guides/index.html"> 
 <span class="menu-text">Guides</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../reference/index.html"> 
+    <a class="nav-link active" href="../reference/index.html" aria-current="page"> 
 <span class="menu-text">Reference</span></a>
   </li>  
 </ul>
@@ -165,7 +130,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guides/saving-loading.html">Saving and loading analyses</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/extendingscheme.html">Extending the syntax scheme</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -179,126 +144,46 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Recipes</span></a>
+  <a href="../reference/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Reference</span></a>
   </div>
 </li>
         <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/install.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Installing <code>arsgrammatica</code></span></a>
+  <a href="../reference/relationshipvalues.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Values for syntactic relationships</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/analysis.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Analyzing syntax with a language model</span></a>
+  <a href="../reference/extendingscheme.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Extending the syntax scheme</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/saving-loading.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Saving and loading analyses</span></a>
-  </div>
-</li>
-        <li class="px-0"><hr class="sidebar-divider hi "></li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/texthiliting.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Highlighting syntactic analysis in HTML</span></a>
+  <a href="../reference/outputformats.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Format of delimited-text serializations</span></a>
   </div>
 </li>
         <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/mermaid.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Visualizing syntax graphs with Mermaid</span></a>
-  </div>
-</li>
-        <li class="px-0"><hr class="sidebar-divider hi "></li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/graphmetrics.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Characterizing syntax analyses with graph metrics</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/aat.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Building an AAT (Agent-Action-Target) graph</span></a>
-  </div>
-</li>
-        <li class="px-0"><hr class="sidebar-divider hi "></li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/optimizing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Optimizing with GEPA</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/harvesting.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Harvesting gold examples from real analyses</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/bakeoff.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Comparing models with <code>model_bakeoff.py</code></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/development.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Improving <code>arsgrammatica</code> by reading Latin</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/testing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Running tests with <code>pytest</code></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/tokenizing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Tokenizing a source file without full syntax analysis</span></a>
-  </div>
-</li>
-        <li class="px-0"><hr class="sidebar-divider hi "></li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/budgetingtokens.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Estimating and enforcing a <code>max_tokens</code> budget</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/managing_prompt_size.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Keeping requests to an LM at a manageable size</span></a>
-  </div>
-</li>
+ <span class="menu-text">reference/testing.qmd</span>
+  </li>
     </ul>
     </div>
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#saving-analyses" id="toc-saving-analyses" class="nav-link active" data-scroll-target="#saving-analyses">Saving analyses</a></li>
-  <li><a href="#reading-saved-analyses" id="toc-reading-saved-analyses" class="nav-link" data-scroll-target="#reading-saved-analyses">Reading saved analyses</a></li>
-  </ul>
-</nav>
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Saving and loading analyses</h1>
+<h1 class="title">Extending the syntax scheme</h1>
 </div>
 
 
@@ -315,47 +200,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>You can serialize analyses to a delimited-text file, and read saved analyses back using the <code>write_analyses</code> and <code>read_analyses</code> functions.</p>
-<section id="saving-analyses" class="level2">
-<h2 class="anchored" data-anchor-id="saving-analyses">Saving analyses</h2>
-<p>If you have analyzed one or more passages into two variables <code>sentences</code> and <code>results</code> (like <a href="../guides/analysis.html">these examples</a>), here’s how to serialize them.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> write_analyses, combined_tokengraph</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>tokengraph <span class="op">=</span> combined_tokengraph(results)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>verbalunits <span class="op">=</span> [vu <span class="cf">for</span> result <span class="kw">in</span> results <span class="cf">for</span> vu <span class="kw">in</span> result.verbalunits]</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>warnings <span class="op">=</span> write_analyses(sentences, verbalunits, tokengraph, <span class="st">"analysis.txt"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><code>write_analyses</code> expects sentences, verbal units, and tokens to be separately organized, and writes them to a named file. We already have a <code>sentences</code> variable. We can extract from the <code>results</code> variable separate lists for verbal units (the nested <code>for</code> comprehension) and the token graph (the <code>combined_tokengraph</code> function).</p>
-<p><code>write_analyses</code> returns a list with any warnings encountered in serializing the analyses. We could check those:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> w <span class="kw">in</span> warnings:</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Warning: </span><span class="sc">{</span>w<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>You may also optionally record in a separate block of the delimited-text file the language model and its reasoning as part of the sentence-by-sentence record, using the optional parameters <code>model</code> and <code>reasoning</code>.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>warnings <span class="op">=</span> write_analyses(</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    sentences, verbalunits, tokengraph, <span class="st">"analysis.txt"</span>,</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>os.environ[<span class="st">"MODEL"</span>],</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    reasoning<span class="op">=</span>[result.reasoning <span class="cf">for</span> result <span class="kw">in</span> results],</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="reading-saved-analyses" class="level2">
-<h2 class="anchored" data-anchor-id="reading-saved-analyses">Reading saved analyses</h2>
-<p>You can read back a flat list of all the four parts of a serialization with the <code>read_analyses</code> function.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> read_analyses</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>tokengraph, verbalunits, sentences, lm_infos <span class="op">=</span> </span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    read_analyses(<span class="st">"analysis.txt"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>To split up the composite token graph by sentence, use <code>split_analysis_by_sentence</code>.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> split_analysis_by_sentence</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>sentencetokens <span class="op">=</span> split_analysis_by_sentence(tokengraph, verbalunits, sentences)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (sentence_tokengraph, sentence_verbalunits) <span class="kw">in</span> </span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">zip</span>(sentences, sentencetokens):</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    ...  <span class="co"># work with analysis data per sentence</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>For details of the serialization format, see <a href="../reference/">the reference documentation</a></p>
+<p>To add a new syntacatic relation to <code>arsgrammatica</code>:</p>
+<ol type="1">
+<li>Add the new label to <code>RelationLabel</code> in <code>arsgrammatica/models.py</code>.</li>
+<li>Describe when to use it in <code>SyntaxAnalysis</code>’s docstring in <code>arsgrammatica/latin_syntax_dspy.py</code>, following the pattern of the existing relations (which token gets <code>relatedtoken1</code>/<code>relationship1</code>, which gets the corresponding value on the other end).</li>
+<li>Add a gold example exercising it to <code>tests/fixtures/gold_examples.py</code> and re-run <code>pytest</code> to confirm the models still validate before trying it against the real LM.</li>
+</ol>
 
 
-</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

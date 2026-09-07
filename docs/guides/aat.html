@@ -183,10 +183,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Recipes</span></a>
   </div>
 </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../guides/install.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Installation options</span></a>
+ <span class="menu-text">Installing <code>arsgrammatica</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -197,14 +198,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/visualization.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Visualizing results</span></a>
+  <a href="../guides/saving-loading.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Saving and loading analyses</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/texthiliting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Highlighting syntactic analysis in HTML</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/saving-loading.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Saving and loading analyses</span></a>
+  <a href="../guides/mermaid.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Visualizing syntax graphs with Mermaid</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/graphmetrics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Characterizing syntax analyses with graph metrics</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -222,14 +237,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../guides/harvesting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Harvesting gold examples from real analyses</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../guides/bakeoff.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Comparing task models with <code>model_bakeoff.py</code></span></a>
+ <span class="menu-text">Comparing models with <code>model_bakeoff.py</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../guides/development.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Developing <code>arsgrammatica</code></span></a>
+ <span class="menu-text">Improving <code>arsgrammatica</code> by reading Latin</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Running tests with <code>pytest</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -241,20 +268,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../guides/budgetingtokens.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Estimating and enforcing a <code>max_tokens</code> budget</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../guides/managing_prompt_size.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Keeping requests to an LM at a manageable size</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/technical.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Some technical docs</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/testing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Testing without network access</span></a>
   </div>
 </li>
     </ul>
@@ -262,14 +283,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#reading-passages-from-a-delimited-text-source-file" id="toc-reading-passages-from-a-delimited-text-source-file" class="nav-link active" data-scroll-target="#reading-passages-from-a-delimited-text-source-file">Reading passages from a delimited-text source file</a></li>
-  </ul>
-</nav>
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -293,45 +308,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p><code>attgraph()</code> (in <code>arsgrammatica/aat_bridge.py</code>) converts an already-completed analysis to an <code>AATGraph</code> from the separate <a href="https://github.com/neelsmith/aat"><code>aat</code></a> package (<a href="https://neelsmith.github.io/aat/aat.html">API docs</a>) – a much simpler, reductive Agent-Action-Target view of the same passage, alongside arsgrammatica’s own full relational scheme. It needs <code>aat</code> installed – <code>aat</code> isn’t on PyPI, so install it straight from GitHub:</p>
-<pre><code>pip install git+https://github.com/neelsmith/aat.git</code></pre>
-<p>into whichever environment you run arsgrammatica from (its own <code>.venv</code>, most likely). <code>import arsgrammatica</code> works fine without it – only actually calling <code>attgraph()</code> raises <code>ImportError</code>, naming this same install command. (If you separately <code>pip install</code> arsgrammatica itself, rather than just running it from a checkout on <code>sys.path</code> the way this repo’s own scripts and notebooks do, <code>pip install '.[aat]'</code> from its directory reaches <code>aat</code> the same way, via <code>pyproject.toml</code>’s “aat” extra – but a bare <code>pip install 'arsgrammatica[aat]'</code> will NOT work, since arsgrammatica itself isn’t published on PyPI either.)</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> analyze_string, attgraph</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>sentences, results <span class="op">=</span> analyze_string(<span class="st">"urbs a Romulo condita est."</span>, citation<span class="op">=</span><span class="st">"Livy 1.7"</span>)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>graph, warnings <span class="op">=</span> attgraph(sentences, results)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> w <span class="kw">in</span> warnings:</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Warning: </span><span class="sc">{</span>w<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> action <span class="kw">in</span> graph.actions():</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(action.value, [a.value <span class="cf">for</span> a <span class="kw">in</span> graph.agents_for(action)], [t.value <span class="cf">for</span> t <span class="kw">in</span> graph.targets_for(action)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><code>attgraph()</code> takes <code>(sentences, results)</code> in the exact shape <code>analyze_sources()</code>/<code>analyze_string()</code> return them, and returns <code>(graph, warnings)</code> – the same “return warnings, don’t raise” convention <code>compute_subordination_depths()</code> uses, not a bare <code>AATGraph</code>. An empty <code>warnings</code> list means nothing unusual was found, not that the underlying Latin analysis itself is correct; run <code>aat.core.validate.validate()</code> against the result (with a matching <code>CitableToken</code> list) for that.</p>
-<p>The role mapping applies the same rules <code>aat</code>’s own English pipeline documents, to Latin’s relation scheme (see <code>aat_bridge.py</code>’s module docstring for the full reasoning and worked examples):</p>
-<ul>
-<li>every verbal expression (<code>verbalunits</code> entry) becomes an <em>action</em> node. A compound form (e.g.&nbsp;“condita est”) becomes one node, anchored at arsgrammatica’s own compound-id convention (the form of <em>sum</em>), with <code>value</code> set to every component’s text joined by spaces in surface order.</li>
-<li>an action that’s not an independent, root-level clause is <em>subordinated</em> to its governing verbal expression, via the new <code>find_governing_verbal_expression()</code> (see below).</li>
-<li>the <em>agent</em> of a transitive-active, intransitive, or linking verb is its subject; the agent of a transitive-passive verb is its ablative-of-agent noun (resolved through the preposition that actually carries the “agent” relation label, to the noun it governs).</li>
-<li>the <em>target</em> of a transitive-active verb is its direct object; the target of a transitive-passive verb is its (surface) subject; the target of a linking verb is its predicate complement – this last rule isn’t stated anywhere in arsgrammatica’s own syntax model, but matches <code>aat</code>’s own documented convention for English and was adopted here on the premise that Latin “will work much like the English examples.”</li>
-<li>an agent/target candidate that’s an implied/elided token (<code>IMPLIED_TOKENTYPES</code>) is skipped entirely, matching <code>aat</code>’s own “omit a role the passage doesn’t express” convention – an implied <em>action</em> (an “implied sum” or “continued discourse” verbal expression) is NOT skipped, since arsgrammatica – unlike <code>aat</code>’s English pipeline – can have one; it gets <code>mermaid.token_label()</code>’s usual placeholder text as <code>value</code> instead of an empty string.</li>
-</ul>
-<p><code>aat</code>’s own model requires every node to carry a <code>context</code> (its per-passage identifier), which arsgrammatica’s <code>TokenAnalysis</code> has no equivalent field for – only the original <code>Token</code> objects in <code>Sentence.tokens</code> carry a <code>citation</code>, and only for real (non-implied) tokens. <code>attgraph()</code> resolves this by giving every node derived from one <code>Sentence</code> the SAME context: that sentence’s own first token’s citation (or <code>""</code> if it has none). This keeps every <code>related_node</code> link valid, since a relation never crosses a sentence boundary in this pipeline; a sentence whose tokens span more than one citation (arsgrammatica allows this – see “Analyzing citable sources” above) gets a warning naming which citation was used.</p>
-<p><code>verbal_units.find_governing_verbal_expression(tokengraph) -&gt; {anchor id: governing anchor id, or None}</code> is a new, separately-exported building block <code>attgraph()</code> uses for subordination – the same relation-chasing logic <code>compute_subordination_depths()</code> has always used internally, pulled out for reuse. <code>None</code> covers both “independent verb” and “chase failed to find a governing expression” alike (a distinction only <code>compute_subordination_depths()</code>, with its own warnings, needs to make); see its docstring for the one malformed-input case (two anchors relating directly to each other) it does not resolve to <code>None</code>.</p>
-<section id="reading-passages-from-a-delimited-text-source-file" class="level2">
-<h2 class="anchored" data-anchor-id="reading-passages-from-a-delimited-text-source-file">Reading passages from a delimited-text source file</h2>
-<p><code>read_ctsdata()</code> (in <code>arsgrammatica/ctsdata.py</code>) reads a list of citable passages – each one a CTS URN paired with its own text – out of a pipe-delimited file, as a list of <code>CitedText</code> (the same type <code>segment_sources()</code>/<code>analyze_sources()</code> already take, so a row can be handed straight to either with no conversion). This is the input-side counterpart to <code>write_analyses()</code>/<code>read_analyses()</code> above (which handle an analysis’s <em>results</em>, not the passages you’re about to analyze):</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> read_ctsdata</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>rows <span class="op">=</span> read_ctsdata(<span class="st">"passages.txt"</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> rows:</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(row.citation, <span class="st">"--"</span>, row.text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The file has one or more <code>#!ctsdata</code> blocks, each with its own <code>urn|text</code> header row:</p>
-<pre><code>#!ctsdata
-urn|text
-urn:cts:compnov:bible.genesis.vulgate:45.1|Non se poterat ultra tenere.</code></pre>
-<p>Each row’s <code>urn</code> column must be a 5-part, colon-separated CTS URN (e.g.&nbsp;<code>urn:cts:compnov:bible.genesis.vulgate:45.1</code>); <code>read_ctsdata()</code> validates that shape, then uses the URN verbatim, in full, as the resulting row’s own <code>citation</code> – there’s no separate “base URN” piece kept around, since nothing downstream needs the URN in two pieces rather than one (a caller building a shorter display label can always recover the URN’s own final segment with <code>row.citation.rpartition(":")[-1]</code>). Pass <code>delimiter=...</code> if the file itself uses something other than <code>|</code>. Like <code>read_analyses()</code>, this is deliberately strict (a malformed row or a urn that doesn’t split into exactly 5 parts raises <code>ValueError</code>, naming the line) and merges multiple <code>#!ctsdata</code> blocks in file order.</p>
+<p>The <a href="https://github.com/neelsmith/aat"><code>aat</code></a> package defines a reductive model of natural language syntax focusing only on Agent-Action-Target relations, instantiated in an <code>AATGraph</code>. You can construct an <code>AATGraph</code> from an <code>arsgrammatica</code> analysis with the <code>attgraph</code> function.</p>
+<p>Load a <a href="../guides/saving-loading.html">saved analysis</a>, or analyze some Latin text:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> analyze_string</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>sentences, results <span class="op">=</span> analyze_string(<span class="st">"Troia et huic loco nomen est."</span>, citation<span class="op">=</span><span class="st">"Livy 1.1.4:"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>You can then construct an <code>AATGraph</code> from the resulting sentences and analyses.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> attgraph</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>graph, warnings <span class="op">=</span> attgraph(sentences, results)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>For more information about AAT graphs, see the <a href="https://github.com/neelsmith/aat"><code>aat</code> github repository</a>.</p>
 
 
-</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -741,7 +727,7 @@ urn:cts:compnov:bible.genesis.vulgate:45.1|Non se poterat ultra tenere.</code></
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.6.0</strong></p>
+<p>Documentation for release version <strong>0.7.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

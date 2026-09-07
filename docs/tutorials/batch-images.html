@@ -199,13 +199,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../tutorials/diagrams.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Diagramming syntactic analyses</span></a>
+ <span class="menu-text">Diagramming syntactic analyses with <code>graphviz</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../tutorials/batch-images.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Generate PNG diagrams for multiple analyses</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../tutorials/batch-texts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Utilities to simplify analyzing a corpus</span></a>
   </div>
 </li>
         <li class="px-0"><hr class="sidebar-divider hi "></li>
@@ -245,7 +251,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>You can generate PNG diagrams for any number of saved analyses with the <code>analyses_to_dot_pngs.py</code> script. Like <code>analysis_to_dot.py</code>, it uses the open source graphviz program, so <a href="../diagrams.qmd">install graphviz first</a>.</p>
+<p>You can generate PNG diagrams for any number of saved analyses with the <code>analyses_to_dot_pngs.py</code> script. Like <code>analysis_to_dot.py</code>, it uses the open source graphviz program, so <a href="../tutorials/diagrams.html">install graphviz first</a>.</p>
 <p>Name a directory for output and list any number of files to diagram:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> analyses_to_dot_pngs.py analysis_folder/<span class="pp">*</span>.cex <span class="at">--output</span> dot_diagrams</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>You can specify the orientation as <code>RL</code> or <code>BT</code>. (Since the token dependencies run from <em>subordinated</em> item towards the <em>verb</em>, e.g., <em>subject</em> –&gt; <em>verb</em>, independent verbs will be at the top of a <code>BT</code> diagram, and the left of <code>RL</code> diagram.)</p>
@@ -662,7 +668,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.6.0</strong></p>
+<p>Documentation for release version <strong>0.7.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

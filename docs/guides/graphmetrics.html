@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Saving and loading analyses – arsgrammatica</title>
+<title>Characterizing syntax analyses with graph metrics – arsgrammatica</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -165,7 +165,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guides/saving-loading.html">Saving and loading analyses</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guides/graphmetrics.html">Characterizing syntax analyses with graph metrics</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -198,7 +198,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/saving-loading.html" class="sidebar-item-text sidebar-link active">
+  <a href="../guides/saving-loading.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Saving and loading analyses</span></a>
   </div>
 </li>
@@ -218,7 +218,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/graphmetrics.html" class="sidebar-item-text sidebar-link">
+  <a href="../guides/graphmetrics.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Characterizing syntax analyses with graph metrics</span></a>
   </div>
 </li>
@@ -288,8 +288,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#saving-analyses" id="toc-saving-analyses" class="nav-link active" data-scroll-target="#saving-analyses">Saving analyses</a></li>
-  <li><a href="#reading-saved-analyses" id="toc-reading-saved-analyses" class="nav-link" data-scroll-target="#reading-saved-analyses">Reading saved analyses</a></li>
+  <li><a href="#finding-graph-metrics" id="toc-finding-graph-metrics" class="nav-link active" data-scroll-target="#finding-graph-metrics">Finding graph metrics</a></li>
+  <li><a href="#size" id="toc-size" class="nav-link" data-scroll-target="#size">Size</a></li>
+  <li><a href="#shape-topology" id="toc-shape-topology" class="nav-link" data-scroll-target="#shape-topology">“Shape” (topology)</a></li>
+  <li><a href="#organization-of-the-graph" id="toc-organization-of-the-graph" class="nav-link" data-scroll-target="#organization-of-the-graph">Organization of the graph</a></li>
+  <li><a href="#real-examples" id="toc-real-examples" class="nav-link" data-scroll-target="#real-examples">Real examples</a></li>
+  <li><a href="#latin_syntaxer_graphs.py" id="toc-latin_syntaxer_graphs.py" class="nav-link" data-scroll-target="#latin_syntaxer_graphs.py"><code>latin_syntaxer_graphs.py</code></a></li>
   </ul>
 </nav>
     </div>
@@ -298,7 +302,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Saving and loading analyses</h1>
+<h1 class="title">Characterizing syntax analyses with graph metrics</h1>
 </div>
 
 
@@ -315,44 +319,150 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>You can serialize analyses to a delimited-text file, and read saved analyses back using the <code>write_analyses</code> and <code>read_analyses</code> functions.</p>
-<section id="saving-analyses" class="level2">
-<h2 class="anchored" data-anchor-id="saving-analyses">Saving analyses</h2>
-<p>If you have analyzed one or more passages into two variables <code>sentences</code> and <code>results</code> (like <a href="../guides/analysis.html">these examples</a>), here’s how to serialize them.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> write_analyses, combined_tokengraph</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>tokengraph <span class="op">=</span> combined_tokengraph(results)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>verbalunits <span class="op">=</span> [vu <span class="cf">for</span> result <span class="kw">in</span> results <span class="cf">for</span> vu <span class="kw">in</span> result.verbalunits]</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>warnings <span class="op">=</span> write_analyses(sentences, verbalunits, tokengraph, <span class="st">"analysis.txt"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><code>write_analyses</code> expects sentences, verbal units, and tokens to be separately organized, and writes them to a named file. We already have a <code>sentences</code> variable. We can extract from the <code>results</code> variable separate lists for verbal units (the nested <code>for</code> comprehension) and the token graph (the <code>combined_tokengraph</code> function).</p>
-<p><code>write_analyses</code> returns a list with any warnings encountered in serializing the analyses. We could check those:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> w <span class="kw">in</span> warnings:</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Warning: </span><span class="sc">{</span>w<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>You may also optionally record in a separate block of the delimited-text file the language model and its reasoning as part of the sentence-by-sentence record, using the optional parameters <code>model</code> and <code>reasoning</code>.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>warnings <span class="op">=</span> write_analyses(</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    sentences, verbalunits, tokengraph, <span class="st">"analysis.txt"</span>,</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>os.environ[<span class="st">"MODEL"</span>],</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    reasoning<span class="op">=</span>[result.reasoning <span class="cf">for</span> result <span class="kw">in</span> results],</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Once we have <a href="../guides/analysis.html">analyzed a passage</a>, we can characterize the resulting syntax graph with standard graph metrics. <code>arsgrammatica</code> includes functions for analyzing graphs in Python, and a Marimo notebook, <code>latin_syntaxer_graphs.py</code>, where you can interactively explore some of these metrics.</p>
+<section id="finding-graph-metrics" class="level2">
+<h2 class="anchored" data-anchor-id="finding-graph-metrics">Finding graph metrics</h2>
+<p>First, from a token graph, we create a graph in the format of the Python NetworkX package:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> tokengraph_to_networkx, graph_metrics</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>nxgraph, warnings <span class="op">=</span> tokengraph_to_networkx(tokengraph)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>We can compute graph metrics directly from the NetworkX graph:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>metrics <span class="op">=</span> graph_metrics(nxgraph)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Like the diagramming utilities for visualizing graphs in <a href="../guides/mermaid.html">Mermaid</a> or <a href="../tutorials/diagrams.html"><code>graphviz</code></a>, <code>arsgrammatica</code> ignores punctuation tokens in these metrics.</p>
+</div>
+</div>
+<p>The resulting variable <code>metrics</code> has a number of properties that can help us understand the size, complexity, and “shape” of the syntax analysis’ graph structure.</p>
 </section>
-<section id="reading-saved-analyses" class="level2">
-<h2 class="anchored" data-anchor-id="reading-saved-analyses">Reading saved analyses</h2>
-<p>You can read back a flat list of all the four parts of a serialization with the <code>read_analyses</code> function.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> read_analyses</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>tokengraph, verbalunits, sentences, lm_infos <span class="op">=</span> </span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    read_analyses(<span class="st">"analysis.txt"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>To split up the composite token graph by sentence, use <code>split_analysis_by_sentence</code>.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> split_analysis_by_sentence</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>sentencetokens <span class="op">=</span> split_analysis_by_sentence(tokengraph, verbalunits, sentences)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (sentence_tokengraph, sentence_verbalunits) <span class="kw">in</span> </span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">zip</span>(sentences, sentencetokens):</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    ...  <span class="co"># work with analysis data per sentence</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>For details of the serialization format, see <a href="../reference/">the reference documentation</a></p>
+<section id="size" class="level2">
+<h2 class="anchored" data-anchor-id="size">Size</h2>
+<p><code>node_count</code> and <code>edge_count</code> properties tell us the number of tokens and the number of relations connecting tokens in our syntax graph. If the graph is not cyclic, <code>longest_chain</code> tells us the deepest level of token relations in the sentence. <code>longest_chain</code> is <code>None</code> when a a graph includes a cycle.</p>
+<p>If we analyzed an artificial sentence like <em>Rosa pulchra est</em>, we could visualize the graph like this:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./imgs/rosa.png" class="img-fluid figure-img"></p>
+<figcaption>Toy example of a syntax graph.</figcaption>
+</figure>
+</div>
+<p>It has a node count of 3, edge count of 2, and a longest chain of 1.</p>
+</section>
+<section id="shape-topology" class="level2">
+<h2 class="anchored" data-anchor-id="shape-topology">“Shape” (topology)</h2>
+<p><code>leaf_count</code> tells you the number of tokens that no other tokens depend on (the “leaves” in a tree visiualization). <code>leaf_fraction</code> gives you the proportion of nodes in the graph that are leaf nodes. In the toy example, two nodes are leaf nodes (<em>Rosa</em> and <em>pulchra</em>), and the leaf fraction is 67% (2/3).</p>
+<p>The example syntax graph is a <em>tree</em>: every node is connected and there are no cycles or loops in the graph. Most syntax graphs come close to a tree structure, but tokens like relative pronouns (that are related both to their antecedent and to their function in the relative clause) can create cycles. The <code>cyclomatic_number</code> gives a measure of “how much non-tree structure does this sentence have?” (More techncially, it gives the number edges beyond a spanning tree, computed as <code>edge_count - node_count + weakly_connected_components</code>). The cyclomatic number in the example is 0, because the entire graph is a true tree.</p>
+</section>
+<section id="organization-of-the-graph" class="level2">
+<h2 class="anchored" data-anchor-id="organization-of-the-graph">Organization of the graph</h2>
+<p><code>arsgrammatica</code>’s syntax graphs are <em>directed</em>: pairs of nodes are connected <em>from</em> one node <em>to</em> another (e.g., the <em>subject</em> relationship makes a connection <em>from</em> a subject <em>to</em> its verb). For any node, the <em>in-degree</em> is the number of relations point <em>to</em> it, and the <em>out-degree</em> is the number of relations it points out to. In the example above, <em>est</em> has an in-degree of 2, and an out-degree of 0.</p>
+<p>The <code>mean_dependents</code> and <code>max_dependents</code> measure the average and maximum in-degree of the graph. If a sentence has a high maximum compare to its node count, that tells us one token controls most of the syntax. Lower values with mean and maximum closer to each other suggests a “shallow and bushy” structure rather than a “deep and chainy” organization.</p>
+</section>
+<section id="real-examples" class="level2">
+<h2 class="anchored" data-anchor-id="real-examples">Real examples</h2>
+<p>To illustrate how graph metrics can describe syntax, compare the toy example with two sentences from the Latin Vulgate Bible. <em>Genesis</em> 1.1, <em>In principio creavit Deus caelum et terram.</em> is a syntactically straightforward sentence with a single verbal unit:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./imgs/genesis_1_1.png" class="img-fluid figure-img"></p>
+<figcaption><em>Genesis</em> 1.1</figcaption>
+</figure>
+</div>
+<p><em>Genesis</em> 47.1 is much more complex syntactically: circumstantial participles include <em>dicens</em> introducing two clauses in direct speech.</p>
+<p><em>Ingressus ergo Joseph nuntiavit Pharaoni, dicens: Pater meus et fratres, oves eorum et armenta, et cuncta quae possident, venerunt de terra Chanaan: et ecce consistunt in terra Gessen.</em></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./imgs/genesis_47_1.png" class="img-fluid figure-img"></p>
+<figcaption><em>Genesis</em> 47.1</figcaption>
+</figure>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If the diagram is too small to read, open it in a separate browser tab or window to enlarge it.</p>
+</div>
+</div>
+<p>Here are the metrics for each example:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>metric</th>
+<th>Example</th>
+<th><em>Genesis</em> 1.1</th>
+<th><em>Genesis</em> 47.1</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>node count</td>
+<td>3</td>
+<td>7</td>
+<td>54</td>
+</tr>
+<tr class="even">
+<td>edge count</td>
+<td>2</td>
+<td>7</td>
+<td>59</td>
+</tr>
+<tr class="odd">
+<td>cyclomatic number</td>
+<td>0</td>
+<td>1</td>
+<td>8</td>
+</tr>
+<tr class="even">
+<td>longest chain</td>
+<td>1</td>
+<td>2</td>
+<td>-</td>
+</tr>
+<tr class="odd">
+<td>leaf count</td>
+<td>2</td>
+<td>3</td>
+<td>21</td>
+</tr>
+<tr class="even">
+<td>leaf fraction</td>
+<td>67%</td>
+<td>43%</td>
+<td>39%</td>
+</tr>
+<tr class="odd">
+<td>mean dependents</td>
+<td>0.67</td>
+<td>1.0</td>
+<td>4</td>
+</tr>
+<tr class="even">
+<td>max dependents</td>
+<td>2</td>
+<td>1.09</td>
+<td>7</td>
+</tr>
+</tbody>
+</table>
+<p>Finally we should note that the output of <code>graph_metrics</code> also has a <code>relationship_counts</code> property. This property is a dictionary giving the counts of each value of relationship. Here is what the <code>relationship_counts</code> property looks like for <em>Genesis</em> 1.1:</p>
+<pre><code>{'adverbial': 1, 'object of preposition': 1, 'subject': 1, 'direct object': 2, 'coordinating conjunction': 2}</code></pre>
+<p>and for <em>Genesis</em> 47.1:</p>
+<pre><code>{'circumstantial participle': 2, 'adverbial': 6, 'subject': 8, 'dative': 1, 'adjectival': 6, 'coordinating conjunction': 12, 'genitive': 4, 'relative pronoun': 2, 'direct object': 4, 'unit verb': 2, 'direct quote': 4, 'object of preposition': 3, 'apposition': 4, 'predicate': 1}</code></pre>
+</section>
+<section id="latin_syntaxer_graphs.py" class="level2">
+<h2 class="anchored" data-anchor-id="latin_syntaxer_graphs.py"><code>latin_syntaxer_graphs.py</code></h2>
+<p>With the <code>latin_syntaxer_graphs.py</code> marimo notebook, you can apply these graph metrics to saved analyses. The user picks one or more sentences to analayze, and the compiles tables comparing their metrics.</p>
 
 
 </section>
