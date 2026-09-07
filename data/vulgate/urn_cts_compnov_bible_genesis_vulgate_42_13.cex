@@ -1,0 +1,49 @@
+#!LM
+MODEL=litellm_proxy/anthropic/Claude Opus 5
+CONTEXT=urn:cts:compnov:bible.genesis.vulgate:42.13.t0-urn:cts:compnov:bible.genesis.vulgate:42.13.t30
+REASONING=The sentence frames a quoted reply. "At illi" supplies the subject ("illi") of the framing verb "inquiunt", which is the independent verb; the quoted words contain three finite verbs ("sumus", "est", "est"), each of syntactic type 'direct quote' related to "inquiunt". Within the quote: "Duodecim servi tui fratres sumus" — "Duodecim" is a spelled-out number word (hence lexical) modifying "servi" adjectivally; "servi tui" is the subject of "sumus", "fratres" its predicate. "filii viri unius in terra Chanaan" stands in apposition to "servi", with "viri" as a genitive depending on "filii", "unius" adjectival to "viri", and the prepositional phrase "in terra Chanaan" attributive to "viri" ("Chanaan" a genitive with "terra"). "minimus cum patre nostro est": "minimus" (substantival adjective) is subject, "cum" adverbial to "est" with "patre" as its object and "nostro" adjectival. "alius non est super": "alius" subject, "non" and "super" adverbial to "est". Both of these "est" forms express existence/location, so intransitive; "sumus" with predicate "fratres" is a linking verb. "At" is a coordinating conjunction opening the sentence with no preceding verb to pair with, so only relatedtoken1 -> "inquiunt".
+
+#!sentences
+context_begin|first_token|context_end|last_token
+urn:cts:compnov:bible.genesis.vulgate:42.13|t0|urn:cts:compnov:bible.genesis.vulgate:42.13|t30
+
+#!verbal_units
+context|token|syntactic_type|semantic_type
+urn:cts:compnov:bible.genesis.vulgate:42.13|t5|independent|transitive active
+urn:cts:compnov:bible.genesis.vulgate:42.13|t11|direct quote|linking verb
+urn:cts:compnov:bible.genesis.vulgate:42.13|t24|direct quote|intransitive
+urn:cts:compnov:bible.genesis.vulgate:42.13|t28|direct quote|intransitive
+
+#!tokens
+context|id|tokentype|text|lemma|verbalunit|related1|relationship1|related2|relationship2
+urn:cts:compnov:bible.genesis.vulgate:42.13|t0|lexical|At|at||t5|coordinating conjunction||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t1|lexical|illi|ille||t5|subject||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t2|punctuation|:||||||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t3|lexical|Duodecim|duodecim||t7|adjectival||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t4|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t5|lexical|inquiunt|inquam|t5|root|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t6|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t7|lexical|servi|servus||t11|subject||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t8|lexical|tui|tuus||t7|adjectival||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t9|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t10|lexical|fratres|frater||t11|predicate||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t11|lexical|sumus|sum|t11|t5|direct quote||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t12|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t13|lexical|filii|filius||t7|apposition||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t14|lexical|viri|vir||t13|genitive||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t15|lexical|unius|unus||t14|adjectival||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t16|lexical|in|in||t14|attributive||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t17|lexical|terra|terra||t16|object of preposition||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t18|lexical|Chanaan|Chanaan||t17|genitive||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t19|punctuation|:||||||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t20|lexical|minimus|minimus||t24|subject||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t21|lexical|cum|cum||t24|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t22|lexical|patre|pater||t21|object of preposition||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t23|lexical|nostro|noster||t22|adjectival||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t24|lexical|est|sum|t24|t5|direct quote||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t25|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t26|lexical|alius|alius||t28|subject||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t27|lexical|non|non||t28|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t28|lexical|est|sum|t28|t5|direct quote||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t29|lexical|super|super||t28|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.13|t30|punctuation|.||||||

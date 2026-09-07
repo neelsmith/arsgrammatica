@@ -35,7 +35,14 @@ def _(ctsdata_file_browser):
 
 
 @app.cell(hide_code=True)
-def _(analyze_button, ctsdata_error, ctsdata_rows, mo, passage_multiselect):
+def _(
+    analyze_button,
+    ctsdata_error,
+    ctsdata_rows,
+    mo,
+    passage_multiselect,
+    seecost,
+):
     if ctsdata_error is not None:
         ctsdata_status = mo.callout(
             mo.md(f"Could not read this file as a `#!ctsdata` source: {ctsdata_error}"),
@@ -47,7 +54,7 @@ def _(analyze_button, ctsdata_error, ctsdata_rows, mo, passage_multiselect):
         ctsdata_status = mo.md(f"## Passage selection\n\n*{len(ctsdata_rows)} passage(s) loaded from this file.*")
 
     mo.vstack(
-        [ctsdata_status, mo.hstack([passage_multiselect, analyze_button], justify="start")]
+        [ctsdata_status, mo.hstack([passage_multiselect, analyze_button,seecost], justify="start")]
     )
     return
 
@@ -55,6 +62,15 @@ def _(analyze_button, ctsdata_error, ctsdata_rows, mo, passage_multiselect):
 @app.cell(hide_code=True)
 def _(rawpreview):
     rawpreview
+    return
+
+
+@app.cell(hide_code=True)
+def _(cost_summary, format_lm_cost, mo, seecost):
+    costdisplay = None
+    if seecost.value:
+        costdisplay = mo.md(f"**LM cost so far**: {format_lm_cost(cost_summary)}")
+    costdisplay
     return
 
 
@@ -112,7 +128,6 @@ def _(analysis_warnings, download_widget, mo, save_extension):
 @app.cell(hide_code=True)
 def _(mo):
     seetokens = mo.ui.checkbox(label="*See list of tokens*")
-    seecost = mo.ui.checkbox(label="*See cost*")
     seeprompts = mo.ui.checkbox(label="*See prompts*")
     # dspy.LM caches responses by default (model + messages + config), so
     # re-clicking Analyze on the exact same passage selection normally just
@@ -126,8 +141,8 @@ def _(mo):
     # prefix to make each still-genuinely-fresh call cheaper, it never
     # replays a whole response, so it stays on regardless of this checkbox.
     disable_cache = mo.ui.checkbox(label="*Disable LM cache (debugging)*")
-    mo.hstack([seetokens, seeprompts, seecost, disable_cache], justify="start")
-    return disable_cache, seecost, seeprompts, seetokens
+    mo.hstack([seetokens, seeprompts,  disable_cache], justify="start")
+    return disable_cache, seeprompts, seetokens
 
 
 @app.cell(hide_code=True)
@@ -137,15 +152,6 @@ def _(finaltokens, seetokens):
         tokendisplay = finaltokens
 
     tokendisplay
-    return
-
-
-@app.cell(hide_code=True)
-def _(cost_summary, format_lm_cost, mo, seecost):
-    costdisplay = None
-    if seecost.value:
-        costdisplay = mo.md(f"**LM cost so far**: {format_lm_cost(cost_summary)}")
-    costdisplay
     return
 
 
@@ -178,6 +184,13 @@ def _(mo):
     ## UI selections for analysis
     """)
     return
+
+
+@app.cell
+def _(mo):
+    seecost = mo.ui.checkbox(label="*See cost*")
+
+    return (seecost,)
 
 
 @app.cell
@@ -554,15 +567,15 @@ def _(Path):
         DEFAULT_CEILING,
         analyze_sources,
         combined_tokengraph,
+        format_lm_cost,
         max_subordination_depth,
         read_ctsdata,
         serialize_analyses,
+        summarize_lm_cost,
         tokengraph_to_depth_html,
         tokengraph_to_html,
         tokengraph_to_mermaid,
         tokengraph_to_text,
-        summarize_lm_cost,
-        format_lm_cost,
     )
 
 

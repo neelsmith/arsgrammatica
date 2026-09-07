@@ -1,0 +1,33 @@
+#!LM
+MODEL=litellm_proxy/anthropic/Claude Opus 5
+CONTEXT=urn:cts:compnov:bible.genesis.vulgate:42.11.t0-urn:cts:compnov:bible.genesis.vulgate:42.11.t15
+REASONING=Three independent finite verbs: "sumus" (linking, with "filii" as predicate nominative, "omnes" adjectival to it, "unius viri" a genitive with "unius" adjectival to "viri"); "venimus" (intransitive, with "pacifici" as a predicate adjective describing the unexpressed subject); and "machinantur" (deponent, transitive active, with "famuli tui" as subject, "quidquam" as direct object, and "mali" as a partitive genitive depending on "quidquam"). "nec" is a coordinating conjunction joining "venimus" and "machinantur" (and carrying the negation). Punctuation tokens take no relations.
+
+#!sentences
+context_begin|first_token|context_end|last_token
+urn:cts:compnov:bible.genesis.vulgate:42.11|t0|urn:cts:compnov:bible.genesis.vulgate:42.11|t15
+
+#!verbal_units
+context|token|syntactic_type|semantic_type
+urn:cts:compnov:bible.genesis.vulgate:42.11|t4|independent|linking verb
+urn:cts:compnov:bible.genesis.vulgate:42.11|t7|independent|intransitive
+urn:cts:compnov:bible.genesis.vulgate:42.11|t13|independent|transitive active
+
+#!tokens
+context|id|tokentype|text|lemma|verbalunit|related1|relationship1|related2|relationship2
+urn:cts:compnov:bible.genesis.vulgate:42.11|t0|lexical|Omnes|omnis||t1|adjectival||
+urn:cts:compnov:bible.genesis.vulgate:42.11|t1|lexical|filii|filius||t4|predicate||
+urn:cts:compnov:bible.genesis.vulgate:42.11|t2|lexical|unius|unus||t3|adjectival||
+urn:cts:compnov:bible.genesis.vulgate:42.11|t3|lexical|viri|vir||t1|genitive||
+urn:cts:compnov:bible.genesis.vulgate:42.11|t4|lexical|sumus|sum|t4|root|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.11|t5|punctuation|:||||||
+urn:cts:compnov:bible.genesis.vulgate:42.11|t6|lexical|pacifici|pacificus||t7|predicate||
+urn:cts:compnov:bible.genesis.vulgate:42.11|t7|lexical|venimus|venio|t7|root|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.11|t8|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.11|t9|lexical|nec|nec||t7|coordinating conjunction|t13|coordinating conjunction
+urn:cts:compnov:bible.genesis.vulgate:42.11|t10|lexical|quidquam|quisquam||t13|direct object||
+urn:cts:compnov:bible.genesis.vulgate:42.11|t11|lexical|famuli|famulus||t13|subject||
+urn:cts:compnov:bible.genesis.vulgate:42.11|t12|lexical|tui|tuus||t11|adjectival||
+urn:cts:compnov:bible.genesis.vulgate:42.11|t13|lexical|machinantur|machinor|t13|root|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.11|t14|lexical|mali|malum||t10|genitive||
+urn:cts:compnov:bible.genesis.vulgate:42.11|t15|punctuation|.||||||

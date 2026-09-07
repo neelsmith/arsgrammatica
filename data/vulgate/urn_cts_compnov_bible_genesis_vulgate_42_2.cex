@@ -1,0 +1,43 @@
+#!LM
+MODEL=litellm_proxy/anthropic/Claude Opus 5
+CONTEXT=urn:cts:compnov:bible.genesis.vulgate:42.2.t0-urn:cts:compnov:bible.genesis.vulgate:42.2.t22
+REASONING="audivi" is the independent verb of the first clause, governing a "quod" clause (Late Latin substitute for indirect statement, treated as a dependent clause): "quod triticum venundetur in aegypto" — "venundetur" is a dependent passive verb, with "triticum" as its subject and "in aegypto" as an adverbial prepositional phrase. Then two coordinated imperatives: "descendite" (independent, intransitive) and "emite" (independent, transitive active), joined by "et" (t9), which relates the two verbs. "nobis" is a dative with "emite"; "necessaria" (substantive adjective) is its direct object. "ut possimus vivere" is a purpose clause: "ut" is the subordinating conjunction depending on "emite"; "possimus" is the dependent verb (intransitive), with "vivere" as a complementary infinitive (not its own verbal expression). "et non consumamur inopia" is coordinated with "possimus" under the same "ut": "consumamur" is dependent, transitive passive, with "non" adverbial and "inopia" ablative. The "et" (t18) joins the two dependent verbs.
+
+#!sentences
+context_begin|first_token|context_end|last_token
+urn:cts:compnov:bible.genesis.vulgate:42.2|t0|urn:cts:compnov:bible.genesis.vulgate:42.2|t22
+
+#!verbal_units
+context|token|syntactic_type|semantic_type
+urn:cts:compnov:bible.genesis.vulgate:42.2|t0|independent|transitive active
+urn:cts:compnov:bible.genesis.vulgate:42.2|t3|dependent|transitive passive
+urn:cts:compnov:bible.genesis.vulgate:42.2|t7|independent|intransitive
+urn:cts:compnov:bible.genesis.vulgate:42.2|t10|independent|transitive active
+urn:cts:compnov:bible.genesis.vulgate:42.2|t15|dependent|intransitive
+urn:cts:compnov:bible.genesis.vulgate:42.2|t20|dependent|transitive passive
+
+#!tokens
+context|id|tokentype|text|lemma|verbalunit|related1|relationship1|related2|relationship2
+urn:cts:compnov:bible.genesis.vulgate:42.2|t0|lexical|audivi|audio|t0|root|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.2|t1|lexical|quod|quod||t0|subordinating conjunction||
+urn:cts:compnov:bible.genesis.vulgate:42.2|t2|lexical|triticum|triticum||t3|subject||
+urn:cts:compnov:bible.genesis.vulgate:42.2|t3|lexical|venundetur|venundo|t3|t1|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.2|t4|lexical|in|in||t3|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.2|t5|lexical|aegypto|Aegyptus||t4|object of preposition||
+urn:cts:compnov:bible.genesis.vulgate:42.2|t6|punctuation|:||||||
+urn:cts:compnov:bible.genesis.vulgate:42.2|t7|lexical|descendite|descendo|t7|root|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.2|t8|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.2|t9|lexical|et|et||t7|coordinating conjunction|t10|coordinating conjunction
+urn:cts:compnov:bible.genesis.vulgate:42.2|t10|lexical|emite|emo|t10|root|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.2|t11|lexical|nobis|nos||t10|dative||
+urn:cts:compnov:bible.genesis.vulgate:42.2|t12|lexical|necessaria|necessarius||t10|direct object||
+urn:cts:compnov:bible.genesis.vulgate:42.2|t13|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.2|t14|lexical|ut|ut||t10|subordinating conjunction||
+urn:cts:compnov:bible.genesis.vulgate:42.2|t15|lexical|possimus|possum|t15|t14|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.2|t16|lexical|vivere|vivo||t15|complementary infinitive||
+urn:cts:compnov:bible.genesis.vulgate:42.2|t17|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.2|t18|lexical|et|et||t15|coordinating conjunction|t20|coordinating conjunction
+urn:cts:compnov:bible.genesis.vulgate:42.2|t19|lexical|non|non||t20|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.2|t20|lexical|consumamur|consumo|t20|t14|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.2|t21|lexical|inopia|inopia||t20|ablative||
+urn:cts:compnov:bible.genesis.vulgate:42.2|t22|punctuation|.||||||

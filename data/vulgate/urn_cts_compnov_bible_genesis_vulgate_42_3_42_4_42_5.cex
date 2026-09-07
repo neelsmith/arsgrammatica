@@ -1,0 +1,75 @@
+#!LM
+MODEL=litellm_proxy/anthropic/Claude Opus 5
+CONTEXT=urn:cts:compnov:bible.genesis.vulgate:42.3.t0-urn:cts:compnov:bible.genesis.vulgate:42.5.t41
+REASONING=The main clause is "fratres Joseph decem ... ingressi sunt terram aegypti" (deponent perfect with accusative object, so transitive active; "sunt" is auxiliary to "ingressi"). "Descendentes" is a circumstantial participle agreeing with "fratres". "ut emerent frumenta in aegypto" is a purpose clause depending on "Descendentes". "Benjamin domi retento a Jacob" is an ablative absolute: "retento" agrees with "Benjamin", which relates to the main verb as 'ablative absolute'; "a Jacob" is the agent. "qui dixerat fratribus ejus" is a relative clause with antecedent "Jacob". After the colon comes the quoted warning "Ne forte in itinere quidquam patiatur mali", framed by "dixerat", so "patiatur" is a 'direct quote' verbal expression; "mali" is a partitive genitive with "quidquam". Finally "qui pergebant ad emendum" is a relative clause modifying "aliis"; "emendum" is a gerund governed by "ad".
+MODEL=litellm_proxy/anthropic/Claude Opus 5
+CONTEXT=urn:cts:compnov:bible.genesis.vulgate:42.5.t42-urn:cts:compnov:bible.genesis.vulgate:42.5.t48
+REASONING="Erat autem fames in terra Chanaan." — "Now there was famine in the land of Canaan." The single finite verb is "Erat", used existentially, so intransitive and independent (relatedtoken1 = 'root', 'unit verb'). "fames" is its subject. "autem" is a connective particle treated as an adverbial modifying the verb. "in" is a preposition modifying the verb adverbially, with "terra" as its object of preposition. "Chanaan" is an indeclinable proper name standing in apposition to "terra".
+
+#!sentences
+context_begin|first_token|context_end|last_token
+urn:cts:compnov:bible.genesis.vulgate:42.3|t0|urn:cts:compnov:bible.genesis.vulgate:42.5|t41
+urn:cts:compnov:bible.genesis.vulgate:42.5|t42|urn:cts:compnov:bible.genesis.vulgate:42.5|t48
+
+#!verbal_units
+context|token|syntactic_type|semantic_type
+urn:cts:compnov:bible.genesis.vulgate:42.3|t0|dependent|intransitive
+urn:cts:compnov:bible.genesis.vulgate:42.3|t7|dependent|transitive active
+urn:cts:compnov:bible.genesis.vulgate:42.4|t14|dependent|transitive passive
+urn:cts:compnov:bible.genesis.vulgate:42.4|t19|dependent|transitive active
+urn:cts:compnov:bible.genesis.vulgate:42.4|t28|direct quote|transitive active
+urn:cts:compnov:bible.genesis.vulgate:42.5|t31|independent|transitive active
+urn:cts:compnov:bible.genesis.vulgate:42.5|t38|dependent|intransitive
+urn:cts:compnov:bible.genesis.vulgate:42.5|t42|independent|intransitive
+
+#!tokens
+context|id|tokentype|text|lemma|verbalunit|related1|relationship1|related2|relationship2
+urn:cts:compnov:bible.genesis.vulgate:42.3|t0|lexical|Descendentes|descendo|t0|t2|circumstantial participle||
+urn:cts:compnov:bible.genesis.vulgate:42.3|t1|lexical|igitur|igitur||t31|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.3|t2|lexical|fratres|frater||t31|subject||
+urn:cts:compnov:bible.genesis.vulgate:42.3|t3|lexical|Joseph|Joseph||t2|genitive||
+urn:cts:compnov:bible.genesis.vulgate:42.3|t4|lexical|decem|decem||t2|adjectival||
+urn:cts:compnov:bible.genesis.vulgate:42.3|t5|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.3|t6|lexical|ut|ut||t0|subordinating conjunction||
+urn:cts:compnov:bible.genesis.vulgate:42.3|t7|lexical|emerent|emo|t7|t6|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.3|t8|lexical|frumenta|frumentum||t7|direct object||
+urn:cts:compnov:bible.genesis.vulgate:42.3|t9|lexical|in|in||t7|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.3|t10|lexical|aegypto|Aegyptus||t9|object of preposition||
+urn:cts:compnov:bible.genesis.vulgate:42.3|t11|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.4|t12|lexical|Benjamin|Benjamin||t31|ablative absolute||
+urn:cts:compnov:bible.genesis.vulgate:42.4|t13|lexical|domi|domus||t14|ablative||
+urn:cts:compnov:bible.genesis.vulgate:42.4|t14|lexical|retento|retineo|t14|t12|circumstantial participle||
+urn:cts:compnov:bible.genesis.vulgate:42.4|t15|lexical|a|a||t14|agent||
+urn:cts:compnov:bible.genesis.vulgate:42.4|t16|lexical|Jacob|Jacob||t15|object of preposition||
+urn:cts:compnov:bible.genesis.vulgate:42.4|t17|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.4|t18|lexical|qui|qui||t16|relative pronoun|t19|subject
+urn:cts:compnov:bible.genesis.vulgate:42.4|t19|lexical|dixerat|dico|t19|t18|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.4|t20|lexical|fratribus|frater||t19|dative||
+urn:cts:compnov:bible.genesis.vulgate:42.4|t21|lexical|ejus|is||t20|genitive||
+urn:cts:compnov:bible.genesis.vulgate:42.4|t22|punctuation|:||||||
+urn:cts:compnov:bible.genesis.vulgate:42.4|t23|lexical|Ne|ne||t28|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.4|t24|lexical|forte|forte||t28|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.4|t25|lexical|in|in||t28|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.4|t26|lexical|itinere|iter||t25|object of preposition||
+urn:cts:compnov:bible.genesis.vulgate:42.4|t27|lexical|quidquam|quisquam||t28|direct object||
+urn:cts:compnov:bible.genesis.vulgate:42.4|t28|lexical|patiatur|patior|t28|t19|direct quote||
+urn:cts:compnov:bible.genesis.vulgate:42.4|t29|lexical|mali|malum||t27|genitive||
+urn:cts:compnov:bible.genesis.vulgate:42.4|t30|punctuation|:||||||
+urn:cts:compnov:bible.genesis.vulgate:42.5|t31|lexical|ingressi|ingredior|t31|root|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.5|t32|lexical|sunt|sum||t31|auxiliary||
+urn:cts:compnov:bible.genesis.vulgate:42.5|t33|lexical|terram|terra||t31|direct object||
+urn:cts:compnov:bible.genesis.vulgate:42.5|t34|lexical|aegypti|Aegyptus||t33|genitive||
+urn:cts:compnov:bible.genesis.vulgate:42.5|t35|lexical|cum|cum||t31|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.5|t36|lexical|aliis|alius||t35|object of preposition||
+urn:cts:compnov:bible.genesis.vulgate:42.5|t37|lexical|qui|qui||t36|relative pronoun|t38|subject
+urn:cts:compnov:bible.genesis.vulgate:42.5|t38|lexical|pergebant|pergo|t38|t37|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.5|t39|lexical|ad|ad||t38|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.5|t40|lexical|emendum|emo||t39|object of preposition||
+urn:cts:compnov:bible.genesis.vulgate:42.5|t41|punctuation|.||||||
+urn:cts:compnov:bible.genesis.vulgate:42.5|t42|lexical|Erat|sum|t42|root|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.5|t43|lexical|autem|autem||t42|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.5|t44|lexical|fames|fames||t42|subject||
+urn:cts:compnov:bible.genesis.vulgate:42.5|t45|lexical|in|in||t42|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.5|t46|lexical|terra|terra||t45|object of preposition||
+urn:cts:compnov:bible.genesis.vulgate:42.5|t47|lexical|Chanaan|Chanaan||t46|apposition||
+urn:cts:compnov:bible.genesis.vulgate:42.5|t48|punctuation|.||||||

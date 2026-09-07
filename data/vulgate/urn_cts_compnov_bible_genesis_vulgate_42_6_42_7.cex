@@ -1,0 +1,83 @@
+#!LM
+MODEL=litellm_proxy/anthropic/Claude Opus 5
+CONTEXT=urn:cts:compnov:bible.genesis.vulgate:42.6.t0-urn:cts:compnov:bible.genesis.vulgate:42.6.t15
+REASONING=Two coordinated independent clauses. First: "Et Joseph erat princeps in terra aegypti" — "erat" is a linking verb, "Joseph" its subject, "princeps" the predicate noun, "in terra" a prepositional phrase modifying the verb adverbially, with "aegypti" a genitive depending on "terra". "Et" opens the sentence with no preceding verb to pair with, so only relatedtoken1 -> "erat". Second: "atque ad ejus nutum frumenta populis vendebantur" — "vendebantur" is a transitive passive finite verb, independent; "frumenta" is its subject, "populis" a dative, "ad" a prepositional phrase modifying the verb adverbially with "nutum" as object of preposition and "ejus" a genitive depending on "nutum". "atque" coordinates the two verbs "erat" and "vendebantur".
+MODEL=litellm_proxy/anthropic/Claude Opus 5
+CONTEXT=urn:cts:compnov:bible.genesis.vulgate:42.6.t16-urn:cts:compnov:bible.genesis.vulgate:42.7.t38
+REASONING=The sentence opens with the enclitic "-que" joining it to the preceding narrative, and "Cum" introducing two coordinated pluperfect subjunctive verbs, "adorassent" and "agnovisset" (joined by "et"), both subordinate to the main verb "loquebatur". "Cum" therefore relates to "loquebatur" as subordinating conjunction, and both dependent verbs take 'unit verb' -> "Cum". "quasi ad alienos" — "quasi" is a comparative particle used adverbially with the prepositional phrase; both it and "ad" modify "loquebatur" adverbially, with "alienos" as object of "ad". "durius" is a comparative adverb modifying "loquebatur", which is a deponent intransitive verb here (speaking *to* someone). "interrogans" is a predicate (circumstantial) participle agreeing with the unexpressed subject of "loquebatur" (Joseph); an 'implied subject' token is added, taking the 'subject' relation into "loquebatur", with "interrogans" relating to it via 'circumstantial participle'. "eos" is its direct object. "Unde venistis?" is directly quoted speech framed by "interrogans", so "venistis" is a 'direct quote' verbal expression pointing to "interrogans"; "Unde" is an adverb modifying "venistis".
+MODEL=litellm_proxy/anthropic/Claude Opus 5
+CONTEXT=urn:cts:compnov:bible.genesis.vulgate:42.7.t39-urn:cts:compnov:bible.genesis.vulgate:42.7.t50
+REASONING="Qui responderunt" — connecting relative pronoun "Qui" serves as subject of the independent verb "responderunt"; there is no antecedent within this passage, so it takes only the 'subject' relation. The reply "De terra Chanaan" is an elliptical prepositional phrase (no verb expressed and none supplied by *sum* proper), so the preposition "De" is related adverbially to "responderunt"; "terra" is its object of preposition, and the indeclinable place name "Chanaan" is a genitive depending on "terra". "ut emamus" is a dependent purpose clause: "ut" is the subordinating conjunction related to "responderunt", and "emamus" is the dependent verb related to "ut" via 'unit verb'. "necessaria" is a substantive adjective serving as direct object of "emamus", and "victui" is a dative depending on "necessaria".
+
+#!sentences
+context_begin|first_token|context_end|last_token
+urn:cts:compnov:bible.genesis.vulgate:42.6|t0|urn:cts:compnov:bible.genesis.vulgate:42.6|t15
+urn:cts:compnov:bible.genesis.vulgate:42.6|t16|urn:cts:compnov:bible.genesis.vulgate:42.7|t38
+urn:cts:compnov:bible.genesis.vulgate:42.7|t39|urn:cts:compnov:bible.genesis.vulgate:42.7|t50
+
+#!verbal_units
+context|token|syntactic_type|semantic_type
+urn:cts:compnov:bible.genesis.vulgate:42.6|t2|independent|linking verb
+urn:cts:compnov:bible.genesis.vulgate:42.6|t14|independent|transitive passive
+urn:cts:compnov:bible.genesis.vulgate:42.6|t18|dependent|transitive active
+urn:cts:compnov:bible.genesis.vulgate:42.7|t24|dependent|transitive active
+urn:cts:compnov:bible.genesis.vulgate:42.7|t31|independent|intransitive
+urn:cts:compnov:bible.genesis.vulgate:42.7|t33|dependent|transitive active
+urn:cts:compnov:bible.genesis.vulgate:42.7|t37|direct quote|intransitive
+urn:cts:compnov:bible.genesis.vulgate:42.7|t40|independent|intransitive
+urn:cts:compnov:bible.genesis.vulgate:42.7|t47|dependent|transitive active
+
+#!tokens
+context|id|tokentype|text|lemma|verbalunit|related1|relationship1|related2|relationship2
+urn:cts:compnov:bible.genesis.vulgate:42.6|t0|lexical|Et|et||t2|coordinating conjunction||
+urn:cts:compnov:bible.genesis.vulgate:42.6|t1|lexical|Joseph|Ioseph||t2|subject||
+urn:cts:compnov:bible.genesis.vulgate:42.6|t2|lexical|erat|sum|t2|root|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.6|t3|lexical|princeps|princeps||t2|predicate||
+urn:cts:compnov:bible.genesis.vulgate:42.6|t4|lexical|in|in||t2|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.6|t5|lexical|terra|terra||t4|object of preposition||
+urn:cts:compnov:bible.genesis.vulgate:42.6|t6|lexical|aegypti|Aegyptus||t5|genitive||
+urn:cts:compnov:bible.genesis.vulgate:42.6|t7|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.6|t8|lexical|atque|atque||t2|coordinating conjunction|t14|coordinating conjunction
+urn:cts:compnov:bible.genesis.vulgate:42.6|t9|lexical|ad|ad||t14|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.6|t10|lexical|ejus|is||t11|genitive||
+urn:cts:compnov:bible.genesis.vulgate:42.6|t11|lexical|nutum|nutus||t9|object of preposition||
+urn:cts:compnov:bible.genesis.vulgate:42.6|t12|lexical|frumenta|frumentum||t14|subject||
+urn:cts:compnov:bible.genesis.vulgate:42.6|t13|lexical|populis|populus||t14|dative||
+urn:cts:compnov:bible.genesis.vulgate:42.6|t14|lexical|vendebantur|vendo|t14|root|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.6|t15|punctuation|.||||||
+urn:cts:compnov:bible.genesis.vulgate:42.6|t16|lexical|Cum|cum||t31|subordinating conjunction||
+urn:cts:compnov:bible.genesis.vulgate:42.6|t17|enclitic|que|que||t31|coordinating conjunction||
+urn:cts:compnov:bible.genesis.vulgate:42.6|t18|lexical|adorassent|adoro|t18|t16|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.6|t19|lexical|eum|is||t18|direct object||
+urn:cts:compnov:bible.genesis.vulgate:42.6|t20|lexical|fratres|frater||t18|subject||
+urn:cts:compnov:bible.genesis.vulgate:42.6|t21|lexical|sui|suus||t20|adjectival||
+urn:cts:compnov:bible.genesis.vulgate:42.6|t22|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t23|lexical|et|et||t18|coordinating conjunction|t24|coordinating conjunction
+urn:cts:compnov:bible.genesis.vulgate:42.7|t24|lexical|agnovisset|agnosco|t24|t16|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t25|lexical|eos|is||t24|direct object||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t26|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t27|lexical|quasi|quasi||t31|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t28|lexical|ad|ad||t31|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t29|lexical|alienos|alienus||t28|object of preposition||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t30|lexical|durius|durus||t31|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t31|lexical|loquebatur|loquor|t31|root|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t32|punctuation|,||||||
+|t32_implied|implied subject||||t31|subject||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t33|lexical|interrogans|interrogo|t33|t32_implied|circumstantial participle||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t34|lexical|eos|is||t33|direct object||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t35|punctuation|:||||||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t36|lexical|Unde|unde||t37|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t37|lexical|venistis|venio|t37|t33|direct quote||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t38|punctuation|?||||||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t39|lexical|Qui|qui||t40|subject||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t40|lexical|responderunt|respondeo|t40|root|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t41|punctuation|:||||||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t42|lexical|De|de||t40|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t43|lexical|terra|terra||t42|object of preposition||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t44|lexical|Chanaan|Chanaan||t43|genitive||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t45|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t46|lexical|ut|ut||t40|subordinating conjunction||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t47|lexical|emamus|emo|t47|t46|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t48|lexical|victui|victus||t49|dative||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t49|lexical|necessaria|necessarius||t47|direct object||
+urn:cts:compnov:bible.genesis.vulgate:42.7|t50|punctuation|.||||||

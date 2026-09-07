@@ -1,0 +1,28 @@
+#!LM
+MODEL=litellm_proxy/anthropic/Claude Opus 5
+CONTEXT=urn:cts:compnov:bible.genesis.vulgate:42.8.t0-urn:cts:compnov:bible.genesis.vulgate:42.8.t11
+REASONING="Et tamen fratres ipse cognoscens, non est cognitus ab eis." = "And yet, though he himself recognized his brothers, he was not recognized by them." - "cognoscens" (t4) is a predicate/circumstantial participle agreeing with "ipse" (t3), taking "fratres" (t2) as its direct object → its own verbal expression, dependent, transitive active. - "est cognitus" (t7 + t8) is a compound perfect passive; the participle "cognitus" (t8) anchors the verbal expression (independent, transitive passive), with "est" as its auxiliary. "ipse" is its subject (and also the antecedent of the participle, so it takes only that normal 'subject' relation). - "Et" opens the sentence with no preceding verb to pair with → only relatedtoken1 → t8. - "tamen" and "non" are adverbs modifying t8; "ab" introduces the agent (→ t8), with "eis" as object of preposition.
+
+#!sentences
+context_begin|first_token|context_end|last_token
+urn:cts:compnov:bible.genesis.vulgate:42.8|t0|urn:cts:compnov:bible.genesis.vulgate:42.8|t11
+
+#!verbal_units
+context|token|syntactic_type|semantic_type
+urn:cts:compnov:bible.genesis.vulgate:42.8|t4|dependent|transitive active
+urn:cts:compnov:bible.genesis.vulgate:42.8|t8|independent|transitive passive
+
+#!tokens
+context|id|tokentype|text|lemma|verbalunit|related1|relationship1|related2|relationship2
+urn:cts:compnov:bible.genesis.vulgate:42.8|t0|lexical|Et|et||t8|coordinating conjunction||
+urn:cts:compnov:bible.genesis.vulgate:42.8|t1|lexical|tamen|tamen||t8|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.8|t2|lexical|fratres|frater||t4|direct object||
+urn:cts:compnov:bible.genesis.vulgate:42.8|t3|lexical|ipse|ipse||t8|subject||
+urn:cts:compnov:bible.genesis.vulgate:42.8|t4|lexical|cognoscens|cognosco|t4|t3|circumstantial participle||
+urn:cts:compnov:bible.genesis.vulgate:42.8|t5|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.8|t6|lexical|non|non||t8|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.8|t7|lexical|est|sum||t8|auxiliary||
+urn:cts:compnov:bible.genesis.vulgate:42.8|t8|lexical|cognitus|cognosco|t8|root|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.8|t9|lexical|ab|ab||t8|agent||
+urn:cts:compnov:bible.genesis.vulgate:42.8|t10|lexical|eis|is||t9|object of preposition||
+urn:cts:compnov:bible.genesis.vulgate:42.8|t11|punctuation|.||||||

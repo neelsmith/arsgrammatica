@@ -1,0 +1,34 @@
+#!LM
+MODEL=litellm_proxy/anthropic/Claude Opus 5
+CONTEXT=urn:cts:compnov:bible.genesis.vulgate:42.1.t0-urn:cts:compnov:bible.genesis.vulgate:42.1.t15
+REASONING="Audiens autem Jacob quod alimenta venderentur in aegypto" — "Audiens" is a present participle agreeing with "Jacob", the subject of "dixit"; it has a predicate (circumstantial) sense, so it anchors its own dependent verbal expression, with "Jacob" as its antecedent. The "quod" clause ("quod alimenta venderentur in aegypto") is the content of the hearing, dependent on "Audiens": "quod" is the subordinating conjunction pointing to "Audiens", and "venderentur" (imperfect passive subjunctive, transitive passive) is its unit verb, with "alimenta" as subject and "in aegypto" as an adverbial prepositional phrase. "dixit" is the independent verb (transitive active), with "Jacob" as subject and "filiis suis" as dative indirect object; "autem" is a connective adverb attached to it. "Quare negligitis?" is directly quoted speech framed by "dixit", so "negligitis" is a 'direct quote' verbal expression relating to "dixit"; "Quare" is an interrogative adverb modifying it.
+
+#!sentences
+context_begin|first_token|context_end|last_token
+urn:cts:compnov:bible.genesis.vulgate:42.1|t0|urn:cts:compnov:bible.genesis.vulgate:42.1|t15
+
+#!verbal_units
+context|token|syntactic_type|semantic_type
+urn:cts:compnov:bible.genesis.vulgate:42.1|t0|dependent|transitive active
+urn:cts:compnov:bible.genesis.vulgate:42.1|t5|dependent|transitive passive
+urn:cts:compnov:bible.genesis.vulgate:42.1|t9|independent|transitive active
+urn:cts:compnov:bible.genesis.vulgate:42.1|t14|direct quote|transitive active
+
+#!tokens
+context|id|tokentype|text|lemma|verbalunit|related1|relationship1|related2|relationship2
+urn:cts:compnov:bible.genesis.vulgate:42.1|t0|lexical|Audiens|audio|t0|t2|circumstantial participle||
+urn:cts:compnov:bible.genesis.vulgate:42.1|t1|lexical|autem|autem||t9|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.1|t2|lexical|Jacob|Jacob||t9|subject||
+urn:cts:compnov:bible.genesis.vulgate:42.1|t3|lexical|quod|quod||t0|subordinating conjunction||
+urn:cts:compnov:bible.genesis.vulgate:42.1|t4|lexical|alimenta|alimentum||t5|subject||
+urn:cts:compnov:bible.genesis.vulgate:42.1|t5|lexical|venderentur|vendo|t5|t3|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.1|t6|lexical|in|in||t5|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.1|t7|lexical|aegypto|Aegyptus||t6|object of preposition||
+urn:cts:compnov:bible.genesis.vulgate:42.1|t8|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.1|t9|lexical|dixit|dico|t9|root|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.1|t10|lexical|filiis|filius||t9|dative||
+urn:cts:compnov:bible.genesis.vulgate:42.1|t11|lexical|suis|suus||t10|adjectival||
+urn:cts:compnov:bible.genesis.vulgate:42.1|t12|punctuation|:||||||
+urn:cts:compnov:bible.genesis.vulgate:42.1|t13|lexical|Quare|quare||t14|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.1|t14|lexical|negligitis|negligo|t14|t9|direct quote||
+urn:cts:compnov:bible.genesis.vulgate:42.1|t15|punctuation|?||||||

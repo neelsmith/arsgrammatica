@@ -1,0 +1,42 @@
+#!LM
+MODEL=litellm_proxy/anthropic/Claude Opus 5
+CONTEXT=urn:cts:compnov:bible.genesis.vulgate:42.9.t0-urn:cts:compnov:bible.genesis.vulgate:42.9.t20
+REASONING=The sentence opens with the deponent perfect participle "Recordatus" (with enclitic "-que"), which agrees with the unexpressed subject of "ait" (Joseph). Since there is no expressed noun for it to agree with, an implied-subject token is added, taking the 'subject' relation into "ait", and "Recordatus" relates to it as a circumstantial participle. "somniorum" is the genitive object/complement of "Recordatus". The relative clause "quae aliquando viderat" is dependent, with "quae" pointing to its antecedent "somniorum" and serving as direct object of "viderat". "ait" is the independent verb, with the prepositional phrase "ad eos" adverbial to it. The directly quoted speech contains "estis" (linking, direct quote framed by "ait") with "Exploratores" as predicate, and "venistis" (intransitive, direct quote), with the purpose clause "ut videatis infirmiora terrae" dependent on "venistis"; "infirmiora" is a substantive adjective serving as direct object of "videatis", with "terrae" as a genitive depending on it.
+
+#!sentences
+context_begin|first_token|context_end|last_token
+urn:cts:compnov:bible.genesis.vulgate:42.9|t0|urn:cts:compnov:bible.genesis.vulgate:42.9|t20
+
+#!verbal_units
+context|token|syntactic_type|semantic_type
+urn:cts:compnov:bible.genesis.vulgate:42.9|t0|dependent|transitive active
+urn:cts:compnov:bible.genesis.vulgate:42.9|t6|dependent|transitive active
+urn:cts:compnov:bible.genesis.vulgate:42.9|t8|independent|transitive active
+urn:cts:compnov:bible.genesis.vulgate:42.9|t13|direct quote|linking verb
+urn:cts:compnov:bible.genesis.vulgate:42.9|t16|dependent|transitive active
+urn:cts:compnov:bible.genesis.vulgate:42.9|t19|direct quote|intransitive
+
+#!tokens
+context|id|tokentype|text|lemma|verbalunit|related1|relationship1|related2|relationship2
+|t0_implied|implied subject||||t8|subject||
+urn:cts:compnov:bible.genesis.vulgate:42.9|t0|lexical|Recordatus|recordor|t0|t0_implied|circumstantial participle||
+urn:cts:compnov:bible.genesis.vulgate:42.9|t1|enclitic|que|que||t8|coordinating conjunction||
+urn:cts:compnov:bible.genesis.vulgate:42.9|t2|lexical|somniorum|somnium||t0|genitive||
+urn:cts:compnov:bible.genesis.vulgate:42.9|t3|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.9|t4|lexical|quae|qui||t2|relative pronoun|t6|direct object
+urn:cts:compnov:bible.genesis.vulgate:42.9|t5|lexical|aliquando|aliquando||t6|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.9|t6|lexical|viderat|video|t6|t4|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.9|t7|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.9|t8|lexical|ait|aio|t8|root|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.9|t9|lexical|ad|ad||t8|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.9|t10|lexical|eos|is||t9|object of preposition||
+urn:cts:compnov:bible.genesis.vulgate:42.9|t11|punctuation|:||||||
+urn:cts:compnov:bible.genesis.vulgate:42.9|t12|lexical|Exploratores|explorator||t13|predicate||
+urn:cts:compnov:bible.genesis.vulgate:42.9|t13|lexical|estis|sum|t13|t8|direct quote||
+urn:cts:compnov:bible.genesis.vulgate:42.9|t14|punctuation|:||||||
+urn:cts:compnov:bible.genesis.vulgate:42.9|t15|lexical|ut|ut||t19|subordinating conjunction||
+urn:cts:compnov:bible.genesis.vulgate:42.9|t16|lexical|videatis|video|t16|t15|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.9|t17|lexical|infirmiora|infirmus||t16|direct object||
+urn:cts:compnov:bible.genesis.vulgate:42.9|t18|lexical|terrae|terra||t17|genitive||
+urn:cts:compnov:bible.genesis.vulgate:42.9|t19|lexical|venistis|venio|t19|t8|direct quote||
+urn:cts:compnov:bible.genesis.vulgate:42.9|t20|punctuation|.||||||
