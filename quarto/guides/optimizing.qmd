@@ -24,15 +24,27 @@ python optimize_gepa.py --max-metric-calls 40   # exact call budget instead of a
 python optimize_gepa.py --skip-baseline     # skip the pre-GEPA scoring pass (saves N calls)
 ```
 
+This optimizes `SyntaxAnalysis` by training on all the gold examples in `GOLD_EXAMPLES` (a small, hand-curated set built to exercise every documented construction at least once) with no separate held-out evaluation set. If you have files of analyses you have verified, you can add those to the pool `optimize_gepa` uses and specify the fraction to be used for an evaluation set.
 
-## What it does
+::: {.callout-tip}
+The `data` directory of the `arsgrammatica` repository includes hand-vetted analyses you can use in optimizing the package for a new model.
+:::
 
-`optimize_gepa` optimizes `SyntaxAnalysis` by training on all the gold examples in `GOLD_EXAMPLES` with no separate held-out evaluation set.
+```
+# Include individual files with analyses:
+python3 utilities/optimize_gepa.py --eval-file urn_cts_compnov_bible_genesis_vulgate_42_1.cex urn_cts_compnov_bible_genesis_vulgate_42_2.cex
+
+# Include all files in a directory, and hold out 25% for evaluation set:
+python3 utilities/optimize_gepa.py --eval-dir data/vulgate/ --val-fraction 0.25
+
+# Include all files in a directory with no separate evaluation set:
+python3 utilities/optimize_gepa.py --eval-dir data/vulgate/ --val-fraction 0 
+```
 
 
 ## Scoring
 
- `arsgrammatica/gepa_metric.py`'s `syntax_metric` compares a prediction's `verbalunits`/`tokengraph` against the gold answer and returns a score in [0, 1] (a weighted blend: relations 50%, verbal-expression classification 30%, basic per-token fields 20% -- a judgment call, easy to retune in that file) plus specific, human-readable feedback naming every mismatched token/relation/classification, for GEPA's reflection model to read.
+`arsgrammatica` defines a `syntax_metric`. This compares the responses `verbalunits` and `tokengraph` against the gold answer and returns a score from 0 to 1. The score is computed weighing score for correct relations at 50%, score for classifying verbal-expressions at 30%, scoring for basic fields for each token fields at 20%. It includes specific, human-readable feedback naming every mismatched token/relation/classification, which GEPA's reflection model can read and take advantage of.
 
 ## Using the result
 
