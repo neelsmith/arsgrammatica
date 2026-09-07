@@ -3,6 +3,7 @@
 Current version: **0.6.0**.
 
 **0.7.0** *??*: Adds CL script to batch process analyses and create PNGs using graphviz. Scripts and notebooks to batch analyse text into sentences and process from grouped listings. Script to anlayze a whole text.  Reworking of figuring LM cost. expanded docs. Adds Lewis-Short coordination. Correctly exports `save_mermaid`, `save_dot`. > 1200 tests. Changes optimization to use an eval set.
+Adds optimization data and optimized prompts dir.
 
 Breaking: changes in syntax model for annotation of sequences of conjunctions and for compound verb forms.
 

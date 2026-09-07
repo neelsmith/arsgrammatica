@@ -58,6 +58,34 @@ whatever pool this particular invocation was given, used only to give this
 one GEPA run an honest generalization signal while it optimizes a single
 model's prompt. Nothing here reads or writes HELD_OUT_SLUGS.
 
+"TOO MANY OPEN FILES" ON LONG RUNS
+-------------------------------------
+A bigger pool (via --eval-file/--eval-dir) means more rollouts, and a long
+GEPA run makes hundreds of real LM API calls -- each one costs the process
+a socket/file descriptor that isn't always freed as fast as new ones are
+opened. macOS in particular defaults new processes to a soft limit as low
+as 256 open files, which a run of any real size can exhaust well before
+GEPA is done -- surfacing as `OSError: [Errno 24] Too many open files`
+when GEPA next tries to write its own gepa_state.bin.tmp checkpoint (not
+when it opens whatever socket actually pushed the process over the
+limit). gepa's own save() prints a "standard pickle failed to serialize
+the GEPA state... try use_cloudpickle" hint on ANY exception raised while
+writing that file, including a plain OSError like this one that has
+nothing to do with pickling -- installing cloudpickle will not fix this.
+
+This script now raises its own open-file limit at startup (best-effort,
+see _raise_open_file_limit()) so you shouldn't have to think about this
+for a normal run. If a run is long enough to exhaust even that, raise it
+further yourself before invoking this script, e.g. `ulimit -n 8192` in
+the same shell.
+
+If a run does die this way (or is interrupted any other way) partway
+through, its progress is not lost: this script always points GEPA's
+log_dir at the same gepa_logs/ directory at the repo root, and "running
+GEPA with the same log_dir will resume the run" (GEPA's own docs) --
+simply re-running the exact same command picks up from the last saved
+iteration rather than starting over from scratch.
+
 Usage:
     python utilities/optimize_gepa.py                       # --auto light (default)
     python utilities/optimize_gepa.py --auto medium
@@ -125,6 +153,40 @@ def build_trainset():
             ).with_inputs("passage", "tokens")
         )
     return trainset
+
+
+def _raise_open_file_limit(target: int = 4096) -> None:
+    """Best-effort: raise this process's own open-file-descriptor limit
+    (POSIX RLIMIT_NOFILE) toward `target`, capped at whatever the OS's own
+    hard limit allows. See this script's own module docstring ('"TOO MANY
+    OPEN FILES" ON LONG RUNS') for why a long GEPA run can exhaust a
+    default limit as low as 256 (macOS) well before it's done, and why
+    that surfaces as a misleading pickle/cloudpickle hint rather than an
+    obvious "too many open files" message. Raising the soft limit here
+    means you don't have to remember to run `ulimit -n <n>` yourself in
+    every new shell before invoking this script.
+
+    Does nothing (silently) on a platform with no `resource` module
+    (Windows) -- this is purely a best-effort convenience the rest of the
+    script never depends on -- and swallows OSError/ValueError if the OS
+    itself refuses to raise the limit (some hardened environments forbid
+    it): worst case, you're exactly where you'd have been without this
+    function, not worse off.
+    """
+    try:
+        import resource
+    except ImportError:
+        return  # Windows: no such module, no such knob to turn.
+
+    try:
+        soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
+        new_soft = target if hard == resource.RLIM_INFINITY else min(target, hard)
+        if new_soft > soft:
+            resource.setrlimit(resource.RLIMIT_NOFILE, (new_soft, hard))
+            hard_display = "unlimited" if hard == resource.RLIM_INFINITY else hard
+            print(f"Raised this process's open-file limit from {soft} to {new_soft} (hard limit: {hard_display}).")
+    except (OSError, ValueError):
+        pass  # Best-effort only -- see this function's own docstring.
 
 
 def build_trainset_from_analysis_files(paths):
@@ -314,6 +376,10 @@ def main():
              "over the same pool get the same split (default: %(default)s).",
     )
     args = parser.parse_args()
+
+    # See '"TOO MANY OPEN FILES" ON LONG RUNS' above -- do this before
+    # anything else opens a single socket or file of its own.
+    _raise_open_file_limit()
 
     task_lm = _configure_lm()
     reflection_lm = _configure_reflection_lm(task_lm)
