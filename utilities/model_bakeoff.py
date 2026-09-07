@@ -45,7 +45,7 @@ several candidates in one invocation for this provider. Instead:
 
     1. `ollama pull llama3.1:8b` (or whichever candidate), then make sure
        `ollama serve` is running (or let `ollama run` start it).
-    2. `python model_bakeoff.py --provider ollama --candidates llama-3.1-8b`
+    2. `python utilities/model_bakeoff.py --provider ollama --candidates llama-3.1-8b`
        -- scores THAT one candidate and MERGES the result into --out
        (default model_bakeoff_results.csv), leaving every other row already
        in that file untouched.
@@ -175,25 +175,25 @@ optimize_gepa.py.
 USAGE
 ------
 Hugging Face, several candidates in one run:
-    python model_bakeoff.py --stages baseline                     # cheap first pass, every candidate
-    python model_bakeoff.py --stages baseline gepa bootstrap       # everything, every candidate
-    python model_bakeoff.py --candidates llama-3.1-8b gpt-oss-20b  # only these two
-    python model_bakeoff.py --min-baseline-to-optimize 0.3         # skip gepa/bootstrap below this baseline
+    python utilities/model_bakeoff.py --stages baseline                     # cheap first pass, every candidate
+    python utilities/model_bakeoff.py --stages baseline gepa bootstrap       # everything, every candidate
+    python utilities/model_bakeoff.py --candidates llama-3.1-8b gpt-oss-20b  # only these two
+    python utilities/model_bakeoff.py --min-baseline-to-optimize 0.3         # skip gepa/bootstrap below this baseline
 
 Ollama, one candidate per invocation (see TWO PROVIDERS above):
-    python model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages baseline
-    python model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages gepa bootstrap
+    python utilities/model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages baseline
+    python utilities/model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages gepa bootstrap
 
 Ad hoc model not in CANDIDATES at all (either provider):
-    python model_bakeoff.py --provider ollama --model ollama_chat/llama3.1:8b-instruct-q8_0 --label llama-3.1-8b-q8
+    python utilities/model_bakeoff.py --provider ollama --model ollama_chat/llama3.1:8b-instruct-q8_0 --label llama-3.1-8b-q8
 
 Optimizer knobs:
-    python model_bakeoff.py --auto medium                          # gepa's (and miprov2's) budget preset
-    python model_bakeoff.py --max-metric-calls 40                  # exact gepa budget instead of --auto
-    python model_bakeoff.py --bootstrap-optimizer miprov2          # heavier alternative to bootstrap-fewshot
-    python model_bakeoff.py --max-bootstrapped-demos 4 --max-labeled-demos 4
+    python utilities/model_bakeoff.py --auto medium                          # gepa's (and miprov2's) budget preset
+    python utilities/model_bakeoff.py --max-metric-calls 40                  # exact gepa budget instead of --auto
+    python utilities/model_bakeoff.py --bootstrap-optimizer miprov2          # heavier alternative to bootstrap-fewshot
+    python utilities/model_bakeoff.py --max-bootstrapped-demos 4 --max-labeled-demos 4
 
-    python model_bakeoff.py --out results.csv
+    python utilities/model_bakeoff.py --out results.csv
 
 Expect this to make real calls against whichever provider serves each
 candidate, plus the teacher model's calls (for gepa/bootstrap stages).
@@ -211,17 +211,25 @@ from pathlib import Path
 import dspy
 from dotenv import load_dotenv
 
-load_dotenv(dotenv_path=Path(__file__).with_name(".env"))
+# .env lives at the repo root, not next to this script now that it's in
+# utilities/ -- Path(__file__).parent.parent, not .with_name(), so this
+# still finds it after the move.
+load_dotenv(dotenv_path=Path(__file__).parent.parent / ".env")
 
+# utilities/ isn't the repo root -- add the root to sys.path (not just
+# ".parent", now that this script itself lives one level deeper) so
+# "from syntaxer_main import ..." and "from arsgrammatica import ..."
+# below resolve the same way they do for a script run straight from the
+# repo root.
+sys.path.insert(0, str(Path(__file__).parent.parent))
 # Reuse syntaxer_main.py's own .env-reading helper rather than duplicating it.
-sys.path.insert(0, str(Path(__file__).parent))
 from syntaxer_main import _env  # noqa: E402
 
 # tests/ isn't an installed package -- add it to sys.path the same way
 # pytest and optimize_gepa.py do, so "from fixtures.gold_examples import
 # GOLD_EXAMPLES" and "from conftest import tokens_from_canned_answer"
 # resolve the same way they do everywhere else in this repo.
-sys.path.insert(0, str(Path(__file__).parent / "tests"))
+sys.path.insert(0, str(Path(__file__).parent.parent / "tests"))
 from conftest import tokens_from_canned_answer  # noqa: E402
 from fixtures.gold_examples import GOLD_EXAMPLES  # noqa: E402
 
@@ -583,7 +591,11 @@ def _run_gepa_stage(candidate, task_lm, teacher_lm, trainset, heldout, args):
         metric=syntax_metric,
         reflection_lm=teacher_lm,
         track_stats=True,
-        log_dir=str(Path(__file__).parent / "gepa_logs" / f"{candidate['label']}-gepa"),
+        # gepa_logs/ stays at the repo root (matching .gitignore's own
+        # "gepa_logs/" entry and optimize_gepa.py's identical convention),
+        # not inside utilities/ -- .parent.parent, not .parent, now that
+        # this script lives one level deeper.
+        log_dir=str(Path(__file__).parent.parent / "gepa_logs" / f"{candidate['label']}-gepa"),
     )
     if args.max_metric_calls is not None:
         optimizer_kwargs["max_metric_calls"] = args.max_metric_calls
@@ -645,7 +657,9 @@ def _run_bootstrap_stage(candidate, task_lm, teacher_lm, trainset, heldout, args
             max_labeled_demos=args.max_labeled_demos,
             auto=args.auto,
             track_stats=True,
-            log_dir=str(Path(__file__).parent / "gepa_logs" / f"{candidate['label']}-miprov2"),
+            # gepa_logs/ stays at the repo root -- see the matching comment
+            # on the GEPA optimizer_kwargs above.
+            log_dir=str(Path(__file__).parent.parent / "gepa_logs" / f"{candidate['label']}-miprov2"),
         )
         optimized = optimizer.compile(student=student, trainset=trainset)
     else:
@@ -906,7 +920,10 @@ def main():
                 candidate, provider=args.provider, model=resolved_model, stage="gepa",
                 **{k: v for k, v in stats.items() if k != "problems"},
             ))
-            out_path = Path(__file__).parent / f"optimized_{candidate['label']}_{args.provider}_gepa.json"
+            # Saved next to model_bakeoff.py's own repo-root home, not
+            # inside utilities/ -- .parent.parent, not .parent, now that
+            # this script lives one level deeper.
+            out_path = Path(__file__).parent.parent / f"optimized_{candidate['label']}_{args.provider}_gepa.json"
             optimized.save(str(out_path))
             print(f"  saved optimized program to {out_path.name}")
 
@@ -923,7 +940,8 @@ def main():
                 candidate, provider=args.provider, model=resolved_model, stage="bootstrap",
                 **{k: v for k, v in stats.items() if k != "problems"},
             ))
-            out_path = Path(__file__).parent / f"optimized_{candidate['label']}_{args.provider}_bootstrap.json"
+            # Repo root, same reasoning as the gepa out_path above.
+            out_path = Path(__file__).parent.parent / f"optimized_{candidate['label']}_{args.provider}_bootstrap.json"
             optimized.save(str(out_path))
             print(f"  saved optimized program to {out_path.name}")
 

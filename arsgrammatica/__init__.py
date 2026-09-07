@@ -3,8 +3,8 @@ according to the scheme documented in syntax_model.md.
 """
  
 from .models import Token, CitedText, Sentence, VerbalExpression, TokenAnalysis, RelationLabel
-from .mermaid import tokengraph_to_mermaid, token_label
-from .dot import tokengraph_to_dot, compute_graph_depths, max_graph_depth
+from .mermaid import tokengraph_to_mermaid, token_label, save_mermaid
+from .dot import tokengraph_to_dot, compute_graph_depths, max_graph_depth, save_dot
 from .graphs import GraphMetrics, tokengraph_to_networkx, graph_metrics
 from .verbal_units import (
     assign_verbal_units,
@@ -23,7 +23,14 @@ from .latin_syntax_dspy import (
     print_analysis,
 )
 from .segmentation_dspy import SegmentPassage, segment_sources
-from .pipeline import analyze_string, analyze_sources, combined_tokengraph
+from .pipeline import (
+    analyze_string,
+    analyze_sources,
+    analyze_selected_passages,
+    analyze_ctsdata,
+    combined_tokengraph,
+)
+from .passage_grouping import group_passages_by_sentence_boundary
 from .serialization import (
     LMInfo,
     serialize_analyses,
@@ -38,6 +45,15 @@ from .segmentation_serialization import (
     read_segmentation,
 )
 from .token_budget import estimate_max_tokens, analyze_with_retry, get_calibration, DEFAULT_CEILING
+from .lm_cost import LMCostSummary, summarize_lm_cost, format_lm_cost
+from .lewis_short import (
+    LewisShortEntry,
+    LewisShortMatch,
+    LewisShortLexicon,
+    LEWIS_SHORT_URL,
+    read_lewis_short,
+    read_lewis_short_from_url,
+)
 
 # attgraph() depends on the separate `aat` package, which most callers of
 # arsgrammatica have no need to install at all -- not on PyPI, so
@@ -79,9 +95,11 @@ __all__ = [
     "RelationLabel",
     "tokengraph_to_mermaid",
     "token_label",
+    "save_mermaid",
     "tokengraph_to_dot",
     "compute_graph_depths",
     "max_graph_depth",
+    "save_dot",
     "GraphMetrics",
     "tokengraph_to_networkx",
     "graph_metrics",
@@ -103,7 +121,10 @@ __all__ = [
     "SegmentPassage",
     "segment_sources",
     "analyze_sources",
+    "analyze_selected_passages",
+    "analyze_ctsdata",
     "combined_tokengraph",
+    "group_passages_by_sentence_boundary",
     "LMInfo",
     "serialize_analyses",
     "write_analyses",
@@ -117,5 +138,14 @@ __all__ = [
     "analyze_with_retry",
     "get_calibration",
     "DEFAULT_CEILING",
+    "LMCostSummary",
+    "summarize_lm_cost",
+    "format_lm_cost",
+    "LewisShortEntry",
+    "LewisShortMatch",
+    "LewisShortLexicon",
+    "LEWIS_SHORT_URL",
+    "read_lewis_short",
+    "read_lewis_short_from_url",
     "attgraph",
 ]

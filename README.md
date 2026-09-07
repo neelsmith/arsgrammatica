@@ -7,7 +7,7 @@
 `arsgrammatica` offers an alternative analytic scheme to [Universal Dependencies](https://universaldependencies.org), designed to describe Latin syntax in familiar terms that are convenient for research and teaching. Released under the [GNU General Public License v3 or later](LICENSE). 
 
 
-- [Documentation](https://neelsmith.github.io/arsgrammatica/). Current documentation still contains large quantities of AI slop that is gradually being edited away.
+- [Documentation](https://neelsmith.github.io/arsgrammatica/).
 - See [release history](https://github.com/neelsmith/arsgrammatica/blob/main/releases.md).
 - See the [project issue tracker](https://github.com/neelsmith/arsgrammatica/issues) for known gaps and work in progress.
 

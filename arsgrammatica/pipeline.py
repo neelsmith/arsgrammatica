@@ -14,6 +14,7 @@ from .models import CitedText, Sentence
 from .segmentation_dspy import segment_sources
 from .latin_syntax_dspy import validate
 from .token_budget import analyze_with_retry
+from .ctsdata import read_ctsdata
  
  
 def _render_sentence_text(sentence: Sentence) -> str:
@@ -96,4 +97,72 @@ def analyze_string(passage: str, citation: str = "") -> Tuple[List[Sentence], li
     contract need to change to unpack (sentences, results) and iterate.)
     """
     return analyze_sources([CitedText(citation=citation, text=passage)])
- 
+
+
+def analyze_selected_passages(
+    passage_ids: List[str], cited_texts: List[CitedText]
+) -> Tuple[List[Sentence], list]:
+    """Select the entries of `cited_texts` whose `citation` is in
+    `passage_ids`, then run exactly those through analyze_sources() --
+    e.g. after read_ctsdata() has loaded a whole source file but only some
+    of its passages are wanted for this run.
+
+    Selected passages are analyzed in `cited_texts`' OWN order, not
+    `passage_ids`' order -- the same convention
+    marimo/latin_syntaxer_ctsdata.py's own `selected_rows` cell already
+    uses, and for the same reason: segment_sources() (inside
+    analyze_sources()) treats consecutive sources as potentially sharing a
+    sentence, so an out-of-file-order source list could segment
+    incorrectly, or produce citations in a confusing order.
+    `passage_ids` therefore acts purely as a filter -- which passages to
+    include -- never as a sort key.
+
+    Raises ValueError, naming every missing id at once, if any entry of
+    `passage_ids` doesn't match any `cited_texts` citation -- a typo'd or
+    stale passage id fails loudly here rather than silently analyzing
+    fewer passages than asked for.
+
+    Returns (sentences, results) -- the exact same shape analyze_sources()
+    returns, spanning only the selected passages.
+    """
+    wanted = set(passage_ids)
+    selected = [ct for ct in cited_texts if ct.citation in wanted]
+
+    found = {ct.citation for ct in selected}
+    missing = sorted(pid for pid in wanted if pid not in found)
+    if missing:
+        raise ValueError(
+            f"passage id(s) not found in cited_texts: {missing!r}"
+        )
+
+    return analyze_sources(selected)
+
+
+def analyze_ctsdata(path: str, delimiter: str = "|") -> Tuple[List[Sentence], list]:
+    """Convenience wrapper for the common case of a whole `#!ctsdata` (CEX)
+    source file on disk, rather than an in-memory `List[CitedText]` --
+    reads `path` with `read_ctsdata()` (ctsdata.py) and runs the result
+    straight through `analyze_sources()`, the same "read a CEX corpus,
+    then analyze it" pair every entry point in this codebase that starts
+    from a CEX file already does by hand (`utilities/tokenize_ctsdata.py`,
+    `utilities/analyze_ctsdata_to_files.py`, `utilities/
+    group_ctsdata_by_sentence.py`, each of the marimo ctsdata notebooks).
+
+    `delimiter` is passed straight through to `read_ctsdata()` -- it's the
+    SOURCE file's own column delimiter ('|' by default, matching every
+    other serialized format in this codebase), not related to anything
+    `analyze_sources()` itself does.
+
+    Returns `(sentences, results)` -- the exact same shape
+    `analyze_sources()` returns, spanning every passage in `path`, in the
+    file's own order. Every passage in the file is analyzed; use
+    `analyze_selected_passages()` instead if only some of them are wanted.
+
+    Propagates `read_ctsdata()`'s own `ValueError`/`OSError` as-is for a
+    missing file or a malformed `#!ctsdata` block (see that function's own
+    docstring for exactly what's checked) -- raised before any LM call is
+    made, same as every CLI entry point that reads a CEX file up front for
+    the same reason.
+    """
+    cited_texts = read_ctsdata(path, delimiter=delimiter)
+    return analyze_sources(cited_texts)

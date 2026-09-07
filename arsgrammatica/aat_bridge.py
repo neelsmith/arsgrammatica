@@ -21,11 +21,11 @@ AgentActionTarget.__doc__ in the installed `aat` package):
     indirect-statement infinitive, or a predicate-sense participle) is an
     *action*. A compound verbal expression (participle + a form of *sum*)
     becomes one action node, anchored at arsgrammatica's own compound-form
-    id (per VerbalExpression.id's docstring, the form of *sum* -- e.g.
-    "est" in "condita est" -- rather than AAT's own English convention of
-    the most specific/final component; arsgrammatica's anchor-id
-    convention is kept as-is here rather than re-derived, since it's
-    already what the rest of this codebase treats as authoritative and
+    id (per VerbalExpression.id's docstring, the participle or infinitive
+    itself -- e.g. "condita" in "condita est" -- rather than AAT's own
+    English convention of the most specific/final component; arsgrammatica's
+    anchor-id convention is kept as-is here rather than re-derived, since
+    it's already what the rest of this codebase treats as authoritative and
     the choice makes no difference to referential validity), with `value`
     set to every component token's own text joined by spaces in surface
     order (e.g. "condita est").
@@ -159,8 +159,8 @@ def _role_for_relation(label: Optional[str], semantic_type: Optional[str]) -> Op
 
 def _component_ids(anchor_id: str, tokengraph: List[TokenAnalysis]) -> List[str]:
     """`anchor_id` plus every token that relates to it via "auxiliary" --
-    the components of a compound verbal expression (e.g. "condita" ->
-    "est"; see this module's docstring)."""
+    the components of a compound verbal expression (e.g. "est" ->
+    "condita"; see this module's docstring)."""
     ids = [anchor_id]
     for tok in tokengraph:
         for related_field, label_field in (

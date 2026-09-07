@@ -86,27 +86,27 @@ def test_transitive_passive_agent_via_object_of_preposition_and_compound_value()
     preposition 'a' (t1), not the real agent noun 'Romulo' (t2) -- the
     AATNode built for this action's agent must be anchored on t2 (the
     object of the preposition), not t1. The action itself is a compound
-    (condita + est), anchored at t4 (est, per VerbalExpression's own
-    compound-id convention), with value 'condita est' in surface order.
-    urbs (subject of a transitive-passive verb) is a target, not an
-    agent."""
+    (condita + est), anchored at t3 (condita, per VerbalExpression's own
+    compound-id convention -- the participle anchors, not the auxiliary),
+    with value 'condita est' in surface order. urbs (subject of a
+    transitive-passive verb) is a target, not an agent."""
     sentence, result = _sentence_and_result("semantic_type_transitive_passive_urbs_condita")
     graph, warnings = attgraph([sentence], [result])
     assert warnings == []
 
     actions = _by_role(graph, "action")
-    assert set(actions) == {"t4"}
-    assert actions["t4"].value == "condita est"
-    assert actions["t4"].related_node is None
+    assert set(actions) == {"t3"}
+    assert actions["t3"].value == "condita est"
+    assert actions["t3"].related_node is None
 
     agents = _by_role(graph, "agent")
     assert set(agents) == {"t2"}  # Romulo, not the preposition "a" (t1)
     assert agents["t2"].value == "Romulo"
-    assert agents["t2"].related_node == "t4"
+    assert agents["t2"].related_node == "t3"
 
     targets = _by_role(graph, "target")
     assert set(targets) == {"t0"}  # urbs, subject of a transitive-passive verb
-    assert targets["t0"].related_node == "t4"
+    assert targets["t0"].related_node == "t3"
 
 
 def test_linking_verb_predicate_is_a_target():

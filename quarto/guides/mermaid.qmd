@@ -1,0 +1,36 @@
+---
+title: Visualizing syntax graphs with Mermaid
+---
+
+[Mermaid](https://mermaid.ai) is a lightweight diagramming language that is easily used in many Markdown viewers and editors, web environments, the [https://mermaid.live](https://mermaid.live) mermaid editor, and others. To compose a Mermaid diagram for a token graph:
+
+```python
+from arsgrammatica import tokengraph_to_mermaid
+diagram, warnings = tokengraph_to_mermaid(result.tokengraph)
+```
+
+`warnings` lists any edge that got skipped because it pointed at a punctuation token or an id missing from `tokengraph`.
+
+You can save the diagram to a file with `save_mermaid`.
+
+```python
+from arsgrammatica import save_mermaid
+save_mermaid(diagram,"diagram.mmd")
+```
+
+
+Both `tokengraph_to_mermaid` and `save_mermaid` accept one of Mermaid's orientation codes (`BT`, `TB`, `LR`, `RL`) in an optional `orientation` argument, with default value `BT` (bottom-to-top). Remember that the token graph is directed from subordinate to governing nodes. `BT` will result in root elements at the top, and `RL` will place root elements at the left of the diagram.
+
+```python
+diagram, warnings = tokengraph_to_mermaid(
+    result.tokengraph, 
+    orientation="RL")
+```
+
+
+
+## Limitations
+
+
+Mermaid's layout engine cannot enforce aligning nodes by rank. (You can think of *rank* as the syntactic depth of the node, like the generations in a family tree.) This kind of alignment can make the diagram of very complex sentences easier to read. If you want diagrams aligned by rank, you can use the open-source `graphviz` program: see
+ "[Diagramming syntactic analyses](../tutorials/diagrams.qmd)".

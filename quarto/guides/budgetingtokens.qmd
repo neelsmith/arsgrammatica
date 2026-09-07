@@ -1,0 +1,51 @@
+---
+title: Estimating and enforcing a `max_tokens` budget
+---
+
+
+`SyntaxAnalysis`'s output (a `reasoning` field plus JSON-serialized `verbalunits`/`tokengraph`) grows with how long and how syntactically complex a sentence is, not by a fixed amount, so a single hard-coded `max_tokens` value is eventually wrong: too small for a long or deeply subordinated sentence (truncation), too large for a short one (wasted budget). `arsgrammatica/token_budget.py` addresses this with a calibrate-then-retry approach, and `pipeline.py`'s `analyze_sources()` already uses it -- both `analyze_sources()` and `analyze_passage()` get this for free, with nothing to change in your own calling code.
+
+First, calibrate against your own configured model:
+
+```bash
+python3 calibrate_max_tokens.py
+```
+
+This is a live-LM script (real API cost, one call per `GOLD_EXAMPLES` entry) that measures how many completion tokens the real model actually uses for each gold example, fits `completion_tokens ~= intercept + slope * num_input_tokens` by least squares, and writes the result to `arsgrammatica/token_budget_calibration.json`. Re-run it whenever the configured model, the `SyntaxAnalysis` prompt, or the `TokenAnalysis`/`VerbalExpression` schema changes substantially. Until you've run it at least once, `estimate_max_tokens()` falls back to an untuned, deliberately generous placeholder fit -- safe, but not a real measurement of your model.
+
+```python
+from arsgrammatica import estimate_max_tokens
+
+budget = estimate_max_tokens(num_tokens=25)  # -> an int max_tokens value
+```
+
+`estimate_max_tokens()` takes the calibrated (or fallback) fit, multiplies it by a `safety_margin` (default `1.4`, covering reasoning-length variance the fit alone doesn't), and clamps the result to `[floor, ceiling]`. Set `ceiling` to your actual model's real max-output-tokens limit -- the module's own `DEFAULT_CEILING` is only a placeholder stand-in, since that limit varies by provider/model and there's no single correct default.
+
+For the retry half, `analyze_with_retry()` wraps `analyze()`:
+
+```python
+from arsgrammatica import analyze_with_retry
+
+result = analyze_with_retry(passage, tokens)
+```
+
+It starts from `estimate_max_tokens(len(tokens))` (or `initial_max_tokens`, if you pass one), and checks the result two ways: whether the returned `tokengraph` is missing any of `tokens`' own ids (the primary, provider-independent signal -- a real truncation, LM-JSON getting cut off mid-list, always shows up here), and, as a corroborating check, whether the LM's own `finish_reason` was `"length"`. If either signals truncation and a retry is still available (`max_retries`, default `1`) with budget left before `ceiling`, it multiplies the budget by `growth_factor` (default `2.0`) and calls again -- `max_tokens` is part of DSPy's own LM cache key, so the retry always reaches the LM again rather than replaying the same truncated cached response. If retries run out: a call that raised re-raises (nothing to fall back to); a call that returned an incomplete result is returned anyway, with a `UserWarning` naming the missing ids, rather than treated as fatal -- consistent with `validate()`'s own warn-don't-raise convention for imperfect LM output.
+
+`get_calibration()` reports which fit is currently active (the real one from `calibrate_max_tokens.py`, or the untuned fallback) if you want to check before relying on an estimate.
+
+
+## Anthropic prompt caching
+
+`SyntaxAnalysis`'s system message -- its own instructions plus the full `TokenAnalysis`/`VerbalExpression` field descriptions -- runs to roughly 40,000 characters and is byte-identical on every single call, regardless of passage; only the small per-sentence user message actually varies (typically well under 1,000 characters). Every `_configure_lm()` in this repo (`syntaxer_main.py`, `calibrate_max_tokens.py`, and the `marimo` notebooks) turns on Anthropic prompt caching automatically when `MODEL` routes to Anthropic -- there's no `.env` setting for this, and switching `MODEL` to a non-Anthropic backend (Ollama, OpenAI, etc.) skips it with nothing to turn off by hand:
+
+```python
+if "anthropic" in model.lower():
+    lm_kwargs["cache_control_injection_points"] = [
+        {"location": "message", "role": "system"}
+    ]
+```
+
+`cache_control_injection_points` is a litellm parameter (which `dspy.LM` forwards straight through, along with any other kwarg) that marks a message with Anthropic's ephemeral `cache_control` breakpoint -- everything up to and including that message can be reused by a later call within Anthropic's cache TTL (5 minutes by default) at roughly a tenth of its normal input-token price, instead of paying full price every time. Since there are no few-shot demos attached to `analyze` today, one breakpoint on the system message covers the whole static prefix; if a compiled/optimized program with demos is ever loaded, add a second point, `{"location": "message", "index": -2}`, to fold the demo turns into the same cached prefix (the real, always-different input is always the last message, so `-2` is "whatever precedes it," demos or not).
+
+This is a net win specifically for anything that fires several calls close together against the same system message -- `analyze_sources()` walking a multi-sentence passage, `calibrate_max_tokens.py`'s run over the whole `GOLD_EXAMPLES` corpus (one call per entry, 43 as of this writing), or an interactive `marimo` session. A single, isolated call costs a little *more* than before (a modest write premium with no offsetting read), so this only pays off because these scripts are rarely run for just one call.
+

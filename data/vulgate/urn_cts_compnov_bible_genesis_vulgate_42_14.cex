@@ -1,0 +1,30 @@
+#!LM
+MODEL=litellm_proxy/anthropic/Claude Opus 5
+CONTEXT=urn:cts:compnov:bible.genesis.vulgate:42.14.t0-urn:cts:compnov:bible.genesis.vulgate:42.14.t11
+REASONING=The sentence frames direct speech with "ait" (independent, transitive active, root). The quoted words "Hoc est ... quod locutus sum: exploratores estis" are interrupted by "ait", so the quoted finite verbs "est" and "estis" are of syntactic type 'direct quote', each relating to "ait" via 'direct quote'. "Hoc" is the subject of "est"; the relative pronoun "quod" serves as the predicate/complement whose antecedent is "Hoc" — it takes relationship1 'relative pronoun' -> "Hoc" and, in its own clause, is the direct object of "locutus sum" (relatedtoken2 -> "locutus"). "locutus sum" is a compound (deponent perfect) form: the participle "locutus" anchors the dependent verbal expression (unit verb -> "quod"), and "sum" relates to it as 'auxiliary'. In the second quoted clause, "exploratores" is the predicate of the linking verb "estis". Punctuation takes no relations.
+
+#!sentences
+context_begin|first_token|context_end|last_token
+urn:cts:compnov:bible.genesis.vulgate:42.14|t0|urn:cts:compnov:bible.genesis.vulgate:42.14|t11
+
+#!verbal_units
+context|token|syntactic_type|semantic_type
+urn:cts:compnov:bible.genesis.vulgate:42.14|t1|direct quote|linking verb
+urn:cts:compnov:bible.genesis.vulgate:42.14|t3|independent|transitive active
+urn:cts:compnov:bible.genesis.vulgate:42.14|t6|dependent|transitive active
+urn:cts:compnov:bible.genesis.vulgate:42.14|t10|direct quote|linking verb
+
+#!tokens
+context|id|tokentype|text|lemma|verbalunit|related1|relationship1|related2|relationship2
+urn:cts:compnov:bible.genesis.vulgate:42.14|t0|lexical|Hoc|hic||t1|subject||
+urn:cts:compnov:bible.genesis.vulgate:42.14|t1|lexical|est|sum|t1|t3|direct quote||
+urn:cts:compnov:bible.genesis.vulgate:42.14|t2|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.14|t3|lexical|ait|aio|t3|root|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.14|t4|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.14|t5|lexical|quod|qui||t0|relative pronoun|t6|direct object
+urn:cts:compnov:bible.genesis.vulgate:42.14|t6|lexical|locutus|loquor|t6|t5|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.14|t7|lexical|sum|sum||t6|auxiliary||
+urn:cts:compnov:bible.genesis.vulgate:42.14|t8|punctuation|:||||||
+urn:cts:compnov:bible.genesis.vulgate:42.14|t9|lexical|exploratores|explorator||t10|predicate||
+urn:cts:compnov:bible.genesis.vulgate:42.14|t10|lexical|estis|sum|t10|t3|direct quote||
+urn:cts:compnov:bible.genesis.vulgate:42.14|t11|punctuation|.||||||

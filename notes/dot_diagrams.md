@@ -22,7 +22,13 @@ Same signature shape as `tokengraph_to_mermaid()`:
 - `depth` (default `None`) -- caps the diagram to nodes within a given *graph* distance of a root verb, dropping farther ones entirely. See "Depth filtering" below -- this is a THIRD depth notion, distinct from `rank_by_depth`'s, and easy to conflate with either that one or `tokengraph_to_depth_html()`'s own `depth`.
 - Returns `(dot_source, warnings)` -- same warnings as the Mermaid version (a skipped edge pointing at punctuation, a token excluded by the `depth` cutoff, or a missing id; more than 8 verbal units repeating colors). `depth` filtering itself never adds a warning.
 
-`save_dot(tokengraph, path, ...)` (in `arsgrammatica.dot`, not re-exported from the top-level package -- same treatment as `mermaid.save_mermaid()`) writes the diagram straight to a `.dot` file, and takes the same `depth` parameter.
+`save_dot(tokengraph, path, ...)` writes the diagram straight to a `.dot` file, and takes the same `depth` parameter. Both it and its Mermaid-side equivalent, `mermaid.save_mermaid()`, went unexported from the top-level package at first -- an oversight, not a deliberate design choice -- and are now both re-exported (`arsgrammatica.save_dot`, `arsgrammatica.save_mermaid`; see `arsgrammatica/__init__.py`).
+
+```python
+from arsgrammatica import save_dot
+
+warnings = save_dot(tokengraph, "analysis.dot")
+```
 
 ## Depth filtering
 
@@ -68,20 +74,37 @@ A dedicated notebook doing exactly that, end to end: browse for a previously-sav
 
 It degrades visibly through both Graphviz failure modes rather than crashing the cell: the `graphviz` package missing entirely (`pip install -e ".[dev]"` covers it -- see `notes/install.md`) versus the package present but the `dot` executable not on PATH (`graphviz.ExecutableNotFound`, only raised once you actually try to render) -- either way you still get the "Download .dot source" button to render elsewhere.
 
-## `analysis_to_dot.py`
+## `utilities/analysis_to_dot.py`
 
 A command-line counterpart to the notebook above, for scripting/piping instead of interactive use: reads a saved analysis file (`read_analyses()`'s own format) and writes its tokengraph's Graphviz DOT source to standard output, with `--orientation`/`--no-color`/`--no-rank` flags covering `tokengraph_to_dot()`'s own parameters. Only the DOT source goes to stdout -- warnings go to stderr instead -- so redirection and piping both work cleanly:
 
 ```sh
-python analysis_to_dot.py analysis.cex > analysis.dot
-python analysis_to_dot.py analysis.cex --orientation LR > analysis.dot
-python analysis_to_dot.py analysis.cex --no-color --no-rank > analysis.dot
+python utilities/analysis_to_dot.py analysis.cex > analysis.dot
+python utilities/analysis_to_dot.py analysis.cex --orientation LR > analysis.dot
+python utilities/analysis_to_dot.py analysis.cex --no-color --no-rank > analysis.dot
 
 # Piped straight into Graphviz, if it's installed:
-python analysis_to_dot.py analysis.cex | dot -Tsvg > analysis.svg
+python utilities/analysis_to_dot.py analysis.cex | dot -Tsvg > analysis.svg
 ```
 
 Unlike the notebook, it operates on the file's whole tokengraph as `read_analyses()` returns it -- one flat list spanning every sentence in the file, not split by sentence -- so use `marimo/latin_syntaxer_dot.py` instead if you want to pick a single sentence out of a multi-sentence file. No LM access needed, same as the notebook. No dedicated test file, matching `syntaxer_main.py`'s own precedent of no pytest coverage for CLI entry points -- it's a thin wrapper around `read_analyses()` and `tokengraph_to_dot()`, which are both already covered. It doesn't yet expose `tokengraph_to_dot()`'s `depth` parameter as a flag -- only the notebook's slider does, for now.
+
+## `utilities/analyses_to_dot_pngs.py`
+
+A batch counterpart to the two above: reads one or more saved analysis files, and writes one PNG per sentence -- across every file -- to an output directory. Unlike `analysis_to_dot.py`, this one DOES split each file by sentence (`split_analysis_by_sentence()`), since a PNG is naturally one-diagram-per-image rather than one combined text stream:
+
+```sh
+python utilities/analyses_to_dot_pngs.py analysis.cex --output-dir diagrams/
+python utilities/analyses_to_dot_pngs.py a.cex b.cex c.cex --output-dir diagrams/
+python utilities/analyses_to_dot_pngs.py analysis.cex --output-dir diagrams/ --orientation LR
+python utilities/analyses_to_dot_pngs.py analysis.cex --output-dir diagrams/ --no-color --no-rank
+```
+
+Each PNG is named `<file_stem>_<sentence_number>_<citation>.png`, alphanumeric-sanitized the same way `marimo/latin_syntaxer_dot.py`'s own download button names its `.dot` file -- prefixed with the source file's own stem so sentences from different input files never collide in one output directory. The output directory is created if it doesn't already exist.
+
+Actually rendering a PNG needs both the `graphviz` package AND Graphviz's own `dot` executable (see "Rendering" above and `notes/graphviz_install.md`) -- unlike `analysis_to_dot.py`, which only ever produces DOT text. The script checks for the `graphviz` package up front and fails fast with install instructions if it's missing; a missing `dot` executable is only discovered on the first actual render (`graphviz.ExecutableNotFound`), which also exits immediately with install instructions, since every subsequent sentence would fail the same way. Same two failure modes the notebook degrades through, just fail-fast here instead of a per-diagram callout.
+
+A file that can't be read, or can't be split by sentence, is skipped with a message on stderr rather than aborting the whole run -- everything else still gets rendered. The script exits non-zero if any file was skipped, or if nothing was written at all. Warnings from `tokengraph_to_dot()` itself (a skipped edge, colors repeating) go to stderr per sentence, same convention as `analysis_to_dot.py`. No `--depth` flag either, same reason as `analysis_to_dot.py`.
 
 ## Tests
 

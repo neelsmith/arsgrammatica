@@ -16,6 +16,7 @@ dspy.configure(lm=dspy.LM(model="litellm_proxy/anthropic/Claude Opus 5",
 
 ```python
 from arsgrammatica import analyze_string
+
 sentences, results = analyze_string("Gallia est omnis divisa in partes tres.")
 ```
 
@@ -35,13 +36,21 @@ sources = [
     CitedText(citation=f"{aeneid}1.2", text="Ītaliam, fātō profugus, Lāvīniaque vēnit"),
 ]
 sentences, results = analyze_sources(sources)
-tokengraph = combined_tokengraph(results)  # one flat list, spanning every sentence
+
 ```
 
 Note that sentence boundaries don't need to respect citation-unit boundaries (one sentence may span multiple source lines, as above)
 
 > *Validation*: the `validate` function checks the results of an analysis for internal consistency, and compiles a list of problems it detects. Both `analyze_string()` and `analyze_sources` call `validate`, and print a print a warning if any are found.
 
+
+
+## Analyze a corpus
+
+```python
+from arsgrammatica import analyze_ctsdata
+sentences, results = analyze_ctsdata("path/to/cexfile")
+```
 
 ### Working with results of an analysis
 
@@ -51,9 +60,6 @@ Note that sentence boundaries don't need to respect citation-unit boundaries (on
 2.  a corresponding list of `SentenceAnalysis` objects, one for each sentence.
 
 
-A `SentenceAnalysis` has two a list of `VerbalExpression` objects in its `verbalunits` property, and an ordered list of  `TokenAnalysis` objects in its `tokengraph` property.
+A `SentenceAnalysis` has a list of `VerbalExpression` objects in its `verbalunits` property, and an ordered list of  `TokenAnalysis` objects in its `tokengraph` property.
 
-
-
-`validate()` only catches referential problems like that one -- ids that don't exist. It can't tell you an otherwise well-formed analysis is probably still wrong. 
-
+For examples of things you can do with lists of `VerbalExpression` and `TokenAnalysis` objects, such as visualizing and analyzing syntax graphs, see [further recipes](../guides/)

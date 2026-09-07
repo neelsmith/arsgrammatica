@@ -18,7 +18,7 @@ token_budget.estimate_max_tokens() picks it up automatically.
 
 Usage:
 
-    python3 calibrate_max_tokens.py
+    python3 utilities/calibrate_max_tokens.py
 
 Needs the same .env this project's other scripts use (see USAGE.md's
 "Running an analysis from the command line"):
@@ -48,16 +48,22 @@ import argparse
 import datetime
 import json
 import os
+import sys
 from pathlib import Path
 
 import dspy
 from dotenv import load_dotenv
 
-from arsgrammatica import analyze
-from arsgrammatica.models import IMPLIED_TOKENTYPES, Token
-from tests.fixtures.gold_examples import GOLD_EXAMPLES
+# utilities/ isn't the repo root -- add the root to sys.path so
+# "from arsgrammatica import ..." and "from tests.fixtures.gold_examples
+# import ..." resolve the same way they do for a script run straight from
+# the repo root (see tokenize_ctsdata.py's own copy of this pattern).
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from arsgrammatica import analyze  # noqa: E402
+from arsgrammatica.models import IMPLIED_TOKENTYPES, Token  # noqa: E402
+from tests.fixtures.gold_examples import GOLD_EXAMPLES  # noqa: E402
 
-CALIBRATION_FILE = Path(__file__).parent / "arsgrammatica" / "token_budget_calibration.json"
+CALIBRATION_FILE = Path(__file__).parent.parent / "arsgrammatica" / "token_budget_calibration.json"
 
 
 def _env(name: str, fallback_name: str, default: "str | None" = None) -> "str | None":
@@ -151,7 +157,10 @@ def main():
     )
     args = parser.parse_args()
 
-    load_dotenv(dotenv_path=Path(__file__).with_name(".env"))
+    # .env lives at the repo root, not next to this script now that it's
+    # in utilities/ -- Path(__file__).parent.parent, not .with_name(), so
+    # this still finds it after the move.
+    load_dotenv(dotenv_path=Path(__file__).parent.parent / ".env")
     lm = _configure_lm()
 
     examples = GOLD_EXAMPLES[: args.limit] if args.limit else GOLD_EXAMPLES

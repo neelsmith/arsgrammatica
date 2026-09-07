@@ -5,28 +5,40 @@ title: Recipes
 
 Guides for using `arsgrammatica` for particular tasks.
 
-## Using the package
+## Analyzing and visualizing syntax
 
-- [Installation options](./install.md)
-- [Analyzing Latin text](./analysis.qmd)
-- [Visualizing analysis results](./visualization.qmd)
+
+### Analyzing Latin texts
+
+- [Installing `arsgrammatica`](./install.md)
+- [Analyzing Latin syntax with a configured language model](./analysis.qmd)
 - [Saving and loading analyses](./saving-loading.qmd)
+
+### Visualizing analyses
+
+- [Highlighting text](./texthiliting.qmd) syntactically in HTML
+- Visualizing [syntax graphs with Mermaid](./mermaid.qmd)
+
+
+### Analyzing analyses as graph structures
+
+- Characterizing syntactic analyses with [graph metrics](./graphmetrics.qmd)
 - [Building an Agent-Action-Target (AAT) graph](./aat.qmd)
 
  
 
+## Training a language model
+
+- [Optimizing](./optimizing.qmd)
+- [Harvesting gold examples from real analyses](./harvesting.qmd)
+- [Comparing models](./bakeoff.qmd)
+- [A development work flow](./development.qmd)
+- [Test suite](./testing.qmd)
+- [Tokenizing text without analysis](./tokenizing.qmd)
 
 
-## Training a new model
+## Managing a language model
 
-- [optimizing](./optimizing.qmd)
-- [comparing models](./bakeoff.qmd)
-- [a development work flow](./development.qmd)
-- [tokenizing text without analysis](./tokenizing.qmd)
-
-
-## Managing a workflow
-
+- [Estimating tokens budget](./budgetingtokens.qmd)
 - [Keeping prompt size manageable](./managing_prompt_size.qmd)
-- Some additional [technical info](./technical.qmd)
-- [test suite](./testing.qmd)
+

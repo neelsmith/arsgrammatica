@@ -3,11 +3,32 @@ title: Tutorials
 ---
 
 
+
+
+## Prerequisites
+
+Install `arsgrammatica`:
+
+```bash
+pip install git+https://github.com/neelsmith/arsgrammatica.git
+```
+
+Configure your language model in a `.env` file  ilke this:
+
+```bash
+API_BASE=https://serviceprovider
+MODEL=litellm_proxy/Claude Opus 5
+API_KEY=your_key
+```
+
+
 ## Preassembled resources
 
 - [marimo notebooks](./marimo.md) for syntax analysis
 - analyze Latin with a [command line script](./cli.qmd)
-- [diagram analyses](./diagrams.qmd)
+- [diagram analyses](./diagrams.qmd) with graphviz
+- generate [PNG diagrams from saved analyses](./batch-images.qmd) with graphviz
+- simplify [batch-processing texts](./batch-texts.qmd)
 
 
 ## Using the `arsgrammatica` package in python

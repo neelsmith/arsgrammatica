@@ -1,0 +1,38 @@
+---
+title: Highlighting syntactic analysis in HTML
+---
+
+
+
+`arsgrammatica` includes utility functions to display a text in HTML with highlighting of its syntactic structure. First [analyze a string or a passage](./analysis.qmd). 
+
+## Coloring by verbal expression
+
+Once you have an analysis result, you can compose an HTML string that colors tokens by the verbal expression they belong to, using the same colors as `arsgramamtica`'s [Mermaid diagrams](./mermaid.qmd).
+
+```python
+from arsgrammatica import tokengraph_to_html
+html = tokengraph_to_html(result.tokengraph)
+```
+
+(Use this in a web environment (like a Marimo notebook) to see the real results.)
+
+
+
+##  Add indentation by depth of subordination
+
+The `tokengraph_to_depth_html` function uses the same color highlighting as tokengraph_to_html, but instead of laying out the text in a single paragaph, it indents sequences of tokens by their level of subordination.
+
+```python
+from arsgrammatica import tokengraph_to_depth_html
+html, warnings = tokengraph_to_depth_html(result.tokengraph)
+```
+
+You can limit the tokens included in the display by their depth of subordination with the  `depth` parameter. (This is especially useful in an interactive display where you can explore a passage at different levels of subordination.)
+
+```python
+# depth=0 limits the display to root/independent clauses only:
+html, warnings = tokengraph_to_depth_html(result.tokengraph, depth=0)
+```
+
+ 

@@ -78,6 +78,26 @@ def _(indentpsg):
 
 @app.cell(hide_code=True)
 def _(mo):
+    # Same "See cost" checkbox latin_syntaxer_ctsdata.py's own analysis
+    # notebooks offer -- this one makes real LM calls too
+    # (analyze_with_retry(), in the Analysis cell below) and had simply
+    # never gotten this control.
+    seecost = mo.ui.checkbox(label="*See cost*")
+    seecost
+    return (seecost,)
+
+
+@app.cell(hide_code=True)
+def _(cost_summary, format_lm_cost, mo, seecost):
+    costdisplay = None
+    if seecost.value:
+        costdisplay = mo.md(f"**LM cost so far**: {format_lm_cost(cost_summary)}")
+    costdisplay
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
     mo.Html("<hr/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>")
     return
 
@@ -240,6 +260,28 @@ def _(result):
     return (finaltokens,)
 
 
+@app.cell
+def _(lm, result, summarize_lm_cost):
+    # The `_ = result` line below doesn't do anything with `result` -- it
+    # exists purely so marimo sees this cell as depending on it (marimo
+    # derives a cell's inputs from actual name usage in its body, not just
+    # the function signature) and re-runs the cell on every Analyze click.
+    # Depending on `lm` alone doesn't do that: lm.history is mutated in
+    # place by each LM call, and marimo only re-runs a cell when a
+    # variable it actually reads is REASSIGNED -- `lm` itself never is,
+    # after configure_lm() first creates it -- see
+    # latin_syntaxer_ctsdata.py's identical cell/comment for the full
+    # explanation.
+    _ = result
+    #
+    # summarize_lm_cost() (arsgrammatica/lm_cost.py) sums cost across
+    # every call in lm.history and never crashes on an empty history (true
+    # before the first Analyze click) or a call served from dspy's own
+    # cache (cost=None) -- see that module's own docstring.
+    cost_summary = summarize_lm_cost(lm.history)
+    return (cost_summary,)
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
@@ -320,6 +362,8 @@ def _(Path):
         tokengraph_to_html,
         tokengraph_to_mermaid,
         validate,
+        summarize_lm_cost,
+        format_lm_cost,
     )
 
     return (
@@ -331,6 +375,8 @@ def _(Path):
         tokengraph_to_html,
         tokengraph_to_mermaid,
         validate,
+        summarize_lm_cost,
+        format_lm_cost,
     )
 
 
