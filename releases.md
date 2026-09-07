@@ -1,6 +1,6 @@
 # Release history
 
-Current version: **0.6.0**.
+Current version: **0.7.0**.
 
 **0.7.0** *Sept. 7, 2026*: 
 
