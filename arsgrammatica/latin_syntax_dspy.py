@@ -47,8 +47,8 @@ class SentenceAnalysis(dspy.Signature):
         - An infinitive is a verbal expression only when part of an indirect
           statement; its syntactic type is always 'indirect statement'. In a
           compound future-infinitive form (participle + a form of 'sum',
-          e.g. "facturum...fuisse"), the form of 'sum' anchors the verbal
-          expression, same as a compound passive.
+          e.g. "facturum...fuisse"), the participle/infinitive itself
+          anchors the verbal expression, same as a compound passive.
         - A participle is a verbal expression only when it has a *predicate*
           sense (e.g. an ablative-absolute-like "Anco regnante Lucumo...",
           'while Ancus was reigning') rather than a purely *attributive*
@@ -105,8 +105,10 @@ class SentenceAnalysis(dspy.Signature):
           at its governing verb, rather than via a conjunction/pronoun
           intermediary the way a dependent finite verb's 'unit verb'
           relation does. In a compound future-infinitive form (participle +
-          a form of 'sum'), this relation belongs on the form of 'sum' that
-          anchors the verbal expression, same as any other relation into it.
+          a form of 'sum'), this relation belongs on the participle/
+          infinitive itself, since IT anchors the verbal expression (see
+          'auxiliary' below) -- the form of 'sum' takes no relation of its
+          own into the governing verb.
         - complementary infinitive: an infinitive that completes the sense
           of a governing verb like 'volo', 'incipio', 'audeo', 'licet', or
           'decet' (rather than reporting indirect speech) has relatedtoken1
@@ -186,36 +188,53 @@ class SentenceAnalysis(dspy.Signature):
           getting relatedtoken1 = 'root', relationship1 = 'unit verb', and
           its own entry in `verbalunits` -- exactly as if it stood alone.
         - coordinating conjunction, repeated as a series: a conjunction
-          like 'et' or 'aut' can also be repeated before EVERY item of a
-          series of three or more (polysyndeton, e.g. 'et...et...et'),
-          not just used once between a pair. Annotate this differently
-          from the simple pairwise case above. Every connector's own
-          relatedtoken1 -> the id of the item it immediately introduces
-          (a real noun, adjective, prepositional phrase, or verbal
-          expression anchor -- NEVER another connector), relationship1 =
-          'coordinating conjunction', exactly as in the pairwise case.
-          relatedtoken2 is what differs: the FIRST connector's
-          relatedtoken2 -> the id of the NEXT (second) connector, while
-          every connector AFTER the first has relatedtoken2 -> the id of
-          the PRECEDING connector instead (not the following one).
-          relationship2 = 'coordinating conjunction' for all of them,
-          same as relationship1 -- this still isn't an overflow slot.
-          Each connected item ALSO keeps its own ordinary relation to the
-          rest of the sentence (subject, ablative, direct object, or
-          whatever fits), completely independent of this chain -- the
-          coordinating-conjunction relation only links a connector to the
-          item it introduces and to its neighboring connector(s); it
-          never substitutes for that item's own relation to whatever
-          governs it. Example: in "Tarquinius et assiduitate et
-          varietate et magnificentia omnes antecessit", the first et has
-          relatedtoken1 -> assiduitate and relatedtoken2 -> the second
-          et; the second et has relatedtoken1 -> varietate and
-          relatedtoken2 -> the FIRST et (not the third); the third et has
-          relatedtoken1 -> magnificentia and relatedtoken2 -> the second
-          et. assiduitate, varietate, and magnificentia each ALSO have
-          their own relatedtoken1 -> antecessit, relationship1 =
-          'ablative', same as any other ablative -- unaffected by which
-          connector introduces them.
+          like 'et' or 'aut' can also be repeated to coordinate a series
+          of three or more items (polysyndeton, e.g. 'et...et...et'), not
+          just used once between a pair. Two shapes occur, and they're
+          annotated differently:
+            - "A et B et C" (a conjunction only BETWEEN items, none before
+              the first): annotate each connector exactly like the simple
+              pairwise case above -- relatedtoken1 -> the item immediately
+              BEFORE it, relatedtoken2 -> the item immediately AFTER it,
+              both relationship1/relationship2 = 'coordinating
+              conjunction'. The first connector (between A and B) has
+              relatedtoken1 -> A, relatedtoken2 -> B; the second (between
+              B and C) has relatedtoken1 -> B, relatedtoken2 -> C; and so
+              on for a longer series. Every connector always relates
+              directly to the two real items on either side of it --
+              NEVER to another connector.
+            - "et A et B et C" (an introductory connector before the
+              FIRST item too, one connector per item): the introductory
+              connector (before A) has ONLY relatedtoken1 -> A,
+              relationship1 = 'coordinating conjunction' -- there is no
+              preceding item for it to pair with, so relatedtoken2 is left
+              unset, same as the sentence-initial one-sided case above.
+              Every connector AFTER the introductory one is annotated
+              exactly like the "A et B et C" case: relatedtoken1 -> the
+              PRECEDING item, relatedtoken2 -> the FOLLOWING item, both
+              relationship labels 'coordinating conjunction'. So the
+              second connector (before B) has relatedtoken1 -> A,
+              relatedtoken2 -> B; the third (before C) has relatedtoken1
+              -> B, relatedtoken2 -> C.
+          Either way, every connector in a series relates directly to the
+          two real coordinated items flanking it (or, for an introductory
+          connector, the one item following it) -- never to a neighboring
+          connector. Each connected item ALSO keeps its own ordinary
+          relation to the rest of the sentence (subject, ablative, direct
+          object, or whatever fits), completely independent of this
+          chain -- the coordinating-conjunction relation only links a
+          connector to its flanking item(s); it never substitutes for
+          that item's own relation to whatever governs it. Example: in
+          "Tarquinius et assiduitate et varietate et magnificentia omnes
+          antecessit" ("et A et B et C" shape -- an et before every one of
+          the three ablatives, including the first), the first et
+          (introductory) has ONLY relatedtoken1 -> assiduitate; the
+          second et has relatedtoken1 -> assiduitate, relatedtoken2 ->
+          varietate; the third et has relatedtoken1 -> varietate,
+          relatedtoken2 -> magnificentia. assiduitate, varietate, and
+          magnificentia each ALSO have their own relatedtoken1 ->
+          antecessit, relationship1 = 'ablative', same as any other
+          ablative -- unaffected by which connector introduces them.
         - direct quote / aside: a verbal expression of syntactic type
           'direct quote' or 'aside' has relatedtoken1 -> the id of the verb
           of the clause it interrupts or is framed by, relationship1 =
@@ -243,29 +262,31 @@ class SentenceAnalysis(dspy.Signature):
           would to a real one.
         - auxiliary: in a compound perfect/pluperfect passive, or compound
           future-infinitive, verb form (participle + a form of 'sum'), the
-          form of 'sum' anchors the verbal expression and is the target of
-          every relation into it (subject, direct object, agent, etc); the
-          participle itself has relatedtoken1 -> the id of that form of
-          'sum', relationship1 = 'auxiliary'. The same pattern applies to an
+          participle or infinitive itself anchors the verbal expression and
+          is the target of every relation into it (subject, direct object,
+          agent, etc); the accompanying form of 'sum' instead has
+          relatedtoken1 -> the id of that participle/infinitive,
+          relationship1 = 'auxiliary'. The same pattern applies to an
           impersonal passive of an intransitive verb (e.g. "ventum erat",
-          'there had been a coming'): the participle still relates to the
-          form of 'sum' as its auxiliary, even with no subject.
+          'there had been a coming'): the form of 'sum' still relates to
+          the participle as its auxiliary, even with no subject.
         - agent: the preposition 'a'/'ab' introducing the agent of a passive
           verb has relatedtoken1 -> the passive verb's id (the id of the
-          form of 'sum', for a compound form), relationship1 = 'agent'. The
-          noun/pronoun governed by that 'a'/'ab' has relatedtoken1 -> the id
-          of 'a'/'ab', relationship1 = 'object of preposition'.
+          participle, for a compound form -- NOT the accompanying form of
+          'sum'), relationship1 = 'agent'. The noun/pronoun governed by that
+          'a'/'ab' has relatedtoken1 -> the id of 'a'/'ab', relationship1 =
+          'object of preposition'.
         - subject / direct object / predicate: a noun or pronoun serving as
           subject or direct object has relatedtoken1 -> the id of the verb
-          (the id of the form of 'sum', for a compound passive or
-          future-infinitive form), relationship1 = 'subject' or 'direct
-          object'. This applies to the accusative subject of an infinitive
-          in indirect statement too. A noun or pronoun serving as the
-          predicate complement of a LINKING verb uses relationship1 =
-          'predicate' instead, same relatedtoken1 target. If the token is a
-          relative pronoun already using relatedtoken1/relationship1 for its
-          antecedent link, put this relation in relatedtoken2/relationship2
-          instead.
+          (the id of the participle or infinitive, NOT the accompanying
+          form of 'sum', for a compound passive or future-infinitive form),
+          relationship1 = 'subject' or 'direct object'. This applies to the
+          accusative subject of an infinitive in indirect statement too. A
+          noun or pronoun serving as the predicate complement of a LINKING
+          verb uses relationship1 = 'predicate' instead, same relatedtoken1
+          target. If the token is a relative pronoun already using
+          relatedtoken1/relationship1 for its antecedent link, put this
+          relation in relatedtoken2/relationship2 instead.
         - adjectival: an adjective (or an attributive participle) modifying
           a noun has relatedtoken1 -> the noun's id, relationship1 =
           'adjectival'. An adjective used as a substantive (standing in for
@@ -351,12 +372,17 @@ class SentenceAnalysis(dspy.Signature):
         (leave it unset/None) -- these go together, and 'implied sum',
         'continued discourse', and 'implied subject' are the ONLY three
         tokentype values whose id isn't one of `tokens`' own ids and whose
-        `token` is empty. Two of the three (`implied sum`, `continued
-        discourse`) stand in for a missing VERBAL expression, and so also
-        need a matching new entry in `verbalunits`, exactly like any other
-        verbal expression; the third (`implied subject`) stands in for a
-        missing NOUN or pronoun instead, and never gets a `verbalunits`
-        entry of its own.
+        `token` is empty. `continued discourse` always stands in for a
+        missing VERBAL expression and so always needs a matching new entry
+        in `verbalunits`, exactly like any other verbal expression.
+        `implied sum` stands in for a missing verbal expression in TWO of
+        its three sub-cases (and needs a `verbalunits` entry there too),
+        but NOT in its third -- the compound-passive-with-omitted-auxiliary
+        sub-case, where a real, already-present participle anchors the
+        verbal expression instead and the implied token merely relates to
+        it as 'auxiliary' (see below for which is which). `implied subject`
+        stands in for a missing NOUN or pronoun instead, and never gets a
+        `verbalunits` entry of its own.
 
         - tokentype 'implied sum': an elided present of 'sum' ('to be').
           Three sub-cases, all using this same tokentype:
@@ -373,11 +399,22 @@ class SentenceAnalysis(dspy.Signature):
               'predicate'.
             - a compound perfect/pluperfect passive (or impersonal
               passive) with its auxiliary omitted (e.g. "consules facti"
-              for "consules facti sunt"): the implied token stands in for
-              the omitted form of 'sum' -- everything that would normally
-              relate to that auxiliary (subject, the participle's own
-              'auxiliary' relation, etc.) relates to the implied token
-              instead, exactly as if the auxiliary had been written out.
+              for "consules facti sunt"): UNLIKE the other two sub-cases,
+              the implied token here does NOT anchor the verbal
+              expression -- the participle itself ("facti") is already a
+              real, present token, so IT anchors the verbal expression
+              (its own `verbalunits` entry, relatedtoken1/relationship1 =
+              'root'/'unit verb' if independent, exactly as if it were an
+              ordinary one-word verb) and every relation that would
+              normally target the written-out auxiliary (subject, direct
+              object, predicate, agent, adverbs, etc.) targets the
+              participle instead. The implied token stands in only for the
+              omitted form of 'sum' itself: it gets relatedtoken1 -> the
+              participle's id, relationship1 = 'auxiliary' (exactly as a
+              written-out auxiliary would relate to the participle -- see
+              'auxiliary' above), and it does NOT get its own `verbalunits`
+              entry, since the participle already supplies the verbal
+              expression.
             - the present participle of 'sum' does not exist in Latin at
               all, so an ablative-absolute-style predicate construction
               built on it (e.g. "Agrippa Menenio P. Postumio consulibus",

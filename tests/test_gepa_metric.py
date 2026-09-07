@@ -105,10 +105,10 @@ def test_wrong_syntactic_type_is_penalized_and_named():
 def test_missing_verbal_expression_is_penalized_and_named():
     gold = _gold_example("semantic_type_transitive_passive_urbs_condita")
     pred = _pred_from(gold)
-    pred.verbalunits = [vu for vu in pred.verbalunits if vu.id != "t4"]
+    pred.verbalunits = [vu for vu in pred.verbalunits if vu.id != "t3"]
     result = syntax_metric(gold, pred)
     assert result.score < 1.0
-    assert "t4" in result.feedback
+    assert "t3" in result.feedback
     assert "missing from verbalunits" in result.feedback
 
 

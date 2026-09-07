@@ -85,7 +85,9 @@ class VerbalExpression(BaseModel):
             "infinitive, or predicate-sense participle that anchors this "
             "verbal expression. For a compound perfect/pluperfect passive or "
             "future-infinitive form (participle + a form of *sum*), use the id "
-            "of the form of *sum*. For an implied/elided verbal expression (see "
+            "of the participle or infinitive itself, NOT the auxiliary form of "
+            "*sum* (which instead relates to it via the 'auxiliary' relation). "
+            "For an implied/elided verbal expression (see "
             "TokenAnalysis's 'implied sum'/'continued discourse' tokentypes, "
             "IMPLIED_TOKENTYPES), use the new implied token's id instead. "
             "(A third IMPLIED_TOKENTYPES value, 'implied subject', is NOT "
@@ -158,11 +160,15 @@ class VerbalExpression(BaseModel):
 # latin_syntax_dspy.py's docstring for the full set of cases, including the
 # word-order caveat and the "et" adverb-vs-conjunction ambiguity). A
 # repeated connector (e.g. "et...et...et") coordinating a series of three
-# or more items reuses this same label but chains relation2 differently:
-# each connector's relation1 -> the item it immediately introduces (never
-# another connector), while relation2 -> the id of the NEXT connector for
-# the FIRST connector, or the id of the PRECEDING connector for every
-# connector after the first (see latin_syntax_dspy.py's docstring for the
+# or more items reuses this same label, relating directly to the real
+# coordinated items on either side of it, never to a neighboring
+# connector: a connector strictly BETWEEN two items ("A et B et C") takes
+# relation1 -> the preceding item, relation2 -> the following item, same
+# shape as the ordinary two-item pairwise case; an INTRODUCTORY connector
+# before the very first item ("et A et B et C") has no preceding item to
+# pair with, so it takes only relation1 -> that first item, leaving
+# relation2 unset, and every connector after it goes back to the ordinary
+# preceding-item/following-item shape (see latin_syntax_dspy.py's docstring for the
 # worked example).
 # "complementary infinitive" is the only other new label: an infinitive
 # that completes the sense of a governing verb like "volo"/"incipio"/
@@ -254,9 +260,19 @@ class TokenAnalysis(BaseModel):
     - 'continued discourse': a governing verb of indirect discourse left
       unrepeated across several continuation clauses.
 
-    Both of those anchor their own entry in `verbalunits`, same as any
-    other verbal expression. The third value is a DIFFERENT kind of gap --
-    not a missing verb, but a missing NOUN or pronoun:
+    'continued discourse' always anchors its own entry in `verbalunits`,
+    same as any other verbal expression -- and so do two of 'implied
+    sum's own three sub-cases (the bare predicate construction, and the
+    always-implied present participle of *sum*). The THIRD 'implied sum'
+    sub-case -- a compound perfect passive/future infinitive with its
+    auxiliary omitted (e.g. 'facti' for 'facti sunt') -- is the one
+    exception: there, a real, already-present participle/infinitive
+    anchors the verbal expression instead (per VerbalExpression.id's own
+    docstring), and the implied token merely relates to IT via
+    'auxiliary', exactly as a written-out auxiliary would; it gets no
+    `verbalunits` entry of its own in that sub-case. The third
+    IMPLIED_TOKENTYPES value is a DIFFERENT kind of gap entirely -- not a
+    missing verb, but a missing NOUN or pronoun:
 
     - 'implied subject': a participle's own antecedent (the noun/pronoun
       it agrees with via 'circumstantial participle') can itself be
@@ -315,10 +331,15 @@ class TokenAnalysis(BaseModel):
             "each mark a token with NO surface realization at all (see "
             "this model's own docstring for the distinction) -- the only "
             "three tokentypes whose `token` field is None and whose `id` "
-            "is not one of the input `tokens`' own ids. The first two each "
-            "anchor their own verbal expression (an entry in `verbalunits`); "
-            "'implied subject' does NOT -- it stands in for an unexpressed "
-            "NOUN or pronoun, not a verb."
+            "is not one of the input `tokens`' own ids. 'continued discourse' "
+            "always anchors its own verbal expression (an entry in "
+            "`verbalunits`), and so does 'implied sum' in two of its three "
+            "sub-cases -- EXCEPT the omitted-auxiliary sub-case (e.g. 'facti' "
+            "for 'facti sunt'), where the real, already-present participle "
+            "anchors instead and this implied token only relates to it via "
+            "'auxiliary' (see this model's own docstring). 'implied subject' "
+            "never anchors a verbal expression -- it stands in for an "
+            "unexpressed NOUN or pronoun, not a verb."
         )
     )
  

@@ -11,7 +11,7 @@ The full set of relation labels a tokengraph entry's `relationship1`/`relationsh
 5. **direct object** -- a noun/pronoun linking to the transitive-active verb it's the object of.
 6. **predicate** -- a noun/adjective linking to the linking verb it's the predicate complement of.
 7. **agent** -- the preposition (*a*/*ab*) of a passive verb's ablative-of-agent phrase, linking to that verb.
-8. **auxiliary** -- a participle linking to the accompanying form of *sum* in a compound perfect-passive/future-active verb form.
+8. **auxiliary** -- an accompanying form of *sum* linking to the participle or infinitive it belongs with in a compound perfect-passive/future-infinitive verb form (the participle/infinitive itself anchors the verbal expression; see `syntax_model.md`).
 9. **object of preposition** -- a noun/pronoun linking to the preposition governing it.
 10. **adverbial** -- an adverb, or a prepositional phrase used adverbially, linking to the verb it modifies.
 11. **attributive** -- a prepositional phrase linking to the noun it modifies.
@@ -26,7 +26,7 @@ The full set of relation labels a tokengraph entry's `relationship1`/`relationsh
 20. **indirect statement** -- an indirect-statement infinitive, linking back to the governing verb of saying/thinking/perceiving.
 21. **circumstantial participle** -- a participle linking to the noun/pronoun (real or implied) it agrees with.
 22. **ablative absolute** -- the noun/pronoun of a true ablative absolute, linking back to the main verb when it has no other syntactic connection to the clause.
-23. **coordinating conjunction** -- a coordinating conjunction linking the two items (nouns, adjectives, prepositional phrases, or verbal expressions) it joins. For one pair it sets *both* `relatedtoken1`/`relationship1` and `relatedtoken2`/`relationship2` (one per side of the pair); a repeated connector (*et...et...et*) instead chains `relatedtoken2` to the next/preceding connector.
+23. **coordinating conjunction** -- a coordinating conjunction linking the two items (nouns, adjectives, prepositional phrases, or verbal expressions) it joins. For one pair it sets *both* `relatedtoken1`/`relationship1` and `relatedtoken2`/`relationship2` (one per side of the pair). A repeated connector (*et...et...et*) coordinating a series of three or more items relates directly to the real coordinated items on either side, never to a neighboring connector: a connector strictly between two items ("A et B et C") takes relation1 -> the preceding item, relation2 -> the following item, same shape as the ordinary two-item pairwise case; an introductory connector before the very first item ("et A et B et C") has no preceding item to pair with, so it takes only relation1 -> that first item, with relation2 unset, and every connector after it follows the ordinary preceding-item/following-item shape.
 24. **apposition** -- a noun in apposition, linking back to the first noun it stands in apposition to.
 25. **complementary infinitive** -- an infinitive completing a governing verb like *volo*/*incipio*/*audeo*/*licet*/*decet*, linking to that verb (not its own verbal-expression anchor -- no separate `verbalunits` entry).
 26. **praenomen** -- an abbreviated Roman first-name token, linking to the lexical token spelling out the name it abbreviates.

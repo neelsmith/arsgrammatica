@@ -350,22 +350,24 @@ def test_series_coordinating_conjunctions_all_get_wrapped():
     treatment as the ordinary pairwise case: _tokens_to_html()'s wrapping
     check only looks at relationship1/relationship2 == "coordinating
     conjunction" (see rendering.py), which every connector in a series
-    still sets, regardless of relatedtoken2 chaining between neighboring
-    connectors instead of pairing two conjuncts. All three "et"s here
-    should get the same colored span as the ablatives they introduce and
-    the verb they all ultimately resolve to."""
+    still sets, whether or not it has a relatedtoken2 at all. This uses the
+    "et A et B et C" shape: the first et is introductory (relatedtoken1
+    only, no relatedtoken2), while the second and third et's each pair
+    their flanking items via relatedtoken1/relatedtoken2, same as an
+    ordinary two-item pairwise conjunction. All three "et"s here should get
+    the same colored span as the ablatives they introduce and the verb
+    they all ultimately resolve to."""
     tg = [
         _tok("t0", "et", "lexical",
-             relatedtoken1="t1", relationship1="coordinating conjunction",
-             relatedtoken2="t2", relationship2="coordinating conjunction"),
+             relatedtoken1="t1", relationship1="coordinating conjunction"),
         _tok("t1", "assiduitate", "lexical", relatedtoken1="t6", relationship1="ablative"),
         _tok("t2", "et", "lexical",
-             relatedtoken1="t3", relationship1="coordinating conjunction",
-             relatedtoken2="t0", relationship2="coordinating conjunction"),
+             relatedtoken1="t1", relationship1="coordinating conjunction",
+             relatedtoken2="t3", relationship2="coordinating conjunction"),
         _tok("t3", "varietate", "lexical", relatedtoken1="t6", relationship1="ablative"),
         _tok("t4", "et", "lexical",
-             relatedtoken1="t5", relationship1="coordinating conjunction",
-             relatedtoken2="t2", relationship2="coordinating conjunction"),
+             relatedtoken1="t3", relationship1="coordinating conjunction",
+             relatedtoken2="t5", relationship2="coordinating conjunction"),
         _tok("t5", "magnificentia", "lexical", relatedtoken1="t6", relationship1="ablative"),
         _tok("t6", "antecessit", "lexical", verbalunitid="t6"),
         _tok("t7", ".", "punctuation"),

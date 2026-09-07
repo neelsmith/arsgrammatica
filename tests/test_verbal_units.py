@@ -64,12 +64,12 @@ def test_relative_pronoun_belongs_to_the_clause_it_introduces_not_its_antecedent
     """"quibus" in "Latini, cum quibus ictum foedus erat, sustulerant
     animos" points back at its antecedent Latini via relatedtoken1
     ("relative pronoun"), and at "cum" via relatedtoken2 ("object of
-    preposition") -- but grammatically, quibus is part of the erat clause,
+    preposition") -- but grammatically, quibus is part of the ictum clause,
     not Latini's. The relative-pronoun link must not win."""
     tokengraph = _tokengraph("relative_pronoun_latini_cum_quibus")
     assignment = assign_verbal_units(tokengraph)
-    assert assignment["t3"] == "t6"  # quibus -> erat's unit, not sustulerant's
-    assert assignment["t2"] == "t6"  # cum
+    assert assignment["t3"] == "t4"  # quibus -> ictum's unit, not sustulerant's
+    assert assignment["t2"] == "t4"  # cum
     assert assignment["t0"] == "t8"  # Latini stays with the main verb, sustulerant
  
  
@@ -209,14 +209,15 @@ def test_apposition_does_not_disturb_verbal_unit_assignment():
 
 def test_series_coordinating_conjunctions_all_resolve_through_relatedtoken1():
     """"Tarquinius et assiduitate et varietate et magnificentia omnes
-    antecessit": a repeated ("et...et...et") series connector chains
-    relatedtoken2 between NEIGHBORING connectors (see this fixture's own
-    comment in gold_examples.py), not between two conjuncts the way the
-    ordinary pairwise case does -- so assign_verbal_units() must resolve
-    every connector via relatedtoken1 (always a real ablative here) without
-    ever needing to consult relatedtoken2 (which, for the second and third
-    connectors, points BACKWARD to a fellow connector and would resolve to
-    nothing useful on its own)."""
+    antecessit": a repeated ("et...et...et") series connector in the
+    "et A et B et C" shape (see this fixture's own comment in
+    gold_examples.py) -- the introductory first et has ONLY relatedtoken1
+    (-> assiduitate, the first item), while the second and third et's each
+    pair their flanking items via relatedtoken1 (preceding item) and
+    relatedtoken2 (following item), same shape as an ordinary two-item
+    pairwise conjunction. assign_verbal_units() resolves every connector
+    via relatedtoken1 (always a real ablative here) without ever needing to
+    consult relatedtoken2."""
     tokengraph = _tokengraph("coordinating_conjunction_series_assiduitate_varietate_magnificentia")
     assignment = assign_verbal_units(tokengraph)
     assert assignment["t2"] == "t8"  # assiduitate -> antecessit
@@ -339,14 +340,14 @@ def test_dependent_verb_via_subordinating_conjunction_has_depth_one():
 
 
 def test_dependent_verb_via_relative_pronoun_has_depth_one():
-    """erat's own relatedtoken1 points at quibus (t3), which points (via
+    """ictum's own relatedtoken1 points at quibus (t3), which points (via
     relatedtoken1) at its antecedent Latini (t0), which in turn points at
     sustulerant (t8) -- a two-hop chase through two non-anchor
     intermediaries before reaching the governing anchor."""
     tokengraph = _tokengraph("relative_pronoun_latini_cum_quibus")
     depths, warnings = compute_subordination_depths(tokengraph)
     assert depths["t8"] == 0  # sustulerant, independent
-    assert depths["t6"] == 1  # erat, dependent on sustulerant
+    assert depths["t4"] == 1  # ictum, dependent on sustulerant
     assert warnings == []
 
 
@@ -399,13 +400,15 @@ def test_circumstantial_participle_via_implied_subject_has_depth_one():
 
 
 def test_indirect_statement_has_depth_one():
-    """fuisse's own relatedtoken1 -> dixit (the new relation this whole
+    """facturum's own relatedtoken1 -> dixit (the new relation this whole
     feature depended on adding) makes its depth directly resolvable, one
-    level below the verb of saying that governs it."""
+    level below the verb of saying that governs it. facturum, not fuisse,
+    anchors the compound future-infinitive verbal expression, per the
+    compound-verb rule."""
     tokengraph = _tokengraph("indirect_statement_facturum_fuisse_dixit")
     depths, warnings = compute_subordination_depths(tokengraph)
     assert depths["t4"] == 0  # dixit, independent
-    assert depths["t3"] == 1  # fuisse, indirect statement governed by dixit
+    assert depths["t0"] == 1  # facturum, indirect statement governed by dixit
     assert warnings == []
 
 
@@ -454,11 +457,13 @@ def test_complementary_infinitive_adds_no_extra_depth_hop():
     """expugnare (the complementary infinitive) isn't an anchor, so it
     never appears in compute_subordination_depths()'s output at all --
     vellet's own relatedtoken1 points at cum, not at expugnare, so the
-    chase to est is exactly as short as an ordinary cum-clause's."""
+    chase to interfectus is exactly as short as an ordinary cum-clause's.
+    interfectus, not est, anchors the compound perfect-passive verbal
+    expression, per the compound-verb rule."""
     tokengraph = _tokengraph("complementary_infinitive_amphion_expugnare_vellet")
     depths, warnings = compute_subordination_depths(tokengraph)
-    assert depths["t11"] == 0  # est (interfectus), independent
-    assert depths["t6"] == 1  # vellet, dependent on est via cum
+    assert depths["t12"] == 0  # interfectus, independent
+    assert depths["t6"] == 1  # vellet, dependent on interfectus via cum
     assert "t5" not in depths  # expugnare is not an anchor at all
     assert warnings == []
 
@@ -677,12 +682,13 @@ def test_correct_dedit_et_dixit_fixture_produces_no_warning():
 
 
 def test_series_coordinating_conjunctions_produce_no_warning():
-    """The three "et" connectors in the series fixture each use BOTH
-    relatedtoken1 and relatedtoken2, matching this heuristic's precondition
-    -- but relatedtoken2 points at a FELLOW connector, not a second
-    conjunct, so the series-aware skip must kick in rather than flagging
-    the (harmless, expected) anchoring asymmetry between an ablative noun
-    and a connector."""
+    """The series fixture's connectors are in the "et A et B et C" shape:
+    the first (introductory) et has only relatedtoken1, so it doesn't even
+    satisfy this heuristic's both-sides precondition and is skipped
+    outright; the second and third et's each use BOTH relatedtoken1 and
+    relatedtoken2, but both sides resolve to an ablative NOUN (never a
+    verbal-unit anchor), so the pair is symmetric (neither side anchored)
+    and nothing is flagged -- no series-specific handling needed."""
     tokengraph = _tokengraph("coordinating_conjunction_series_assiduitate_varietate_magnificentia")
     assert find_unanchored_coordinated_verbs(tokengraph) == []
 
@@ -735,24 +741,23 @@ def test_both_sides_anchored_but_neither_actually_verbs_is_not_flagged():
 
 
 def test_series_coordinated_verbs_do_not_false_positive():
-    """Regression test for the series-aware fix: a repeated ("et...et...
-    et") connector coordinating a SERIES of independent verbs -- rather
-    than the noun series the gold fixture happens to use -- is exactly the
-    shape find_unanchored_coordinated_verbs() had a latent false-positive
-    risk for. Three anchored verbs (verb1/verb2/verb3), each introduced by
-    its own connector (conj1/conj2/conj3) via relatedtoken1; relatedtoken2
-    chains between neighboring connectors (conj1 -> conj2, conj2 -> conj1,
-    conj3 -> conj2), never at a second conjunct. Before the fix, every
-    connector's relatedtoken1 side (a verb, anchored) vs relatedtoken2 side
-    (a fellow connector, never itself an anchor) would look like the exact
-    asymmetry this heuristic exists to flag -- three spurious warnings for
-    a tokengraph that's actually entirely correct. The fix must recognize
-    relatedtoken2 pointing at a fellow connector and skip all three pairs."""
+    """A repeated ("et...et...et") connector coordinating a SERIES of
+    independent verbs -- rather than the noun series the gold fixture
+    happens to use -- in the "et A et B et C" shape: an introductory
+    connector (conj1) before the first verb takes ONLY relatedtoken1 (->
+    verb1), while the later connectors (conj2, conj3) each pair their
+    flanking verbs via relatedtoken1 (preceding item)/relatedtoken2
+    (following item), exactly like an ordinary two-item pairwise
+    conjunction. Since relatedtoken2 always resolves to a real, anchored
+    verb under this scheme (never to a fellow connector), the ordinary
+    pairwise asymmetry check already handles this correctly with no
+    special-casing: conj1 is skipped outright (no relatedtoken2 to satisfy
+    the check's own precondition), and conj2/conj3 each see both sides
+    anchored, so nothing is flagged."""
     tokengraph = [
         TokenAnalysis(
             id="conj1", token="et", tokentype="lexical",
             relatedtoken1="verb1", relationship1="coordinating conjunction",
-            relatedtoken2="conj2", relationship2="coordinating conjunction",
         ),
         TokenAnalysis(
             id="verb1", token="venit", tokentype="lexical", verbalunitid="verb1",
@@ -760,8 +765,8 @@ def test_series_coordinated_verbs_do_not_false_positive():
         ),
         TokenAnalysis(
             id="conj2", token="et", tokentype="lexical",
-            relatedtoken1="verb2", relationship1="coordinating conjunction",
-            relatedtoken2="conj1", relationship2="coordinating conjunction",
+            relatedtoken1="verb1", relationship1="coordinating conjunction",
+            relatedtoken2="verb2", relationship2="coordinating conjunction",
         ),
         TokenAnalysis(
             id="verb2", token="vidit", tokentype="lexical", verbalunitid="verb2",
@@ -769,8 +774,8 @@ def test_series_coordinated_verbs_do_not_false_positive():
         ),
         TokenAnalysis(
             id="conj3", token="et", tokentype="lexical",
-            relatedtoken1="verb3", relationship1="coordinating conjunction",
-            relatedtoken2="conj2", relationship2="coordinating conjunction",
+            relatedtoken1="verb2", relationship1="coordinating conjunction",
+            relatedtoken2="verb3", relationship2="coordinating conjunction",
         ),
         TokenAnalysis(
             id="verb3", token="vicit", tokentype="lexical", verbalunitid="verb3",

@@ -372,37 +372,38 @@ _SYNTACTIC_TYPE_ANSWER = {
 # the spec's own worked example for the *agent* relation (a/ab plus an
 # ablative introduces the agent of a passive verb) AND, once syntax_model.md
 # spelled out the *auxiliary* relation, its own worked example for that too:
-# "if urbs a Romulo condita est is tokenized ... condita has for its
-# relation1 the value t5 (est), and for relationship1, auxiliary." Per the
-# compound-perfect-passive rule ("use the id of the form of sum"), the
-# verbal expression and every relation into it (subject, agent) anchor on
-# est (t4), not condita (t3) -- condita instead relates to est as its
-# auxiliary, and est (being independent) gets the "root" sentinel.
+# "if urbs a Romulo condita est is tokenized ... est has for its relation1
+# the value t3 (condita), and for relationship1, auxiliary." Per the
+# compound-perfect-passive rule ("the participle or infinitive itself
+# anchors the verbal expression"), the verbal expression and every relation
+# into it (subject, agent) anchor on condita (t3), not est (t4) -- est
+# instead relates to condita as its auxiliary, and condita (being
+# independent) gets the "root" sentinel.
 # ---------------------------------------------------------------------------
- 
+
 _TRANSITIVE_PASSIVE_ANSWER = {
     "reasoning": (
         "condita est is a compound perfect passive verbal expression, "
-        "anchored at the id of est (the form of sum) per the compound-form "
-        "rule, with est carrying the sentinel relation1 'root' as an "
-        "independent verb and condita relating to est as its auxiliary; "
-        "urbs is its subject; a introduces the agent of the passive verb, "
-        "with Romulo as a's object of preposition."
+        "anchored at the id of condita (the participle) per the "
+        "compound-form rule, with condita carrying the sentinel relation1 "
+        "'root' as an independent verb and est relating to condita as its "
+        "auxiliary; urbs is its subject; a introduces the agent of the "
+        "passive verb, with Romulo as a's object of preposition."
     ),
     "verbalunits": [
-        {"id": "t4", "syntactic_type": "independent", "semantic_type": "transitive passive"},
+        {"id": "t3", "syntactic_type": "independent", "semantic_type": "transitive passive"},
     ],
     "tokengraph": [
         {"id": "t0", "token": "urbs", "tokentype": "lexical", "lemma": "urbs",
-         "relatedtoken1": "t4", "relationship1": "subject"},
+         "relatedtoken1": "t3", "relationship1": "subject"},
         {"id": "t1", "token": "a", "tokentype": "lexical", "lemma": "a",
-         "relatedtoken1": "t4", "relationship1": "agent"},
+         "relatedtoken1": "t3", "relationship1": "agent"},
         {"id": "t2", "token": "Romulo", "tokentype": "lexical", "lemma": "Romulus",
          "relatedtoken1": "t1", "relationship1": "object of preposition"},
         {"id": "t3", "token": "condita", "tokentype": "lexical", "lemma": "condo",
-         "relatedtoken1": "t4", "relationship1": "auxiliary"},
+         "verbalunitid": "t3", "relatedtoken1": "root", "relationship1": "unit verb"},
         {"id": "t4", "token": "est", "tokentype": "lexical", "lemma": "sum",
-         "verbalunitid": "t4", "relatedtoken1": "root", "relationship1": "unit verb"},
+         "relatedtoken1": "t3", "relationship1": "auxiliary"},
         {"id": "t5", "token": ".", "tokentype": "punctuation"},
     ],
 }
@@ -585,51 +586,48 @@ _CIRCUMSTANTIAL_PARTICIPLE_ANSWER = {
 # syntax_model.md's own worked example for an infinitive's 'indirect
 # statement' syntactic_type, and for the *auxiliary* relation extended to
 # a compound future-infinitive form (participle + a form of sum, not just
-# the perfect-passive case): "the verb dixit is an independent verbal
-# expression, and facturum fuisse is the compound verb form for the future
-# infinitive. The verbal unit will be anchored to the infinitive fuisse of
-# syntactic type indirect statement... facturum will have the ID of fuisse
-# as its relation1 value, with a relationship1 value of auxiliary." se
-# (accusative subject of the infinitive) and enim (a postpositive particle,
-# not covered) follow the general subject rule and "Incomplete status"
-# respectively.
+# the perfect-passive case). Per the revised compound-verb rule ("the
+# participle or infinitive itself anchors the verbal expression"), the
+# verbal unit is anchored to the PARTICIPLE facturum, not the infinitive
+# fuisse: facturum has verbalunitid t0 and its own relatedtoken1 -> dixit,
+# relationship1 "indirect statement" (matching its own syntactic type, the
+# same governing-verb convention "direct quote" and "aside" verbal
+# expressions already use for their own governing/framing verb); fuisse
+# instead has relatedtoken1 -> facturum, relationship1 "auxiliary". se
+# (accusative subject of the infinitive) now relates to facturum too, and
+# enim (a postpositive particle, not covered) follows "Incomplete status".
 #
-# fuisse ALSO now has its own relatedtoken1 -> dixit, relationship1 =
-# "indirect statement" -- syntax_model.md's revision giving indirect-
-# statement infinitives their own governing-verb relation, matching its
-# own syntactic_type value the same way "direct quote" and "aside" verbal
-# expressions already do for their own governing/framing verb. An AcI
-# infinitive has no separate conjunction/pronoun token to point at first
-# (unlike a dependent finite verb's "unit verb" relation), so it points
-# directly at the verb of saying/thinking that governs it. This is what
-# makes verbal_units.compute_subordination_depths() able to resolve
-# fuisse's depth (1, one level below dixit's 0) -- previously there was no
-# relation here at all to chase.
+# An AcI verbal expression has no separate conjunction/pronoun token to
+# point at first (unlike a dependent finite verb's "unit verb" relation),
+# so its anchor points directly at the verb of saying/thinking that
+# governs it. This is what makes
+# verbal_units.compute_subordination_depths() able to resolve facturum's
+# depth (1, one level below dixit's 0).
 # ---------------------------------------------------------------------------
 
 _INDIRECT_STATEMENT_ANSWER = {
     "reasoning": (
         "dixit is the independent main verb (root, transitive active). "
-        "fuisse anchors the compound future-infinitive verbal expression "
+        "facturum anchors the compound future-infinitive verbal expression "
         "('facturum...fuisse', indirect statement, transitive active), "
-        "with facturum relating to it as auxiliary, se as its accusative "
+        "with fuisse relating to it as auxiliary, se as its accusative "
         "subject, and its own relatedtoken1 -> dixit (relationship1 "
         "'indirect statement', matching its own syntactic type) as the "
         "verb that governs the indirect statement. enim is left unrelated "
         "(a postpositive particle, not covered)."
     ),
     "verbalunits": [
-        {"id": "t3", "syntactic_type": "indirect statement", "semantic_type": "transitive active"},
+        {"id": "t0", "syntactic_type": "indirect statement", "semantic_type": "transitive active"},
         {"id": "t4", "syntactic_type": "independent", "semantic_type": "transitive active"},
     ],
     "tokengraph": [
         {"id": "t0", "token": "Facturum", "tokentype": "lexical", "lemma": "facio",
-         "relatedtoken1": "t3", "relationship1": "auxiliary"},
+         "verbalunitid": "t0", "relatedtoken1": "t4", "relationship1": "indirect statement"},
         {"id": "t1", "token": "enim", "tokentype": "lexical", "lemma": "enim"},
         {"id": "t2", "token": "se", "tokentype": "lexical", "lemma": "se",
-         "relatedtoken1": "t3", "relationship1": "subject"},
+         "relatedtoken1": "t0", "relationship1": "subject"},
         {"id": "t3", "token": "fuisse", "tokentype": "lexical", "lemma": "sum",
-         "verbalunitid": "t3", "relatedtoken1": "t4", "relationship1": "indirect statement"},
+         "relatedtoken1": "t0", "relationship1": "auxiliary"},
         {"id": "t4", "token": "dixit", "tokentype": "lexical", "lemma": "dico",
          "verbalunitid": "t4", "relatedtoken1": "root", "relationship1": "unit verb"},
         {"id": "t5", "token": ".", "tokentype": "punctuation"},
@@ -820,15 +818,15 @@ _RELATIVE_PRONOUN_ANSWER = {
         "Latini (relatedtoken1/relationship1), and simultaneously cum's "
         "object of preposition (relatedtoken2/relationship2, since "
         "relatedtoken1 is already used); cum itself is adverbial, "
-        "modifying erat. ictum foedus erat is a dependent compound perfect "
-        "passive verbal expression (transitive passive) anchored at erat, "
-        "linked to quibus as its unit verb; foedus is its subject, ictum "
-        "its auxiliary. sustulerant is the independent main verb "
-        "(root, transitive active), with Latini as its subject and animos "
-        "as its direct object."
+        "modifying ictum. ictum foedus erat is a dependent compound perfect "
+        "passive verbal expression (transitive passive) anchored at ictum, "
+        "linked to quibus as its unit verb; foedus is its subject, erat "
+        "relates to ictum as its auxiliary. sustulerant is the independent "
+        "main verb (root, transitive active), with Latini as its subject "
+        "and animos as its direct object."
     ),
     "verbalunits": [
-        {"id": "t6", "syntactic_type": "dependent", "semantic_type": "transitive passive"},
+        {"id": "t4", "syntactic_type": "dependent", "semantic_type": "transitive passive"},
         {"id": "t8", "syntactic_type": "independent", "semantic_type": "transitive active"},
     ],
     "tokengraph": [
@@ -836,16 +834,16 @@ _RELATIVE_PRONOUN_ANSWER = {
          "relatedtoken1": "t8", "relationship1": "subject"},
         {"id": "t1", "token": ",", "tokentype": "punctuation"},
         {"id": "t2", "token": "cum", "tokentype": "lexical", "lemma": "cum",
-         "relatedtoken1": "t6", "relationship1": "adverbial"},
+         "relatedtoken1": "t4", "relationship1": "adverbial"},
         {"id": "t3", "token": "quibus", "tokentype": "lexical", "lemma": "qui",
          "relatedtoken1": "t0", "relationship1": "relative pronoun",
          "relatedtoken2": "t2", "relationship2": "object of preposition"},
         {"id": "t4", "token": "ictum", "tokentype": "lexical", "lemma": "icio",
-         "relatedtoken1": "t6", "relationship1": "auxiliary"},
+         "verbalunitid": "t4", "relatedtoken1": "t3", "relationship1": "unit verb"},
         {"id": "t5", "token": "foedus", "tokentype": "lexical", "lemma": "foedus",
-         "relatedtoken1": "t6", "relationship1": "subject"},
+         "relatedtoken1": "t4", "relationship1": "subject"},
         {"id": "t6", "token": "erat", "tokentype": "lexical", "lemma": "sum",
-         "verbalunitid": "t6", "relatedtoken1": "t3", "relationship1": "unit verb"},
+         "relatedtoken1": "t4", "relationship1": "auxiliary"},
         {"id": "t7", "token": ",", "tokentype": "punctuation"},
         {"id": "t8", "token": "sustulerant", "tokentype": "lexical", "lemma": "tollo",
          "verbalunitid": "t8", "relatedtoken1": "root", "relationship1": "unit verb"},
@@ -904,9 +902,9 @@ _DATIVE_GENITIVE_ANSWER = {
 #
 # syntax_model.md's own worked example for a bare *adverb* modifying a verb,
 # and for *auxiliary* on an impersonal passive of an intransitive verb:
-# "the adverb forte will take the id of erat for relation1 with
-# relationship1 value adverbial. ventum will also be related to erat but
-# with relationship1 value auxiliary." "ventum erat" (impersonal passive of
+# "the adverb forte will take the id of ventum for relation1 with
+# relationship1 value adverbial. (erat will be related to ventum but with
+# relationship1 value auxiliary)." "ventum erat" (impersonal passive of
 # venio, 'there had been a coming') has no subject to assign -- there's no
 # accusative or nominative to promote into that role -- and no semantic_type
 # value cleanly fits an impersonal passive of an underlyingly intransitive
@@ -915,29 +913,29 @@ _DATIVE_GENITIVE_ANSWER = {
 # elsewhere in this file for compound passives of transitive verbs like
 # condo).
 # ---------------------------------------------------------------------------
- 
+
 _ADVERB_AUXILIARY_ANSWER = {
     "reasoning": (
-        "erat is the independent verb (root) of an impersonal passive "
+        "ventum is the independent verb (root) of an impersonal passive "
         "construction ('ventum erat', 'there had been a coming'), with no "
-        "subject; ventum relates to it as auxiliary. Ad is adverbial, "
-        "modifying erat, governing Ianiculum as its object of preposition; "
-        "forte is a bare adverb, also adverbial, modifying erat."
+        "subject; erat relates to it as auxiliary. Ad is adverbial, "
+        "modifying ventum, governing Ianiculum as its object of preposition; "
+        "forte is a bare adverb, also adverbial, modifying ventum."
     ),
     "verbalunits": [
-        {"id": "t4", "syntactic_type": "independent", "semantic_type": "intransitive"},
+        {"id": "t3", "syntactic_type": "independent", "semantic_type": "intransitive"},
     ],
     "tokengraph": [
         {"id": "t0", "token": "Ad", "tokentype": "lexical", "lemma": "ad",
-         "relatedtoken1": "t4", "relationship1": "adverbial"},
+         "relatedtoken1": "t3", "relationship1": "adverbial"},
         {"id": "t1", "token": "Ianiculum", "tokentype": "lexical", "lemma": "Ianiculum",
          "relatedtoken1": "t0", "relationship1": "object of preposition"},
         {"id": "t2", "token": "forte", "tokentype": "lexical", "lemma": "forte",
-         "relatedtoken1": "t4", "relationship1": "adverbial"},
+         "relatedtoken1": "t3", "relationship1": "adverbial"},
         {"id": "t3", "token": "ventum", "tokentype": "lexical", "lemma": "venio",
-         "relatedtoken1": "t4", "relationship1": "auxiliary"},
+         "verbalunitid": "t3", "relatedtoken1": "root", "relationship1": "unit verb"},
         {"id": "t4", "token": "erat", "tokentype": "lexical", "lemma": "sum",
-         "verbalunitid": "t4", "relatedtoken1": "root", "relationship1": "unit verb"},
+         "relatedtoken1": "t3", "relationship1": "auxiliary"},
         {"id": "t5", "token": ".", "tokentype": "punctuation"},
     ],
 }
@@ -1613,24 +1611,21 @@ _COORDINATING_CONJUNCTION_DEDIT_ET_DIXIT_ANSWER = {
 # conjunctions (polysyndeton, "et...et...et"), adapted from its "...omnes
 # antecessit" example: three ablatives of respect, each introduced by its
 # own "et", rather than a single conjunction joining just two conjuncts.
-# This exercises the chaining rule that distinguishes a series from the
-# ordinary pairwise case (see coordinating_conjunction_verbs_ille_hermionenque
-# and enclitic_arma_virumque_cano above): every connector's own relatedtoken1
-# points at the item it introduces (assiduitate, varietate, magnificentia --
-# never at another connector), but relatedtoken2 chains between NEIGHBORING
-# connectors instead of pairing two conjuncts -- the first et's relatedtoken2
-# -> the second et, while the second and third et's each point BACKWARD, to
-# the PRECEDING connector (t3 -> t1, t5 -> t3), not to the following one.
-# Each ablative also keeps its own ordinary "ablative" relation straight to
-# antecessit, independent of the conjunction chain. This is also the
-# regression fixture for find_unanchored_coordinated_verbs()'s series-aware
-# fix: without it, every one of these three connectors would misfire that
-# heuristic's pairwise asymmetry check (relatedtoken1 resolves to
-# antecessit's verbal unit through the ablative it introduces, relatedtoken2
-# never does, since a fellow connector is never itself an anchor) -- see
-# that function's own docstring and test_verbal_units.py's synthetic
-# verb-series test for the case where this would otherwise be a genuine
-# false positive.
+# This is the "et A et B et C" shape (an INTRODUCTORY connector before the
+# very first item too, not just between items) -- see
+# coordinating_conjunction_verbs_ille_hermionenque and
+# enclitic_arma_virumque_cano above for the ordinary pairwise case. The
+# first et (introductory, before assiduitate) has no preceding item to pair
+# with, so it takes ONLY relatedtoken1 -> assiduitate (the first item),
+# relationship1 'coordinating conjunction', with relatedtoken2 left unset;
+# the second et takes relatedtoken1 -> assiduitate (the preceding item),
+# relatedtoken2 -> varietate (the following item); the third et takes
+# relatedtoken1 -> varietate, relatedtoken2 -> magnificentia -- the ordinary
+# preceding-item/following-item shape, same as a two-item pairwise
+# conjunction, for every connector after the introductory one. relatedtoken2
+# never points at another connector under this scheme. Each ablative also
+# keeps its own ordinary "ablative" relation straight to antecessit,
+# independent of the conjunction chain.
 # ---------------------------------------------------------------------------
 
 _COORDINATING_CONJUNCTION_SERIES_ANSWER = {
@@ -1639,17 +1634,16 @@ _COORDINATING_CONJUNCTION_SERIES_ANSWER = {
         "active), with Tarquinius as its subject and omnes as its direct "
         "object. assiduitate, varietate, and magnificentia are three "
         "ablatives of respect, each depending directly on antecessit "
-        "('surpassed all in assiduity, variety, and magnificence'), each "
-        "introduced by its own et -- a repeated series connector "
-        "(polysyndeton), not a single conjunction pairing two conjuncts. "
-        "Every et's own relatedtoken1 -> the ablative it introduces "
-        "(never another et), relationship1 'coordinating conjunction'. "
-        "relatedtoken2 chains between neighboring connectors instead: the "
-        "first et's relatedtoken2 -> the second et (the NEXT connector), "
-        "while the second et's relatedtoken2 -> the first et and the "
-        "third et's relatedtoken2 -> the second et (each pointing at the "
-        "PRECEDING connector, not the following one) -- relationship2 "
-        "'coordinating conjunction' throughout, same as relationship1."
+        "('surpassed all in assiduity, variety, and magnificence'), "
+        "introduced by a repeated series connector (polysyndeton) in the "
+        "'et A et B et C' shape: the first et is introductory (before the "
+        "first item, assiduitate), so it takes only relatedtoken1 -> "
+        "assiduitate, with no relatedtoken2; the second et takes "
+        "relatedtoken1 -> assiduitate (preceding item), relatedtoken2 -> "
+        "varietate (following item); the third et takes relatedtoken1 -> "
+        "varietate, relatedtoken2 -> magnificentia -- the ordinary "
+        "preceding-item/following-item pairwise shape, relationship1 and "
+        "relationship2 both 'coordinating conjunction' throughout."
     ),
     "verbalunits": [
         {"id": "t8", "syntactic_type": "independent", "semantic_type": "transitive active"},
@@ -1658,18 +1652,17 @@ _COORDINATING_CONJUNCTION_SERIES_ANSWER = {
         {"id": "t0", "token": "Tarquinius", "tokentype": "lexical", "lemma": "Tarquinius",
          "relatedtoken1": "t8", "relationship1": "subject"},
         {"id": "t1", "token": "et", "tokentype": "lexical", "lemma": "et",
-         "relatedtoken1": "t2", "relationship1": "coordinating conjunction",
-         "relatedtoken2": "t3", "relationship2": "coordinating conjunction"},
+         "relatedtoken1": "t2", "relationship1": "coordinating conjunction"},
         {"id": "t2", "token": "assiduitate", "tokentype": "lexical", "lemma": "assiduitas",
          "relatedtoken1": "t8", "relationship1": "ablative"},
         {"id": "t3", "token": "et", "tokentype": "lexical", "lemma": "et",
-         "relatedtoken1": "t4", "relationship1": "coordinating conjunction",
-         "relatedtoken2": "t1", "relationship2": "coordinating conjunction"},
+         "relatedtoken1": "t2", "relationship1": "coordinating conjunction",
+         "relatedtoken2": "t4", "relationship2": "coordinating conjunction"},
         {"id": "t4", "token": "varietate", "tokentype": "lexical", "lemma": "varietas",
          "relatedtoken1": "t8", "relationship1": "ablative"},
         {"id": "t5", "token": "et", "tokentype": "lexical", "lemma": "et",
-         "relatedtoken1": "t6", "relationship1": "coordinating conjunction",
-         "relatedtoken2": "t3", "relationship2": "coordinating conjunction"},
+         "relatedtoken1": "t4", "relationship1": "coordinating conjunction",
+         "relatedtoken2": "t6", "relationship2": "coordinating conjunction"},
         {"id": "t6", "token": "magnificentia", "tokentype": "lexical", "lemma": "magnificentia",
          "relatedtoken1": "t8", "relationship1": "ablative"},
         {"id": "t7", "token": "omnes", "tokentype": "lexical", "lemma": "omnis",
@@ -1828,30 +1821,32 @@ _APPOSITION_NEPTUNUS_AEGEUS_ANSWER = {
 # syntax_model.md's own worked example for the new "complementary
 # infinitive" relation: expugnare completes vellet's sense ('wanted to
 # storm') without itself becoming a separate verbal expression -- only
-# vellet (the dependent verb of the cum-clause) and est (the independent,
-# compound-perfect-passive main verb, 'was killed') anchor verbal units.
-# expugnare still takes its own direct object (templum) exactly as a
-# finite verb would. autem is a postpositive adversative particle with no
-# relation documented anywhere in syntax_model.md, so it's left unrelated
-# per the "Incomplete status" section, rather than guessing at a
-# coordinating-conjunction-like relation the doc doesn't actually specify
-# for it.
+# vellet (the dependent verb of the cum-clause) and interfectus (the
+# independent, compound-perfect-passive main verb, 'was killed') anchor
+# verbal units. Per the compound-verb rule, the PARTICIPLE interfectus
+# anchors (not the accompanying est), so est relates to interfectus via
+# 'auxiliary'. expugnare still takes its own direct object (templum)
+# exactly as a finite verb would. autem is a postpositive adversative
+# particle with no relation documented anywhere in syntax_model.md, so
+# it's left unrelated per the "Incomplete status" section, rather than
+# guessing at a coordinating-conjunction-like relation the doc doesn't
+# actually specify for it.
 # ---------------------------------------------------------------------------
 
 _COMPLEMENTARY_INFINITIVE_AMPHION_ANSWER = {
     "reasoning": (
-        "est (with interfectus, its auxiliary participle) is the "
-        "independent main verb -- a compound perfect passive, 'was "
-        "killed' -- with the sentinel relatedtoken1 'root'; Amphion is its "
-        "subject, ab is the agent preposition (relatedtoken1 -> est, "
+        "interfectus (with est as its auxiliary) anchors the independent "
+        "main verb -- a compound perfect passive, 'was killed' -- with "
+        "the sentinel relatedtoken1 'root'; Amphion is its subject, ab is "
+        "the agent preposition (relatedtoken1 -> interfectus, "
         "relationship1 'agent'), Apolline is ab's object of preposition, "
-        "and sagittis is an ablative of means depending on est. autem is "
-        "left unrelated (no documented relation for a bare postpositive "
-        "particle). cum introduces the dependent cum-clause anchored at "
-        "vellet (relatedtoken1 -> est, relationship1 'subordinating "
-        "conjunction'); vellet in turn has relatedtoken1 -> cum, "
-        "relationship1 'unit verb'. expugnare completes vellet's sense "
-        "('wanted to storm') via the new 'complementary infinitive' "
+        "and sagittis is an ablative of means depending on interfectus. "
+        "autem is left unrelated (no documented relation for a bare "
+        "postpositive particle). cum introduces the dependent cum-clause "
+        "anchored at vellet (relatedtoken1 -> interfectus, relationship1 "
+        "'subordinating conjunction'); vellet in turn has relatedtoken1 -> "
+        "cum, relationship1 'unit verb'. expugnare completes vellet's "
+        "sense ('wanted to storm') via the new 'complementary infinitive' "
         "relation (relatedtoken1 -> vellet) -- it is NOT its own verbal "
         "expression, unlike an indirect-statement infinitive -- and still "
         "takes templum as its own direct object, with Apollinis a "
@@ -1859,14 +1854,14 @@ _COMPLEMENTARY_INFINITIVE_AMPHION_ANSWER = {
     ),
     "verbalunits": [
         {"id": "t6", "syntactic_type": "dependent", "semantic_type": "transitive active"},
-        {"id": "t11", "syntactic_type": "independent", "semantic_type": "transitive passive"},
+        {"id": "t12", "syntactic_type": "independent", "semantic_type": "transitive passive"},
     ],
     "tokengraph": [
         {"id": "t0", "token": "Amphion", "tokentype": "lexical", "lemma": "Amphion",
-         "relatedtoken1": "t11", "relationship1": "subject"},
+         "relatedtoken1": "t12", "relationship1": "subject"},
         {"id": "t1", "token": "autem", "tokentype": "lexical", "lemma": "autem"},
         {"id": "t2", "token": "cum", "tokentype": "lexical", "lemma": "cum",
-         "relatedtoken1": "t11", "relationship1": "subordinating conjunction"},
+         "relatedtoken1": "t12", "relationship1": "subordinating conjunction"},
         {"id": "t3", "token": "templum", "tokentype": "lexical", "lemma": "templum",
          "relatedtoken1": "t5", "relationship1": "direct object"},
         {"id": "t4", "token": "Apollinis", "tokentype": "lexical", "lemma": "Apollo",
@@ -1877,15 +1872,15 @@ _COMPLEMENTARY_INFINITIVE_AMPHION_ANSWER = {
          "verbalunitid": "t6", "relatedtoken1": "t2", "relationship1": "unit verb"},
         {"id": "t7", "token": ",", "tokentype": "punctuation"},
         {"id": "t8", "token": "ab", "tokentype": "lexical", "lemma": "ab",
-         "relatedtoken1": "t11", "relationship1": "agent"},
+         "relatedtoken1": "t12", "relationship1": "agent"},
         {"id": "t9", "token": "Apolline", "tokentype": "lexical", "lemma": "Apollo",
          "relatedtoken1": "t8", "relationship1": "object of preposition"},
         {"id": "t10", "token": "sagittis", "tokentype": "lexical", "lemma": "sagitta",
-         "relatedtoken1": "t11", "relationship1": "ablative"},
+         "relatedtoken1": "t12", "relationship1": "ablative"},
         {"id": "t11", "token": "est", "tokentype": "lexical", "lemma": "sum",
-         "verbalunitid": "t11", "relatedtoken1": "root", "relationship1": "unit verb"},
+         "relatedtoken1": "t12", "relationship1": "auxiliary"},
         {"id": "t12", "token": "interfectus", "tokentype": "lexical", "lemma": "interficio",
-         "relatedtoken1": "t11", "relationship1": "auxiliary"},
+         "verbalunitid": "t12", "relatedtoken1": "root", "relationship1": "unit verb"},
         {"id": "t13", "token": ".", "tokentype": "punctuation"},
     ],
 }
@@ -2069,48 +2064,54 @@ _IMPLIED_SUM_OMNIA_PRAECLARA_ANSWER = {
 #   t7 facti  t7_implied [implied sum]  t8 .
 #
 # syntax_model.md's own worked example for the elided present of *sum* in a
-# compound perfect-passive verb form: "facti" with "sunt" omitted. The
-# implied token (t7_implied) stands in for the missing "sunt" exactly as if
-# it had been written -- everything that would relate to a written-out
-# auxiliary (the two coordinate subjects, the predicate noun, the
-# participle's own 'auxiliary' relation) relates to it instead.
+# compound perfect-passive verb form: "facti" with "sunt" omitted. Unlike
+# the OTHER two 'implied sum' sub-cases (a bare predicate construction, or
+# the always-implied present participle of sum), here the participle
+# itself is a real, already-present token -- so per the compound-verb rule
+# facti anchors the verbal expression directly (its own verbalunits entry),
+# and the implied token (t7_implied) still records the elided "sunt" but
+# merely relates to facti via 'auxiliary', exactly as a written-out
+# auxiliary would -- it does NOT get its own verbalunits entry. This is the
+# one 'implied sum' sub-case where the implied token doesn't anchor.
 # ---------------------------------------------------------------------------
 
 _IMPLIED_SUM_CONSULES_FACTI_ANSWER = {
     "reasoning": (
         "facti is a perfect passive participle with its auxiliary 'sunt' "
-        "omitted, per syntax_model.md's elided-present-of-sum rule -- a "
-        "new implied token (t7_implied, token=None) stands in for it, "
-        "anchoring an independent, transitive-passive verbal expression. "
-        "P. Valerius and T. Lucretius are its two (asyndetically "
-        "coordinated) subjects; consules is the predicate noun ('as "
-        "consuls'); facti itself relates to the implied token as its "
-        "auxiliary, exactly as a written-out 'sunt' would take it; inde "
-        "and iterum are adverbial. P. and T. each relate to their own "
-        "lexical name token (Valerius, Lucretius) via 'praenomen'."
+        "omitted, per syntax_model.md's elided-present-of-sum rule -- facti "
+        "itself anchors an independent, transitive-passive verbal "
+        "expression (per the compound-verb rule, the participle anchors, "
+        "not the form of sum), while a new implied token (t7_implied, "
+        "token=None) stands in for the missing 'sunt' and relates to facti "
+        "as its auxiliary, exactly as a written-out 'sunt' would, without "
+        "getting its own verbalunits entry. P. Valerius and T. Lucretius "
+        "are facti's two (asyndetically coordinated) subjects; consules is "
+        "the predicate noun ('as consuls'); inde and iterum are adverbial. "
+        "P. and T. each relate to their own lexical name token (Valerius, "
+        "Lucretius) via 'praenomen'."
     ),
     "verbalunits": [
-        {"id": "t7_implied", "syntactic_type": "independent", "semantic_type": "transitive passive"},
+        {"id": "t7", "syntactic_type": "independent", "semantic_type": "transitive passive"},
     ],
     "tokengraph": [
         {"id": "t0", "token": "inde", "tokentype": "lexical", "lemma": "inde",
-         "relatedtoken1": "t7_implied", "relationship1": "adverbial"},
+         "relatedtoken1": "t7", "relationship1": "adverbial"},
         {"id": "t1", "token": "P.", "tokentype": "praenomen",
          "relatedtoken1": "t2", "relationship1": "praenomen"},
         {"id": "t2", "token": "Valerius", "tokentype": "lexical", "lemma": "Valerius",
-         "relatedtoken1": "t7_implied", "relationship1": "subject"},
+         "relatedtoken1": "t7", "relationship1": "subject"},
         {"id": "t3", "token": "iterum", "tokentype": "lexical", "lemma": "iterum",
-         "relatedtoken1": "t7_implied", "relationship1": "adverbial"},
+         "relatedtoken1": "t7", "relationship1": "adverbial"},
         {"id": "t4", "token": "T.", "tokentype": "praenomen",
          "relatedtoken1": "t5", "relationship1": "praenomen"},
         {"id": "t5", "token": "Lucretius", "tokentype": "lexical", "lemma": "Lucretius",
-         "relatedtoken1": "t7_implied", "relationship1": "subject"},
+         "relatedtoken1": "t7", "relationship1": "subject"},
         {"id": "t6", "token": "consules", "tokentype": "lexical", "lemma": "consul",
-         "relatedtoken1": "t7_implied", "relationship1": "predicate"},
+         "relatedtoken1": "t7", "relationship1": "predicate"},
         {"id": "t7", "token": "facti", "tokentype": "lexical", "lemma": "facio",
-         "relatedtoken1": "t7_implied", "relationship1": "auxiliary"},
+         "verbalunitid": "t7", "relatedtoken1": "root", "relationship1": "unit verb"},
         {"id": "t7_implied", "token": None, "tokentype": "implied sum",
-         "verbalunitid": "t7_implied", "relatedtoken1": "root", "relationship1": "unit verb"},
+         "relatedtoken1": "t7", "relationship1": "auxiliary"},
         {"id": "t8", "token": ".", "tokentype": "punctuation"},
     ],
 }
@@ -2274,13 +2275,17 @@ _IMPLIED_SUBJECT_RECORDATUS_SOMNIORUM_ANSWER = {
 #   t11 regnasse  t12 dein  t13 Ser.  t14 Tullium  t15 .
 #
 # syntax_model.md's own worked example for continuation of indirect
-# discourse: three coordinate indirect-statement infinitives (adsuesse,
-# esse, regnasse) sharing ONE governing verb of speaking/thinking that is
-# never written at all in this excerpt -- so a single new implied token
-# (t0_implied) is added, and each infinitive's 'indirect statement'
-# relation points at it, exactly as if the governing verb had been
-# repeated for each one. Named t0_implied per SentenceAnalysis's naming rule
-# for a word that would precede every real token in the sentence, and
+# discourse: three coordinate indirect-statement verbal expressions
+# (adsuesse, factum [esse], regnasse) sharing ONE governing verb of
+# speaking/thinking that is never written at all in this excerpt -- so a
+# single new implied token (t0_implied) is added, and each verbal
+# expression's 'indirect statement' relation points at it, exactly as if
+# the governing verb had been repeated for each one. factum esse is a
+# compound perfect-passive infinitive: per the compound-verb rule, the
+# PARTICIPLE factum anchors and carries the 'indirect statement' relation
+# to t0_implied, while esse (the accompanying infinitive of sum) relates
+# to factum via 'auxiliary'. Named t0_implied per SentenceAnalysis's naming
+# rule for a word that would precede every real token in the sentence, and
 # placed first in tokengraph accordingly. (syntax_model.md's own excerpt
 # elides "esse" from "factum [esse]" too -- a SEPARATE elided-present-of-
 # sum case, layered on top of the one this fixture is about -- so "esse" is
@@ -2299,17 +2304,17 @@ _CONTINUATION_INDIRECT_DISCOURSE_ANSWER = {
         "active, and each infinitive's 'indirect statement' relation "
         "points at it. adsuesse (intransitive, 'became accustomed') has "
         "Tarquinios as its accusative subject and regno as a dative "
-        "depending on it; esse, with its auxiliary participle factum "
-        "('was made'), is transitive passive, with initium as subject and "
-        "'a Prisco' as the agent phrase; regnasse (intransitive, 'had "
-        "reigned') has Tullium as its accusative subject and dein "
-        "adverbial. Ser. relates to Tullium, the lexical name it "
-        "abbreviates, via 'praenomen'."
+        "depending on it; factum, with esse as its auxiliary ('was made'), "
+        "anchors a transitive passive verbal expression, with initium as "
+        "subject and 'a Prisco' as the agent phrase; regnasse "
+        "(intransitive, 'had reigned') has Tullium as its accusative "
+        "subject and dein adverbial. Ser. relates to Tullium, the lexical "
+        "name it abbreviates, via 'praenomen'."
     ),
     "verbalunits": [
         {"id": "t0_implied", "syntactic_type": "independent", "semantic_type": "transitive active"},
         {"id": "t3", "syntactic_type": "indirect statement", "semantic_type": "intransitive"},
-        {"id": "t9", "syntactic_type": "indirect statement", "semantic_type": "transitive passive"},
+        {"id": "t8", "syntactic_type": "indirect statement", "semantic_type": "transitive passive"},
         {"id": "t11", "syntactic_type": "indirect statement", "semantic_type": "intransitive"},
     ],
     "tokengraph": [
@@ -2325,15 +2330,15 @@ _CONTINUATION_INDIRECT_DISCOURSE_ANSWER = {
          "verbalunitid": "t3", "relatedtoken1": "t0_implied", "relationship1": "indirect statement"},
         {"id": "t4", "token": ";", "tokentype": "punctuation"},
         {"id": "t5", "token": "initium", "tokentype": "lexical", "lemma": "initium",
-         "relatedtoken1": "t9", "relationship1": "subject"},
+         "relatedtoken1": "t8", "relationship1": "subject"},
         {"id": "t6", "token": "a", "tokentype": "lexical", "lemma": "a",
-         "relatedtoken1": "t9", "relationship1": "agent"},
+         "relatedtoken1": "t8", "relationship1": "agent"},
         {"id": "t7", "token": "Prisco", "tokentype": "lexical", "lemma": "Priscus",
          "relatedtoken1": "t6", "relationship1": "object of preposition"},
         {"id": "t8", "token": "factum", "tokentype": "lexical", "lemma": "facio",
-         "relatedtoken1": "t9", "relationship1": "auxiliary"},
+         "verbalunitid": "t8", "relatedtoken1": "t0_implied", "relationship1": "indirect statement"},
         {"id": "t9", "token": "esse", "tokentype": "lexical", "lemma": "sum",
-         "verbalunitid": "t9", "relatedtoken1": "t0_implied", "relationship1": "indirect statement"},
+         "relatedtoken1": "t8", "relationship1": "auxiliary"},
         {"id": "t10", "token": ";", "tokentype": "punctuation"},
         {"id": "t11", "token": "regnasse", "tokentype": "lexical", "lemma": "regno",
          "verbalunitid": "t11", "relatedtoken1": "t0_implied", "relationship1": "indirect statement"},
@@ -2801,8 +2806,10 @@ GOLD_EXAMPLES = [
         slug="coordinating_conjunction_series_assiduitate_varietate_magnificentia",
         passage="Tarquinius et assiduitate et varietate et magnificentia omnes antecessit.",
         tags=["coordinating conjunction (series/polysyndeton of three "
-              "connectors, relatedtoken2 chains between neighboring "
-              "connectors rather than pairing two conjuncts)", "subject",
+              "connectors, 'et A et B et C' shape: an introductory "
+              "connector before the first item takes relatedtoken1 only, "
+              "every later connector pairs its flanking items like an "
+              "ordinary two-item conjunction)", "subject",
               "ablative", "direct object", "unit verb", "independent",
               "transitive active"],
         canned_answer=_COORDINATING_CONJUNCTION_SERIES_ANSWER,
@@ -2983,15 +2990,22 @@ GOLD_EXAMPLES = [
     # compounds), and now all three implied-token types too (see
     # models.py's IMPLIED_TOKENTYPES): "implied sum" for an elided present
     # of *sum* (bare predicate construction, implied_sum_omnia_praeclara_rara;
-    # compound perfect passive, implied_sum_consules_facti; the
-    # always-implied participle of *sum*, implied_participle_of_sum_consulibus),
-    # "continued discourse" for a continuation of indirect discourse
-    # sharing one unwritten governing verb
+    # compound perfect passive with the auxiliary omitted,
+    # implied_sum_consules_facti; the always-implied participle of *sum*,
+    # implied_participle_of_sum_consulibus), "continued discourse" for a
+    # continuation of indirect discourse sharing one unwritten governing verb
     # (continuation_indirect_discourse_tarquinios_adsuesse), and "implied
     # subject" for a circumstantial participle agreeing with a governing
-    # verb's own unexpressed subject (implied_subject_recordatus_somniorum_ait)
-    # -- the one implied-token type that is NOT itself a verbal expression
-    # (no `verbalunits` entry of its own), unlike the other two.
+    # verb's own unexpressed subject (implied_subject_recordatus_somniorum_ait).
+    # "implied subject" never anchors a verbal expression (no `verbalunits`
+    # entry of its own), and neither does "implied sum" in its
+    # implied_sum_consules_facti sub-case specifically -- there, the real,
+    # already-present participle (facti) anchors instead, and the implied
+    # token merely relates to it via 'auxiliary'. "implied sum" DOES anchor
+    # its own verbal expression in its other two sub-cases (bare predicate;
+    # always-implied participle of *sum*), and "continued discourse" always
+    # anchors -- so "implied sum" is the one implied-token type whose
+    # anchoring behavior depends on which sub-case applies.
     # lexical_numeral_fratres_joseph_decem exercises syntax_model.md's
     # clarified numeral-vs-lexical boundary (see the numeral tokentype's
     # own note in models.py's TokenAnalysis.tokentype field): a number

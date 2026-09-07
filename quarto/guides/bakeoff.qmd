@@ -1,10 +1,10 @@
 # Comparing models with `model_bakeoff.py`
 
 
-`arsgrammatica` was developed with Claude Opus 5 hosted at the College of the Holy Cross. `dspy` lets us plug in and use other models with the same code. What open-weight models hosted on Hugging Face, or running locally under Ollama could realistically run `arsgrammatica`?
+`arsgrammatica` was developed with Claude Opus 5 hosted at the College of the Holy Cross. `dspy` lets us plug in other models and use the same code with them. What open-weight models hosted on Hugging Face, or running locally under Ollama could realistically run `arsgrammatica`?
 
 
-`model_bakeoff.py` lets you compare multiple models against the same held-out slice of gold examples, and see not just whether each one is "good enough" but *where* it falls short and *whether that performance can be improved with prompting or demos*.  You can run `model_bakeoff.py` whenever you want to evaluate a candidate; it never affects the production pipeline.
+`model_bakeoff.py` lets you compare multiple models against the same held-out slice of gold examples, and see not just whether each one is "good enough" but *where* it falls short and *whether that performance can be improved*.  You can run `model_bakeoff.py` whenever you want to evaluate a candidate; it never affects the production pipeline.
 
 
 ## Three stages of evaluation
