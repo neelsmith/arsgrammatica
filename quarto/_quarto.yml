@@ -61,9 +61,10 @@ website:
 
         - "---"
         - guides/optimizing.qmd
+        - guides/harvesting.qmd        
         - guides/bakeoff.qmd
         - guides/development.qmd
-        - guides/harvesting.qmd
+
         - guides/testing.qmd
         - guides/tokenizing.qmd
         - "---"

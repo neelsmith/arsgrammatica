@@ -17,13 +17,13 @@
 
 You can answer each of those questions with the `model_bakeoff.py` script, selecting from these values for the `--stages`:
 
-1. **`baseline`** : zero-shot testing (question 1). The cheapest stage by far (one call per held-out example) and worth running alone first.
+1. **`baseline`** : zero-shot testing answering question 1, how good is the model without optimization? The cheapest stage by far (one call per held-out example) and worth running alone first.
 2. **`gepa`** — uses `dspy.GEPA` is allowed to rewrite the instructions for this candidate (question 2). The candidate still solves every example itself, both during optimization and at final scoring; only the wording changes.
 3. **`bootstrap`** uses Opus as a "teacher" model, and attaches verified correct traces to the model's instructions as few-shot examples. Here the candidate never has to solve a *training* example itself — only the held-out *scoring* examples afterward.
 
 
 
-Comparing `baseline` against `gepa`/`bootstrap` distinguishes "Does this model already get it?" from "Can it be brought up to speed?". Comparing `gepa` against `bootstrap` separates two different ways of improving the model. A candidate that is mediocre at `baseline` but closes most of the gap at `gepa` or `bootstrap` might be a good prospect for targetting with optimization (see ["Optimizing with GEPA"](./optimizing.qmd)). A mediocre performance on all three stages probably reflet a real ceiling on the model's capabilities.
+Comparing `baseline` against `gepa` and `bootstrap` distinguishes "Does this model already perform adequately?" from "How much can it be improved?". Comparing `gepa` against `bootstrap` separates two different ways of improving the model (with or without a separate "teacher" model). A candidate that is mediocre at `baseline` but closes most of the gap at `gepa` or `bootstrap` might be a good prospect for [optimization](./optimizing.qmd). A mediocre performance on all three stages probably reflects a real ceiling on the model's capabilities.
 
 
 :::{.callout-tip}
@@ -42,9 +42,9 @@ HUGGINGFACE_API_KEY=hf_...
 ```
 
 
-**`--provider ollama`** is for models you pull and run locally with `ollama`. This needs no special configuration since it talks to ollama's default port of `http://localhost:11434`. Set `OLLAMA_API_BASE` in `.env`, or pass `--ollama-api-base`, if Ollama is running somewhere else on your network.
+**`--provider ollama`** is for models you pull and run locally with `ollama`. This needs no special configuration since it talks to ollama's default port of `http://localhost:11434`. (Set `OLLAMA_API_BASE` in `.env`, or pass `--ollama-api-base`, if Ollama is running somewhere else on your network.)
 
-Realistically you can only have one model loaded in Ollama at a time, so this script's shape is built around that constraint: `--provider ollama` refuses to run unless exactly one candidate is selected. The intended workflow is:
+Realistically you can only have one model loaded in Ollama at a time, so this script's shape is built around that constraint: `--provider ollama` refuses to run unless exactly one candidate is selected. The resulting workflow will look like this:
 
 ```bash
 ollama pull llama3.1:8b            # or whichever candidate; make sure ollama serve is running
@@ -53,7 +53,8 @@ python model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages bas
 python model_bakeoff.py --provider ollama --candidates gpt-oss-20b --stages baseline
 ```
 
-Every invocation is a normal one-shot run, not a long-lived process — the results CSV (see below) is what accumulates scores across separate invocations, so you can score one currently-loaded model, save, swap models, and repeat, and nothing you scored earlier gets overwritten.
+Every invocation is a normal one-shot run, not a long-lived process .
+Scores are collected in a cumulative results file (see below), so you can score one  model, save the results, swap models, and repeat, without overwriting earlier results.
 
 
 ## The held-out evaluation set
@@ -122,10 +123,9 @@ The full flag reference is always available with `python model_bakeoff.py --help
 
 ## The results file
 
-Results accumulate in a CSV  file(`model_bakeoff_results.csv` by default), keyed by `(label, provider, stage)`. Each invocation reads whatever's already there, merges in its own new rows, and writes the whole thing back out sorted by `CANDIDATES`' own order and then by stage — so:
+Results accumulate in a CSV  file (`model_bakeoff_results.csv` by default), keyed by `(label, provider, stage)`. Each invocation reads the contents, merges in new rows, and writes the whole thing back out, sorted by `CANDIDATES` order and then by stage.  You could, for example, run a Hugging Face pass today and an Ollama pass tomorrow, or score one Ollama model per day as you cycle through them, and the results all accumulate in the same file. If you re-run the same combination of `label`, `provider` and `stage`, that overwrites only that single row; other rows are untouched.
 
-- Running a Hugging Face pass today and an Ollama pass tomorrow, or scoring one Ollama model per day as you cycle through them, all lands in the same file.
-- Re-running the same `(label, provider, stage)` combination overwrites just that row; every other row survives untouched.
+
 - Columns: `label`, `provider`, `model` (the resolved model string actually called), `family`, `tier`, `stage`, `n` (held-out example count), `mean`/`min`/`max` (blended score), `field_mean`/`relation_mean`/`vu_mean`, `elapsed_s`, `n_calls`, `total_cost` (blank when the provider doesn't report per-call cost — Ollama never will, since it's local), and `error` (set instead of scores if the candidate was skipped entirely, e.g. a missing API key).
 
 Each optimized `gepa`/`bootstrap` run is also saved to disk as `optimized_<label>_<provider>_<stage>.json`, alongside the CSV row — load one of these into a `dspy.ChainOfThought(SyntaxAnalysis)` instance with `.load(...)` if you want to inspect or reuse the actual optimized program, not just its score.
