@@ -2,10 +2,33 @@
 
 Current version: **0.6.0**.
 
-**0.7.0** *??*: Adds CL script to batch process analyses and create PNGs using graphviz. Scripts and notebooks to batch analyse text into sentences and process from grouped listings. Script to anlayze a whole text.  Reworking of figuring LM cost. expanded docs. Adds Lewis-Short coordination. Correctly exports `save_mermaid`, `save_dot`. > 1200 tests. Changes optimization to use an eval set.
-Adds optimization data and optimized prompts dir. Check on sys imits on open fiels in optimizing.
+**0.7.0** *Sept. 7, 2026*: 
 
-Breaking: changes in syntax model for annotation of sequences of conjunctions and for compound verb forms.
+**Breaking changes**: changes in syntax model for annotation of sequences of conjunctions and for compound verb forms.
+
+**Additions**:
+
+
+- optimization with GEPA now allows adding saved analyses to the training data
+- new `data` directory with vetted analyses that can be used in optimization
+- adds option to load JSON with saved GEPA optimization from command-line scripts and Marimo notebooks
+- new `optimized` directory with saved JSONs from GEPA optimization
+- command-line utility to batch-process analyses and create PNGs (using `graphviz`)
+- utility scripts and notebooks to segment corpora into sentences and 
+batch-analyze passages based on grouped listings
+- utility script to anlayze a whole text with one command
+- greatly expanded documentation on gh pages
+- new utilities to coordinate lemmata identified in analysis with Lewis-Short *Latin Dictionary*, and Marimo notebook to work with Lewis-Short data directly
+- > 1200 tests. 
+
+
+**Fixes**:
+
+- Correctly exports `save_mermaid`, `save_dot` functions.
+- Cost of calls to LMs now correctly retrieved from LM responses, and cumulative costs for a session optionally displayed in Marimo notebooks.
+
+
+
 
 **0.6.0**: *Sept. 2, 2026*: Adds functions to represent token graphs in `dot` format, along with command-line tools and a new marimo notebook for creating and viewing `dot` graphs if `graphviz` is available. More than 1000 tests. 
 

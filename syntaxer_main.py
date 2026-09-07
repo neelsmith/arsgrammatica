@@ -6,6 +6,7 @@ A runnable script to run the syntaxer module.
 # LM configuration
 # ---------------------------------------------------------------------------
 import argparse
+import json
 from pathlib import Path
 import os
 import sys
@@ -95,12 +96,15 @@ def _configure_lm():
     # is gated on the model actually being Anthropic-routed -- a MODEL
     # override pointing at Ollama/OpenAI/etc. would otherwise just carry an
     # inert, unrecognized field. There are no few-shot demos attached to
-    # `analyze` today, so one breakpoint on the system message covers the
-    # whole static prefix; if a compiled/optimized program with demos is
-    # ever loaded here, add a second point, {"location": "message", "index":
-    # -2}, to fold the demo turns into the same cached prefix too (the
+    # `analyze`'s own default (unoptimized) prompt, so one breakpoint on the
+    # system message covers the whole static prefix. `--optimized-program`
+    # (below) can load a compiled program onto `analyze` -- if that program
+    # carries demos, add a second point, {"location": "message", "index":
+    # -2}, here to fold the demo turns into the same cached prefix too (the
     # real, always-different input is always the last message, so -2 is
-    # "whatever precedes it," demos or not).
+    # "whatever precedes it," demos or not). Not done automatically: this
+    # function runs before `--optimized-program` is loaded, so it has no way
+    # to know yet whether the loaded program actually has demos.
     if "anthropic" in model.lower():
         lm_kwargs["cache_control_injection_points"] = [
             {"location": "message", "role": "system"}
@@ -112,7 +116,7 @@ def _configure_lm():
  
  
  
-from arsgrammatica import analyze_string, combined_tokengraph, serialize_analyses
+from arsgrammatica import analyze, analyze_string, combined_tokengraph, serialize_analyses
 
 
 if __name__ == "__main__":
@@ -128,10 +132,38 @@ if __name__ == "__main__":
         help="Optional citation label for the passage (e.g. 'urn:cts:latinLit:phi0690:1.1'), "
              "recorded on every token via Token.citation. Defaults to no citation.",
     )
+    parser.add_argument(
+        "--optimized-program",
+        default=None,
+        help="Path to a saved optimized program (JSON), e.g. one produced by "
+             "utilities/optimize_gepa.py's analyze.save(path) -- loaded onto the shared "
+             "`analyze` predictor in place of its default, unoptimized SentenceAnalysis "
+             "prompt before any analysis runs. Omit to use the default prompt.",
+    )
     args = parser.parse_args()
 
     lm = _configure_lm()
     #loadollama()
+
+    # analyze is the same dspy.ChainOfThought singleton every analyze_string()/
+    # analyze_sources() call in this codebase goes through (see
+    # arsgrammatica/token_budget.py's analyze_with_retry()), so loading here
+    # before any analysis runs is enough to have every call below use the
+    # loaded instructions/demos instead of SentenceAnalysis's own docstring.
+    # This is a fresh process per run (unlike the marimo notebooks' long-lived
+    # kernel), so there's no need to snapshot/restore a pristine state -- a
+    # failed load can just abort the run, matching _configure_lm()'s own
+    # "fail loudly rather than silently fall back" precedent for a missing
+    # API key.
+    if args.optimized_program:
+        try:
+            analyze.load(args.optimized_program)
+        except (OSError, json.JSONDecodeError, KeyError, ValueError, TypeError) as e:
+            raise RuntimeError(
+                f"Could not load optimized program from "
+                f"{args.optimized_program!r}: {type(e).__name__}: {e}"
+            ) from e
+
     sentences, results = analyze_string(args.passage, citation=args.citation)
 
     # Write the result using the same pipe-delimited format

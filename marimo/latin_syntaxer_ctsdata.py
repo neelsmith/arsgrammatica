@@ -6,6 +6,11 @@ app = marimo.App(width="medium")
 
 @app.cell(hide_code=True)
 def _():
+    return
+
+
+@app.cell(hide_code=True)
+def _():
     import marimo as mo
 
 
@@ -29,20 +34,62 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    ## Required source file: CEX text
+    """)
+    return
+
+
+@app.cell(hide_code=True)
 def _(ctsdata_file_browser):
     ctsdata_file_browser
     return
 
 
 @app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    ## Optional optimized prompt
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    (JSON file with GEPA optimization.)
+    """)
+    return
+
+
+@app.cell(hide_code=True)
 def _(
-    analyze_button,
-    ctsdata_error,
-    ctsdata_rows,
     mo,
-    passage_multiselect,
-    seecost,
+    optimized_program_browser,
+    optimized_program_error,
+    optimized_program_path,
 ):
+    if optimized_program_error is not None:
+        optimized_program_status = mo.callout(
+            mo.md(f"Could not load this file as an optimized program: {optimized_program_error}"),
+            kind="danger",
+        )
+    elif optimized_program_path is not None:
+        optimized_program_status = mo.md(
+            f"*Using the optimized prompt loaded from `{optimized_program_path}`.*"
+        )
+    else:
+        optimized_program_status = mo.md(
+            "*No optimized program selected -- using `analyze`'s default (unoptimized) prompt.*"
+        )
+
+    mo.vstack([optimized_program_browser, optimized_program_status])
+    return
+
+
+@app.cell(hide_code=True)
+def _(analyze_button, ctsdata_error, ctsdata_rows, mo, passage_multiselect):
     if ctsdata_error is not None:
         ctsdata_status = mo.callout(
             mo.md(f"Could not read this file as a `#!ctsdata` source: {ctsdata_error}"),
@@ -54,7 +101,7 @@ def _(
         ctsdata_status = mo.md(f"## Passage selection\n\n*{len(ctsdata_rows)} passage(s) loaded from this file.*")
 
     mo.vstack(
-        [ctsdata_status, mo.hstack([passage_multiselect, analyze_button,seecost], justify="start")]
+        [ctsdata_status, mo.hstack([passage_multiselect, analyze_button], justify="start")]
     )
     return
 
@@ -62,15 +109,6 @@ def _(
 @app.cell(hide_code=True)
 def _(rawpreview):
     rawpreview
-    return
-
-
-@app.cell(hide_code=True)
-def _(cost_summary, format_lm_cost, mo, seecost):
-    costdisplay = None
-    if seecost.value:
-        costdisplay = mo.md(f"**LM cost so far**: {format_lm_cost(cost_summary)}")
-    costdisplay
     return
 
 
@@ -128,6 +166,7 @@ def _(analysis_warnings, download_widget, mo, save_extension):
 @app.cell(hide_code=True)
 def _(mo):
     seetokens = mo.ui.checkbox(label="*See list of tokens*")
+    seecost = mo.ui.checkbox(label="*See cost*")
     seeprompts = mo.ui.checkbox(label="*See prompts*")
     # dspy.LM caches responses by default (model + messages + config), so
     # re-clicking Analyze on the exact same passage selection normally just
@@ -141,8 +180,8 @@ def _(mo):
     # prefix to make each still-genuinely-fresh call cheaper, it never
     # replays a whole response, so it stays on regardless of this checkbox.
     disable_cache = mo.ui.checkbox(label="*Disable LM cache (debugging)*")
-    mo.hstack([seetokens, seeprompts,  disable_cache], justify="start")
-    return disable_cache, seeprompts, seetokens
+    mo.hstack([seetokens, seeprompts, seecost, disable_cache], justify="start")
+    return disable_cache, seecost, seeprompts, seetokens
 
 
 @app.cell(hide_code=True)
@@ -152,6 +191,15 @@ def _(finaltokens, seetokens):
         tokendisplay = finaltokens
 
     tokendisplay
+    return
+
+
+@app.cell(hide_code=True)
+def _(cost_summary, format_lm_cost, mo, seecost):
+    costdisplay = None
+    if seecost.value:
+        costdisplay = mo.md(f"**LM cost so far**: {format_lm_cost(cost_summary)}")
+    costdisplay
     return
 
 
@@ -187,13 +235,6 @@ def _(mo):
 
 
 @app.cell
-def _(mo):
-    seecost = mo.ui.checkbox(label="*See cost*")
-
-    return (seecost,)
-
-
-@app.cell
 def _(ctsdata_file_browser, read_ctsdata):
     # Choose file with CEX source data.
     # Re-read the file every time the file_browser's own selection changes.
@@ -226,6 +267,21 @@ def _(Path, mo):
         label="*Source data file*:",
     )
     return (ctsdata_file_browser,)
+
+
+@app.cell
+def _(Path, mo):
+    # Same file_browser convention as ctsdata_file_browser above. Optional --
+    # analyze() below falls back to `analyze`'s own default (unoptimized)
+    # prompt whenever nothing is selected here, so leaving this untouched is
+    # the normal, expected state, not an error condition.
+    optimized_program_browser = mo.ui.file_browser(
+        initial_path=Path(__file__).parent.parent,
+        selection_mode="file",
+        multiple=False,
+        label="*Optimized program (.json), optional*:",
+    )
+    return (optimized_program_browser,)
 
 
 @app.function
@@ -534,11 +590,12 @@ def _(mo):
 @app.cell
 def _():
     import dspy
+    import json
     import os
     from pathlib import Path
     from dotenv import load_dotenv
 
-    return Path, dspy, load_dotenv, os
+    return Path, dspy, json, load_dotenv, os
 
 
 @app.cell
@@ -550,6 +607,7 @@ def _(Path):
     from arsgrammatica import (
         DEFAULT_CEILING,
         print_analysis,
+        analyze,
         analyze_sources,
         tokengraph_to_mermaid,
         combined_tokengraph,
@@ -565,6 +623,7 @@ def _(Path):
 
     return (
         DEFAULT_CEILING,
+        analyze,
         analyze_sources,
         combined_tokengraph,
         format_lm_cost,
@@ -577,6 +636,39 @@ def _(Path):
         tokengraph_to_mermaid,
         tokengraph_to_text,
     )
+
+
+@app.cell
+def _(analyze):
+    # A one-time, JSON-safe snapshot of `analyze`'s own default (unoptimized)
+    # state, taken before this kernel ever loads an optimized program onto
+    # it. `analyze` (arsgrammatica/latin_syntax_dspy.py) is a genuine shared
+    # singleton -- the same dspy.ChainOfThought instance every
+    # analyze_sources() call in this notebook goes through -- and
+    # dspy.Module has no built-in "unload" back to a predictor's original
+    # class docstring. Unlike configure_lm() below, whose "always rebuild,
+    # never guard" fix works because dspy.LM/dspy.configure() are cheap to
+    # redo from scratch every time, there's no equivalent "just rebuild
+    # analyze from scratch" here -- `analyze` is a specific already-compiled
+    # dspy.ChainOfThought(SentenceAnalysis) instance other modules already
+    # hold a reference to, not a config value this notebook constructs
+    # itself. So the optimized-program cell below restores this dict via
+    # analyze.load_state(...) instead, whenever the file picker is cleared
+    # or a load fails -- exactly the pattern configure_lm()'s own comment
+    # already flags as the same category of long-lived-kernel gotcha.
+    #
+    # dump_state() returns a plain dict of JSON-serializable values (the
+    # same dict analyze.save() itself would write out), not a live
+    # reference to `analyze`'s own internals -- so this snapshot stays
+    # pristine no matter what happens to `analyze` afterward. This cell
+    # must never be re-run after a load has already happened in this same
+    # kernel session (e.g. via marimo's "run this cell" on its own) -- that
+    # would overwrite the pristine snapshot with whatever's currently
+    # loaded, defeating the whole point. Re-running the whole notebook from
+    # the top (which reconstructs `analyze` before this cell runs again) is
+    # fine.
+    pristine_analyze_state = analyze.dump_state()
+    return (pristine_analyze_state,)
 
 
 @app.cell(hide_code=True)
@@ -683,12 +775,16 @@ def _(DEFAULT_CEILING, disable_cache, dspy, getenv):
         # this is gated on the model actually being Anthropic-routed -- a
         # MODEL override pointing at Ollama/OpenAI/etc. would otherwise
         # just carry an inert, unrecognized field. No few-shot demos are
-        # attached to `analyze` today, so one breakpoint on the system
-        # message covers the whole static prefix; if a compiled/optimized
-        # program with demos is ever loaded here, add a second point,
-        # {"location": "message", "index": -2}, to fold the demo turns into
-        # the same cached prefix too (the real, always-different input is
-        # always the last message, so -2 is "whatever precedes it").
+        # attached to `analyze`'s own default (unoptimized) prompt, so one
+        # breakpoint on the system message covers the whole static prefix.
+        # The *Optimized program (.json), optional* file_browser further
+        # down this notebook can load a compiled program with demos onto
+        # `analyze` -- if you're using that regularly, add a second point,
+        # {"location": "message", "index": -2}, here to fold the demo turns
+        # into the same cached prefix too (the real, always-different input
+        # is always the last message, so -2 is "whatever precedes it"). Not
+        # done automatically: configure_lm() has no visibility into whether
+        # `analyze` currently carries a loaded program with demos.
         if "anthropic" in model.lower():
             lm_kwargs["cache_control_injection_points"] = [
                 {"location": "message", "role": "system"}
@@ -706,6 +802,31 @@ def _(DEFAULT_CEILING, disable_cache, dspy, getenv):
 def _(configure_lm):
     lm = configure_lm()
     return (lm,)
+
+
+@app.cell
+def _(analyze, json, optimized_program_browser, pristine_analyze_state):
+    # Runs on every change to optimized_program_browser's own selection --
+    # including "cleared back to nothing" -- so this is the one place that
+    # decides what prompt `analyze` actually carries right now. Always
+    # restore the pristine snapshot first: analyze.load(path) only ever
+    # calls dspy.Module.load_state() (see dump_state()'s own docstring, and
+    # the pristine-snapshot cell above), which patches named_parameters()
+    # onto `analyze` in place rather than resetting anything not present in
+    # the loaded file -- so without this, clearing the file picker after a
+    # successful load would silently leave the previously-loaded prompt in
+    # place instead of actually reverting to the default.
+    optimized_program_path = optimized_program_browser.path(index=0)
+    optimized_program_error = None
+    if optimized_program_path is not None:
+        try:
+            analyze.load(str(optimized_program_path))
+        except (OSError, json.JSONDecodeError, KeyError, ValueError, TypeError) as e:
+            optimized_program_error = f"{type(e).__name__}: {e}"
+            analyze.load_state(pristine_analyze_state)
+    else:
+        analyze.load_state(pristine_analyze_state)
+    return optimized_program_error, optimized_program_path
 
 
 if __name__ == "__main__":
