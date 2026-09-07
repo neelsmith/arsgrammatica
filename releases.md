@@ -2,6 +2,12 @@
 
 Current version: **0.7.0**.
 
+
+**0.8.0** *??*: 
+
+- move build_api_docs.py into utilties dir
+
+
 **0.7.0** *Sept. 7, 2026*: 
 
 **Breaking changes**: changes in syntax model for annotation of sequences of conjunctions and for compound verb forms.
