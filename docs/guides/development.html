@@ -130,7 +130,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guides/development.html">Developing <code>arsgrammatica</code></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guides/development.html">Improving <code>arsgrammatica</code> by reading Latin</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -148,10 +148,11 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">Recipes</span></a>
   </div>
 </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../guides/install.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Installation options</span></a>
+ <span class="menu-text">Installing <code>arsgrammatica</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -162,14 +163,28 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/visualization.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Visualizing results</span></a>
+  <a href="../guides/saving-loading.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Saving and loading analyses</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/texthiliting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Highlighting syntactic analysis in HTML</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/saving-loading.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Saving and loading analyses</span></a>
+  <a href="../guides/mermaid.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Visualizing syntax graphs with Mermaid</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/graphmetrics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Characterizing syntax analyses with graph metrics</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -187,14 +202,26 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../guides/harvesting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Harvesting gold examples from real analyses</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../guides/bakeoff.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Comparing task models with <code>model_bakeoff.py</code></span></a>
+ <span class="menu-text">Comparing models with <code>model_bakeoff.py</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../guides/development.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Developing <code>arsgrammatica</code></span></a>
+ <span class="menu-text">Improving <code>arsgrammatica</code> by reading Latin</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Running tests with <code>pytest</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -206,20 +233,14 @@ ul.task-list li input[type="checkbox"] {
         <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../guides/budgetingtokens.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Estimating and enforcing a <code>max_tokens</code> budget</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../guides/managing_prompt_size.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Keeping requests to an LM at a manageable size</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/technical.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Some technical docs</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/testing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Testing without network access</span></a>
   </div>
 </li>
     </ul>
@@ -232,17 +253,12 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#developing-arsgrammatica" id="toc-developing-arsgrammatica" class="nav-link active" data-scroll-target="#developing-arsgrammatica">Developing <code>arsgrammatica</code></a>
-  <ul class="collapse">
-  <li><a href="#why-real-world-testing-not-just-the-gold-example-suite" id="toc-why-real-world-testing-not-just-the-gold-example-suite" class="nav-link" data-scroll-target="#why-real-world-testing-not-just-the-gold-example-suite">Why real-world testing, not just the gold-example suite</a></li>
-  <li><a href="#the-core-loop-analyze-check-automatically-review-by-hand-triage-act" id="toc-the-core-loop-analyze-check-automatically-review-by-hand-triage-act" class="nav-link" data-scroll-target="#the-core-loop-analyze-check-automatically-review-by-hand-triage-act">The core loop: analyze, check automatically, review by hand, triage, act</a></li>
-  <li><a href="#the-three-outcomes-and-what-to-do-with-each" id="toc-the-three-outcomes-and-what-to-do-with-each" class="nav-link" data-scroll-target="#the-three-outcomes-and-what-to-do-with-each">The three outcomes, and what to do with each</a>
+  <li><a href="#improving-arsgrammatica-by-reading-latin" id="toc-improving-arsgrammatica-by-reading-latin" class="nav-link active" data-scroll-target="#improving-arsgrammatica-by-reading-latin">Improving <code>arsgrammatica</code> by reading Latin</a>
   <ul class="collapse">
   <li><a href="#outcome-a-a-failure" id="toc-outcome-a-a-failure" class="nav-link" data-scroll-target="#outcome-a-a-failure">Outcome A: a failure</a></li>
   <li><a href="#outcome-b-a-success-against-a-rare-or-tricky-construction" id="toc-outcome-b-a-success-against-a-rare-or-tricky-construction" class="nav-link" data-scroll-target="#outcome-b-a-success-against-a-rare-or-tricky-construction">Outcome B: a success against a rare or tricky construction</a></li>
   <li><a href="#outcome-c-a-success-against-a-common-ordinary-construction" id="toc-outcome-c-a-success-against-a-common-ordinary-construction" class="nav-link" data-scroll-target="#outcome-c-a-success-against-a-common-ordinary-construction">Outcome C: a success against a common, ordinary construction</a></li>
-  </ul></li>
-  <li><a href="#how-this-feeds-optimizing.md-and-bakeoff.md" id="toc-how-this-feeds-optimizing.md-and-bakeoff.md" class="nav-link" data-scroll-target="#how-this-feeds-optimizing.md-and-bakeoff.md">How this feeds <code>OPTIMIZING.md</code> and <code>BAKEOFF.md</code></a></li>
+  <li><a href="#how-this-feeds-optimization-and-comparison-of-models" id="toc-how-this-feeds-optimization-and-comparison-of-models" class="nav-link" data-scroll-target="#how-this-feeds-optimization-and-comparison-of-models">How this feeds optimization and comparison of models</a></li>
   <li><a href="#a-worked-precedent-the-impliedelided-token-feature" id="toc-a-worked-precedent-the-impliedelided-token-feature" class="nav-link" data-scroll-target="#a-worked-precedent-the-impliedelided-token-feature">A worked precedent: the implied/elided-token feature</a></li>
   <li><a href="#suggested-cadence" id="toc-suggested-cadence" class="nav-link" data-scroll-target="#suggested-cadence">Suggested cadence</a></li>
   </ul></li>
@@ -255,34 +271,24 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<section id="developing-arsgrammatica" class="level1">
-<h1>Developing <code>arsgrammatica</code></h1>
-<p><code>USAGE.md</code> describes how to call the pipeline, <code>TESTING.md</code> how to run the offline test suite, <code>OPTIMIZING.md</code> how to tune <code>SyntaxAnalysis</code>’s prompt with GEPA, and <code>BAKEOFF.md</code> how to compare candidate models. Each of those describes one tool. This document describes how they fit together into a repeatable development loop, centered on testing the analyzer against real Latin text rather than just the hand-picked <code>GOLD_EXAMPLES</code> corpus.</p>
-<section id="why-real-world-testing-not-just-the-gold-example-suite" class="level2">
-<h2 class="anchored" data-anchor-id="why-real-world-testing-not-just-the-gold-example-suite">Why real-world testing, not just the gold-example suite</h2>
-<p><code>tests/fixtures/gold_examples.py</code>’s <code>GOLD_EXAMPLES</code> is a deliberately curated corpus: <code>test_coverage.py</code> enforces that every documented relation label, verbal-expression classification, and token type in <code>syntax_model.md</code> has at least one example exercising it, and the whole <code>pytest</code> suite runs against <code>DummyLM</code>, not a real model. That combination is exactly right for what it’s for – proving the code (<code>models.py</code>’s pydantic models, <code>validate()</code>, <code>verbal_units.py</code>, <code>rendering.py</code>, <code>mermaid.py</code>, <code>serialization.py</code>) correctly <em>represents</em> a correct answer – but it can’t tell you whether a live model actually <em>produces</em> one, and it can’t surface a construction nobody has thought to write a fixture for yet.</p>
-<p>Running the analyzer against real Latin passages – actual prose, not fixtures written to order – is where you find the things the gold-example suite structurally can’t show you:</p>
+<section id="improving-arsgrammatica-by-reading-latin" class="level1">
+<h1>Improving <code>arsgrammatica</code> by reading Latin</h1>
+<p>You can incorporate the results of reading real Latin texts with <code>arsgrammatica</code> into a repeatable development loop that constantly improves the package.</p>
+<p>When <code>arsgrammatica</code> fails to analyze the syntax of a passage correctly, we can use it to improve the model in one of three ways:</p>
 <ul>
-<li>a construction <code>syntax_model.md</code> doesn’t document at all yet (this is exactly how the implied/elided-token feature – <code>implied sum</code> and <code>continued discourse</code> in <code>TokenAnalysis.tokentype</code> – came about: a real passage needed it, <code>syntax_model.md</code> was extended first, then the models/prompt/fixtures followed; see “A worked precedent” below);</li>
-<li>a construction the scheme already documents, but the current prompt still gets wrong;</li>
-<li>a genuinely ambiguous case that exposes a modeling choice worth deciding and flagging explicitly (<code>syntax_model.md</code> calling a construction a “circumstantial participle” when <code>VerbalExpression.syntactic_type</code> has no such value is a real example already resolved this way in <code>models.py</code>’s own docstrings – flag the judgment call in a comment near the fixture, don’t just quietly pick one and move on);</li>
-<li>an ordinary, everyday construction the model already handles correctly – not new information about the scheme, but real evidence worth locking in as a regression guardrail so a future prompt or model change can’t silently break it without anyone noticing.</li>
+<li>we need to add a new construction to the basic document <code>syntax_model.md</code></li>
+<li>we need better training on a construction that the scheme already documents, but the current prompt still gets wrong</li>
+<li>a genuinely ambiguous case that exposes a modeling choice worth deciding and flagging explicitly</li>
 </ul>
-</section>
-<section id="the-core-loop-analyze-check-automatically-review-by-hand-triage-act" class="level2">
-<h2 class="anchored" data-anchor-id="the-core-loop-analyze-check-automatically-review-by-hand-triage-act">The core loop: analyze, check automatically, review by hand, triage, act</h2>
+<p>When <code>arsgrammatica</code> <em>correctly</em> handles a passage, that is real evidence that the model is working correctly. We can use manually vetted examples as checks to ensure that a future change to a prompt or model can’t silently break this case without anyone noticing.</p>
+<p>Steps to take:</p>
 <ol type="1">
-<li><p><strong>Analyze a real passage.</strong> <code>analyze_passage(passage)</code> for a single string, or <code>analyze_sources(sources)</code> for a list of citation-labeled <code>CitedText</code> (see USAGE.md’s “Analyzing citable sources”) – either returns <code>(sentences, results)</code>, one <code>SyntaxAnalysis</code> result per sentence found.</p></li>
-<li><p><strong>Run the automated checks first, before reading anything by hand.</strong> <code>analyze_sources()</code> already calls <code>validate()</code> for you and prints any referential problems it finds (a token id that doesn’t exist, a malformed implied token); <code>find_unanchored_coordinated_verbs(result.tokengraph)</code> (<code>verbal_units.py</code>) catches one more specific, observed live-LM mistake (a coordinating-conjunction pair where only one side anchors its own verbal unit) that’s self-consistent enough to slip past <code>validate()</code>. Both are cheap and mechanical – let them rule out the “obviously broken” cases before you spend a human read on anything.</p></li>
-<li><p><strong>Read the surviving result against <code>syntax_model.md</code> by hand.</strong> This is the one step nothing in the codebase can do for you: <code>validate()</code> only checks referential integrity, never correctness, and neither <code>find_unanchored_coordinated_verbs()</code> nor any metric can substitute for actually knowing the Latin. <code>tokengraph_to_html()</code>/<code>tokengraph_to_depth_html()</code> (<code>rendering.py</code>, see <code>VISUALIZATION.md</code>) or <code>tokengraph_to_mermaid()</code> (<code>mermaid.py</code>) are worth rendering here – seeing the verbal-unit coloring and subordination depth laid out is usually faster to check by eye than reading the raw <code>tokengraph</code> rows.</p></li>
-<li><p><strong>Triage what you found into one of three outcomes, and act accordingly</strong> (see the next section). Every outcome below can be turned into a <code>GoldExample</code> with <code>tests/fixtures/harvest.py</code>’s <code>gold_example_from_analysis()</code> – the difference between them is what you do with the result afterward, not how you build it.</p></li>
+<li><strong>Analyze a real passage.</strong></li>
+<li><strong>Read the surviving result against <code>syntax_model.md</code> by hand.</strong></li>
+<li><strong>Triage what you found into one of three outcomes, and act accordingly</strong> (see the next section). Every outcome below can be turned into a <code>GoldExample</code> with <code>tests/fixtures/harvest.py</code>’s <code>gold_example_from_analysis()</code> – the difference between them is what you do with the result afterward, not how you build it.</li>
 </ol>
-</section>
-<section id="the-three-outcomes-and-what-to-do-with-each" class="level2">
-<h2 class="anchored" data-anchor-id="the-three-outcomes-and-what-to-do-with-each">The three outcomes, and what to do with each</h2>
 <section id="outcome-a-a-failure" class="level3">
 <h3 class="anchored" data-anchor-id="outcome-a-a-failure">Outcome A: a failure</h3>
-<p>Something is referentially broken (<code>validate()</code>/<code>find_unanchored_coordinated_verbs()</code> caught it) or substantively wrong (you caught it by hand). Don’t just note it and move on – a failure is the most valuable signal this loop produces, because it’s the main way the scheme and the prompt actually improve. Triage it further, in this order:</p>
 <ol type="1">
 <li><strong>Is <code>syntax_model.md</code> actually silent or ambiguous about this construction?</strong> If so, this is a scheme gap, not a model mistake. Extend <code>syntax_model.md</code> first, then follow USAGE.md’s “Extending the scheme” steps: add the new relation label / <code>tokentype</code> / <code>syntactic_type</code> value to the relevant <code>Literal</code> in <code>arsgrammatica/models.py</code>, describe when to use it in <code>SyntaxAnalysis</code>’s docstring in <code>arsgrammatica/latin_syntax_dspy.py</code>, and hand-write a <code>GoldExample</code> with a <em>correct</em> <code>canned_answer</code> exercising it (since the live model, by definition, didn’t produce one) in <code>tests/fixtures/gold_examples.py</code>. This is exactly how the implied-token feature was built.</li>
 <li><strong>Is the scheme already clear, but the prompt/model got it wrong anyway?</strong> Hand-write a corrected <code>GoldExample</code> for the passage the same way, so the failure becomes a concrete, checkable trainset entry rather than an anecdote. If you’re unsure between two defensible readings, say so explicitly in a comment above the fixture (matching the existing convention in <code>gold_examples.py</code> for judgment calls like the circumstantial-participle-of-<em>sum</em> case) rather than silently committing to one.</li>
@@ -299,12 +305,12 @@ ul.task-list li input[type="checkbox"] {
 <p>The model got something right that it was already expected to get right – a plain independent clause, an ordinary direct object, nothing structurally novel. This is real evidence, but low-value as <em>training</em> signal: <code>optimize_gepa.py</code> has no held-out split at all today (see below), so anything added to <code>GOLD_EXAMPLES</code> is immediately part of what GEPA both trains against and scores itself against, and an easy case the model already nails teaches the optimizer nothing new – it just dilutes the trainset with redundant coverage. The better default is to harvest it the same way, add it to <code>GOLD_EXAMPLES</code>, <em>and</em> add its slug to <code>model_bakeoff.py</code>’s <code>HELD_OUT_SLUGS</code> (see BAKEOFF.md’s “The held-out evaluation set”). That turns it into a regression check: something that already works today, now protected against silently breaking as the prompt, the scheme, or the underlying model changes later – exactly the role <code>model_bakeoff.py</code>’s held-out set exists to play, and one that only gets more useful as it grows more diverse.</p>
 <p>The dividing line, in short: rare-and-tricky successes are worth teaching the optimizer with; common-and-already-reliable successes are worth protecting with a regression check. “Which bucket does this belong in” is a judgment call about how common the construction already is in <code>GOLD_EXAMPLES</code>, not about whether the analysis happened to be correct – both outcomes started from a correct analysis.</p>
 </section>
-</section>
-<section id="how-this-feeds-optimizing.md-and-bakeoff.md" class="level2">
-<h2 class="anchored" data-anchor-id="how-this-feeds-optimizing.md-and-bakeoff.md">How this feeds <code>OPTIMIZING.md</code> and <code>BAKEOFF.md</code></h2>
-<p><code>optimize_gepa.py</code> (OPTIMIZING.md) trains <code>SyntaxAnalysis</code>’s prompt against <em>all</em> of <code>GOLD_EXAMPLES</code>, with no separate held-out valset at all – per <code>dspy.GEPA</code>’s own behavior when none is given, the trainset doubles as the Pareto-tracking set GEPA scores itself against. That means every fixture this loop adds to <code>GOLD_EXAMPLES</code> – a corrected failure (Outcome A) or a harvested rare-construction success (Outcome B) – becomes real trainset material the next time <code>optimize_gepa.py</code> runs, which is the main way the shipped prompt actually improves over time: not synthetic examples, but real passages that either broke something or demonstrated something worth reinforcing.</p>
+<section id="how-this-feeds-optimization-and-comparison-of-models" class="level2">
+<h2 class="anchored" data-anchor-id="how-this-feeds-optimization-and-comparison-of-models">How this feeds optimization and comparison of models</h2>
+<p><code>optimize_gepa.py</code>trains <code>SyntaxAnalysis</code>’s prompt against <em>all</em> of <code>GOLD_EXAMPLES</code>, with no separate held-out valset at all (see <a href="../guides/optimizing.html">optimizing with GEPA</a>) – per <code>dspy.GEPA</code>’s own behavior when none is given, the trainset doubles as the Pareto-tracking set GEPA scores itself against.</p>
+<p>That means every fixture this loop adds to <code>GOLD_EXAMPLES</code> – a corrected failure (Outcome A) or a harvested rare-construction success (Outcome B) – becomes real trainset material the next time <code>optimize_gepa.py</code> runs, which is the main way the shipped prompt actually improves over time: not synthetic examples, but real passages that either broke something or demonstrated something worth reinforcing.</p>
 <p><strong>A known gap worth being aware of</strong>: <code>optimize_gepa.py</code> has no mechanism today to <em>exclude</em> anything from its trainset – unlike <code>model_bakeoff.py</code>, it doesn’t consult <code>HELD_OUT_SLUGS</code> (or anything else) to keep held-out examples out of what it trains against. So an Outcome-C fixture you add specifically to protect as a held-out regression check for <code>model_bakeoff.py</code> purposes still gets folded into <code>optimize_gepa.py</code>’s trainset the next time it runs – the two scripts don’t currently share one consistent notion of “held out.” Until that’s addressed (e.g.&nbsp;by teaching <code>optimize_gepa.py</code> to skip <code>HELD_OUT_SLUGS</code> too), treat the held-out/trainset distinction described above as meaningful specifically <em>for <code>model_bakeoff.py</code>’s cross-model comparisons</em>, not as an airtight guarantee that held-out examples never influence the production prompt.</p>
-<p><code>model_bakeoff.py</code> (BAKEOFF.md) is the one place in this repo with an actual train/eval firewall: its <code>gepa</code>/<code>bootstrap</code> stages never train against <code>HELD_OUT_SLUGS</code>, so every candidate model is compared on the same untouched slice. That slice was deliberately stratified by hand when it was first built (one plain independent clause, a couple of dependent-clause shapes, a coordinated-verb pair, an indirect statement, a circumstantial participle, a depth-2 nesting case, three newer relations); every Outcome-C fixture this loop produces is a natural way to keep growing that stratification with real passages rather than more hand-constructed ones, making <code>model_bakeoff.py</code>’s cross-model comparisons more representative as the held-out set grows.</p>
+<p><code>model_bakeoff.py</code> (see <a href="../guides/bakeoff.html">comparing models</a>) is the one place in this repo with an actual train/eval firewall: its <code>gepa</code>/<code>bootstrap</code> stages never train against <code>HELD_OUT_SLUGS</code>, so every candidate model is compared on the same untouched slice. That slice was deliberately stratified by hand when it was first built (one plain independent clause, a couple of dependent-clause shapes, a coordinated-verb pair, an indirect statement, a circumstantial participle, a depth-2 nesting case, three newer relations); every Outcome-C fixture this loop produces is a natural way to keep growing that stratification with real passages rather than more hand-constructed ones, making <code>model_bakeoff.py</code>’s cross-model comparisons more representative as the held-out set grows.</p>
 <p>Put together: this loop is the thing that keeps both downstream tools honest over time. Without it, <code>optimize_gepa.py</code> only ever optimizes against a fixed, hand-written snapshot of the scheme, and <code>model_bakeoff.py</code> only ever compares candidates against that same fixed snapshot – neither one improves just by running the scripts again. Real-world testing is what actually grows and diversifies the corpus both scripts depend on.</p>
 </section>
 <section id="a-worked-precedent-the-impliedelided-token-feature" class="level2">
@@ -739,7 +745,7 @@ ul.task-list li input[type="checkbox"] {
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.6.0</strong></p>
+<p>Documentation for release version <strong>0.7.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

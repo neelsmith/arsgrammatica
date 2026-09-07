@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Saving and loading analyses – arsgrammatica</title>
+<title>Highlighting syntactic analysis in HTML – arsgrammatica</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -165,7 +165,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guides/saving-loading.html">Saving and loading analyses</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guides/texthiliting.html">Highlighting syntactic analysis in HTML</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -198,14 +198,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/saving-loading.html" class="sidebar-item-text sidebar-link active">
+  <a href="../guides/saving-loading.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Saving and loading analyses</span></a>
   </div>
 </li>
         <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/texthiliting.html" class="sidebar-item-text sidebar-link">
+  <a href="../guides/texthiliting.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Highlighting syntactic analysis in HTML</span></a>
   </div>
 </li>
@@ -288,8 +288,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#saving-analyses" id="toc-saving-analyses" class="nav-link active" data-scroll-target="#saving-analyses">Saving analyses</a></li>
-  <li><a href="#reading-saved-analyses" id="toc-reading-saved-analyses" class="nav-link" data-scroll-target="#reading-saved-analyses">Reading saved analyses</a></li>
+  <li><a href="#coloring-by-verbal-expression" id="toc-coloring-by-verbal-expression" class="nav-link active" data-scroll-target="#coloring-by-verbal-expression">Coloring by verbal expression</a></li>
+  <li><a href="#add-indentation-by-depth-of-subordination" id="toc-add-indentation-by-depth-of-subordination" class="nav-link" data-scroll-target="#add-indentation-by-depth-of-subordination">Add indentation by depth of subordination</a></li>
   </ul>
 </nav>
     </div>
@@ -298,7 +298,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Saving and loading analyses</h1>
+<h1 class="title">Highlighting syntactic analysis in HTML</h1>
 </div>
 
 
@@ -315,44 +315,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>You can serialize analyses to a delimited-text file, and read saved analyses back using the <code>write_analyses</code> and <code>read_analyses</code> functions.</p>
-<section id="saving-analyses" class="level2">
-<h2 class="anchored" data-anchor-id="saving-analyses">Saving analyses</h2>
-<p>If you have analyzed one or more passages into two variables <code>sentences</code> and <code>results</code> (like <a href="../guides/analysis.html">these examples</a>), here’s how to serialize them.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> write_analyses, combined_tokengraph</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>tokengraph <span class="op">=</span> combined_tokengraph(results)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>verbalunits <span class="op">=</span> [vu <span class="cf">for</span> result <span class="kw">in</span> results <span class="cf">for</span> vu <span class="kw">in</span> result.verbalunits]</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>warnings <span class="op">=</span> write_analyses(sentences, verbalunits, tokengraph, <span class="st">"analysis.txt"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><code>write_analyses</code> expects sentences, verbal units, and tokens to be separately organized, and writes them to a named file. We already have a <code>sentences</code> variable. We can extract from the <code>results</code> variable separate lists for verbal units (the nested <code>for</code> comprehension) and the token graph (the <code>combined_tokengraph</code> function).</p>
-<p><code>write_analyses</code> returns a list with any warnings encountered in serializing the analyses. We could check those:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> w <span class="kw">in</span> warnings:</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Warning: </span><span class="sc">{</span>w<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>You may also optionally record in a separate block of the delimited-text file the language model and its reasoning as part of the sentence-by-sentence record, using the optional parameters <code>model</code> and <code>reasoning</code>.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>warnings <span class="op">=</span> write_analyses(</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    sentences, verbalunits, tokengraph, <span class="st">"analysis.txt"</span>,</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>os.environ[<span class="st">"MODEL"</span>],</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    reasoning<span class="op">=</span>[result.reasoning <span class="cf">for</span> result <span class="kw">in</span> results],</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>arsgrammatica</code> includes utility functions to display a text in HTML with highlighting of its syntactic structure. First <a href="../guides/analysis.html">analyze a string or a passage</a>.</p>
+<section id="coloring-by-verbal-expression" class="level2">
+<h2 class="anchored" data-anchor-id="coloring-by-verbal-expression">Coloring by verbal expression</h2>
+<p>Once you have an analysis result, you can compose an HTML string that colors tokens by the verbal expression they belong to, using the same colors as <code>arsgramamtica</code>’s <a href="../guides/mermaid.html">Mermaid diagrams</a>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> tokengraph_to_html</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>html <span class="op">=</span> tokengraph_to_html(result.tokengraph)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>(Use this in a web environment (like a Marimo notebook) to see the real results.)</p>
 </section>
-<section id="reading-saved-analyses" class="level2">
-<h2 class="anchored" data-anchor-id="reading-saved-analyses">Reading saved analyses</h2>
-<p>You can read back a flat list of all the four parts of a serialization with the <code>read_analyses</code> function.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> read_analyses</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>tokengraph, verbalunits, sentences, lm_infos <span class="op">=</span> </span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    read_analyses(<span class="st">"analysis.txt"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>To split up the composite token graph by sentence, use <code>split_analysis_by_sentence</code>.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> split_analysis_by_sentence</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>sentencetokens <span class="op">=</span> split_analysis_by_sentence(tokengraph, verbalunits, sentences)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (sentence_tokengraph, sentence_verbalunits) <span class="kw">in</span> </span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">zip</span>(sentences, sentencetokens):</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    ...  <span class="co"># work with analysis data per sentence</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>For details of the serialization format, see <a href="../reference/">the reference documentation</a></p>
+<section id="add-indentation-by-depth-of-subordination" class="level2">
+<h2 class="anchored" data-anchor-id="add-indentation-by-depth-of-subordination">Add indentation by depth of subordination</h2>
+<p>The <code>tokengraph_to_depth_html</code> function uses the same color highlighting as tokengraph_to_html, but instead of laying out the text in a single paragaph, it indents sequences of tokens by their level of subordination.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> tokengraph_to_depth_html</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>html, warnings <span class="op">=</span> tokengraph_to_depth_html(result.tokengraph)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>You can limit the tokens included in the display by their depth of subordination with the <code>depth</code> parameter. (This is especially useful in an interactive display where you can explore a passage at different levels of subordination.)</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># depth=0 limits the display to root/independent clauses only:</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>html, warnings <span class="op">=</span> tokengraph_to_depth_html(result.tokengraph, depth<span class="op">=</span><span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
 </section>
