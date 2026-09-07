@@ -17,8 +17,8 @@ title: Concepts
 
 Different models of syntax serve different purposes.
 
-- Relation to Universal Dependencies (UD) *TBA*
-- Relation to Agent-Action-Target (AAT) *TBA*
+- Relation to [Universal Dependencies](./ud.qmd) (UD)
+- Relation to [Agent-Action-Target](./aat.qmd) (AAT)
 
  
 
