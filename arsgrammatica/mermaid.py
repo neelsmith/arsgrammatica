@@ -40,7 +40,7 @@ latin_syntax_dspy.analyze_string) as a Mermaid flowchart.
   no new relation -- so independent clauses, the clauses one level below
   them, and so on, tend to land level with each other in the rendered
   diagram instead of wherever Mermaid's layout engine would otherwise put
-  them. This is the SAME depth aat_bridge.py's attgraph() would assign
+  them. This is the SAME depth aat_bridge.py's aatgraph() would assign
   that verbal expression's own AAT action node, so this diagram's layout
   and an AAT graph of the same sentence (see latin_syntaxer_review.py's
   own AAT display) rank things identically -- not arsgrammatica's own
@@ -158,7 +158,7 @@ def tokengraph_to_mermaid(
     `rank_by_depth` (default True) makes the diagram's layout respect each
     verbal expression's own depth in the `aat` package's Agent-Action-
     Target model (see verbal_units.compute_aat_depths()) -- the same depth
-    aat_bridge.attgraph() would give that verbal expression's own AAT
+    aat_bridge.aatgraph() would give that verbal expression's own AAT
     action node, walking related_node chains to an independent (depth 0)
     action: every verbal-unit anchor node (any token with `verbalunitid`
     set to its own id, implied tokens included) at the SAME depth gets

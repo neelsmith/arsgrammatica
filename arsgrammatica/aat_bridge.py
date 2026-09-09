@@ -11,7 +11,7 @@ agent/action/target nodes itself. arsgrammatica's own Latin pipeline
 predates and doesn't use that model at all: it produces a much richer,
 Latin-specific relational graph (models.py's TokenAnalysis/
 VerbalExpression, syntax_model.md's full case/relation inventory) with no
-notion of "agent"/"target" built in. `attgraph()`, below, is the
+notion of "agent"/"target" built in. `aatgraph()`, below, is the
 converter: given an already-completed arsgrammatica analysis, it derives
 an AATGraph from it, applying (to Latin) the same role rules aat.english's
 own DSPy signature documents for English (see
@@ -83,7 +83,7 @@ token's citation is None). This keeps every `related_node` link
 since arsgrammatica's segmentation never lets a relation cross a sentence
 boundary -- the one thing AAT's context-scoped id space actually needs.
 A sentence whose tokens span more than one citation gets a warning (see
-`attgraph()`'s return value) rather than a raised error, noting which
+`aatgraph()`'s return value) rather than a raised error, noting which
 citation was used for the whole sentence.
 """
 
@@ -103,7 +103,7 @@ def _sentence_context(sentence: Sentence, warnings: List[str], index: int) -> st
     """This sentence's shared AAT context: its first token's citation, or
     "" if it has no tokens or that token's citation is unset. Appends a
     warning (naming the sentence by its position, 1-based, in the
-    `sentences` list `attgraph()` was called with) if its tokens span more
+    `sentences` list `aatgraph()` was called with) if its tokens span more
     than one distinct citation, since only the first one is used."""
     if not sentence.tokens:
         return ""
@@ -175,7 +175,7 @@ def _component_ids(anchor_id: str, tokengraph: List[TokenAnalysis]) -> List[str]
     return ids
 
 
-def attgraph(sentences: List[Sentence], results: list) -> Tuple[AATGraph, List[str]]:
+def aatgraph(sentences: List[Sentence], results: list) -> Tuple[AATGraph, List[str]]:
     """Build an `aat.core.AATGraph` from an already-completed
     arsgrammatica analysis -- `sentences`/`results`, in the exact shape
     `pipeline.analyze_sources()` (or `analyze_string()`) returns them:

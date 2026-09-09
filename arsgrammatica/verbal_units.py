@@ -328,7 +328,7 @@ def find_governing_verbal_expression(
     reaching another anchor (a malformed or genuinely disconnected verbal
     expression) -- either way, "no governing verbal expression" is the
     right answer for a caller that just wants "is this subordinate to
-    something, and if so what" (e.g. aat_bridge.py's `attgraph()`,
+    something, and if so what" (e.g. aat_bridge.py's `aatgraph()`,
     building an AAT action node's `related_node`, where both cases alike
     mean `related_node = None`). A caller that needs to tell those two
     apart, or wants a warning when the chase genuinely fails, should use
@@ -453,7 +453,7 @@ def compute_subordination_depths(
     # The chase itself -- following relatedtoken1/relatedtoken2 forward
     # until another anchor is reached -- now lives in
     # find_governing_verbal_expression(), shared with aat_bridge.py's
-    # attgraph(). Computed once, up front, for every anchor; this is a
+    # aatgraph(). Computed once, up front, for every anchor; this is a
     # pure function of `tokengraph` with no dependency on `depths`'
     # memoization state, so precomputing it here for all anchors (instead
     # of the original code's lazy per-call `parent_of()`) changes nothing
@@ -504,11 +504,11 @@ def compute_subordination_depths(
 def compute_aat_depths(tokengraph: List[TokenAnalysis]) -> Dict[str, int]:
     """Compute each verbal expression's depth the way it would come out if
     you built an `aat` package AATGraph from this same `tokengraph` (via
-    `aat_bridge.attgraph()`) and walked each action node's own
+    `aat_bridge.aatgraph()`) and walked each action node's own
     `related_node` chain to the top -- an independent action (no governing
     action) is depth 0, one it governs is depth 1, and so on -- WITHOUT
     actually building that graph or depending on `aat` being installed at
-    all: `attgraph()` populates every action's `related_node` from this
+    all: `aatgraph()` populates every action's `related_node` from this
     same module's `find_governing_verbal_expression()`, so walking that
     map directly here reproduces the identical numbers `graph.
     governing_action()` chains would.

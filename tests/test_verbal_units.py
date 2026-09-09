@@ -505,7 +505,7 @@ def test_cycle_in_relations_leaves_depth_unresolved_with_warning():
 
 # ---------------------------------------------------------------------------
 # find_governing_verbal_expression() -- the chase extracted out of
-# compute_subordination_depths() for reuse by aat_bridge.py's attgraph().
+# compute_subordination_depths() for reuse by aat_bridge.py's aatgraph().
 # ---------------------------------------------------------------------------
 
 
@@ -514,7 +514,7 @@ def test_root_verb_has_no_governing_expression():
     never finds another anchor (the 'root' sentinel is skipped, and
     pergit has no relatedtoken2), so this comes back None, same value a
     genuinely disconnected verb would produce -- see this function's own
-    docstring for why that's the right contract for attgraph()'s
+    docstring for why that's the right contract for aatgraph()'s
     purposes, even though compute_subordination_depths() (which needs to
     tell the two apart) checks relatedtoken1 == 'root' itself before ever
     consulting this function."""

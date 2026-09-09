@@ -118,7 +118,7 @@ An implied/elided token (`models.py`'s `IMPLIED_TOKENTYPES` -- "implied sum", "c
 
 ### Ranking by AAT-graph depth
 
-By default, the diagram's layout also respects each verbal expression's own depth in the `aat` package's Agent-Action-Target model (see "Building an AAT (Agent-Action-Target) graph" in USAGE.md) -- the same depth `attgraph()` would assign that verbal expression's own AAT action node, walking `related_node` chains to an independent (depth 0) action -- so independent clauses, the clauses one level below them, and so on, tend to land level with each other instead of wherever Mermaid's layout engine would otherwise scatter them. This is on by default; pass `rank_by_depth=False` for the old, unranked layout:
+By default, the diagram's layout also respects each verbal expression's own depth in the `aat` package's Agent-Action-Target model (see "Building an AAT (Agent-Action-Target) graph" in USAGE.md) -- the same depth `aatgraph()` would assign that verbal expression's own AAT action node, walking `related_node` chains to an independent (depth 0) action -- so independent clauses, the clauses one level below them, and so on, tend to land level with each other instead of wherever Mermaid's layout engine would otherwise scatter them. This is on by default; pass `rank_by_depth=False` for the old, unranked layout:
 
 ```python
 diagram, warnings = tokengraph_to_mermaid(result.tokengraph, rank_by_depth=False)

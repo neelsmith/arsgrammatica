@@ -55,7 +55,7 @@ from .lewis_short import (
     read_lewis_short_from_url,
 )
 
-# attgraph() depends on the separate `aat` package, which most callers of
+# aatgraph() depends on the separate `aat` package, which most callers of
 # arsgrammatica have no need to install at all -- not on PyPI, so
 # `pip install git+https://github.com/neelsmith/aat.git` (not a bare
 # `pip install aat`) is what actually installs it; pyproject.toml's "aat"
@@ -65,19 +65,19 @@ from .lewis_short import (
 # normally used. Importing it lazily/defensively here, rather than
 # unconditionally like every other submodule above, means `import
 # arsgrammatica` still succeeds without `aat` installed; only actually
-# calling `arsgrammatica.attgraph(...)` without it raises, with a message
+# calling `arsgrammatica.aatgraph(...)` without it raises, with a message
 # naming the missing package and how to get it.
 try:
-    from .aat_bridge import attgraph
+    from .aat_bridge import aatgraph
 except ImportError as _exc:  # pragma: no cover -- exercised only when `aat` isn't installed
     # `except ... as name` implicitly deletes `name` once this block ends
     # (a Python gotcha, not specific to this code) -- reassign to a plain
-    # variable first so attgraph(), called later, can still reference it.
+    # variable first so aatgraph(), called later, can still reference it.
     _aat_import_error = _exc
 
-    def attgraph(*args, **kwargs):
+    def aatgraph(*args, **kwargs):
         raise ImportError(
-            "attgraph() needs the separate 'aat' package "
+            "aatgraph() needs the separate 'aat' package "
             "(https://github.com/neelsmith/aat), which isn't installed. "
             "Install it with: pip install git+https://github.com/"
             "neelsmith/aat.git -- (if you've also `pip install`ed "
@@ -147,5 +147,5 @@ __all__ = [
     "LEWIS_SHORT_URL",
     "read_lewis_short",
     "read_lewis_short_from_url",
-    "attgraph",
+    "aatgraph",
 ]

@@ -1,11 +1,11 @@
 """
-Offline tests for arsgrammatica/aat_bridge.py's attgraph() -- the
+Offline tests for arsgrammatica/aat_bridge.py's aatgraph() -- the
 converter from an arsgrammatica analysis (models.py's TokenAnalysis/
 VerbalExpression scheme) to an `aat` package AATGraph.
 
 Like test_verbal_units.py, these run against real gold fixtures
 (fixtures/gold_examples.py) built directly from their own canned_answer
-dicts -- no DummyLM, no live LM call -- since attgraph() is a pure
+dicts -- no DummyLM, no live LM call -- since aatgraph() is a pure
 function of (sentences, results) and the gold fixtures already exercise
 the tricky real cases (subordination through an intermediate token,
 implied tokens, compound verb forms) that a hand-rolled synthetic example
@@ -17,7 +17,7 @@ from types import SimpleNamespace
 import pytest
 from aat.core import CitableToken, validate as aat_validate
 
-from arsgrammatica.aat_bridge import attgraph
+from arsgrammatica.aat_bridge import aatgraph
 from arsgrammatica.models import IMPLIED_TOKENTYPES, Sentence, Token, TokenAnalysis, VerbalExpression
 from fixtures.gold_examples import GOLD_EXAMPLES
 
@@ -31,7 +31,7 @@ def _sentence_and_result(slug, citation=None):
     from its non-implied tokengraph entries (optionally all sharing one
     `citation`), and `result` as a bare SimpleNamespace carrying
     `.tokengraph`/`.verbalunits` built from the same canned_answer --
-    exactly the two attributes attgraph() reads off each `results[i]`,
+    exactly the two attributes aatgraph() reads off each `results[i]`,
     without needing an actual dspy.Prediction."""
     canned = _example(slug).canned_answer
     tokens = [
@@ -60,7 +60,7 @@ def test_hercules_subordination_and_agent_target_mapping():
     relates to it -- the 'cum'-clause leaves it implicit) and pergit has
     no target (intransitive)."""
     sentence, result = _sentence_and_result("unit_verb_hercules_cum", citation="Livy 1.7")
-    graph, warnings = attgraph([sentence], [result])
+    graph, warnings = aatgraph([sentence], [result])
     assert warnings == []
 
     actions = _by_role(graph, "action")
@@ -91,7 +91,7 @@ def test_transitive_passive_agent_via_object_of_preposition_and_compound_value()
     with value 'condita est' in surface order. urbs (subject of a
     transitive-passive verb) is a target, not an agent."""
     sentence, result = _sentence_and_result("semantic_type_transitive_passive_urbs_condita")
-    graph, warnings = attgraph([sentence], [result])
+    graph, warnings = aatgraph([sentence], [result])
     assert warnings == []
 
     actions = _by_role(graph, "action")
@@ -115,7 +115,7 @@ def test_linking_verb_predicate_is_a_target():
     English convention for a linking verb's predicate, per aat_bridge.py's
     module docstring."""
     sentence, result = _sentence_and_result("semantic_type_linking_verb_etruria_vicina")
-    graph, warnings = attgraph([sentence], [result])
+    graph, warnings = aatgraph([sentence], [result])
     assert warnings == []
 
     agents = _by_role(graph, "agent")
@@ -136,7 +136,7 @@ def test_implied_subject_is_skipped_and_subordination_chases_through_it():
     separately, and 'somniorum' relates to it via 'genitive', not 'direct
     object')."""
     sentence, result = _sentence_and_result("implied_subject_recordatus_somniorum_ait")
-    graph, warnings = attgraph([sentence], [result])
+    graph, warnings = aatgraph([sentence], [result])
     assert warnings == []
 
     actions = _by_role(graph, "action")
@@ -152,12 +152,12 @@ def test_implied_subject_is_skipped_and_subordination_chases_through_it():
 
 
 def test_graph_validates_referentially_against_a_matching_token_list():
-    """A graph attgraph() builds should always pass aat.core.validate()
+    """A graph aatgraph() builds should always pass aat.core.validate()
     given a CitableToken list covering the same (context, id) pairs --
     referential soundness, not correctness of the underlying Latin
     analysis, which is all validate() ever checks."""
     sentence, result = _sentence_and_result("unit_verb_hercules_cum", citation="Livy 1.7")
-    graph, warnings = attgraph([sentence], [result])
+    graph, warnings = aatgraph([sentence], [result])
     assert warnings == []
 
     tokens = [
@@ -180,7 +180,7 @@ def test_multi_citation_sentence_warns_and_uses_first_token_citation():
     for tok, citation in zip(sentence.tokens, ["Livy 1.1", "Livy 1.1", "Livy 1.2", "Livy 1.2"]):
         tok.citation = citation
 
-    graph, warnings = attgraph([sentence], [result])
+    graph, warnings = aatgraph([sentence], [result])
     assert len(warnings) == 1
     assert "Livy 1.1" in warnings[0] and "Livy 1.2" in warnings[0]
     assert all(node.context == "Livy 1.1" for node in graph.nodes)
@@ -188,6 +188,6 @@ def test_multi_citation_sentence_warns_and_uses_first_token_citation():
 
 def test_no_citation_falls_back_to_empty_context():
     sentence, result = _sentence_and_result("semantic_type_linking_verb_etruria_vicina")
-    graph, warnings = attgraph([sentence], [result])
+    graph, warnings = aatgraph([sentence], [result])
     assert warnings == []
     assert all(node.context == "" for node in graph.nodes)

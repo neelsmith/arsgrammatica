@@ -17,7 +17,7 @@ pip install git+https://github.com/neelsmith/arsgrammatica.git@v0.5.0
 
 ### Optional: the `aat` extra
 
-Only needed for `attgraph()` (`arsgrammatica/aat_bridge.py`), converting an analysis to an Agent-Action-Target graph. The separate `aat` package isn't on PyPI either, so pick one:
+Only needed for `aatgraph()` (`arsgrammatica/aat_bridge.py`), converting an analysis to an Agent-Action-Target graph. The separate `aat` package isn't on PyPI either, so pick one:
 
 ```sh
 # simplest -- just install aat directly
