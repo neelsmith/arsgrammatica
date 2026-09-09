@@ -6,7 +6,7 @@ Current version: **0.7.0**.
 **0.8.0** *??*: 
 
 - move build_api_docs.py into utilties dir
-- better handlging of token management in some Marimo nbs
+- better handling of token management in some Marimo nbs
 
 
 

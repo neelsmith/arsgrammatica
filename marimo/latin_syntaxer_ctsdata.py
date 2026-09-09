@@ -6,11 +6,6 @@ app = marimo.App(width="medium")
 
 @app.cell(hide_code=True)
 def _():
-    return
-
-
-@app.cell(hide_code=True)
-def _():
     import marimo as mo
 
 
@@ -34,58 +29,25 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    mo.md("""
-    ## Required source file: CEX text
-    """)
-    return
-
-
-@app.cell(hide_code=True)
 def _(ctsdata_file_browser):
     ctsdata_file_browser
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    mo.md("""
-    ## Optional optimized prompt
-    """)
+def _(cost_summary, format_lm_cost, mo, seecost):
+    costdisplay = None
+    if seecost.value:
+        costdisplay = mo.md(f"**LM cost so far**: {format_lm_cost(cost_summary)}")
+    costdisplay
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md("""
-    (JSON file with GEPA optimization.)
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(
-    mo,
-    optimized_program_browser,
-    optimized_program_error,
-    optimized_program_path,
-):
-    if optimized_program_error is not None:
-        optimized_program_status = mo.callout(
-            mo.md(f"Could not load this file as an optimized program: {optimized_program_error}"),
-            kind="danger",
-        )
-    elif optimized_program_path is not None:
-        optimized_program_status = mo.md(
-            f"*Using the optimized prompt loaded from `{optimized_program_path}`.*"
-        )
-    else:
-        optimized_program_status = mo.md(
-            "*No optimized program selected -- using `analyze`'s default (unoptimized) prompt.*"
-        )
-
-    mo.vstack([optimized_program_browser, optimized_program_status])
-    return
+    seecost = mo.ui.checkbox(label="*See cost*")
+    seecost
+    return (seecost,)
 
 
 @app.cell(hide_code=True)
@@ -166,7 +128,6 @@ def _(analysis_warnings, download_widget, mo, save_extension):
 @app.cell(hide_code=True)
 def _(mo):
     seetokens = mo.ui.checkbox(label="*See list of tokens*")
-    seecost = mo.ui.checkbox(label="*See cost*")
     seeprompts = mo.ui.checkbox(label="*See prompts*")
     # dspy.LM caches responses by default (model + messages + config), so
     # re-clicking Analyze on the exact same passage selection normally just
@@ -180,8 +141,33 @@ def _(mo):
     # prefix to make each still-genuinely-fresh call cheaper, it never
     # replays a whole response, so it stays on regardless of this checkbox.
     disable_cache = mo.ui.checkbox(label="*Disable LM cache (debugging)*")
-    mo.hstack([seetokens, seeprompts, seecost, disable_cache], justify="start")
-    return disable_cache, seecost, seeprompts, seetokens
+    mo.hstack([seetokens, seeprompts, disable_cache], justify="start")
+    return disable_cache, seeprompts, seetokens
+
+
+@app.cell(hide_code=True)
+def _(
+    mo,
+    optimized_program_browser,
+    optimized_program_error,
+    optimized_program_path,
+):
+    if optimized_program_error is not None:
+        optimized_program_status = mo.callout(
+            mo.md(f"Could not load this file as an optimized program: {optimized_program_error}"),
+            kind="danger",
+        )
+    elif optimized_program_path is not None:
+        optimized_program_status = mo.md(
+            f"*Using the optimized prompt loaded from `{optimized_program_path}`.*"
+        )
+    else:
+        optimized_program_status = mo.md(
+            "*No optimized program selected -- using `analyze`'s default (unoptimized) prompt.*"
+        )
+
+    mo.vstack([optimized_program_browser, optimized_program_status])
+    return
 
 
 @app.cell(hide_code=True)
@@ -191,15 +177,6 @@ def _(finaltokens, seetokens):
         tokendisplay = finaltokens
 
     tokendisplay
-    return
-
-
-@app.cell(hide_code=True)
-def _(cost_summary, format_lm_cost, mo, seecost):
-    costdisplay = None
-    if seecost.value:
-        costdisplay = mo.md(f"**LM cost so far**: {format_lm_cost(cost_summary)}")
-    costdisplay
     return
 
 
@@ -545,7 +522,11 @@ def _(finaltokens, mo, tokengraph_to_html):
 
 @app.cell
 def _(finaltokens, maxdepth, mo, tokengraph_to_depth_html):
-    indenthtml, indentwarnings = tokengraph_to_depth_html(finaltokens,depth=maxdepth.value)
+    # Guard against maxdepth being None (nothing analyzed yet) rather than
+    # calling .value unconditionally -- same guard latin_syntaxer_review.py
+    # and latin_syntaxer_tokenized.py use for the same reason.
+    depth = maxdepth.value if maxdepth is not None else None
+    indenthtml, indentwarnings = tokengraph_to_depth_html(finaltokens, depth=depth)
     indentpsg = mo.Html("<b><i>Indented by verbal unit</i></b>: " + indenthtml)
     return (indentpsg,)
 
