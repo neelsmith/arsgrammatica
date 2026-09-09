@@ -50,6 +50,8 @@ website:
     - title: "Concepts"
       contents:
         - concepts/index.qmd
+        - concepts/ud.qmd
+        - concepts/aat.qmd
     - title: "Guides"
       contents: 
         - guides/index.qmd      

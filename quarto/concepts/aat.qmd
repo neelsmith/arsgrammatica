@@ -1,6 +1,40 @@
 ---
-title: arsgrammatica and the AAT model
+title: "`arsgrammatica` and the AAT model"
 ---
 
 
-[ars](./imgs/armavirumquecano.png)
+- semantically compatible
+- reduced syntax model
+- x-lingual comparison
+
+
+## A simple example
+
+
+
+Consider a very short Latin sentence, and a visualization of the dependency graphs that AAT annotation and `arsgrammatica` build for it.
+
+> *arma virumque cano.*
+
+
+
+
+
+
+:::: {.columns}
+
+::: {.column width="45%"}
+### AAT 
+
+ ![](./imgs/arma-aat.png) 
+:::
+
+
+
+
+::: {.column width="55%"}
+### `arsgrammatica` 
+ ![](./imgs/armavirumquecano.png) 
+:::
+
+::::
