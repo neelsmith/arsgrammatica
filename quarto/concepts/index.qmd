@@ -1,18 +1,36 @@
 ---
-title: Concepts
+title: Modelling Latin syntax
 ---
 
-Any computational analysis of natural-language syntax must choose a syntactic model suited to its purpose. A
 
-## Key features of `arsgrammatica`'s syntax model
+## Goals of `arsgrammatica`
 
-- designed for study of Latin texts (for research or teaching)  using familiar terminology
-- tokenizes and classifies tokens from strings of text
-- organizes syntactic analysis in coordinated and subordinated *verbal expressions*, subject-verb-object expressions generally corresponding to clauses in an English translation
-- relates all *lexical* tokens to other tokens in a dependency graph following a defined scheme
-- tokens are uniquely citable within uniquely citable passages of text
+Any computational analysis of natural-language syntax must choose a syntactic model suited to its purpose. Some analyses, for example, work with *universal syntactic models* like Universal Dependencies (UD) or Agent-Action-Target (AAT) to align features across multiple languages.
 
-![Syntactic analysis of a complete Latin sentence.](./imgs/armavirumquecano.png)
+`arsgrammatica` addresses a different problem. It defines a syntactic scheme that is *unique to Latin* in order to support research and teaching focused on *Latin* texts. Some of its key features include:
+
+
+- `arsgrammatica` respects citation of text passages. Tokens are uniquely citable within uniquely citable passages of text.
+- Syntactic categories use terminology already familiar to Latinists.
+- Tokenization of Latin strings classifies tokens in terms specific to editions of Latin texts (e.g., it recognizes a `praenomen` token type written in abbreviated form and associated with a fully supplied Latin *nomen* or *cognomen*).
+- All lexical tokens are related in a dependency graph.
+- The dependency graph is organized in coordinated and subordinated *verbal expressions*, subject-verb-object expressions generally corresponding to clauses in an English translation. (This structure is easily translated into an AAT model for cross-lingual alignment.)
+
+
+## A simple illustration 
+
+Consider a very short Latin sentence, and a diagram of the dependency graph that `arsgrammatica` builds from it.
+
+> *arma virumque cano.*
+
+![Syntactic analysis of a short Latin sentence.](./imgs/armavirumquecano.png)
+
+
+This Latin sentence contains a single verbal expression, rooted in the verb *cano*. `arsgrammatica` recognizes four lexical tokens in its dependency graph. It ignores the punctuation token (period), and distinguishes an enclitic token *-que* from the noun it is orthographically attached to (*virum*). `arsgrammatica` identifies two different kinds of relationship in this sentence: `direct object` and `coordinating conjunction`.
+
+
+
+
 
 ## Relation to other models
 
