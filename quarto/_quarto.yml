@@ -44,7 +44,7 @@ website:
         - tutorials/cli.qmd
         - tutorials/diagrams.qmd
         - tutorials/batch-images.qmd
-        - tutorials/batch-texts.qmd
+
         - "---"
         - tutorials/quick.qmd
     - title: "Concepts"
@@ -59,6 +59,7 @@ website:
         - guides/install.md
         - guides/analysis.qmd
         - guides/saving-loading.qmd
+        - guides/batch-texts.qmd
         - "---"        
         - guides/texthiliting.qmd
         - guides/mermaid.qmd
