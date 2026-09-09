@@ -2,6 +2,8 @@
 title: Concepts
 ---
 
+Any computational analysis of natural-language syntax must choose a syntactic model suited to its purpose. A
+
 ## Key features of `arsgrammatica`'s syntax model
 
 - designed for study of Latin texts (for research or teaching)  using familiar terminology

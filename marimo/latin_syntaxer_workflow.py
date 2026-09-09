@@ -34,15 +34,15 @@ def _(input_form):
     return
 
 
-@app.cell
-def _(dspy):
-    dspy.inspect_history()
+@app.cell(hide_code=True)
+def _(disable_cache, mo, seecost):
+    mo.hstack([seecost, disable_cache], justify="start")
     return
 
 
-@app.cell
-def _(disable_cache):
-    disable_cache
+@app.cell(hide_code=True)
+def _(costdisplay):
+    costdisplay
     return
 
 
@@ -100,7 +100,6 @@ def _(download_mermaid):
 @app.cell
 def _(mo):
     seetokens = mo.ui.checkbox(label="*See list of tokens*")
-    seecost = mo.ui.checkbox(label="*See cost*")
     seeprompts = mo.ui.checkbox(label="*See prompts*")
     # dspy.LM caches responses by default (model + messages + config), so
     # re-submitting the exact same form values normally just replays the
@@ -118,8 +117,8 @@ def _(mo):
     # still-genuinely-fresh call cheaper, it never replays a whole
     # response, so it stays on regardless of this checkbox.
     disable_cache = mo.ui.checkbox(label="*Disable LM cache (debugging)*")
-    mo.hstack([seetokens, seeprompts, seecost], justify="start")
-    return disable_cache, seecost, seeprompts, seetokens
+    mo.hstack([seetokens, seeprompts], justify="start")
+    return disable_cache, seeprompts, seetokens
 
 
 @app.cell
@@ -144,7 +143,7 @@ def _(cost_summary, format_lm_cost, mo, seecost):
     if seecost.value:
         costdisplay = mo.md(f"**Total cost**: {format_lm_cost(cost_summary)}")
     costdisplay
-    return
+    return (costdisplay,)
 
 
 @app.cell(hide_code=True)
@@ -168,6 +167,12 @@ def _(mo):
     # Implementation
     """)
     return
+
+
+@app.cell
+def _(mo):
+    seecost = mo.ui.checkbox(label="*See cost*")
+    return (seecost,)
 
 
 @app.cell(hide_code=True)

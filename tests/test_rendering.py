@@ -531,6 +531,82 @@ def test_html_colors_match_mermaid_colors_for_every_gold_example(example):
     assert actual_fills == expected_fills, example.slug
 
 
+def test_html_depth_cap_keeps_full_text_but_drops_out_of_depth_spans():
+    """Same fixture as tokengraph_to_depth_html()'s own taurum test below
+    (taurum: depth 0; "cum quo Pasiphae concubuit": depth 1; "ex Creta
+    insula Mycenis uiuum adduxit": depth 0). Unlike
+    tokengraph_to_depth_html(depth=0), which drops the whole depth-1 block
+    from its output, tokengraph_to_html(depth=0) must still render every
+    word of the passage -- stripping the <span> tags must reproduce
+    tokengraph_to_text()'s own reconstruction exactly -- while the depth-1
+    words ("cum", "quo", "Pasiphae", "concubuit") lose their color spans
+    and fall back to plain escaped text, same as an unassigned token."""
+    tokengraph = _tokengraph("depth_taurum_cum_quo_concubuit")
+    full_text = tokengraph_to_text(tokengraph)
+
+    html_out = tokengraph_to_html(tokengraph, depth=0)
+    stripped = re.sub(r"</?span[^>]*>", "", html_out)
+    assert html.unescape(stripped) == full_text
+
+    depth1_words = {"cum", "quo", "Pasiphae", "concubuit"}
+    spanned_words = {m[2] for m in _SPAN_RE.findall(html_out)}
+    assert spanned_words.isdisjoint(depth1_words)
+    for word in depth1_words:
+        assert word in html_out  # still present, just unwrapped
+
+    for word in ("Taurum", "ex", "Creta", "insula", "uiuum", "adduxit"):
+        assert word in spanned_words, word
+
+
+def test_html_depth_at_or_above_max_matches_unlimited_depth():
+    """depth=1 (the passage's own maximum, per max_subordination_depth())
+    must highlight everything, identical to leaving depth unset -- same
+    "depth big enough to show everything" convention
+    tokengraph_to_depth_html() documents for its own depth parameter."""
+    tokengraph = _tokengraph("depth_taurum_cum_quo_concubuit")
+    assert tokengraph_to_html(tokengraph, depth=1) == tokengraph_to_html(tokengraph)
+    assert tokengraph_to_html(tokengraph, depth=1) == tokengraph_to_html(tokengraph, depth=None)
+
+
+def test_html_depth_negative_raises():
+    tokengraph = _tokengraph("depth_taurum_cum_quo_concubuit")
+    with pytest.raises(ValueError, match="depth must be >= 0"):
+        tokengraph_to_html(tokengraph, depth=-1)
+
+
+def test_html_depth_colors_for_in_depth_tokens_match_tokengraph_to_depth_html():
+    """The colors that DO survive a depth cap must be identical to the ones
+    tokengraph_to_depth_html() assigns those same in-depth tokens -- both
+    functions share one assign_verbal_unit_colors() call, so limiting
+    tokengraph_to_html()'s highlighting must not shift any surviving span's
+    color."""
+    tokengraph = _tokengraph("aside_equidem_pace_dixerim")
+    max_depth = max_subordination_depth(tokengraph) or 0
+
+    capped_html = tokengraph_to_html(tokengraph, depth=max_depth)
+    whole_html = tokengraph_to_html(tokengraph)
+    assert capped_html == whole_html  # nothing exceeds max_depth, so nothing is dropped
+
+    depth_html, _warnings = tokengraph_to_depth_html(tokengraph, depth=max_depth)
+    assert [m[0] for m in _SPAN_RE.findall(depth_html)] == [
+        m[0] for m in _SPAN_RE.findall(capped_html)
+    ]
+
+
+@pytest.mark.parametrize("example", GOLD_EXAMPLES, ids=lambda e: e.slug)
+def test_html_depth_zero_never_drops_text_for_any_gold_example(example):
+    """Structural check across the whole fixture set: whatever
+    tokengraph_to_html(depth=0) produces for any gold example, stripping
+    its <span> tags must reproduce the exact same reconstructed text as
+    tokengraph_to_html() with no depth limit at all -- confirming the
+    depth cap never removes a token, only a token's highlighting."""
+    tokengraph = [TokenAnalysis(**tok) for tok in example.canned_answer["tokengraph"]]
+    unlimited = tokengraph_to_html(tokengraph)
+    capped = tokengraph_to_html(tokengraph, depth=0)
+
+    strip = lambda s: re.sub(r"</?span[^>]*>", "", s)
+    assert strip(capped) == strip(unlimited), example.slug
+
 
 # ---------------------------------------------------------------------------
 # tokengraph_to_depth_html()
