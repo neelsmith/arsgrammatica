@@ -3,6 +3,9 @@ title: "`arsgrammatica` and the AAT model"
 ---
 
 
+Agent-Action-Target is a *universal* syntactic model, but it takes a very different approach from the [Universal Dependency scheme](./ud.qmd). Instead of trying to map 
+
+
 - semantically compatible
 - reduced syntax model
 - x-lingual comparison
@@ -35,6 +38,28 @@ Consider a very short Latin sentence, and a visualization of the dependency grap
 ::: {.column width="55%"}
 ### `arsgrammatica` 
  ![](./imgs/armavirumquecano.png) 
+:::
+
+::::
+
+
+
+
+
+:::: {.columns}
+
+::: {.column width="45%"}
+### AAT 
+
+ ![](./imgs/arma-aat.png) 
+:::
+
+
+
+
+::: {.column width="55%"}
+### `arsgrammatica` in AAT
+ ![](./imgs/arma-ag-aat.png) 
 :::
 
 ::::
