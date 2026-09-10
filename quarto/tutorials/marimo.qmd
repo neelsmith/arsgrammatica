@@ -56,3 +56,4 @@ Compute graph metrics for an analysis. Similar to `latin_syntaxer_review.py`, bu
 
 ### `lewis_short_lookup.py`
 
+Load a Markdown-formatted text of Lewis-Short's *Latin Dictionary* from a local file or URL, and lookup articles by headword.
