@@ -13,11 +13,17 @@
 
 ## Related work
 
-Parallel python packages for syntactic analysis:
+
+
+
+Parallel python packages for language-specific syntactic analysis:
 
 - [grammatike](https://github.com/neelsmith/grammatike) for Ancient Greek
 - [diqduq](https://github.com/neelsmith/diqduq) for Biblical Hebrew
 
-A reduced model of natural-language syntax:
 
-- [aat](https://github.com/neelsmith/aat), a Python package implementing an Agent-Action-Target model
+Packages for working with universal syntax models:
+
+
+- [udsyntax](https://github.com/neelsmith/udsyntax), a Python package to get dependency data from spaCy into a simple syntax graph format
+- [aat](https://github.com/neelsmith/aat), a Python package implementing a reduced model of natural-language syntax, Agent-Action-Target
