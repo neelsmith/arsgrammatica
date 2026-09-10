@@ -191,3 +191,89 @@ def test_no_citation_falls_back_to_empty_context():
     graph, warnings = aatgraph([sentence], [result])
     assert warnings == []
     assert all(node.context == "" for node in graph.nodes)
+
+
+# ---------------------------------------------------------------------------
+# Composing with verbal_units.filter_tokengraph_by_aat_depth() -- building a
+# depth-limited AAT graph, the way latin_syntaxer_review.py's own AAT
+# display does: filter the tokengraph to a chosen aat_depth cutoff BEFORE
+# calling aatgraph(), rather than trying to filter the resulting AATGraph's
+# own nodes after the fact (aat.core has no direct support for that
+# anyway). filter_tokengraph_by_aat_depth()'s own docstring (verbal_units.py)
+# claims this is always safe -- no dangling related_node reference -- for
+# exactly the reason these tests check.
+# ---------------------------------------------------------------------------
+
+from arsgrammatica.verbal_units import filter_tokengraph_by_aat_depth, max_aat_depth
+
+
+@pytest.mark.parametrize(
+    "slug",
+    [
+        "unit_verb_hercules_cum",
+        "depth_two_cum_sciret_peccavisse_doluit",
+        "depth_taurum_cum_quo_concubuit",
+        "semantic_type_transitive_passive_urbs_condita",
+        "circumstantial_participle_eum_advenientem",
+        "relative_pronoun_latini_cum_quibus",
+        "coordinating_conjunction_dedit_et_dixit_esse",
+        "indirect_question_theseus_audit_quanta",
+        "implied_subject_recordatus_somniorum_ait",
+        "ablative_omnia_ferro_flammaque_miscet",
+    ],
+)
+def test_filtering_by_aat_depth_before_building_never_leaves_a_dangling_governing_link(slug):
+    """Every one of aat_bridge.py's own documented wrinkles (unit verb,
+    circumstantial participle/ablative absolute, relative pronoun, a
+    passive verb's agent-via-preposition, an implied-subject antecedent,
+    a coordinated pair of verbs) -- filtered to EVERY depth cutoff from 0
+    up to the sentence's own deepest AAT depth -- must still let aatgraph()
+    resolve every surviving node's own related_node (if any) to another
+    node actually present in the graph, with no warnings at all."""
+    sentence, result = _sentence_and_result(slug, citation="Livy 1.1")
+    maxd = max_aat_depth(result.tokengraph)
+    for cap in range(0, (maxd or 0) + 1):
+        filtered_tokengraph = filter_tokengraph_by_aat_depth(result.tokengraph, cap)
+        filtered_result = SimpleNamespace(
+            tokengraph=filtered_tokengraph, verbalunits=result.verbalunits
+        )
+        graph, warnings = aatgraph([sentence], [filtered_result])
+        assert warnings == [], f"{slug} cap={cap}: {warnings}"
+        node_ids = {n.id for n in graph.nodes}
+        for node in graph.nodes:
+            if node.related_node is not None:
+                assert node.related_node in node_ids, (
+                    f"{slug} cap={cap}: {node.id} ({node.role}) points at "
+                    f"{node.related_node!r}, which isn't in the filtered graph"
+                )
+
+
+def test_filtering_at_or_beyond_max_aat_depth_matches_unfiltered():
+    sentence, result = _sentence_and_result(
+        "depth_two_cum_sciret_peccavisse_doluit", citation="Livy 1.1"
+    )
+    maxd = max_aat_depth(result.tokengraph)
+
+    unfiltered_graph, unfiltered_warnings = aatgraph([sentence], [result])
+
+    filtered_tokengraph = filter_tokengraph_by_aat_depth(result.tokengraph, maxd)
+    filtered_result = SimpleNamespace(tokengraph=filtered_tokengraph, verbalunits=result.verbalunits)
+    filtered_graph, filtered_warnings = aatgraph([sentence], [filtered_result])
+
+    assert filtered_warnings == unfiltered_warnings == []
+    assert {n.id for n in filtered_graph.nodes} == {n.id for n in unfiltered_graph.nodes}
+
+
+def test_filtering_to_depth_zero_keeps_only_root_actions_and_their_own_dependents():
+    """aat_depth=0 on 'Hercules cum gregem perlustrasset, pergit ad
+    proximam speluncam.' must drop perlustrasset's whole subordinate
+    clause (perlustrasset itself, and gregem, its own target) but keep
+    pergit (the independent action) and Hercules (its own agent) --
+    mirroring test_dot.py's/test_mermaid_ranking.py's own aat_depth=0
+    diagram-level tests, now at the AAT-graph level."""
+    sentence, result = _sentence_and_result("unit_verb_hercules_cum", citation="Livy 1.7")
+    filtered_tokengraph = filter_tokengraph_by_aat_depth(result.tokengraph, 0)
+    filtered_result = SimpleNamespace(tokengraph=filtered_tokengraph, verbalunits=result.verbalunits)
+    graph, warnings = aatgraph([sentence], [filtered_result])
+    assert warnings == []
+    assert {n.id for n in graph.nodes} == {"t5", "t0"}

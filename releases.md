@@ -8,6 +8,8 @@ Current version: **0.7.0**.
 - move build_api_docs.py into utilties dir
 - better handling of token management in some Marimo nbs
 - all visualizations (HTML, diagrams in Mermaid or graphviz `dot`) recognize a `depth` parameter to filter the syntactic depth of the visualization.
+- renamed nb
+
 
 
 

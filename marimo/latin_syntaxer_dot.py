@@ -22,7 +22,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    > No LM access needed -- browse a previously-saved analysis file (the same format `write_analyses()` produces, e.g. from `latin_syntaxer_workflow.py`'s own "Save analysis" section or `syntaxer_main.py`'s stdout), pick one sentence, and view its dependency graph as a Graphviz diagram. Unlike the Mermaid diagram (`latin_syntaxer_review.py`), same-depth verbal expressions are forced onto the same rank, not just nudged toward it -- see `notes/dot_diagrams.md` for why. A depth slider lets you cap the diagram to nodes within a given number of edges of a root verb -- `0` shows only the root verb(s) themselves.
+    > No LM access needed -- browse a previously-saved analysis file (the same format `write_analyses()` produces, e.g. from `latin_syntaxer_textinput.py`'s own "Save analysis" section or `syntaxer_main.py`'s stdout), pick one sentence, and view its dependency graph as a Graphviz diagram. Unlike the Mermaid diagram (`latin_syntaxer_review.py`), same-depth verbal expressions are forced onto the same rank, not just nudged toward it -- see `notes/dot_diagrams.md` for why. A depth slider lets you cap the diagram to nodes within a given number of edges of a root verb -- `0` shows only the root verb(s) themselves.
     """)
     return
 
@@ -330,7 +330,7 @@ def _(dot_source, dot_warnings, graphviz, graphviz_available, mo, selected_token
 
 @app.cell
 def _(selected_citation, sentence_dropdown):
-    # Same alphanumeric-sanitizing convention latin_syntaxer_workflow.py's
+    # Same alphanumeric-sanitizing convention latin_syntaxer_textinput.py's
     # own filename_base and latin_syntaxer_review.py's own
     # mermaid_filename_stem use -- the sentence's own 1-based menu number
     # goes first (matching sentence_label()'s "<n>. ..." prefix) so every

@@ -65,14 +65,65 @@ def _(vuhtml):
 
 
 @app.cell(hide_code=True)
+def _(maxdepth):
+    maxdepth
+    return
+
+
+@app.cell(hide_code=True)
 def _(indentpsg):
     indentpsg
     return
 
 
 @app.cell(hide_code=True)
-def _(diagram, mo):
-    mo.mermaid(diagram)
+def _(diagram_tool):
+    diagram_tool
+    return
+
+
+@app.cell(hide_code=True)
+def _(diagram, diagram_tool, dot_source, dot_warnings, graphviz, mo):
+    # Two distinct failure modes to degrade visibly from when
+    # diagram_tool.value == "graphviz", same convention
+    # latin_syntaxer_ctsdata.py's own diagram_display cell uses (see
+    # notes/dot_diagrams.md):
+    #   - the `graphviz` package itself isn't installed -- not actually
+    #     reachable here, since diagram_tool's own options only offer
+    #     "graphviz" at all when graphviz_available is True (see that
+    #     widget's own definition), but the "mermaid"-only fallback is
+    #     what a user without the package ever sees instead;
+    #   - it IS installed, but the Graphviz `dot` executable isn't on PATH
+    #     (graphviz.ExecutableNotFound, only raised once you actually try
+    #     to render something) -- this one genuinely can't be known ahead
+    #     of time without trying, so it's still handled here.
+    if diagram_tool.value == "graphviz":
+        try:
+            svg_bytes = graphviz.Source(dot_source).pipe(format="svg")
+            diagram_display = mo.vstack(
+                [mo.Html(svg_bytes.decode("utf-8"))]
+                + (
+                    [mo.callout(mo.md("\n".join(f"- {w}" for w in dot_warnings)), kind="warn")]
+                    if dot_warnings
+                    else []
+                )
+            )
+        except graphviz.ExecutableNotFound:
+            diagram_display = mo.callout(
+                mo.md(
+                    "The `graphviz` package is installed, but the Graphviz "
+                    "`dot` command itself isn't on your system's PATH -- "
+                    "install Graphviz separately (e.g. `brew install "
+                    "graphviz` on macOS, `apt install graphviz` on Linux), "
+                    "or switch back to *Mermaid* above. See "
+                    "notes/dot_diagrams.md."
+                ),
+                kind="warn",
+            )
+    else:
+        diagram_display = mo.mermaid(diagram)
+
+    diagram_display
     return
 
 
@@ -92,14 +143,15 @@ def _(analysis_warnings, download_widget, mo, save_extension):
 
 
 @app.cell(hide_code=True)
-def _(download_mermaid):
-    download_mermaid
+def _(diagram_download):
+    diagram_download
     return
 
 
 @app.cell
 def _(mo):
     seetokens = mo.ui.checkbox(label="*See list of tokens*")
+    seecost = mo.ui.checkbox(label="*See cost*")
     seeprompts = mo.ui.checkbox(label="*See prompts*")
     # dspy.LM caches responses by default (model + messages + config), so
     # re-submitting the exact same form values normally just replays the
@@ -118,13 +170,7 @@ def _(mo):
     # response, so it stays on regardless of this checkbox.
     disable_cache = mo.ui.checkbox(label="*Disable LM cache (debugging)*")
     mo.hstack([seetokens, seeprompts], justify="start")
-    return disable_cache, seeprompts, seetokens
-
-
-@app.cell
-def _(dspy):
-    dspy.inspect_history()
-    return
+    return disable_cache, seecost, seeprompts, seetokens
 
 
 @app.cell(hide_code=True)
@@ -169,12 +215,6 @@ def _(mo):
     return
 
 
-@app.cell
-def _(mo):
-    seecost = mo.ui.checkbox(label="*See cost*")
-    return (seecost,)
-
-
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
@@ -199,11 +239,87 @@ def _(analyze_string, input_form):
 
 
 @app.cell
-def _(combined_tokengraph, results, tokengraph_to_mermaid):
-    # Compose Mermaid diagram:
+def _(combined_tokengraph, results):
+    # Flatten every sentence's own tokengraph into the one combined list
+    # every viz/display cell below shares -- pulled out as its own cell
+    # (rather than produced inside the Mermaid-diagram cell, as it used to
+    # be) so maxdepth's own slider (bounded by THIS SAME finaltokens, via
+    # max_subordination_depth()) can sit upstream of, and then feed its
+    # value back into, the diagram-composition cells below without
+    # creating a reactive dependency cycle (finaltokens -> maxdepth ->
+    # depth -> diagram, never the other way around).
     finaltokens = combined_tokengraph(results)
-    diagram, mermaid_warnings = tokengraph_to_mermaid(finaltokens)
-    return diagram, finaltokens
+    return (finaltokens,)
+
+
+@app.cell
+def _(finaltokens, max_subordination_depth, mo):
+    # Same slider convention as latin_syntaxer_ctsdata.py's own `maxdepth`
+    # widget: None until there's something to bound it by, then a slider
+    # from 0 up to this passage's own deepest subordination level,
+    # defaulting to "show everything" (the max itself).
+    maxdepth = None
+    if finaltokens:
+        maxdepth = mo.ui.slider(
+            start=0,
+            stop=max_subordination_depth(finaltokens),
+            label="*Maximum depth to display*:",
+            show_value=True,
+            value=max_subordination_depth(finaltokens),
+        )
+    return (maxdepth,)
+
+
+@app.cell
+def _(maxdepth):
+    # Shared by every viz cell below (the Mermaid diagram, the Graphviz
+    # DOT diagram, and both HTML displays) -- computed once here rather
+    # than re-deriving the same "maxdepth can be None before the first
+    # Analyze submission" guard in each of them. tokengraph_to_html()/
+    # tokengraph_to_depth_html() take this as their own `depth` (clause-
+    # level subordination depth); tokengraph_to_mermaid()/tokengraph_to_dot()
+    # take it as `aat_depth` (a different notion that agrees with
+    # subordination depth on any well-formed sentence -- see each
+    # function's own docstring) -- one slider value, meaningfully the same
+    # cutoff everywhere despite the two different parameter names.
+    depth = maxdepth.value if maxdepth is not None else None
+    return (depth,)
+
+
+@app.cell
+def _(graphviz_available, mo):
+    # "graphviz" is only ever offered as a choice when the graphviz PyPI
+    # package actually imported successfully above -- see
+    # latin_syntaxer_ctsdata.py's own diagram_tool cell for the identical
+    # rationale; this can't rule out the OTHER failure mode (the package
+    # installed but the `dot` executable missing from PATH), which is why
+    # diagram_display still has to handle graphviz.ExecutableNotFound even
+    # though this list is filtered.
+    diagram_tool = mo.ui.radio(
+        options=["mermaid", "graphviz"] if graphviz_available else ["mermaid"],
+        value="mermaid",
+        inline=True,
+        label="*Diagram tool*:",
+    )
+    return (diagram_tool,)
+
+
+@app.cell
+def _(depth, finaltokens, tokengraph_to_mermaid):
+    # Compose Mermaid diagram:
+    diagram, mermaid_warnings = tokengraph_to_mermaid(finaltokens, aat_depth=depth)
+    return (diagram,)
+
+
+@app.cell
+def _(depth, finaltokens, tokengraph_to_dot):
+    # Compose Graphviz diagram: cheap to always compute regardless of which
+    # tool is currently selected -- tokengraph_to_dot() is pure string
+    # building with no dependency of its own (see notes/dot_diagrams.md),
+    # unlike actually rendering it, which needs the graphviz package and
+    # the `dot` executable (handled in diagram_display below).
+    dot_source, dot_warnings = tokengraph_to_dot(finaltokens, aat_depth=depth)
+    return dot_source, dot_warnings
 
 
 @app.cell
@@ -261,14 +377,16 @@ def _(finaltokens, input_form, mo, tokengraph_to_text):
 
 
 @app.cell
-def _(finaltokens, mo, tokengraph_to_html):
-    vuhtml = mo.Html("<b><i>Highlighted by verbal unit</i></b>: " + tokengraph_to_html(finaltokens))
+def _(depth, finaltokens, mo, tokengraph_to_html):
+    vuhtml = mo.Html(
+        "<b><i>Highlighted by verbal unit</i></b>: " + tokengraph_to_html(finaltokens, depth=depth)
+    )
     return (vuhtml,)
 
 
 @app.cell
-def _(finaltokens, mo, tokengraph_to_depth_html):
-    indenthtml, indentwarnings = tokengraph_to_depth_html(finaltokens)
+def _(depth, finaltokens, mo, tokengraph_to_depth_html):
+    indenthtml, indentwarnings = tokengraph_to_depth_html(finaltokens, depth=depth)
     indentpsg = mo.Html("<b><i>Indented by verbal unit</i></b>: " + indenthtml)
     return (indentpsg,)
 
@@ -391,14 +509,37 @@ def _(analysis_text, filename_base, mo, results, save_extension):
 
 
 @app.cell
-def _(diagram, filename_base, mo):
-    download_mermaid = mo.download(
-        data=("```mermaid\n\n" + diagram + "\n```\n").encode("utf-8"),
-        filename=f"{filename_base}.md",
-        label="Download mermaid diagram",
-        mimetype="text/plain",
-    )
-    return (download_mermaid,)
+def _(diagram, diagram_tool, dot_source, filename_base, finaltokens, mo):
+    # Downloads whichever diagram is currently selected/displayed above,
+    # not both -- same reactive "follows the widget" convention
+    # save_extension/download_widget already use for the serialized
+    # analysis. Mermaid source is wrapped in a ```mermaid fenced code
+    # block and saved as .md; Graphviz source is saved raw as .dot,
+    # matching latin_syntaxer_ctsdata.py's own diagram_download cell --
+    # both are renderable elsewhere (a Markdown viewer with Mermaid
+    # support, `dot -Tsvg`, an online DOT viewer, Quarto's fenced
+    # ```{dot}```/```{mermaid}``` blocks) without needing this notebook.
+    # disabled=not finaltokens rather than checking the diagram/dot_source
+    # strings themselves -- both always render a non-empty header (e.g.
+    # "graph BT") even for an empty tokengraph, so the strings alone can't
+    # tell "nothing to show yet" apart from "a real, if minimal, diagram".
+    if diagram_tool.value == "graphviz":
+        diagram_download = mo.download(
+            data=dot_source.encode("utf-8"),
+            filename=f"{filename_base}.dot",
+            label="Download Graphviz DOT source (.dot)",
+            mimetype="text/plain",
+            disabled=not finaltokens,
+        )
+    else:
+        diagram_download = mo.download(
+            data=("```mermaid\n\n" + diagram + "\n```\n").encode("utf-8"),
+            filename=f"{filename_base}.md",
+            label="Download Mermaid diagram (.md)",
+            mimetype="text/plain",
+            disabled=not finaltokens,
+        )
+    return (diagram_download,)
 
 
 @app.cell(hide_code=True)
@@ -425,16 +566,49 @@ def _(Path):
 
     sys.path.insert(0, str(Path(__file__).parent.parent))
 
-    from arsgrammatica import DEFAULT_CEILING, print_analysis, analyze_string, tokengraph_to_mermaid, combined_tokengraph, tokengraph_to_html, tokengraph_to_text, tokengraph_to_depth_html, serialize_analyses, summarize_lm_cost, format_lm_cost
+    from arsgrammatica import (
+        DEFAULT_CEILING,
+        print_analysis,
+        analyze_string,
+        tokengraph_to_mermaid,
+        tokengraph_to_dot,
+        combined_tokengraph,
+        tokengraph_to_html,
+        tokengraph_to_text,
+        tokengraph_to_depth_html,
+        serialize_analyses,
+        max_subordination_depth,
+        summarize_lm_cost,
+        format_lm_cost,
+    )
 
+    # graphviz (the PyPI package -- a thin subprocess wrapper around the
+    # separately-installed Graphviz `dot` executable) is optional the same
+    # way it is for latin_syntaxer_ctsdata.py's own diagram display:
+    # importable or not, checked once here rather than every display cell
+    # catching ImportError itself. Whether the `dot` executable is actually
+    # on PATH is a SEPARATE check (graphviz.ExecutableNotFound), made only
+    # when a diagram is actually rendered -- see the diagram_display cell
+    # below.
+    try:
+        import graphviz
+
+        graphviz_available = True
+    except ImportError:
+        graphviz = None
+        graphviz_available = False
     return (
         DEFAULT_CEILING,
         analyze_string,
         combined_tokengraph,
         format_lm_cost,
+        graphviz,
+        graphviz_available,
+        max_subordination_depth,
         serialize_analyses,
         summarize_lm_cost,
         tokengraph_to_depth_html,
+        tokengraph_to_dot,
         tokengraph_to_html,
         tokengraph_to_mermaid,
         tokengraph_to_text,

@@ -15,7 +15,7 @@ def _():
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    # Analyze Latin texts from a CEX source file
+    # Analyze Latin syntax with a configured LM
     """)
     return
 
@@ -77,35 +77,20 @@ def _(mo, results):
 
 
 @app.cell(hide_code=True)
-def _(analysis_warnings, download_widget, mo, save_extension):
-    mo.vstack(
-        [
-            mo.hstack([save_extension, download_widget], justify="start"),
-        ]
-        + (
-            [mo.callout(mo.md("\n".join(f"- {w}" for w in analysis_warnings)), kind="warn")]
-            if analysis_warnings
-            else []
-        )
-    )
-    return
-
-
-@app.cell(hide_code=True)
 def _(psghtml):
     psghtml
     return
 
 
 @app.cell(hide_code=True)
-def _(maxdepth):
-    maxdepth
+def _(vuhtml):
+    vuhtml
     return
 
 
 @app.cell(hide_code=True)
-def _(vuhtml):
-    vuhtml
+def _(maxdepth):
+    maxdepth
     return
 
 
@@ -172,6 +157,21 @@ def _(diagram_download):
     return
 
 
+@app.cell(hide_code=True)
+def _(analysis_warnings, download_widget, mo, save_extension):
+    mo.vstack(
+        [
+            mo.hstack([save_extension, download_widget], justify="start"),
+        ]
+        + (
+            [mo.callout(mo.md("\n".join(f"- {w}" for w in analysis_warnings)), kind="warn")]
+            if analysis_warnings
+            else []
+        )
+    )
+    return
+
+
 @app.cell
 def _(mo):
     seetokens = mo.ui.checkbox(label="*See list of tokens*")
@@ -233,6 +233,7 @@ def _(cost_summary, format_lm_cost, mo, seecost):
     costdisplay = None
     if seecost.value:
         costdisplay = mo.md(f"**LM cost so far**: {format_lm_cost(cost_summary)}")
+
     return (costdisplay,)
 
 
@@ -286,7 +287,7 @@ def _(ctsdata_file_browser, read_ctsdata):
 def _(Path, mo):
     # Browse for the delimited-text file listing passages to analyze (see
     # arsgrammatica/ctsdata.py for the '#!ctsdata' block format). Unlike
-    # the "choose a folder to save to" field latin_syntaxer_workflow.py used
+    # the "choose a folder to save to" field latin_syntaxer_textinput.py used
     # to have (see that notebook's own history: mo.ui.file_browser's
     # "directory" selection mode has no way to select the folder currently
     # being browsed, only a subfolder shown in its listing), selecting a
@@ -518,7 +519,7 @@ def _(diagram, diagram_tool, dot_source, filename_base, finaltokens, mo):
     # not both -- same reactive "follows the widget" convention
     # save_extension/download_widget already use for the serialized
     # analysis. Mermaid source is wrapped in a ```mermaid fenced code
-    # block and saved as .md, matching latin_syntaxer_workflow.py's own
+    # block and saved as .md, matching latin_syntaxer_textinput.py's own
     # download_mermaid; Graphviz source is saved raw as .dot, matching
     # latin_syntaxer_dot.py's own dot_download -- both are renderable
     # elsewhere (a Markdown viewer with Mermaid support, `dot -Tsvg`, an
@@ -635,8 +636,8 @@ def _(finaltokens, mo, selected_rows, tokengraph_to_text):
 
 
 @app.cell
-def _(depth, finaltokens, mo, tokengraph_to_html):
-    vuhtml = mo.Html("<b><i>Highlighted by verbal unit</i></b>: " + tokengraph_to_html(finaltokens,depth=depth))
+def _(finaltokens, mo, tokengraph_to_html):
+    vuhtml = mo.Html("<b><i>Highlighted by verbal unit</i></b>: " + tokengraph_to_html(finaltokens))
     return (vuhtml,)
 
 
@@ -648,7 +649,7 @@ def _(finaltokens, maxdepth, mo, tokengraph_to_depth_html):
     depth = maxdepth.value if maxdepth is not None else None
     indenthtml, indentwarnings = tokengraph_to_depth_html(finaltokens, depth=depth)
     indentpsg = mo.Html("<b><i>Indented by verbal unit</i></b>: " + indenthtml)
-    return depth, indentpsg
+    return (indentpsg,)
 
 
 @app.cell(hide_code=True)

@@ -1,0 +1,58 @@
+---
+title: Marimo notebooks for Latin syntactic analysis
+---
+
+[Marimo](https://marimo.io) is a reactive notebook system written in Python. You can run the notebooks listed in the `marimo` directory as you would any marimo notebook, e.g., `marimo run marimo/NOTEBOOKNAME.py`.
+
+## Marimo notebooks for analysis with a configured language model
+
+`latin_syntaxer_textinput.py` and `latin_syntaxer_ctsdata.py` use a configured language model to analyze the syntax of Latin text. To configure your model, create an `.env` file like this:
+
+
+```bash
+API_BASE=https://localmodel/api
+MODEL=litellm/modelname
+API_KEY=your-key-here
+```
+
+
+
+### `latin_syntaxer_textinput.py`
+
+Enter text and identifier for a passage interactively, analyze and visualize the results. Optionally download the analysis results.
+
+### `latin_syntaxer_ctsdata.py`
+
+Upload a citable text from a source file in CEX format. Select one or more passages, anlayze and visualize the results. Optionally download the analysis results
+
+
+## Notebooks for working with saved analyses
+
+
+
+### `latin_syntaxer_review.py`
+
+Upoad a file with one or more saved analyses, pick a sentence to review, and visualize it, including the interpretation of the analysis as an Agent-Action-Target (AAT) graph.
+
+
+
+### `latin_syntaxer_compose_diagram.py`
+
+Compose diagrams of an analysis in the `dot` format used by the open-source `graphviz` software. Load a file with one or more saved analyses, pick a sentence from the menu that appears, and set diagramming opens. If you have installed `graphviz` on your system, displays within the notebook with option to save the `dot` file.
+
+> How to [install dot](./diagrams.qmd)
+
+
+
+
+
+
+### `latin_syntaxer_graphs.py`
+
+Compute graph metrics for an analysis. Similar to `latin_syntaxer_review.py`, but pick one *or more* sentences from a multiselect (rather than a single sentence from a dropdown). The dependency graph for each sentence is instantiated as a NetworkX `MultiDiGraph` and basic graph metrics are computed to compare the syntactic form and complexity of the chosen sentences.
+
+
+## A convenience notebook
+
+### `lewis_short_lookup.py`
+

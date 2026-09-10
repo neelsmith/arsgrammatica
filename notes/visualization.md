@@ -129,3 +129,20 @@ Under the hood, `arsgrammatica.verbal_units.compute_aat_depths(tokengraph)` comp
 This is a *different* depth notion than "Depth of subordination" above (`compute_subordination_depths()`, still used by the depth-indented HTML view and its `max_subordination_depth()` slider cap -- neither changed by this) -- for any well-formed sentence the two agree exactly, since both are driven by the same underlying relation chase, but they diverge on malformed input: an anchor whose own governing expression can't be resolved at all is left out of `compute_subordination_depths()`'s ranking entirely (with a warning), while `compute_aat_depths()` gives it depth 0 instead, treating it as though it were independent -- an AATGraph's own `related_node` has no way to represent "unresolved," only "has a governor" or "doesn't," so this ranking doesn't either. See `compute_aat_depths()`'s own docstring for the one case (a relation cycle between two anchors that point directly at each other) where that means an arbitrary depth rather than a meaningful one. Either way, `rank_by_depth` itself never adds a warning of its own to this diagram's `warnings` anymore.
 
 Ranking and coloring compose freely -- both default to on, and turning one off doesn't affect the other.
+
+### Filtering by AAT-graph depth
+
+`tokengraph_to_mermaid()` also takes an `aat_depth` parameter: a SECOND, independent feature from `rank_by_depth` above, using the SAME `compute_aat_depths()` numbers -- now used to DROP nodes entirely instead of just aligning them:
+
+```python
+# Root/independent clauses only, in full:
+diagram, warnings = tokengraph_to_mermaid(result.tokengraph, aat_depth=0)
+```
+
+Every token takes the AAT depth of the verbal unit it belongs to (`arsgrammatica.assign_verbal_units()`), so a whole clause's verb and all of its ordinary dependents (subject, object, adverbials, ...) share ONE `aat_depth` and are kept or dropped TOGETHER -- unlike `dot.py`'s own `tokengraph_to_dot(depth=...)` filter (a plain graph distance in edges, where each dependent is its own hop deeper than its governor; see `notes/dot_diagrams.md`'s "Depth filtering" section for that THIRD depth notion). `aat_depth=0` therefore shows a root/independent clause IN FULL -- its verb plus everything depending on it -- not just the bare verb the way a graph-distance `depth=0` would. `aat_depth=1` adds every verbal expression one AAT-hierarchy level down (and all of that clause's own dependents), and so on. A token belonging to no verbal unit at all defaults to depth 0 (kept), the same "can't determine, default to root level" fallback used throughout this codebase.
+
+A dropped node's own edges, and any KEPT node's edge that happens to point at a dropped one (e.g. a coordinating conjunction resolved into one clause but coordinating with a token in a deeper one), are skipped -- with a warning, same "degrade visibly" convention as an edge to punctuation or a missing id.
+
+Omit `aat_depth` (or pass `None`, the default) to show every node, same as before this parameter existed. `verbal_units.max_aat_depth(result.tokengraph)` returns the deepest AAT depth reached anywhere in a tokengraph -- the natural upper bound for a slider, the same role `max_subordination_depth()` plays for `tokengraph_to_depth_html()` and `dot.max_graph_depth()` plays for `tokengraph_to_dot()`'s own `depth`. A value at or beyond that maximum shows everything; a negative `aat_depth` raises `ValueError`.
+
+`tokengraph_to_dot()` in `dot.py` takes the exact same `aat_depth` parameter, alongside its own pre-existing `depth` -- the two compose freely there (a node must clear BOTH cutoffs to survive); see `notes/dot_diagrams.md` for the DOT-side documentation.

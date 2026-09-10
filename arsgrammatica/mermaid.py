@@ -61,8 +61,8 @@ real node and was never supposed to be one, so it's not a gap worth
 reporting.
 """
  
-from typing import List, Tuple
- 
+from typing import List, Optional, Tuple
+
 from .models import IMPLIED_TOKENTYPES, TokenAnalysis
 from .verbal_units import (
     _IMPLIED_TOKEN_COLOR,
@@ -132,6 +132,7 @@ def tokengraph_to_mermaid(
     orientation: str = "BT",
     color_by_verbal_unit: bool = True,
     rank_by_depth: bool = True,
+    aat_depth: Optional[int] = None,
 ) -> Tuple[str, List[str]]:
     """Build a Mermaid `graph` diagram from a tokengraph.
 
@@ -180,17 +181,70 @@ def tokengraph_to_mermaid(
     meaningful depth, rather than an excluded one). Pass False to skip
     this and get the diagram's previous, unranked layout.
 
+    `aat_depth`, if given, caps the diagram to nodes belonging to a verbal
+    expression at or within that AAT depth (verbal_units.
+    compute_aat_depths() again -- the SAME notion `rank_by_depth` above
+    uses to align nodes, now used to drop them instead). Every token takes
+    the AAT depth of the verbal unit it belongs to (verbal_units.
+    assign_verbal_units() -- so a whole clause's subject, object, and
+    other ordinary dependents share ONE depth with their own governing
+    verb, exactly the way rendering.tokengraph_to_depth_html()'s own
+    `depth` groups a clause's tokens by verbal_units.compute_
+    subordination_depths()); a token belonging to no verbal unit at all
+    defaults to depth 0 (kept), the same "can't determine, default to root
+    level" fallback used throughout this codebase. This is a DIFFERENT
+    depth notion from dot.py's tokengraph_to_dot(depth=...) filter (a
+    plain graph distance in edges, where each dependent is its own hop
+    deeper than its governor -- see dot.py's own module docstring for the
+    full three-way distinction); `aat_depth=0` shows only root/independent
+    clauses in full (verb plus all of that clause's own dependents), not
+    just root verbs on their own the way tokengraph_to_dot()'s `depth=0`
+    does. `aat_depth=1` adds every verbal expression one AAT-hierarchy
+    level down (and all of ITS clause's own dependents), and so on. A
+    dropped node's own edges (and any kept node's edge that happened to
+    point at it) are skipped, with a warning -- see Returns below -- same
+    "degrade visibly" convention as an edge to punctuation or a missing
+    id. Omit `aat_depth` (or pass `None`, the default) to show every node,
+    same as before this parameter existed; a value at or beyond
+    verbal_units.max_aat_depth()'s own return value for this `tokengraph`
+    shows everything too; a negative `aat_depth` raises `ValueError`.
+    `aat_depth` filtering composes freely with `rank_by_depth` and
+    `color_by_verbal_unit` -- a dropped node is simply never considered by
+    either.
+
     Returns (diagram_text, warnings). `warnings` lists any edges that were
-    skipped because they referenced a punctuation token or an id not present
-    in `tokengraph` -- worth checking, since it usually means the id came
+    skipped because they referenced a punctuation token, a node excluded by
+    the `aat_depth` cutoff, or an id not present in `tokengraph` -- worth
+    checking, since a punctuation/missing-id gap usually means the id came
     from a validation problem upstream (see latin_syntax_dspy.validate) --
     plus, if `color_by_verbal_unit` is True and the passage has more than 8
     verbal units, one warning that colors are repeating rather than staying
     distinct (the palette has 8 slots; see _VERBAL_UNIT_PALETTE).
-    `rank_by_depth` itself never adds a warning -- see compute_aat_depths().
+    `rank_by_depth` itself never adds a warning (see compute_aat_depths()),
+    and neither does `aat_depth` filtering (same reason: no anchor's AAT
+    depth is ever unresolved).
     """
+    if aat_depth is not None and aat_depth < 0:
+        raise ValueError(f"aat_depth must be >= 0 (root clauses only), got {aat_depth!r}")
+
     node_ids = {tok.id for tok in tokengraph if tok.tokentype != "punctuation"}
- 
+
+    if aat_depth is not None:
+        depth_assignment = assign_verbal_units(tokengraph)
+        aat_depths_by_anchor = compute_aat_depths(tokengraph)
+        aat_depth_excluded_ids = {
+            tok.id
+            for tok in tokengraph
+            if tok.id in node_ids
+            and (
+                aat_depths_by_anchor.get(depth_assignment.get(tok.id), 0)
+                if depth_assignment.get(tok.id) is not None
+                else 0
+            )
+            > aat_depth
+        }
+        node_ids -= aat_depth_excluded_ids
+
     lines = [f"graph {orientation}"]
     for tok in tokengraph:
         if tok.id not in node_ids:
@@ -231,27 +285,33 @@ def tokengraph_to_mermaid(
             if related_id not in node_ids:
                 warnings.append(
                     f"skipped edge {tok.id} -[{label}]-> {related_id}: "
-                    f"target is punctuation or not in tokengraph"
+                    f"target is punctuation, excluded by the aat_depth "
+                    f"cutoff, or not in tokengraph"
                 )
                 continue
             lines.append(f'    {tok.id} -->|{_escape_label(label)}| {related_id}')
 
     if rank_by_depth:
-        depths = compute_aat_depths(tokengraph)
+        # Named aat_depths (not `depths`) to avoid any confusion with the
+        # `aat_depth` FILTERING parameter above -- a different use of the
+        # same underlying compute_aat_depths() numbers (grouping for
+        # ranking here, dropping nodes there), see dot.py's own
+        # analogous rank_by_depth block for the same naming convention.
+        aat_depths = compute_aat_depths(tokengraph)
 
         # Group every verbal-unit anchor node still in the diagram by its
         # own AAT-graph depth, preserving tokengraph's own (first-
         # appearance) order within each group. Unlike the old depth-of-
         # subordination ranking, compute_aat_depths() never leaves an
-        # anchor's depth unresolved -- depths.get() is None here only for a
-        # non-anchor token (it only ever keys its result by anchor id), so
-        # this `is None` check is purely "is this token an anchor at all",
-        # not "did its depth fail to resolve".
+        # anchor's depth unresolved -- aat_depths.get() is None here only
+        # for a non-anchor token (it only ever keys its result by anchor
+        # id), so this `is None` check is purely "is this token an anchor
+        # at all", not "did its depth fail to resolve".
         depth_groups: dict = {}
         for tok in tokengraph:
             if tok.id not in node_ids:
                 continue
-            depth = depths.get(tok.id)
+            depth = aat_depths.get(tok.id)
             if depth is None:
                 continue
             depth_groups.setdefault(depth, []).append(tok.id)
@@ -319,6 +379,7 @@ def save_mermaid(
     orientation: str = "BT",
     color_by_verbal_unit: bool = True,
     rank_by_depth: bool = True,
+    aat_depth: Optional[int] = None,
 ) -> List[str]:
     """Write the diagram to `path` (e.g. 'analysis.mmd') and return any
     warnings from tokengraph_to_mermaid."""
@@ -327,6 +388,7 @@ def save_mermaid(
         orientation=orientation,
         color_by_verbal_unit=color_by_verbal_unit,
         rank_by_depth=rank_by_depth,
+        aat_depth=aat_depth,
     )
     with open(path, "w", encoding="utf-8") as f:
         f.write(diagram + "\n")

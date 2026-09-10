@@ -16,8 +16,10 @@ from arsgrammatica.verbal_units import (
     assign_verbal_units,
     compute_aat_depths,
     compute_subordination_depths,
+    filter_tokengraph_by_aat_depth,
     find_governing_verbal_expression,
     find_unanchored_coordinated_verbs,
+    max_aat_depth,
 )
 from fixtures.gold_examples import GOLD_EXAMPLES
  
@@ -783,3 +785,65 @@ def test_series_coordinated_verbs_do_not_false_positive():
         ),
     ]
     assert find_unanchored_coordinated_verbs(tokengraph) == []
+
+
+# ---------------------------------------------------------------------------
+# Filtering by AAT depth (filter_tokengraph_by_aat_depth()) -- shrinking
+# the ANALYSIS itself to a depth cutoff, rather than just a diagram's own
+# node set (mermaid.tokengraph_to_mermaid()'s/dot.tokengraph_to_dot()'s own
+# `aat_depth` parameter, which this function shares its depth-per-token
+# rule with; see test_aat_bridge.py for tests confirming the filtered
+# result is safe to feed straight into aat_bridge.aatgraph()).
+# ---------------------------------------------------------------------------
+
+
+def test_aat_depth_none_returns_an_equivalent_but_new_list():
+    tokengraph = _tokengraph("unit_verb_hercules_cum")
+    filtered = filter_tokengraph_by_aat_depth(tokengraph, None)
+    assert filtered == tokengraph
+    assert filtered is not tokengraph
+
+
+def test_aat_depth_zero_keeps_the_whole_root_clause_only():
+    """Same fixture/expectation as dot.py's/mermaid.py's own
+    test_aat_depth_zero_shows_the_whole_root_clause -- pergit's own clause
+    (Hercules, pergit, ad, proximam, speluncam) survives at aat_depth=0;
+    perlustrasset's clause (cum, gregem, perlustrasset -- unit t3, depth 1)
+    does not. Unlike those diagram builders, punctuation (t4, t9) isn't
+    unconditionally excluded here -- there's no diagram node set being
+    built, so it's kept or dropped purely by its own resolved depth, and
+    both punctuation tokens here resolve to pergit's own (depth 0) clause."""
+    tokengraph = _tokengraph("unit_verb_hercules_cum")
+    filtered = filter_tokengraph_by_aat_depth(tokengraph, 0)
+    assert {tok.id for tok in filtered} == {"t0", "t4", "t5", "t6", "t7", "t8", "t9"}
+
+
+def test_aat_depth_at_or_beyond_passage_max_keeps_everything():
+    tokengraph = _tokengraph("unit_verb_hercules_cum")
+    maxd = max_aat_depth(tokengraph)
+    filtered = filter_tokengraph_by_aat_depth(tokengraph, maxd)
+    assert {tok.id for tok in filtered} == {tok.id for tok in tokengraph}
+
+
+def test_aat_depth_negative_raises():
+    tokengraph = _tokengraph("unit_verb_hercules_cum")
+    with pytest.raises(ValueError, match="aat_depth must be >= 0"):
+        filter_tokengraph_by_aat_depth(tokengraph, -1)
+
+
+def test_aat_depth_preserves_original_token_order():
+    tokengraph = _tokengraph("depth_two_cum_sciret_peccavisse_doluit")
+    filtered = filter_tokengraph_by_aat_depth(tokengraph, 1)
+    filtered_ids = [tok.id for tok in filtered]
+    kept = set(filtered_ids)
+    assert filtered_ids == [tok.id for tok in tokengraph if tok.id in kept]
+
+
+@pytest.mark.parametrize("example", GOLD_EXAMPLES, ids=lambda e: e.slug)
+def test_aat_depth_filter_never_raises_across_every_gold_example(example):
+    """A blanket sanity sweep -- every gold fixture, every depth cutoff
+    from 0 up to its own max, must filter cleanly with no exception."""
+    tokengraph = [TokenAnalysis(**tok) for tok in example.canned_answer["tokengraph"]]
+    maxd = max_aat_depth(tokengraph)
+    for cap in range(0, (maxd or 0) + 1):
+        filter_tokengraph_by_aat_depth(tokengraph, cap)

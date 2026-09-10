@@ -137,7 +137,7 @@ def _(LewisShortLexicon, lexicon_file_browser):
 
 @app.cell
 def _(mo):
-    # Freeform single-headword entry -- mirrors latin_syntaxer_workflow.py's
+    # Freeform single-headword entry -- mirrors latin_syntaxer_textinput.py's
     # own mo.ui.text() inputs (urnbase/citation_context).
     headword_input = mo.ui.text(
         value="",

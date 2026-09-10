@@ -27,7 +27,7 @@ import pytest
 
 from arsgrammatica import tokengraph_to_dot
 from arsgrammatica.models import TokenAnalysis
-from arsgrammatica.verbal_units import compute_aat_depths, compute_subordination_depths
+from arsgrammatica.verbal_units import compute_aat_depths, compute_subordination_depths, max_aat_depth
 from conftest import run_gold_example
 from fixtures.gold_examples import GOLD_EXAMPLES
 
@@ -435,7 +435,7 @@ def test_depth_dangling_edge_from_kept_node_is_skipped_with_a_warning():
     assert "t22 [" not in diagram
     assert "-> t22" not in diagram  # the dangling edge itself must not appear
     assert any(
-        "t21 -[subject]-> t22" in w and "excluded by the depth cutoff" in w
+        "t21 -[subject]-> t22" in w and "excluded by the depth or aat_depth cutoff" in w
         for w in warnings
     )
 
@@ -459,3 +459,188 @@ def test_depth_filtering_never_leaves_a_dangling_edge(example):
         for source, target in re.findall(r"^    (\S+) -> (\S+) \[", diagram, re.MULTILINE):
             assert source in node_ids, f"{example.slug} depth={cap}: edge source {source} has no node"
             assert target in node_ids, f"{example.slug} depth={cap}: edge target {target} has no node"
+
+
+# ---------------------------------------------------------------------------
+# AAT-depth filtering (`aat_depth` parameter) -- a SECOND, INDEPENDENT
+# node-dropping filter alongside `depth` above, using compute_aat_depths()
+# instead of compute_graph_depths(): the SAME notion rank_by_depth uses to
+# align nodes (and mirroring mermaid.tokengraph_to_mermaid()'s own
+# `aat_depth` parameter exactly). Since a whole clause's verb and all of
+# its ordinary dependents share ONE aat_depth (unlike `depth`, where each
+# is its own hop), `aat_depth=0` shows a root clause IN FULL -- not just
+# the bare root verb the way `depth=0` does. See tokengraph_to_dot()'s own
+# docstring for the full rationale.
+# ---------------------------------------------------------------------------
+
+
+def test_aat_depth_zero_shows_the_whole_root_clause():
+    """Same fixture as test_depth_zero_shows_only_root_anchors() (pergit,
+    depth 0; perlustrasset's clause, depth 1) -- but aat_depth=0 must keep
+    EVERY token belonging to pergit's own verbal unit (Hercules, ad,
+    speluncam), not just pergit itself, since they all share pergit's own
+    AAT depth. t7 ("proximam", no verbal-unit assignment at all) is kept
+    too, via the same "unresolved defaults to depth 0" fallback
+    compute_graph_depths() uses for its own unrelated tokens. Only
+    perlustrasset's clause (cum, gregem, perlustrasset -- unit t3, depth 1)
+    is dropped."""
+    example = _example("unit_verb_hercules_cum")
+    tokens, result = run_gold_example(example)
+    diagram, warnings = tokengraph_to_dot(result.tokengraph, aat_depth=0)
+    assert warnings == []
+    for kept_id in ("t0", "t5", "t6", "t7", "t8"):
+        assert re.search(rf"^    {kept_id} \[", diagram, re.MULTILINE), kept_id
+    for dropped_id in ("t1", "t2", "t3"):
+        assert f"{dropped_id} [" not in diagram, dropped_id
+
+
+def test_aat_depth_differs_from_graph_depth_at_the_same_cutoff():
+    """The whole reason this is a second parameter, not a rename of
+    `depth`: at the SAME cutoff (0) on the SAME fixture, `depth=0` keeps
+    only the bare root verb (pergit) while `aat_depth=0` keeps pergit's
+    entire clause -- Hercules and ad/speluncam included."""
+    example = _example("unit_verb_hercules_cum")
+    tokens, result = run_gold_example(example)
+    graph_diagram, _w1 = tokengraph_to_dot(result.tokengraph, depth=0)
+    aat_diagram, _w2 = tokengraph_to_dot(result.tokengraph, aat_depth=0)
+    assert graph_diagram != aat_diagram
+    assert "t0 [" not in graph_diagram  # Hercules dropped by graph depth=0
+    assert "t0 [" in aat_diagram  # but kept by aat_depth=0 (same clause as pergit)
+
+
+def test_aat_depth_at_or_beyond_passage_max_matches_aat_depth_none():
+    example = _example("unit_verb_hercules_cum")
+    tokens, result = run_gold_example(example)
+    maxd = max_aat_depth(result.tokengraph)
+    diagram_max, warnings_max = tokengraph_to_dot(result.tokengraph, aat_depth=maxd)
+    diagram_none, warnings_none = tokengraph_to_dot(result.tokengraph, aat_depth=None)
+    assert diagram_max == diagram_none
+    assert warnings_max == warnings_none
+
+
+def test_aat_depth_negative_raises():
+    example = _example("unit_verb_hercules_cum")
+    tokens, result = run_gold_example(example)
+    with pytest.raises(ValueError, match="aat_depth must be >= 0"):
+        tokengraph_to_dot(result.tokengraph, aat_depth=-1)
+
+
+def test_aat_depth_and_coloring_compose():
+    example = _example("unit_verb_hercules_cum")
+    tokens, result = run_gold_example(example)
+    diagram, _warnings = tokengraph_to_dot(result.tokengraph, aat_depth=0)
+    assert "fillcolor" in diagram  # kept nodes still get colored
+
+
+def test_aat_depth_and_ranking_compose():
+    """A rank_by_depth `{rank=same; ...}` statement must never name an
+    anchor `aat_depth` filtering has excluded."""
+    example = _example("depth_two_cum_sciret_peccavisse_doluit")
+    tokens, result = run_gold_example(example)
+    diagram, _warnings = tokengraph_to_dot(result.tokengraph, aat_depth=1)
+    node_ids = set(re.findall(r"^    (\S+) \[", diagram, re.MULTILINE))
+    rank_lines = [line for line in diagram.splitlines() if "rank=same" in line]
+    ranked_ids = {tid for line in rank_lines for tid in re.findall(r"t\d+\w*", line)}
+    assert ranked_ids <= node_ids
+
+
+def test_aat_depth_and_graph_depth_compose_together():
+    """`depth` and `aat_depth` are independent filters -- a node must
+    survive BOTH cutoffs to appear. Combining aat_depth=0 (pergit's whole
+    clause) with depth=0 (graph distance -- only the bare root verb) must
+    narrow the result down to depth=0's own output, not aat_depth=0's."""
+    example = _example("unit_verb_hercules_cum")
+    tokens, result = run_gold_example(example)
+    combo, warnings = tokengraph_to_dot(result.tokengraph, depth=0, aat_depth=0)
+    graph_only, _w = tokengraph_to_dot(result.tokengraph, depth=0)
+    assert combo == graph_only
+    assert warnings == _w
+
+
+def test_aat_depth_dangling_edge_from_kept_node_is_skipped_with_a_warning():
+    """A coordinating conjunction can join two verbal units at DIFFERENT
+    AAT depths while itself resolving into one of them (see
+    verbal_units.assign_verbal_units()'s own coordinating-conjunction
+    convention) -- so its second relatedtoken edge can point at a token
+    excluded by an aat_depth cutoff that keeps the conjunction itself.
+    Hand-built: "cano" (root, depth 0) governs "arma" directly and "virum"
+    via a subordinate appositive verb "vocant" (depth 1, invented purely to
+    give this fixture two depths) that "virum" itself anchors as its own
+    verbal unit; "que" coordinates arma (t0, unit cano) and virum (t2, unit
+    vocant) -- at aat_depth=0, "que" (assigned to cano's unit) is kept, but
+    its relatedtoken2 edge to virum (excluded, since virum's own unit is at
+    depth 1) must be skipped with a warning rather than left dangling."""
+    tokengraph = [
+        TokenAnalysis(
+            id="t5", token="cano", tokentype="lexical", verbalunitid="t5",
+            relatedtoken1="root", relationship1="unit verb",
+        ),
+        TokenAnalysis(
+            id="t0", token="arma", tokentype="lexical",
+            relatedtoken1="t5", relationship1="direct object",
+        ),
+        TokenAnalysis(
+            id="t1", token="que", tokentype="enclitic",
+            relatedtoken1="t0", relationship1="coordinating conjunction",
+            relatedtoken2="t2", relationship2="coordinating conjunction",
+        ),
+        TokenAnalysis(
+            id="t2", token="virum", tokentype="lexical", verbalunitid="t2",
+            relatedtoken1="t5", relationship1="direct object",
+        ),
+    ]
+    diagram, warnings = tokengraph_to_dot(tokengraph, aat_depth=0, color_by_verbal_unit=False)
+
+    assert "t1 [" in diagram  # que itself: assigned to cano's unit (t5), depth 0, kept
+    assert "t2 [" not in diagram  # virum: its OWN unit, depth 1, excluded
+    assert "-> t2" not in diagram  # the dangling edge itself must not appear
+    assert any(
+        "t1 -[coordinating conjunction]-> t2" in w
+        and "excluded by the depth or aat_depth cutoff" in w
+        for w in warnings
+    )
+
+
+@pytest.mark.parametrize("example", GOLD_EXAMPLES, ids=lambda e: e.slug)
+def test_aat_depth_filtering_never_leaves_a_dangling_edge(example):
+    """Property check across every gold example, at every AAT-depth level
+    from 0 up to that passage's own max_aat_depth(): no edge may be left
+    whose source or target has no node line of its own."""
+    tokens, result = run_gold_example(example)
+    tokengraph = result.tokengraph
+    maxd = max_aat_depth(tokengraph)
+    if maxd is None:
+        return
+
+    for cap in range(0, maxd + 1):
+        diagram, _warnings = tokengraph_to_dot(tokengraph, aat_depth=cap)
+        node_ids = set(re.findall(r"^    (\S+) \[", diagram, re.MULTILINE))
+        for source, target in re.findall(r"^    (\S+) -> (\S+) \[", diagram, re.MULTILINE):
+            assert source in node_ids, f"{example.slug} aat_depth={cap}: edge source {source} has no node"
+            assert target in node_ids, f"{example.slug} aat_depth={cap}: edge target {target} has no node"
+
+
+@pytest.mark.parametrize("example", GOLD_EXAMPLES, ids=lambda e: e.slug)
+def test_aat_depth_zero_never_drops_a_token_from_its_own_clause(example):
+    """Structural check across the whole fixture set: at aat_depth=0, every
+    KEPT verbal-unit anchor's own dependents (per assign_verbal_units())
+    must also be kept -- confirming the filter drops or keeps a whole
+    clause together, never splits one apart. (Non-lexical dependents like
+    punctuation are never nodes at all, so they're excluded from this
+    check the same way they're excluded from the diagram itself.)"""
+    from arsgrammatica.verbal_units import assign_verbal_units
+
+    tokens, result = run_gold_example(example)
+    tokengraph = result.tokengraph
+    diagram, _warnings = tokengraph_to_dot(tokengraph, aat_depth=0)
+    node_ids = set(re.findall(r"^    (\S+) \[", diagram, re.MULTILINE))
+
+    depths = compute_aat_depths(tokengraph)
+    assignment = assign_verbal_units(tokengraph)
+    for tok in tokengraph:
+        if tok.tokentype == "punctuation":
+            continue
+        unit_id = assignment.get(tok.id)
+        unit_depth = depths.get(unit_id, 0) if unit_id is not None else 0
+        if unit_depth == 0:
+            assert tok.id in node_ids, f"{example.slug}: {tok.id} should survive aat_depth=0"
