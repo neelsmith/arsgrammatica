@@ -29,16 +29,16 @@ Guides for using `arsgrammatica` for particular tasks.
 
 ## Training a language model
 
+
 - [Optimizing](./optimizing.qmd)
-- [Harvesting gold examples from real analyses](./harvesting.qmd)
-- [Comparing models](./bakeoff.qmd)
 - [A development work flow](./development.qmd)
-- [Test suite](./testing.qmd)
-- [Tokenizing text without analysis](./tokenizing.qmd)
+- [How to write a gold example](./gold.qmd)
+- [Comparing models](./bakeoff.qmd)
 
 
 ## Managing a language model
 
+- [Tokenizing text without analysis](./tokenizing.qmd)
 - [Estimating tokens budget](./budgetingtokens.qmd)
 - [Keeping prompt size manageable](./managing_prompt_size.qmd)
 

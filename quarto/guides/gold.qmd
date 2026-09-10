@@ -1,0 +1,32 @@
+---
+title: How to write a gold example
+---
+
+# Adding a GOLD example
+
+A `GoldExample` (`tests/fixtures/gold_examples.py`) pairs a Latin `passage` with a hand-verified, `syntax_model.md`-correct `canned_answer` -- the exact `{reasoning, verbalunits, tokengraph}` shape `analyze()`'s own output takes, fed to tests via `DummyLM`. Every entry lives in the one `GOLD_EXAMPLES` list at the bottom of that file; add new fixtures there, never in a test file.
+
+## Two ways to write one
+
+**By hand** -- right for a small, deliberately-constructed example targeting one specific construction:
+
+1. Write a module-level `_SOME_ANSWER = {...}` dict: `reasoning` (a real explanation, not a placeholder), `verbalunits` (one entry per verbal expression -- `id`/`syntactic_type`/`semantic_type`), `tokengraph` (one entry per token -- `id`/`token`/`tokentype`, plus whichever of `lemma`/`verbalunitid`/`relatedtoken1`/`relationship1`/`relatedtoken2`/`relationship2` actually apply; omit a field entirely rather than setting it to `None`, matching every existing entry). See `arsgrammatica/models.py`'s `TokenAnalysis`/`VerbalExpression` and `syntax_model.md` for what's allowed, and `notes/relationship_labels.md` for the relation-label catalog.
+2. Add a `GoldExample(slug=..., passage=..., tags=[...], canned_answer=_SOME_ANSWER)` entry to `GOLD_EXAMPLES`, referencing that dict.
+
+**Harvested from a real analysis** -- faster, and guaranteed self-consistent, once you've run `analyze_string()`/`analyze_sources()` over a passage and confirmed the result is correct:
+
+```sh
+python utilities/analysis_to_gold_example.py analysis.cex my_new_slug --tags "ablative absolute" > snippet.py
+```
+
+prints a ready-to-paste `_MY_NEW_SLUG_ANSWER = {...}` + `GoldExample(...)` pair -- paste the dict above `GOLD_EXAMPLES = [` and the `GoldExample(...)` entry inside it, same two-part split every hand-written block already uses. (`tests/fixtures/harvest.py`'s `gold_example_from_analysis()`/`format_gold_example_source()` do the same thing if you'd rather call them directly from Python.) Re-read the pasted `reasoning` before keeping it -- it's the file's own recorded reasoning (or a placeholder), not guaranteed to read the way you'd write it by hand.
+
+## Slug and tags
+
+`slug` is a short, unique, descriptive id (e.g. `circumstantial_participle_eum_advenientem`) -- it's also the pytest id for every test parametrized over `GOLD_EXAMPLES`. `tags` names the construction(s) the example is meant to exercise, for a human skimming the file.
+
+## Before you add it
+
+- The `canned_answer` must be genuinely correct, not just well-formed -- `validate()` catches referential problems, not a wrong analysis; that judgment is still on you.
+- Run `pytest -k <slug>`: `test_gold_examples.py` checks `validate()` and a clean Mermaid render for every fixture automatically, no test-file changes needed.
+- `test_coverage.py` reports which relation labels / verbal-expression types / tokentypes still have no example -- worth a look if you're deliberately filling a gap.

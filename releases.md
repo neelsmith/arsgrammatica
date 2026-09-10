@@ -9,6 +9,7 @@ Current version: **0.7.0**.
 - better handling of token management in some Marimo nbs
 - all visualizations (HTML, diagrams in Mermaid or graphviz `dot`) recognize a `depth` parameter to filter the syntactic depth of the visualization.
 - renamed nb
+- analysis_to_gold_example
 
 
 
