@@ -8,13 +8,18 @@ One of `dspy`'s strengths is its streamlined path to optimize a program for a sp
 
 `dspy` allows you to configure *two* models: the "teacher" and the "student."  
 
-`arsgrammatica` uses an `.env` file with the same values as the rest of `arsgrammatica`'s programs to configure the target ("student") model:  `API_BASE`, `MODEL`, and `API_KEY`.If you add a parallel trio `REFLECTION_API_BASE`, `REFLECTION_MODEL`, and `REFLECTION_API_KEY` to configure a more powerful reasoning model as the "teacher", `arsgrammatica` will take that as the "teacher" model, and GEPA will reason with the "teacher" model while optimizing for the "student" mode. If you do not configure a second reflection model, GEPA will the same model for both "teacher" and "student."
+`arsgrammatica` configures the target ("student") model from the same `.env` file as the rest of `arsgrammatica`'s programs, with values for  `API_BASE`, `MODEL`, and `API_KEY`.
+
+
+You can configure a more powerful reasoning model to use as the "teacher" by adding a parallel trio of values for `REFLECTION_API_BASE`, `REFLECTION_MODEL`, and `REFLECTION_API_KEY`. GEPA will reason with the "teacher" model while optimizing for the "student" model.
+ 
+If you do not configure a second reflection model, GEPA will use the same model for both "teacher" and "student."
 
 
 
 ## Running `optimize_gepa`
 
-The script `optimize_gepa.py` runs one of `dspy`'s most advanced optimizers, GEPA ([dspy.GEPA](https://dspy.ai)) to improve `SyntaxAnalysis`'s instructions against the gold examples in `tests/fixtures/gold_examples.py`. Since this requires making the specified request, and then a further request to a reflection model, this can potentially be expensive, so `optimize_gepa` lets you regulate this stage of work with these parameters:
+The script `optimize_gepa.py` runs GEPA to improve `SyntaxAnalysis`'s instructions against the gold examples in `tests/fixtures/gold_examples.py`. This requires making the specified request, and then a further request to a reflection model, so it can potentially be expensive. `optimize_gepa` lets you regulate this stage of work with these parameters:
 
 ```bash
 python optimize_gepa.py                    # --auto light (cheapest; default)
@@ -24,13 +29,9 @@ python optimize_gepa.py --max-metric-calls 40   # exact call budget instead of a
 python optimize_gepa.py --skip-baseline     # skip the pre-GEPA scoring pass (saves N calls)
 ```
 
-This optimizes `SyntaxAnalysis` by training on all the gold examples in `GOLD_EXAMPLES` (a small, hand-curated set built to exercise every documented construction at least once) with no separate held-out evaluation set. If you have files of analyses you have verified, you can add those to the pool `optimize_gepa` uses and specify the fraction to be used for an evaluation set.
+By default, `optimize_gepa` trains on all the gold examples in `GOLD_EXAMPLES` (a small, hand-curated set built to exercise every documented construction at least once) with no separate held-out evaluation set. If you have files of analyses you have verified, you can add those to the testing pool `optimize_gepa` uses and specify the fraction to be used for an evaluation set:
 
-::: {.callout-tip}
-The `data` directory of the `arsgrammatica` repository includes hand-vetted analyses you can use in optimizing the package for a new model.
-:::
-
-```
+```bash
 # Include individual files with analyses:
 python3 utilities/optimize_gepa.py --eval-file urn_cts_compnov_bible_genesis_vulgate_42_1.cex urn_cts_compnov_bible_genesis_vulgate_42_2.cex
 
@@ -42,9 +43,15 @@ python3 utilities/optimize_gepa.py --eval-dir data/vulgate/ --val-fraction 0
 ```
 
 
+::: {.callout-tip}
+The `data` directory of the `arsgrammatica` repository includes hand-vetted analyses you can use in optimizing the package for a new model.
+:::
+
+
+
 ## Scoring
 
-`arsgrammatica` defines a `syntax_metric`. This compares the responses `verbalunits` and `tokengraph` against the gold answer and returns a score from 0 to 1. The score is computed weighing score for correct relations at 50%, score for classifying verbal-expressions at 30%, scoring for basic fields for each token fields at 20%. It includes specific, human-readable feedback naming every mismatched token/relation/classification, which GEPA's reflection model can read and take advantage of.
+`arsgrammatica` defines a `syntax_metric` that compares the responses values for `verbalunits` and `tokengraph` against the gold answer, and returns a score from 0 to 1. The final metric is computed by weighing a score for correct relations at 50%, a score for classifying verbal expressions at 30%, and scoring for basic fields for each token at 20%. `syntax_metric` includes specific, human-readable feedback naming every mismatched token/relation/classification, which GEPA's reflection model can read and take advantage of.
 
 ## Using the result
 
@@ -56,3 +63,8 @@ To use the saved model, load it right after importing `analyze` and before calli
 from arsgrammatica.latin_syntax_dspy import analyze
 analyze.load("optimized_syntax_analysis.json")
 ```
+
+
+::: {.callout-tip}
+The `optimization` directory of the `arsgrammatica` repository includes saved models in JSON format. File names are based on the target model, the version of `arsgrammatica` that was targeted, and a directory with the supplementary training data used. A file name like `optimized_opus_5_ag_0_7_0_vulgate.json` means that this output targeted Opus 5, using `arsgrammatica` release 0.7.0, with training data from the `data/vulgate` directory of this repository.
+:::

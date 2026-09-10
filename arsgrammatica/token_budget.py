@@ -27,10 +27,18 @@ This module takes a hybrid approach instead:
    says so, or -- the more robust, LM-independent check -- the result is
    missing entries for input token ids it should have covered), retries
    with a larger budget rather than silently returning an incomplete
-   result or leaving the caller to guess a bigger number by hand. It also
-   retries once (at the same budget, with the LM's own response cache
-   explicitly bypassed) on a parse failure that ISN'T a truncation -- e.g.
-   the LM emitting one malformed `tokengraph` entry in an otherwise
+   result or leaving the caller to guess a bigger number by hand. When the
+   response is cut off badly enough to not parse at all, the same "grow
+   the budget" response applies whenever EITHER `finish_reason` says so OR
+   the raw response text's brackets/braces don't balance (`_looks_truncated()`)
+   -- the latter exists because not every provider/proxy forwards
+   `finish_reason="length"` faithfully, and trusting it alone there would
+   let a real truncation get misclassified as a one-off glitch and retried
+   at the same, still-too-small budget. Only once NEITHER signal flags the
+   failure as truncation does it fall back to retrying once at the same
+   budget (with the LM's own response cache explicitly bypassed) on the
+   assumption the parse failure is something else entirely -- e.g. the LM
+   emitting one malformed `tokengraph` entry in an otherwise
    well-terminated response -- since that kind of malformation is usually
    a one-off sampling glitch a fresh call clears up, not something a
    bigger budget would fix.
@@ -67,12 +75,27 @@ CALIBRATION_FILE = Path(__file__).with_name("token_budget_calibration.json")
 
 # Untuned stand-ins, used only until calibrate_max_tokens.py has actually
 # been run once against the real configured model. Deliberately generous
-# (60 output tokens per input token, plus a 500-token allowance for the
+# (90 output tokens per input token, plus a 900-token allowance for the
 # reasoning field and the verbalunits list) -- an overestimate here just
 # spends a bit more of the model's output budget than necessary; an
 # underestimate is what causes the truncation this module exists to avoid.
-_FALLBACK_INTERCEPT = 500.0
-_FALLBACK_SLOPE = 60.0
+#
+# Raised from an earlier 500/60 after a real, still-truncating call showed
+# these were too tight even for a SHORT sentence: a 6-input-token rhetorical
+# question ("quin invisimus praesentes nostrarum ingenia?") needed well
+# over 1200 completion tokens once you account for a verbose, multi-line
+# `reasoning` field plus one whitespace-heavy, pretty-printed `TokenAnalysis`
+# JSON object per token (each carrying several long field names --
+# `relatedtoken1`/`relationship1`/`tokentype`/etc. -- not a compact
+# encoding) -- both the fixed reasoning/verbalunits overhead and the
+# per-token cost were running well past the old 500/60 fit. The old values
+# weren't wrong so much as tuned for a more compact response than this
+# prompt/schema actually produces; see analyze_with_retry()'s own
+# `max_retries` default for why this alone wasn't (and isn't) the full
+# fix -- reasoning length is stochastic enough from call to call that even
+# a better fallback fit still needs real retry headroom behind it.
+_FALLBACK_INTERCEPT = 900.0
+_FALLBACK_SLOPE = 90.0
 
 DEFAULT_SAFETY_MARGIN = 1.4
 DEFAULT_FLOOR = 256
@@ -88,6 +111,14 @@ DEFAULT_FLOOR = 256
 # for more than it allows should surface as an explicit error from the
 # provider (naming the real limit) rather than a silent truncation --
 # lower this to match if that happens.
+#
+# NOTE on that earlier incident: raising the ceiling alone doesn't help if
+# analyze_with_retry()'s own `max_retries` is too small to ever actually
+# reach it -- with the old default of 1 retry and growth_factor=2.0, a call
+# starting from a ~1200-token estimate only ever climbed to ~2400 before
+# giving up, regardless of how high this ceiling was set. See
+# analyze_with_retry()'s `max_retries` default for the actual fix to that
+# gap (more doublings, not just more headroom to double into).
 DEFAULT_CEILING = 32000
 
 
@@ -189,6 +220,43 @@ def _finish_reason_was_length() -> bool:
         return False
 
 
+def _looks_truncated(lm_response: str) -> bool:
+    """A cheap, provider/adapter-agnostic heuristic for "does this raw LM
+    response text look like it was cut off mid-emission, rather than a
+    complete-but-malformed response?" -- used alongside
+    `_finish_reason_was_length()` (see that function's docstring) when an
+    `AdapterParseError` is raised, i.e. no `result` exists at all to run
+    `_missing_token_ids()` against.
+
+    Counts `{`/`}` and `[`/`]`: a genuinely truncated response almost
+    always stops mid-token, leaving at least one of these pairs
+    unbalanced. A well-terminated response that's merely malformed in
+    SHAPE -- e.g. one `tokengraph` entry coming back as a bare `["id"]`
+    list instead of a full `TokenAnalysis` object, the real bug report
+    `analyze_with_retry()`'s "not a (detectable) truncation" branch was
+    originally built for -- is still syntactically complete JSON/field-
+    marker text, so its brackets/braces balance even though a schema
+    validator rejects it.
+
+    This exists because `_finish_reason_was_length()` isn't always
+    reliable enough to be the ONLY truncation signal here: it depends on
+    the configured provider (or an intermediary proxy, e.g. a self-hosted
+    litellm proxy) faithfully forwarding litellm's own
+    finish_reason="length" convention, which not every provider/proxy
+    does. When it under-reports, gating the retry-with-a-larger-budget
+    branch on it ALONE misclassifies a real truncation as a one-off
+    malformation and retries at the SAME (still too small) budget --
+    reaching an identical failure on the very next attempt too, and then
+    raising once max_retries is exhausted, instead of ever actually
+    growing the budget. This heuristic is deliberately conservative in
+    the OTHER direction: a false positive just means an unnecessary (but
+    harmless) budget increase, not a wrong answer -- unlike a false
+    negative here, which reproduces exactly the failure this function
+    exists to catch.
+    """
+    return lm_response.count("{") != lm_response.count("}") or lm_response.count("[") != lm_response.count("]")
+
+
 def _missing_token_ids(tokens: List[Token], result) -> set:
     """Which of `tokens`' own ids never showed up in `result.tokengraph`.
 
@@ -210,7 +278,7 @@ def analyze_with_retry(
     passage: str,
     tokens: List[Token],
     *,
-    max_retries: int = 1,
+    max_retries: int = 3,
     growth_factor: float = 2.0,
     safety_margin: float = DEFAULT_SAFETY_MARGIN,
     floor: int = DEFAULT_FLOOR,
@@ -221,6 +289,21 @@ def analyze_with_retry(
     `max_tokens` budget instead of either crashing or silently returning an
     incomplete result.
 
+    `max_retries` default raised from an earlier 1 to 3: with
+    `growth_factor=2.0`, 1 retry only ever climbs the budget 2x before
+    giving up (e.g. ~1200 -> ~2400) -- nowhere close to `ceiling`
+    regardless of how generous `ceiling` itself is (see DEFAULT_CEILING's
+    own comment for a real incident this caused). 3 retries reaches 8x
+    instead (e.g. ~2000 -> ~16000), which comfortably absorbs how much a
+    single sentence's `reasoning` field length varies from call to call --
+    a real, reproducible case needed a second doubling because one call's
+    `reasoning` came back noticeably longer (more bulleted commentary)
+    than another's for the exact same short sentence, eating further into
+    an identical starting budget. Each retry is one more live LM call, so
+    this does raise the worst-case cost/latency of a single sentence --
+    still bounded by `ceiling`, and still far better than surfacing a
+    truncated result or a raised exception to the caller.
+
     The starting budget is `initial_max_tokens` if given, else
     `estimate_max_tokens(len(tokens), safety_margin=safety_margin,
     floor=floor, ceiling=ceiling)`.
@@ -230,7 +313,14 @@ def analyze_with_retry(
     whenever a result exists at all, parsed or not, including under
     DummyLM in tests) and, if the call raised `AdapterParseError` instead
     of returning a result (the JSON was cut off badly enough to not parse
-    at all), `_finish_reason_was_length()` as a corroborating check.
+    at all), EITHER `_finish_reason_was_length()` OR `_looks_truncated()`
+    (a bracket/brace-balance check on the raw response text -- see that
+    function's own docstring) as corroborating checks. Both are best-effort
+    heuristics rather than a single authoritative signal, because
+    `finish_reason` alone isn't reliable enough across every
+    provider/proxy (see `_looks_truncated()`'s docstring for why that
+    matters here specifically) -- either one alone is enough to treat the
+    failure as truncation.
 
     If truncation is detected and there's still a retry available (fewer
     than `max_retries` attempts so far, and the budget hasn't already hit
@@ -239,13 +329,13 @@ def analyze_with_retry(
     LM cache key, so a retry with a different budget always reaches the LM
     again rather than replaying a cached truncated response.
 
-    An `AdapterParseError` whose `finish_reason` ISN'T "length" means the
-    response was well-terminated but still malformed somewhere -- e.g. one
-    `tokengraph` entry coming back as a bare `["id"]` list instead of a
-    full TokenAnalysis object. A bigger budget wouldn't have fixed that,
-    but the malformation itself is very often a one-off sampling glitch
-    rather than a systematic prompt/schema problem, so it's retried once
-    too (still counted against `max_retries`, at the SAME budget) with
+    An `AdapterParseError` that neither signal above flags as truncation
+    means the response was well-terminated but still malformed somewhere --
+    e.g. one `tokengraph` entry coming back as a bare `["id"]` list instead
+    of a full TokenAnalysis object. A bigger budget wouldn't have fixed
+    that, but the malformation itself is very often a one-off sampling
+    glitch rather than a systematic prompt/schema problem, so it's retried
+    once too (still counted against `max_retries`, at the SAME budget) with
     dspy's own response cache explicitly bypassed for that one attempt
     (`config={"cache": False, ...}`) -- without that, an identical request
     would just replay the identical broken response, retrying nothing. If
@@ -278,7 +368,12 @@ def analyze_with_retry(
         except AdapterParseError as exc:
             if attempt >= max_retries:
                 raise
-            if budget < ceiling and _finish_reason_was_length():
+            # Either signal alone is enough to treat this as truncation --
+            # see this function's own docstring and _looks_truncated()'s
+            # docstring for why relying on _finish_reason_was_length()
+            # alone isn't safe enough here (some providers/proxies don't
+            # forward litellm's own finish_reason="length" faithfully).
+            if budget < ceiling and (_finish_reason_was_length() or _looks_truncated(exc.lm_response)):
                 attempt += 1
                 budget = min(ceiling, math.ceil(budget * growth_factor))
                 warnings.warn(

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Utilities to simplify analyzing a corpus – arsgrammatica</title>
+<title>arsgrammatica and the AAT model – arsgrammatica</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -22,41 +22,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -132,11 +97,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../concepts/index.html"> 
+    <a class="nav-link active" href="../concepts/index.html" aria-current="page"> 
 <span class="menu-text">Concepts</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="../tutorials/index.html" aria-current="page"> 
+    <a class="nav-link" href="../tutorials/index.html"> 
 <span class="menu-text">Tutorials</span></a>
   </li>  
   <li class="nav-item">
@@ -149,11 +114,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/neelsmith/arsgrammatica"> <i class="bi bi-github" role="img" aria-label="GitHub">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-bi-github" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="bi bi-github" role="img">
 </i> 
-<span class="menu-text"></span></a>
+ <span class="menu-text"></span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-bi-github">    
+        <li>
+    <a class="dropdown-item" href="https://github.com/neelsmith/arsgrammatica">
+ <span class="dropdown-text">arsgrammatica on github</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="https://neelsmith.github.io">
+ <span class="dropdown-text">About me</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://neelsmith.github.io/projects">
+ <span class="dropdown-text">Other projects</span></a>
+  </li>  
+    </ul>
+  </li>
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -165,7 +146,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../tutorials/batch-texts.html">Utilities to simplify analyzing a corpus</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../concepts/aat.html"><code>arsgrammatica</code> and the AAT model</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -179,46 +160,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../tutorials/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Tutorials</span></a>
-  </div>
-</li>
-        <li class="px-0"><hr class="sidebar-divider hi "></li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../tutorials/marimo.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Marimo notebooks for Latin syntactic analysis</span></a>
+  <a href="../concepts/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Modelling Latin syntax</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../tutorials/cli.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">A command-line script for analyzing Latin syntax</span></a>
+  <a href="../concepts/ud.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><code>arsgrammatica</code> and Universal Dependencies</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../tutorials/diagrams.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Diagramming syntactic analyses with <code>graphviz</code></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../tutorials/batch-images.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Generate PNG diagrams for multiple analyses</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../tutorials/batch-texts.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Utilities to simplify analyzing a corpus</span></a>
-  </div>
-</li>
-        <li class="px-0"><hr class="sidebar-divider hi "></li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../tutorials/quick.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Quick start to write a script querying a language model</span></a>
+  <a href="../concepts/aat.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><code>arsgrammatica</code> and the AAT model</span></a>
   </div>
 </li>
     </ul>
@@ -231,12 +186,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#analyzing-a-corpus" id="toc-analyzing-a-corpus" class="nav-link active" data-scroll-target="#analyzing-a-corpus">Analyzing a corpus</a></li>
-  <li><a href="#working-with-part-of-a-corpus" id="toc-working-with-part-of-a-corpus" class="nav-link" data-scroll-target="#working-with-part-of-a-corpus">Working with part of a corpus</a>
-  <ul class="collapse">
-  <li><a href="#group-cited-passages-by-sentence-boundaries" id="toc-group-cited-passages-by-sentence-boundaries" class="nav-link" data-scroll-target="#group-cited-passages-by-sentence-boundaries">Group cited passages by sentence boundaries</a></li>
-  <li><a href="#define-citable-tokens-and-sentence-units" id="toc-define-citable-tokens-and-sentence-units" class="nav-link" data-scroll-target="#define-citable-tokens-and-sentence-units">Define citable tokens and sentence units</a></li>
-  </ul></li>
+  <li><a href="#a-simple-example" id="toc-a-simple-example" class="nav-link active" data-scroll-target="#a-simple-example">A simple example</a></li>
   </ul>
 </nav>
     </div>
@@ -245,7 +195,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Utilities to simplify analyzing a corpus</h1>
+<h1 class="title"><code>arsgrammatica</code> and the AAT model</h1>
 </div>
 
 
@@ -262,34 +212,60 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="analyzing-a-corpus" class="level2">
-<h2 class="anchored" data-anchor-id="analyzing-a-corpus">Analyzing a corpus</h2>
-<p>You can analyze an entire corpus in a CEX-format file with <code>analyze_ctsdata_to_files.py</code>. An analysis file is written for each sentence to an output directory you provide.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> utilities/analyze_ctsdata_to_files.py corpus.cex </span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>     <span class="ex">--output-dir</span> analyses/</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Agent-Action-Target (AAT) is a <em>universal</em> syntactic model, but it takes a very different approach from the <a href="../concepts/ud.html">Universal Dependency scheme</a>. Instead of trying to map <em>every</em> syntactic feature of a given language onto a universal scheme, AAT is a <em>reductive</em> model focused on verbal ideas (actions), with their immediate subjects and objects (actors and targets). In Latin, AAT’s actors and targets correspond to subjects and direct objects of transitive active verbs, and to agents and subjects of transitive passive verbs. AAT’s graph maintains coordinated or subordinated ranking of its actions, so it is possible to construct a semantically compatible AAT graph using a subset of the tokens in <code>arsgrammatica</code>’s dependency graph.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The <code>arsgrammatica</code> package includes a function <code>aatgraph</code> that takes the sentence and token lists returned by <code>arsgrammatica</code>’s analysis functions and constructs an A-A-T graph. See <a href="../guides/aat.html">this recipe</a>.</p>
+</div>
+</div>
+<section id="a-simple-example" class="level2">
+<h2 class="anchored" data-anchor-id="a-simple-example">A simple example</h2>
+<p>Consider a very short Latin sentence, and compare the visualization of the <code>arsgrammatica</code> dependency graphs with its AAT reduction.</p>
+<blockquote class="blockquote">
+<p><em>arma virumque cano.</em></p>
+</blockquote>
+<div class="columns">
+<div class="column" style="width:45%;">
+<section id="arsgrammatica" class="level3">
+<h3 class="anchored" data-anchor-id="arsgrammatica"><code>arsgrammatica</code></h3>
+<p><img src="./imgs/armavirumquecano.png" class="img-fluid"></p>
 </section>
-<section id="working-with-part-of-a-corpus" class="level2">
-<h2 class="anchored" data-anchor-id="working-with-part-of-a-corpus">Working with part of a corpus</h2>
-<p>You may not be able to analyze a large corpus all at once. The <code>utilities</code> directory includes scripts that do not require a language model to help you work with parts of a corpus.</p>
-<section id="group-cited-passages-by-sentence-boundaries" class="level3">
-<h3 class="anchored" data-anchor-id="group-cited-passages-by-sentence-boundaries">Group cited passages by sentence boundaries</h3>
-<p>If you want to analyze a subset of a corpus where sentences and citation units do not always coincide (typical for Latin poetry cited by verse line), you can group passages into sequences that begin and end on sentence boundaries with <code>group_ctsdata_by_sentence.py</code>. This script writes to standard output a list of URNs for each group on a single line.</p>
-<p>If we segemented a text of the <em>Aeneid</em> like this:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> utilities/group_ctsdata_by_sentence.py aeneid.cex</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>the first two lines would list passages for a sentence beginning at <em>Aeneid</em> 1.1 and a second sentence beginning at <em>Aeneid</em> 1.8*, like this:</p>
-<pre><code>urn:cts:latinLit:phi0690.phi003:1.1 urn:cts:latinLit:phi0690.phi003:1.2 urn:cts:latinLit:phi0690.phi003:1.3 urn:cts:latinLit:phi0690.phi003:1.4 urn:cts:latinLit:phi0690.phi003:1.5 urn:cts:latinLit:phi0690.phi003:1.6 urn:cts:latinLit:phi0690.phi003:1.7
-urn:cts:latinLit:phi0690.phi003:1.8 urn:cts:latinLit:phi0690.phi003:1.9 urn:cts:latinLit:phi0690.phi003:1.10 urn:cts:latinLit:phi0690.phi003:1.11</code></pre>
-<p>Use normal IO redirection to save the results in a file:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> utilities/group_ctsdata_by_sentence.py aeneid.cex <span class="op">&gt;</span> aeneid-linegroups.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div><div class="column" style="width:55%;">
+<section id="aat-reduction" class="level3">
+<h3 class="anchored" data-anchor-id="aat-reduction">AAT reduction</h3>
+<p><img src="./imgs/arma-ag-aat.png" class="img-fluid"></p>
 </section>
-<section id="define-citable-tokens-and-sentence-units" class="level3">
-<h3 class="anchored" data-anchor-id="define-citable-tokens-and-sentence-units">Define citable tokens and sentence units</h3>
-<p>It can be useful to cite tokens with the same stable identifiers produced by a syntactic analysis with <code>arsgrammatica</code>. The script <code>tokenize_ctsdata.py</code> reads a text corpus from a CEX-format file, and writes to standard output a delimited-text listing of all the tokens in the corpus, and a list of sentences defined by the starting and ending token of each sentence.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> utilities/tokenize_ctsdata.py corpus.cex <span class="op">&gt;</span> tokens-sentences.cex</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>For details of the output format, see <a href="../reference/outputformats.html">the reference documentation</a></p>
+</div>
+</div>
+<p>The similarity in their structure is obvious. Both graphs take <em>cano</em> for the root; the direct objects of the <code>arsgrammatica</code> graph correspond to the <em>targets</em> of the AAT graph. Note that the AAT reduction, working from the <code>arsgrammatica</code> tokenization where the enclitic <em>-que</em> was correctly handled as a distinct token from <em>virum</em>, omits the conjunction.</p>
+<p>Now consider a possible English translation of the same passage. Since the <code>aat</code> package (<a href="https://github.com/neelsmith/aat">https://github.com/neelsmith/aat</a>) includes a module implementing the AAT scheme for English, we can juxtapse its AAT graph with the AAT reduction of the Latin passage.</p>
+<blockquote class="blockquote">
+<p><em>I sing of arms and the man.</em></p>
+</blockquote>
+<div class="columns">
+<div class="column" style="width:45%;">
+<section id="aat-graph-of-translation" class="level3">
+<h3 class="anchored" data-anchor-id="aat-graph-of-translation">AAT graph of translation</h3>
+<p><img src="./imgs/arma-aat.png" class="img-fluid"></p>
+</section>
+</div><div class="column" style="width:55%;">
+<section id="aat-graph-of-latin" class="level3">
+<h3 class="anchored" data-anchor-id="aat-graph-of-latin">AAT graph of Latin</h3>
+<p><img src="./imgs/arma-ag-aat.png" class="img-fluid"></p>
+</section>
+</div>
+</div>
+<p>This is a very simple example, but it at least suggests the potential of AAT models for comparing and aligning syntactic structure across languages. We can see that English explicitly names an agent (“I”), where in Latin that role is incorporated in the finite verb form <em>cano</em>; the action and the two targets in each language directly align.</p>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->
@@ -700,7 +676,7 @@ urn:cts:latinLit:phi0690.phi003:1.8 urn:cts:latinLit:phi0690.phi003:1.9 urn:cts:
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.7.0</strong></p>
+<p>Documentation for release version <strong>0.8.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

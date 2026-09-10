@@ -1,0 +1,66 @@
+---
+title: "`arsgrammatica` and the AAT model"
+---
+
+
+Agent-Action-Target (AAT) is a *universal* syntactic model, but it takes a very different approach from the [Universal Dependency scheme](./ud.qmd). Instead of trying to map *every* syntactic feature of a given language onto a universal scheme, AAT is a *reductive* model focused on verbal ideas (actions), with their immediate subjects and objects (actors and targets).
+In Latin, AAT's actors and targets correspond to subjects and direct objects of transitive active verbs, and to agents and subjects of transitive passive verbs. AAT's graph maintains coordinated or subordinated ranking of its actions, so it is possible to construct a semantically compatible AAT graph using a subset of the tokens in `arsgrammatica`'s dependency graph. 
+
+::: {.callout-tip}
+The `arsgrammatica` package includes a function `aatgraph` that takes the sentence and token lists returned by `arsgrammatica`'s analysis functions and constructs an A-A-T graph. See [this recipe](../guides/aat.qmd).
+:::
+
+
+
+
+## A simple example
+
+
+
+Consider a very short Latin sentence, and compare the visualization of the  `arsgrammatica`  dependency graphs with its AAT reduction.
+
+> *arma virumque cano.*
+
+:::: {.columns}
+
+::: {.column width="45%"}
+### `arsgrammatica` 
+
+ ![](./imgs/armavirumquecano.png) 
+:::
+
+::: {.column width="55%"}
+### AAT reduction
+ ![](./imgs/arma-ag-aat.png) 
+:::
+
+::::
+
+The similarity in their structure is obvious. Both graphs take *cano* for the root; the direct objects of the `arsgrammatica` graph correspond to the *targets* of the AAT graph. Note that the AAT reduction, working from the `arsgrammatica` tokenization where the enclitic *-que* was correctly handled as a distinct token from *virum*, omits the conjunction.
+
+Now consider a possible English translation of the same passage. Since the `aat` package ([https://github.com/neelsmith/aat](https://github.com/neelsmith/aat)) includes a module implementing the AAT scheme for English, we can juxtapse its AAT graph with the AAT reduction of the Latin passage.
+
+> *I sing of arms and the man.*
+
+:::: {.columns}
+
+::: {.column width="45%"}
+### AAT graph of translation
+
+ ![](./imgs/arma-aat.png) 
+:::
+
+
+
+
+::: {.column width="55%"}
+### AAT graph of Latin
+
+ ![](./imgs/arma-ag-aat.png) 
+:::
+
+::::
+
+
+
+This is a very simple example, but it at least suggests the potential of AAT models for comparing and aligning syntactic structure across languages. We can see that English explicitly names an agent ("I"), where in Latin that role is incorporated in the finite verb form *cano*; the action and the two targets in each language directly align.

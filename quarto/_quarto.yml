@@ -2,7 +2,7 @@ project:
   type: website
   output-dir: quarto-build
 
-version: "0.7.0"  
+version: "0.8.0"  
   
 
 website:
@@ -27,24 +27,31 @@ website:
             
     right:   
       - icon: github
-        href: https://github.com/neelsmith/arsgrammatica
-        aria-label: GitHub
+        menu:
+          - text: "arsgrammatica on github"
+            href: https://github.com/neelsmith/arsgrammatica
+          - text: "About me"
+            href: https://neelsmith.github.io
+          - text: "Other projects"
+            href: https://neelsmith.github.io/projects  
 
   sidebar:
     - title: "Tutorials"
       contents:
         - tutorials/index.qmd
         - "---"
-        - tutorials/marimo.md
+        - tutorials/marimo.qmd
         - tutorials/cli.qmd
         - tutorials/diagrams.qmd
         - tutorials/batch-images.qmd
-        - tutorials/batch-texts.qmd
+
         - "---"
         - tutorials/quick.qmd
     - title: "Concepts"
       contents:
         - concepts/index.qmd
+        - concepts/ud.qmd
+        - concepts/aat.qmd
     - title: "Guides"
       contents: 
         - guides/index.qmd      
@@ -52,6 +59,7 @@ website:
         - guides/install.md
         - guides/analysis.qmd
         - guides/saving-loading.qmd
+        - guides/batch-texts.qmd
         - "---"        
         - guides/texthiliting.qmd
         - guides/mermaid.qmd
@@ -61,13 +69,12 @@ website:
 
         - "---"
         - guides/optimizing.qmd
-        - guides/harvesting.qmd        
+        - guides/development.qmd    
+        - guides/gold.qmd    
         - guides/bakeoff.qmd
-        - guides/development.qmd
 
-        - guides/testing.qmd
-        - guides/tokenizing.qmd
         - "---"
+        - guides/tokenizing.qmd
         - guides/budgetingtokens.qmd
         - guides/managing_prompt_size.qmd
 
@@ -77,6 +84,8 @@ website:
       contents: 
         - reference/index.qmd   
         - "---"
+        - text: "API docs"
+          href: https://neelsmith.github.io/arsgrammatica/arsgrammatica-api-docs.html
         - reference/relationshipvalues.qmd   
         - reference/extendingscheme.qmd
         - reference/outputformats.qmd

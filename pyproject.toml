@@ -26,7 +26,7 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-# Needed only for arsgrammatica.attgraph() (aat_bridge.py), converting an
+# Needed only for arsgrammatica.aatgraph() (aat_bridge.py), converting an
 # arsgrammatica analysis to an Agent-Action-Target graph. Not on PyPI, so
 # this is a direct-URL dependency -- fine for pip, but means this extra
 # alone (unlike the base package) won't install from an index mirror that

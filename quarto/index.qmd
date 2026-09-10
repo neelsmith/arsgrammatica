@@ -14,7 +14,15 @@ A python package leveraging LLMs with [dspy](https://dspy.ai) to analyze the syn
 
 ## Related work
 
+
+*Universal models* for cross-lingual syntactic alignment:
+
+
+- [udsyntax](https://github.com/neelsmith/udsyntax) : get Universal Dependency data from spaCy into a simple syntax graph format
+- [aat](https://github.com/neelsmith/aat) : Agent-Action-Target model, a reductive model of natural-language syntax
+
+*Language-specific models* for detailed syntactic analysis:
+
 - [grammatike](https://github.com/neelsmith/grammatike): a parallel Python package for analyzing passages of ancient Greek with LMs
 - [diqduq](https://github.com/neelsmith/diqduq): a parallel Python package for analyzing passages of Biblical Hebrew with LMs
-- [aat](https://github.com/neelsmith/aat) : Agent-Action-Target model, a reductive model of natural-language syntax
 

@@ -20,3 +20,9 @@ graph, warnings = attgraph(sentences, results)
 ```
 
 For more information about AAT graphs, see the [`aat` github repository](https://github.com/neelsmith/aat).
+
+## A graph-theoretic note
+
+AAT graphs (like UD graphs) are guaranteed to be *trees*. While `arsgrammatica`'s syntax graphs tend to approximate a tree structure, they may include doubly linked nodes (like *que* in this example), and are not guaranteed to be *acyclic*.
+
+AAT graphs, like `arsgrammatica`'s graphs, are directed towards root-level verbal elements.

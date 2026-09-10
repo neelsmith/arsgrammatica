@@ -66,6 +66,17 @@
     ]
   },
   {
+    "objectID": "reference/relationshipvalues.html",
+    "href": "reference/relationshipvalues.html",
+    "title": "Values for syntactic relationships",
+    "section": "",
+    "text": "unit verb – the finite verb of a clause, linked either to its subordinating word in subordinate epxressions, or to the reserved node value root. for independent clauses.\nsubordinating conjunction – a subordinating word, linked to the verb of the governing clause.\nrelative pronoun – a relative pronoun, linked both to its antecedent and to its function in the relative clause.\nsubject – a substantive linked to the verb of its verbal expression.\ndirect object – a substantive linked to its transitive-active verbal expression.\npredicate – a substantive linked to a linking verb.\nagent – the head of a prepositional phrase expressing agent with a/ab, linked to a passive verb.\nauxiliary – a participle linked to a form of sum in compound forms of the perfect-passive/future-active systems.\nobject of preposition – a substantive linked to its governing preposition.\nadverbial – an adverb, or a prepositional phrase used adverbially, linked to the verb it modifies.\nattributive – a prepositional phrase linking to the noun it modifies.\nadjectival – an adjective (or gerundive) linking to the noun it agrees with.\ngenitive – a genitive substantive linked to the noun or verb it modifies.\ndative – a dative substantive linked to the noun or verb it relates to.\nablative – an ablative substantive linked to the noun or verb it relates to.\naccusative – an accusative substantive that is not the special case of a direct object, linked to the verb or noun it relates to.\nvocative – a vocative substantive, linked to the verb of the clause it appears in.\ndirect quote – verbal expression of directly quoted speech, linked to the verb introducing the direct speech.\naside – verb of a a parenthetical aside, linked to the verb of the clause it interrupts.\nindirect statement – an infinitive in indirect-statement, linked to the governing verb.\ncircumstantial participle – a participle linked to the substantive it agrees with.\nablative absolute – an ablative substantive syntactically absolute from the verbal expression where it appears, linked to the verb of the verbal expression.\ncoordinating conjunction – a coordinating conjunction, linked to the two items (nouns, adjectives, prepositional phrases, or verbal expressions) it joins.\napposition – a subtantive in apposition, linked to the subtantive it stands in apposition to.\ncomplementary infinitive – an infinitive completing a governing verb like volo/incipio/audeo/licet/decet, linked to that verb.\npraenomen – an abbreviated Roman first-name token, linked to the associated nomen or cognomen.",
+    "crumbs": [
+      "Reference",
+      "Values for syntactic relationships"
+    ]
+  },
+  {
     "objectID": "tutorials/quick.html",
     "href": "tutorials/quick.html",
     "title": "Quick start to write a script querying a language model",
@@ -77,36 +88,43 @@
     ]
   },
   {
-    "objectID": "tutorials/diagrams.html",
-    "href": "tutorials/diagrams.html",
-    "title": "Diagramming syntactic analyses with graphviz",
+    "objectID": "tutorials/index.html",
+    "href": "tutorials/index.html",
+    "title": "Tutorials",
     "section": "",
-    "text": "If you have saved an analysis from a marimo notebook or a command-line script, you can use the open-source graphviz application to diagram the analysis. The command-line script analysis_to_dot.py creates a graph in the dot format used by graphviz.\nCreate a dot file from an analysis file::\nIf dot is installed, you can directly create a .png file:",
+    "text": "Install arsgrammatica:\npip install git+https://github.com/neelsmith/arsgrammatica.git\nConfigure your language model in a .env file ilke this:\nAPI_BASE=https://serviceprovider\nMODEL=litellm_proxy/Claude Opus 5\nAPI_KEY=your_key",
     "crumbs": [
-      "Tutorials",
-      "Diagramming syntactic analyses with `graphviz`"
+      "Tutorials"
     ]
   },
   {
-    "objectID": "tutorials/diagrams.html#how-to-install-dot",
-    "href": "tutorials/diagrams.html#how-to-install-dot",
-    "title": "Diagramming syntactic analyses with graphviz",
-    "section": "How to install dot",
-    "text": "How to install dot\nMac OS:\nbrew install graphviz\nWindows: download from https://graphviz.org/download/ or\nwinget install --id Graphviz.Graphviz\nVerify it worked: print a version string.\ndot -V",
+    "objectID": "tutorials/index.html#prerequisites",
+    "href": "tutorials/index.html#prerequisites",
+    "title": "Tutorials",
+    "section": "",
+    "text": "Install arsgrammatica:\npip install git+https://github.com/neelsmith/arsgrammatica.git\nConfigure your language model in a .env file ilke this:\nAPI_BASE=https://serviceprovider\nMODEL=litellm_proxy/Claude Opus 5\nAPI_KEY=your_key",
     "crumbs": [
-      "Tutorials",
-      "Diagramming syntactic analyses with `graphviz`"
+      "Tutorials"
     ]
   },
   {
-    "objectID": "tutorials/cli.html",
-    "href": "tutorials/cli.html",
-    "title": "A command-line script for analyzing Latin syntax",
-    "section": "",
-    "text": "syntaxer_main.py reads authentication credentials for your LM from your environment and analyzes a passage. It writes the result in to standard output in arsgrammatica’s standard serialization format. Create an .env to configure your LM credentials, like this:\nAPI_BASE=https://localmodel/api\nMODEL=litellm/modelname\nAPI_KEY=your-key-here\nThen run syntaxer_main.py with a passage argument:\npython3 syntaxer_main.py --passage \"Gallia est omnis divisa in partes tres.\"\nTo include a citation reference (e.g. a CTS URN), use the --citation argument:\npython3 syntaxer_main.py --passage \"Arma virumque canō.\" --citation \"urn:cts:latinLit:phi0690.phi003.perseus:1.1\"\nRedirect the output to a file with standard IO redirection:\npython3 syntaxer_main.py --passage \"Arma virumque canō.\" \n    --citation \"urn:cts:latinLit:phi0690.phi003.perseus:1.1\" &gt; aeneid_analysis.cex\nTHe results look like this:\n#!sentences\ncontext_begin|first_token|context_end|last_token\nurn:cts:latinLit:phi0690.phi003.perseus:1.1|t0|urn:cts:latinLit:phi0690.phi003.perseus:1.1|t4\n\n#!verbal_units\ncontext|token|syntactic_type|semantic_type\nurn:cts:latinLit:phi0690.phi003.perseus:1.1|t3|independent|transitive active\n\n#!tokens\ncontext|id|tokentype|text|lemma|verbalunit|related1|relationship1|related2|relationship2\nurn:cts:latinLit:phi0690.phi003.perseus:1.1|t0|lexical|Arma|arma||t3|direct object||\nurn:cts:latinLit:phi0690.phi003.perseus:1.1|t1|lexical|virum|vir||t3|direct object||\nurn:cts:latinLit:phi0690.phi003.perseus:1.1|t2|enclitic|que|que||t0|coordinating conjunction|t1|coordinating conjunction\nurn:cts:latinLit:phi0690.phi003.perseus:1.1|t3|lexical|canō|cano|t3|root|unit verb||\nurn:cts:latinLit:phi0690.phi003.perseus:1.1|t4|punctuation|.||||||",
+    "objectID": "tutorials/index.html#preassembled-resources",
+    "href": "tutorials/index.html#preassembled-resources",
+    "title": "Tutorials",
+    "section": "Preassembled resources",
+    "text": "Preassembled resources\n\nmarimo notebooks for syntax analysis\nanalyze Latin with a command line script\ndiagram analyses with graphviz\ngenerate PNG diagrams from saved analyses with graphviz",
     "crumbs": [
-      "Tutorials",
-      "A command-line script for analyzing Latin syntax"
+      "Tutorials"
+    ]
+  },
+  {
+    "objectID": "tutorials/index.html#using-the-arsgrammatica-package-in-python",
+    "href": "tutorials/index.html#using-the-arsgrammatica-package-in-python",
+    "title": "Tutorials",
+    "section": "Using the arsgrammatica package in python",
+    "text": "Using the arsgrammatica package in python\n\nQuickest possible start to querying a language model",
+    "crumbs": [
+      "Tutorials"
     ]
   },
   {
@@ -121,44 +139,77 @@
     ]
   },
   {
+    "objectID": "concepts/index.html",
+    "href": "concepts/index.html",
+    "title": "Modelling Latin syntax",
+    "section": "",
+    "text": "Any computational analysis of natural-language syntax must choose a syntactic model suited to its purpose. Some analyses, for example, work with universal syntactic models like Universal Dependencies (UD) or Agent-Action-Target (AAT) to align features across multiple languages.\narsgrammatica addresses a different problem. It defines a syntactic scheme that is unique to Latin in order to support research and teaching focused on Latin texts. Some of its key features include:\n\narsgrammatica respects citation of text passages. Tokens are uniquely citable within uniquely citable passages of text.\nSyntactic categories use terminology already familiar to Latinists.\nTokenization of Latin strings classifies tokens in terms specific to editions of Latin texts (e.g., it recognizes a praenomen token type written in abbreviated form and associated with a fully supplied Latin nomen or cognomen).\nAll lexical tokens are related in a dependency graph.\nThe dependency graph is organized in coordinated and subordinated verbal expressions, subject-verb-object expressions generally corresponding to clauses in an English translation. (This structure is easily translated into an AAT model for cross-lingual alignment.)",
+    "crumbs": [
+      "Concepts",
+      "Modelling Latin syntax"
+    ]
+  },
+  {
+    "objectID": "concepts/index.html#goals-of-arsgrammatica",
+    "href": "concepts/index.html#goals-of-arsgrammatica",
+    "title": "Modelling Latin syntax",
+    "section": "",
+    "text": "Any computational analysis of natural-language syntax must choose a syntactic model suited to its purpose. Some analyses, for example, work with universal syntactic models like Universal Dependencies (UD) or Agent-Action-Target (AAT) to align features across multiple languages.\narsgrammatica addresses a different problem. It defines a syntactic scheme that is unique to Latin in order to support research and teaching focused on Latin texts. Some of its key features include:\n\narsgrammatica respects citation of text passages. Tokens are uniquely citable within uniquely citable passages of text.\nSyntactic categories use terminology already familiar to Latinists.\nTokenization of Latin strings classifies tokens in terms specific to editions of Latin texts (e.g., it recognizes a praenomen token type written in abbreviated form and associated with a fully supplied Latin nomen or cognomen).\nAll lexical tokens are related in a dependency graph.\nThe dependency graph is organized in coordinated and subordinated verbal expressions, subject-verb-object expressions generally corresponding to clauses in an English translation. (This structure is easily translated into an AAT model for cross-lingual alignment.)",
+    "crumbs": [
+      "Concepts",
+      "Modelling Latin syntax"
+    ]
+  },
+  {
+    "objectID": "concepts/index.html#a-simple-illustration",
+    "href": "concepts/index.html#a-simple-illustration",
+    "title": "Modelling Latin syntax",
+    "section": "A simple illustration",
+    "text": "A simple illustration\nConsider a very short Latin sentence, and a diagram of the dependency graph that arsgrammatica builds from it.\n\narma virumque cano.\n\n\n\n\n\nSyntactic analysis of a short Latin sentence.\n\n\n\nThis Latin sentence contains a single verbal expression, rooted in the verb cano. arsgrammatica recognizes four lexical tokens in its dependency graph. It ignores the punctuation token (period), and distinguishes an enclitic token -que from the noun it is orthographically attached to (virum). arsgrammatica identifies two different kinds of relationship in this sentence: direct object and coordinating conjunction.",
+    "crumbs": [
+      "Concepts",
+      "Modelling Latin syntax"
+    ]
+  },
+  {
+    "objectID": "concepts/index.html#relation-to-other-models",
+    "href": "concepts/index.html#relation-to-other-models",
+    "title": "Modelling Latin syntax",
+    "section": "Relation to other models",
+    "text": "Relation to other models\nHow arsgrammatica’s Latin-specific model relates to two universal syntactic models:\n\nrelation to Universal Dependencies (UD)\nrelation to Agent-Action-Target (AAT)",
+    "crumbs": [
+      "Concepts",
+      "Modelling Latin syntax"
+    ]
+  },
+  {
     "objectID": "guides/development.html",
     "href": "guides/development.html",
     "title": "Improving arsgrammatica by reading Latin",
     "section": "",
-    "text": "You can incorporate the results of reading real Latin texts with arsgrammatica into a repeatable development loop that constantly improves the package.\nWhen arsgrammatica fails to analyze the syntax of a passage correctly, we can use it to improve the model in one of three ways:\n\nwe need to add a new construction to the basic document syntax_model.md\nwe need better training on a construction that the scheme already documents, but the current prompt still gets wrong\na genuinely ambiguous case that exposes a modeling choice worth deciding and flagging explicitly\n\nWhen arsgrammatica correctly handles a passage, that is real evidence that the model is working correctly. We can use manually vetted examples as checks to ensure that a future change to a prompt or model can’t silently break this case without anyone noticing.\nSteps to take:\n\nAnalyze a real passage.\nRead the surviving result against syntax_model.md by hand.\nTriage what you found into one of three outcomes, and act accordingly (see the next section). Every outcome below can be turned into a GoldExample with tests/fixtures/harvest.py’s gold_example_from_analysis() – the difference between them is what you do with the result afterward, not how you build it.\n\n\n\n\nIs syntax_model.md actually silent or ambiguous about this construction? If so, this is a scheme gap, not a model mistake. Extend syntax_model.md first, then follow USAGE.md’s “Extending the scheme” steps: add the new relation label / tokentype / syntactic_type value to the relevant Literal in arsgrammatica/models.py, describe when to use it in SyntaxAnalysis’s docstring in arsgrammatica/latin_syntax_dspy.py, and hand-write a GoldExample with a correct canned_answer exercising it (since the live model, by definition, didn’t produce one) in tests/fixtures/gold_examples.py. This is exactly how the implied-token feature was built.\nIs the scheme already clear, but the prompt/model got it wrong anyway? Hand-write a corrected GoldExample for the passage the same way, so the failure becomes a concrete, checkable trainset entry rather than an anecdote. If you’re unsure between two defensible readings, say so explicitly in a comment above the fixture (matching the existing convention in gold_examples.py for judgment calls like the circumstantial-participle-of-sum case) rather than silently committing to one.\nRe-run pytest (fast, DummyLM-backed – see TESTING.md) to confirm the new/corrected fixture actually validates and that test_coverage.py is satisfied, before spending any real API budget re-testing it against the live model.\n\nEither way, the corrected fixture lands in GOLD_EXAMPLES – see “How this feeds OPTIMIZING.md and BAKEOFF.md” below for what that means downstream.\n\n\n\nThe model got something genuinely uncommon or structurally hard right – a deep subordination chain, a construction with few other examples in GOLD_EXAMPLES, anything you’d be nervous betting the model gets right consistently. This is worth reinforcing, not just recording: use gold_example_from_analysis() to build the GoldExample from the real sentences/result.verbalunits/result.tokengraph (passing result.reasoning too, since dspy.ChainOfThought gives you a real one for free here, not a placeholder), then format_gold_example_source() to get paste-ready source for gold_examples.py. Add it straight to GOLD_EXAMPLES as ordinary trainset material – a correct demonstration of a rare case is precisely the kind of thing optimize_gepa.py’s trainset benefits from having more of, and precisely what model_bakeoff.py’s bootstrap stage is designed to lock in as a few-shot demo for a candidate model that doesn’t reliably get it right zero-shot.\n\n\n\nThe model got something right that it was already expected to get right – a plain independent clause, an ordinary direct object, nothing structurally novel. This is real evidence, but low-value as training signal: optimize_gepa.py has no held-out split at all today (see below), so anything added to GOLD_EXAMPLES is immediately part of what GEPA both trains against and scores itself against, and an easy case the model already nails teaches the optimizer nothing new – it just dilutes the trainset with redundant coverage. The better default is to harvest it the same way, add it to GOLD_EXAMPLES, and add its slug to model_bakeoff.py’s HELD_OUT_SLUGS (see BAKEOFF.md’s “The held-out evaluation set”). That turns it into a regression check: something that already works today, now protected against silently breaking as the prompt, the scheme, or the underlying model changes later – exactly the role model_bakeoff.py’s held-out set exists to play, and one that only gets more useful as it grows more diverse.\nThe dividing line, in short: rare-and-tricky successes are worth teaching the optimizer with; common-and-already-reliable successes are worth protecting with a regression check. “Which bucket does this belong in” is a judgment call about how common the construction already is in GOLD_EXAMPLES, not about whether the analysis happened to be correct – both outcomes started from a correct analysis.\n\n\n\noptimize_gepa.pytrains SyntaxAnalysis’s prompt against all of GOLD_EXAMPLES, with no separate held-out valset at all (see optimizing with GEPA) – per dspy.GEPA’s own behavior when none is given, the trainset doubles as the Pareto-tracking set GEPA scores itself against.\nThat means every fixture this loop adds to GOLD_EXAMPLES – a corrected failure (Outcome A) or a harvested rare-construction success (Outcome B) – becomes real trainset material the next time optimize_gepa.py runs, which is the main way the shipped prompt actually improves over time: not synthetic examples, but real passages that either broke something or demonstrated something worth reinforcing.\nA known gap worth being aware of: optimize_gepa.py has no mechanism today to exclude anything from its trainset – unlike model_bakeoff.py, it doesn’t consult HELD_OUT_SLUGS (or anything else) to keep held-out examples out of what it trains against. So an Outcome-C fixture you add specifically to protect as a held-out regression check for model_bakeoff.py purposes still gets folded into optimize_gepa.py’s trainset the next time it runs – the two scripts don’t currently share one consistent notion of “held out.” Until that’s addressed (e.g. by teaching optimize_gepa.py to skip HELD_OUT_SLUGS too), treat the held-out/trainset distinction described above as meaningful specifically for model_bakeoff.py’s cross-model comparisons, not as an airtight guarantee that held-out examples never influence the production prompt.\nmodel_bakeoff.py (see comparing models) is the one place in this repo with an actual train/eval firewall: its gepa/bootstrap stages never train against HELD_OUT_SLUGS, so every candidate model is compared on the same untouched slice. That slice was deliberately stratified by hand when it was first built (one plain independent clause, a couple of dependent-clause shapes, a coordinated-verb pair, an indirect statement, a circumstantial participle, a depth-2 nesting case, three newer relations); every Outcome-C fixture this loop produces is a natural way to keep growing that stratification with real passages rather than more hand-constructed ones, making model_bakeoff.py’s cross-model comparisons more representative as the held-out set grows.\nPut together: this loop is the thing that keeps both downstream tools honest over time. Without it, optimize_gepa.py only ever optimizes against a fixed, hand-written snapshot of the scheme, and model_bakeoff.py only ever compares candidates against that same fixed snapshot – neither one improves just by running the scripts again. Real-world testing is what actually grows and diversifies the corpus both scripts depend on.\n\n\n\nThe implied sum/continued discourse tokentype values (arsgrammatica/models.py’s IMPLIED_TOKENTYPES) are a concrete example of the Outcome-A loop above, in the order it actually happened:\n\nA real passage needed a construction syntax_model.md didn’t document: an elided form of sum, and a shared governing verb of indirect discourse left unrepeated across coordinate clauses.\nsyntax_model.md was extended with an “understood or implied verbal expressions” section describing both cases and the id-naming convention for a token with no surface realization.\narsgrammatica/models.py’s TokenAnalysis.tokentype gained the two new Literal values (plus the shared IMPLIED_TOKENTYPES constant so every consumer – validate(), rendering.py, serialization.py, conftest.py – checks membership in one place rather than hardcoding either string), and SyntaxAnalysis’s docstring in latin_syntax_dspy.py documented exactly when to use each one and how to name the new token’s id.\nFour new hand-written GoldExample entries were added to gold_examples.py, one per documented sub-case, each with a correct canned_answer – since this was new scheme, not something a live model had already demonstrated – and test_coverage.py confirmed both new tokentype values were now exercised.\nOne genuine judgment call came up along the way (whether an implied ablative-absolute participle’s syntactic_type should be 'dependent', since syntax_model.md’s own phrase “circumstantial participle” isn’t a valid syntactic_type value) – it was resolved by matching this codebase’s existing convention for every other circumstantial participle, and flagged explicitly rather than decided silently.\n\nNothing about this loop required a live model at all – it’s the pure Outcome-A path, scheme-gap-first. A rare-construction success (Outcome B) or a common-construction success (Outcome C) follows the same shape starting from step 4/5 instead, using tests/fixtures/harvest.py to build the fixture from a real analysis rather than writing the canned_answer by hand.\n\n\n\n\nAfter any batch of real-world testing/harvesting, run pytest (TESTING.md) first – it’s fast and DummyLM-backed, and will immediately tell you if a new or corrected fixture doesn’t actually validate or if test_coverage.py regressed.\nRun optimize_gepa.py (OPTIMIZING.md) periodically to refresh the shipped, production prompt against whatever GOLD_EXAMPLES has grown into since the last run – this is a live-LM script with real API cost, so batch it rather than running it after every single new fixture.\nRun model_bakeoff.py (BAKEOFF.md) periodically – before adopting a new candidate model, or whenever the held-out set has grown enough to be worth re-checking – to confirm existing candidates still stand where you last measured them, now against a larger, more representative held-out slice.",
+    "text": "You can incorporate the results of reading real Latin texts with arsgrammatica into a repeatable development loop that constantly improves the package.\n\n\nWhen arsgrammatica fails to analyze the syntax of a passage correctly, we can use the results to identify gaps in the schema, or areas in need of better training.\nFirst check whether syntax_model.md explicitly and clearly defines the construction that was not analyzed correctly. If it does not, modify syntax_model.md and follow the steps given in the reference section to extend the scheme for the new construction.\nIf the scheme is already clear, but the analysis failed anyway, use this recipe to add a GoldExample with a correct canned_answer in tests/fixtures/gold_examples.py. If you’re unsure between two defensible readings, say so explicitly in a comment above the fixture rather than silently committing to one.\nRe-run pytest to confirm that the new or corrected fixture validates and that test_coverage.py is satisfied.\n\n\n\nWhen arsgrammatica correctly analyzes a passage, that is real evidence that the model is working correctly. We can save manually vetted examples as checks to ensure that future changes to a prompt or model can’t silently break this case, and to extend the evaluation pool for later optimization.\n\n\nIf the response correctly analyzes an unusual or difficult construction that you think it might not always this is worth reinforcing in the core training set. If you save the analysis to a file, you can use the utility script analysis_to_gold_example to write the necessary Python for you that you can paste in to gold_examples.py.\n\n\n\nIf the analysis correctly identified something you already expected it to get right, such as a simple independent clause with direct object, this is still real evidence, but of low value as training signal. If we add more examples of easy cases that the model already gets right, it teaches the optimizer nothing new, and dilutes the training set with redundant coverage.\nInstead, serialize and save the analysis in a directory you can later pass to optimize_gepa.py with the --eval-dir parameter as part of the larger training and evaluation set ith the x parameter\n\n\n\n\nEvery addition to GOLD_EXAMPLES (whether a correction for a failure or a harvested success with a rare construction) becomes part of the training set for the next time optimize_gepa.py runs.\nEvery analysis you save expands the pool GEPA can use to optimize prompts for specific models.\n\n\n\nIf you save a large number of correct analyses as you work through a corpus, and then include all those analyses in the training set for GEPA, the result might perform better on your particular corpus, but worse on a broader corpus of Latin. In one experiment, for example, an optimized model drawing on a large number of analyzed passages from the Latin Vulgate performed worse on a selection of passages from Livy than an unoptimized generic model. Presumably it would do better on further passages of the Vulgate.\nYour specific strategy for optimization will depend on your goal: do want a more specialized system tailored to a particular corpus, or a more generally applicable system?\n\n\n\n\n\n\nNote\n\n\n\nThe github repository for arsgrammatica organizes a selection of hand-vetted analyses in subdirectories of the data directory by corpus, so they can easily be included or excluded with the --eval-dir parameter to optimize_gepa.py.",
     "crumbs": [
       "Guides",
       "Improving  `arsgrammatica` by reading Latin"
     ]
   },
   {
-    "objectID": "guides/development.html#how-this-feeds-optimization-and-comparison-of-models",
-    "href": "guides/development.html#how-this-feeds-optimization-and-comparison-of-models",
+    "objectID": "guides/development.html#optimization-over-time",
+    "href": "guides/development.html#optimization-over-time",
     "title": "Improving arsgrammatica by reading Latin",
     "section": "",
-    "text": "optimize_gepa.pytrains SyntaxAnalysis’s prompt against all of GOLD_EXAMPLES, with no separate held-out valset at all (see optimizing with GEPA) – per dspy.GEPA’s own behavior when none is given, the trainset doubles as the Pareto-tracking set GEPA scores itself against.\nThat means every fixture this loop adds to GOLD_EXAMPLES – a corrected failure (Outcome A) or a harvested rare-construction success (Outcome B) – becomes real trainset material the next time optimize_gepa.py runs, which is the main way the shipped prompt actually improves over time: not synthetic examples, but real passages that either broke something or demonstrated something worth reinforcing.\nA known gap worth being aware of: optimize_gepa.py has no mechanism today to exclude anything from its trainset – unlike model_bakeoff.py, it doesn’t consult HELD_OUT_SLUGS (or anything else) to keep held-out examples out of what it trains against. So an Outcome-C fixture you add specifically to protect as a held-out regression check for model_bakeoff.py purposes still gets folded into optimize_gepa.py’s trainset the next time it runs – the two scripts don’t currently share one consistent notion of “held out.” Until that’s addressed (e.g. by teaching optimize_gepa.py to skip HELD_OUT_SLUGS too), treat the held-out/trainset distinction described above as meaningful specifically for model_bakeoff.py’s cross-model comparisons, not as an airtight guarantee that held-out examples never influence the production prompt.\nmodel_bakeoff.py (see comparing models) is the one place in this repo with an actual train/eval firewall: its gepa/bootstrap stages never train against HELD_OUT_SLUGS, so every candidate model is compared on the same untouched slice. That slice was deliberately stratified by hand when it was first built (one plain independent clause, a couple of dependent-clause shapes, a coordinated-verb pair, an indirect statement, a circumstantial participle, a depth-2 nesting case, three newer relations); every Outcome-C fixture this loop produces is a natural way to keep growing that stratification with real passages rather than more hand-constructed ones, making model_bakeoff.py’s cross-model comparisons more representative as the held-out set grows.\nPut together: this loop is the thing that keeps both downstream tools honest over time. Without it, optimize_gepa.py only ever optimizes against a fixed, hand-written snapshot of the scheme, and model_bakeoff.py only ever compares candidates against that same fixed snapshot – neither one improves just by running the scripts again. Real-world testing is what actually grows and diversifies the corpus both scripts depend on.",
+    "text": "Every addition to GOLD_EXAMPLES (whether a correction for a failure or a harvested success with a rare construction) becomes part of the training set for the next time optimize_gepa.py runs.\nEvery analysis you save expands the pool GEPA can use to optimize prompts for specific models.",
     "crumbs": [
       "Guides",
       "Improving  `arsgrammatica` by reading Latin"
     ]
   },
   {
-    "objectID": "guides/development.html#a-worked-precedent-the-impliedelided-token-feature",
-    "href": "guides/development.html#a-worked-precedent-the-impliedelided-token-feature",
+    "objectID": "guides/development.html#optimizing-vs.-overtraining",
+    "href": "guides/development.html#optimizing-vs.-overtraining",
     "title": "Improving arsgrammatica by reading Latin",
     "section": "",
-    "text": "The implied sum/continued discourse tokentype values (arsgrammatica/models.py’s IMPLIED_TOKENTYPES) are a concrete example of the Outcome-A loop above, in the order it actually happened:\n\nA real passage needed a construction syntax_model.md didn’t document: an elided form of sum, and a shared governing verb of indirect discourse left unrepeated across coordinate clauses.\nsyntax_model.md was extended with an “understood or implied verbal expressions” section describing both cases and the id-naming convention for a token with no surface realization.\narsgrammatica/models.py’s TokenAnalysis.tokentype gained the two new Literal values (plus the shared IMPLIED_TOKENTYPES constant so every consumer – validate(), rendering.py, serialization.py, conftest.py – checks membership in one place rather than hardcoding either string), and SyntaxAnalysis’s docstring in latin_syntax_dspy.py documented exactly when to use each one and how to name the new token’s id.\nFour new hand-written GoldExample entries were added to gold_examples.py, one per documented sub-case, each with a correct canned_answer – since this was new scheme, not something a live model had already demonstrated – and test_coverage.py confirmed both new tokentype values were now exercised.\nOne genuine judgment call came up along the way (whether an implied ablative-absolute participle’s syntactic_type should be 'dependent', since syntax_model.md’s own phrase “circumstantial participle” isn’t a valid syntactic_type value) – it was resolved by matching this codebase’s existing convention for every other circumstantial participle, and flagged explicitly rather than decided silently.\n\nNothing about this loop required a live model at all – it’s the pure Outcome-A path, scheme-gap-first. A rare-construction success (Outcome B) or a common-construction success (Outcome C) follows the same shape starting from step 4/5 instead, using tests/fixtures/harvest.py to build the fixture from a real analysis rather than writing the canned_answer by hand.",
-    "crumbs": [
-      "Guides",
-      "Improving  `arsgrammatica` by reading Latin"
-    ]
-  },
-  {
-    "objectID": "guides/development.html#suggested-cadence",
-    "href": "guides/development.html#suggested-cadence",
-    "title": "Improving arsgrammatica by reading Latin",
-    "section": "",
-    "text": "After any batch of real-world testing/harvesting, run pytest (TESTING.md) first – it’s fast and DummyLM-backed, and will immediately tell you if a new or corrected fixture doesn’t actually validate or if test_coverage.py regressed.\nRun optimize_gepa.py (OPTIMIZING.md) periodically to refresh the shipped, production prompt against whatever GOLD_EXAMPLES has grown into since the last run – this is a live-LM script with real API cost, so batch it rather than running it after every single new fixture.\nRun model_bakeoff.py (BAKEOFF.md) periodically – before adopting a new candidate model, or whenever the held-out set has grown enough to be worth re-checking – to confirm existing candidates still stand where you last measured them, now against a larger, more representative held-out slice.",
+    "text": "If you save a large number of correct analyses as you work through a corpus, and then include all those analyses in the training set for GEPA, the result might perform better on your particular corpus, but worse on a broader corpus of Latin. In one experiment, for example, an optimized model drawing on a large number of analyzed passages from the Latin Vulgate performed worse on a selection of passages from Livy than an unoptimized generic model. Presumably it would do better on further passages of the Vulgate.\nYour specific strategy for optimization will depend on your goal: do want a more specialized system tailored to a particular corpus, or a more generally applicable system?\n\n\n\n\n\n\nNote\n\n\n\nThe github repository for arsgrammatica organizes a selection of hand-vetted analyses in subdirectories of the data directory by corpus, so they can easily be included or excluded with the --eval-dir parameter to optimize_gepa.py.",
     "crumbs": [
       "Guides",
       "Improving  `arsgrammatica` by reading Latin"
@@ -169,7 +220,7 @@
     "href": "guides/bakeoff.html",
     "title": "Comparing models with model_bakeoff.py",
     "section": "",
-    "text": "arsgrammatica was developed with Claude Opus 5 hosted at the College of the Holy Cross. dspy lets us plug in other models and use the same code with them. What open-weight models hosted on Hugging Face, or running locally under Ollama could realistically run arsgrammatica?\nmodel_bakeoff.py lets you compare multiple models against the same held-out slice of gold examples, and see not just whether each one is “good enough” but where it falls short and whether that performance can be improved. You can run model_bakeoff.py whenever you want to evaluate a candidate; it never affects the production pipeline.\n\n\n“Can a given model run arsgrammatica?” is really three separate questions:\n\nHow good is the model with the instructions already written and tuned against Opus 5, without optimization?\nHow much does the performance improve if we let dspy.GEPA optimize instructions for the model?\nHow much does the performance improve if we use Opus 5 as a “teacher” model and modify the candidate model’s instructions?\n\nYou can answer each of those questions with the model_bakeoff.py script, selecting from these values for the --stages:\n\nbaseline : zero-shot testing answering question 1, how good is the model without optimization? The cheapest stage by far (one call per held-out example) and worth running alone first.\ngepa — uses dspy.GEPA is allowed to rewrite the instructions for this candidate (question 2). The candidate still solves every example itself, both during optimization and at final scoring; only the wording changes.\nbootstrap uses Opus as a “teacher” model, and attaches verified correct traces to the model’s instructions as few-shot examples. Here the candidate never has to solve a training example itself — only the held-out scoring examples afterward.\n\nComparing baseline against gepa and bootstrap distinguishes “Does this model already perform adequately?” from “How much can it be improved?”. Comparing gepa against bootstrap separates two different ways of improving the model (with or without a separate “teacher” model). A candidate that is mediocre at baseline but closes most of the gap at gepa or bootstrap might be a good prospect for optimization. A mediocre performance on all three stages probably reflects a real ceiling on the model’s capabilities.\n\n\n\n\n\n\nTipManaging cost\n\n\n\ngepa and bootstrap make many more LM calls than baseline (since they involve calls both to the candidate and the “teacher” model). so start with --stages baseline across every candidate you’re curious about, then spend the heavier stages only on the ones worth the API usage.\n\n\n\n\n\n--provider huggingface (the default) routes each candidate through Hugging Face’s Inference Providers layer. You can run several candidates in one invocation, one after another, since each is just an API call. Be sure you have included a Hugging Face access token in your .env file.\nHUGGINGFACE_API_KEY=hf_...\n--provider ollama is for models you pull and run locally with ollama. This needs no special configuration since it talks to ollama’s default port of http://localhost:11434. (Set OLLAMA_API_BASE in .env, or pass --ollama-api-base, if Ollama is running somewhere else on your network.)\nRealistically you can only have one model loaded in Ollama at a time, so this script’s shape is built around that constraint: --provider ollama refuses to run unless exactly one candidate is selected. The resulting workflow will look like this:\nollama pull llama3.1:8b            # or whichever candidate; make sure ollama serve is running\npython model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages baseline\n# ...stop that model, pull/load the next one...\npython model_bakeoff.py --provider ollama --candidates gpt-oss-20b --stages baseline\nEvery invocation is a normal one-shot run, not a long-lived process . Scores are collected in a cumulative results file (see below), so you can score one model, save the results, swap models, and repeat, without overwriting earlier results.\n\n\n\noptimize_gepa.py trains against every example in tests/fixtures/gold_examples.py, with no separate held-out set — a reasonable choice for tuning one model, but it would make cross-model comparison unreliable here: a candidate’s post-optimization score would partly reflect how well its own optimized prompt/demos fit the exact examples it’s judged on.\nmodel_bakeoff.py instead carves out a fixed slice of ten gold examples (HELD_OUT_SLUGS, near the top of the file) that no candidate’s gepa/bootstrap stage ever trains against. Every candidate optimizes against the same remaining examples and is scored against the same untouched held-out set, so scores are actually comparable across models and across stages. The slice is deliberately stratified — a plain independent clause, a subordinating-conjunction and a relative-pronoun dependent clause, a coordinated-verb pair, an indirect statement, a circumstantial participle, a depth-2 nesting case, and the three newest relations (apposition, indirect question, complementary infinitive) — so a low score can be traced to a specific construction rather than just “worse overall.”\n\n\n\nEvery stage reports a blended mean score in [0, 1] over the held-out set, plus three unblended sub-scores from arsgrammatica.gepa_metric.syntax_metric():\n\nfield_mean — basic per-token fields (tokentype, lemma, which verbal unit a token belongs to).\nrelation_mean — the actual dependency relations, weighted highest (0.5 of the blend) since they’re the heart of the scheme.\nvu_mean — verbal-expression classification (syntactic_type/semantic_type).\n\nA model that scores well on field_mean but collapses on relation_mean is failing at multi-hop structural reasoning specifically — a different problem (and probably less susceptible to fixing with prompts) than a model that is just generally worse across the board. The console output also prints, per held-out example, any that raised an outright error (a request that failed, or output that didn’t parse into the expected shape) rather than silently folding those into the average — worth reading before trusting a low score.\nThis script doesn’t compute a malformed-output rate as its own number (validate()/find_unanchored_coordinated_verbs() in the main package can do that over raw predictions if you want it), and it doesn’t do real weight-level fine-tuning — the bootstrap stage attaches Opus-solved examples to the candidate’s prompt, never touching its weights. dspy.BootstrapFinetune is real fine-tuning, but needs different infrastructure than either provider here and isn’t wired in.\n\n\n\n# Cheap first pass across every Hugging Face candidate\npython model_bakeoff.py --stages baseline\n\n# Everything, every candidate (expensive -- gepa + bootstrap make many calls)\npython model_bakeoff.py --stages baseline gepa bootstrap\n\n# Just a couple of candidates\npython model_bakeoff.py --candidates llama-3.1-8b gpt-oss-20b\n\n# Skip gepa/bootstrap for anything that didn't clear a baseline threshold\npython model_bakeoff.py --min-baseline-to-optimize 0.3\n\n# Ollama, one candidate at a time (see workflow above)\npython model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages baseline\npython model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages gepa bootstrap\n\n# A model not in CANDIDATES at all -- either provider\npython model_bakeoff.py --provider ollama --model ollama_chat/llama3.1:8b-instruct-q8_0 --label llama-3.1-8b-q8\n\n# Optimizer knobs\npython model_bakeoff.py --auto medium                    # gepa's (and miprov2's) budget preset\npython model_bakeoff.py --max-metric-calls 40             # exact gepa budget instead of --auto\npython model_bakeoff.py --bootstrap-optimizer miprov2     # heavier alternative to bootstrap-fewshot\npython model_bakeoff.py --max-bootstrapped-demos 4 --max-labeled-demos 4\n\npython model_bakeoff.py --out results.csv                 # merge into a specific file\nThe full flag reference is always available with python model_bakeoff.py --help; the ones most worth knowing up front:\n\n--provider {huggingface,ollama} — where candidates run (default huggingface).\n--candidates LABEL [LABEL ...] — restrict to specific labels from CANDIDATES (default: all of them; --provider ollama requires exactly one).\n--model / --label — an ad hoc pair for a model not in CANDIDATES at all; both or neither.\n--stages {baseline,gepa,bootstrap} — which stage(s) to run this invocation (default: all three).\n--bootstrap-optimizer {bootstrap-fewshot,miprov2} — which optimizer implements the bootstrap stage (default bootstrap-fewshot, cheaper).\n--min-baseline-to-optimize — skip gepa/bootstrap for a candidate whose zero-shot mean is below this threshold, whether that baseline came from this invocation or a previously recorded row.\n--out — the results file to merge into (default model_bakeoff_results.csv).\n\n\n\n\nResults accumulate in a CSV file (model_bakeoff_results.csv by default), keyed by (label, provider, stage). Each invocation reads the contents, merges in new rows, and writes the whole thing back out, sorted by CANDIDATES order and then by stage. You could, for example, run a Hugging Face pass today and an Ollama pass tomorrow, or score one Ollama model per day as you cycle through them, and the results all accumulate in the same file. If you re-run the same combination of label, provider and stage, that overwrites only that single row; other rows are untouched.\n\nColumns: label, provider, model (the resolved model string actually called), family, tier, stage, n (held-out example count), mean/min/max (blended score), field_mean/relation_mean/vu_mean, elapsed_s, n_calls, total_cost (blank when the provider doesn’t report per-call cost — Ollama never will, since it’s local), and error (set instead of scores if the candidate was skipped entirely, e.g. a missing API key).\n\nEach optimized gepa/bootstrap run is also saved to disk as optimized_&lt;label&gt;_&lt;provider&gt;_&lt;stage&gt;.json, alongside the CSV row — load one of these into a dspy.ChainOfThought(SyntaxAnalysis) instance with .load(...) if you want to inspect or reuse the actual optimized program, not just its score.\n\n\n\nCANDIDATES, near the top of the file, spans roughly 3B to 120B+ parameters across several major open-weight families, plus one reasoning-distilled model (DeepSeek-R1-Distill-Llama-8B) at the same size as its plain counterpart (Llama-3.1-8B), to see whether chain-of-thought distillation specifically helps a multi-hop structural task like this one.\n\n\n\nlabel\nfamily\ntier\n\n\n\n\nphi-4-mini\nMicrosoft Phi\n~4B\n\n\nllama-3.2-3b\nMeta Llama\n~3B\n\n\nllama-3.1-8b\nMeta Llama\n~8B\n\n\ndeepseek-r1-distill-llama-8b\nDeepSeek (R1 distill)\n~8B\n\n\nqwen-8b\nAlibaba Qwen\n~7B\n\n\ngpt-oss-20b\nOpenAI (open weights)\n~20B\n\n\nmistral-small-24b\nMistral AI\n~24B\n\n\nllama-3.3-70b\nMeta Llama\n~70B\n\n\ndeepseek-r1-distill-llama-70b\nDeepSeek (R1 distill)\n~70B\n\n\ngpt-oss-120b\nOpenAI (open weights)\n~120B\n\n\n\nModel availability and naming move fast on both sides. This roster is just a snapshot, so recheck against Hugging Face’s Inference Providers docs, each model’s Hub page, and ollama list before running.\nTo add a new candidate permanently, add a dict(...) entry to CANDIDATES with at least label, model (the huggingface/org/repo string), and ollama_model (the exact Ollama pull tag); for a one-off you don’t want to add to the roster at all, use --model/--label instead (see the Running it examples above).",
+    "text": "arsgrammatica was developed with Claude Opus 5 hosted at the College of the Holy Cross. dspy lets us plug in other models and use the same code with them. What open-weight models hosted on Hugging Face, or running locally under Ollama could realistically run arsgrammatica?\nmodel_bakeoff.py lets you compare multiple models against the same held-out slice of gold examples, and see not just whether each one is “good enough” but where it falls short and whether that performance can be improved. You can run model_bakeoff.py whenever you want to evaluate a candidate; it never affects the production pipeline.\n\n\n“Can a given model run arsgrammatica?” is really three separate questions:\n\nHow good is the model with the instructions already written and tuned against Opus 5, without optimization?\nHow much does the performance improve if we let dspy.GEPA optimize instructions for the model?\nHow much does the performance improve if we use Opus 5 as a “teacher” model and modify the candidate model’s instructions?\n\nYou can answer each of those questions with the model_bakeoff.py script, selecting from these values for the --stages:\n\nbaseline : zero-shot testing answering question 1, how good is the model without optimization? The cheapest stage by far (one call per held-out example) and worth running alone first.\ngepa — uses dspy.GEPA to rewrite the instructions for the candidate model. The candidate still solves every example itself, both during optimization and at final scoring; only the wording changes. This answers question 2.\nbootstrap uses Opus 5 as a “teacher” model, and attaches verified correct traces to the model’s instructions as few-shot examples. Here the candidate never has to solve a training example itself — only the held-out scoring examples afterward.\n\nComparing baseline against gepa and bootstrap distinguishes “Does this model already perform adequately?” from “How much can it be improved?”. Comparing gepa against bootstrap separates two different ways of improving the model (with or without a separate “teacher” model). A candidate that is mediocre at baseline but closes most of the gap at gepa or bootstrap might be a good prospect for optimization. A mediocre performance on all three stages probably reflects a real ceiling on the model’s capabilities.\n\n\n\n\n\n\nTipManaging cost\n\n\n\ngepa and bootstrap make many more LM calls than baseline (since they involve calls both to the candidate and the “teacher” model). so start with baseline across every candidate you’re curious about, then spend the heavier stages only on the ones worth the API usage.\n\n\n\n\n\n--provider huggingface (the default) routes each candidate through Hugging Face’s Inference Providers layer. You can run several candidates in one invocation, one after another, since each is just an API call. Be sure you have included a Hugging Face access token in your .env file.\nHUGGINGFACE_API_KEY=hf_...\n--provider ollama is for models you pull and run locally with ollama. This needs no special configuration since it talks to ollama’s default port of http://localhost:11434. (Set OLLAMA_API_BASE in .env, or pass --ollama-api-base, if Ollama is running somewhere else on your network.)\nRealistically you can only have one model loaded in Ollama at a time, so this script’s shape is built around that constraint: --provider ollama refuses to run unless exactly one candidate is selected. The resulting workflow will look like this:\nollama pull llama3.1:8b            # or whichever candidate; make sure ollama serve is running\npython model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages baseline\n# ...stop that model, pull/load the next one...\npython model_bakeoff.py --provider ollama --candidates gpt-oss-20b --stages baseline\nEvery invocation is a normal one-shot run, not a long-lived process . Scores are collected in a cumulative results file (see below), so you can score one model, save the results, swap models, and repeat, without overwriting earlier results.\n\n\n\noptimize_gepa.py trains against every example in tests/fixtures/gold_examples.py, with no separate held-out set — a reasonable choice for tuning one model, but it would make cross-model comparison unreliable here: a candidate’s post-optimization score would partly reflect how well its own optimized prompt/demos fit the exact examples it’s judged on.\nmodel_bakeoff.py instead carves out a fixed slice of ten gold examples (HELD_OUT_SLUGS, near the top of the file) that no candidate’s gepa/bootstrap stage ever trains against. Every candidate optimizes against the same remaining examples and is scored against the same untouched held-out set, so scores are actually comparable across models and across stages. The slice is deliberately stratified — a plain independent clause, a subordinating-conjunction and a relative-pronoun dependent clause, a coordinated-verb pair, an indirect statement, a circumstantial participle, a depth-2 nesting case, and the three newest relations (apposition, indirect question, complementary infinitive) — so a low score can be traced to a specific construction rather than just “worse overall.”\n\n\n\nEvery stage reports a blended mean score in [0, 1] over the held-out set, plus three unblended sub-scores from arsgrammatica.gepa_metric.syntax_metric():\n\nfield_mean — basic per-token fields (tokentype, lemma, which verbal unit a token belongs to).\nrelation_mean — the actual dependency relations, weighted highest (0.5 of the blend) since they’re the heart of the scheme.\nvu_mean — verbal-expression classification (syntactic_type/semantic_type).\n\nA model that scores well on field_mean but collapses on relation_mean is failing at multi-hop structural reasoning specifically — a different problem (and probably less susceptible to fixing with prompts) than a model that is just generally worse across the board. The console output also prints, per held-out example, any that raised an outright error (a request that failed, or output that didn’t parse into the expected shape) rather than silently folding those into the average — worth reading before trusting a low score.\n\n\n\n# Cheap first pass across every Hugging Face candidate\npython model_bakeoff.py --stages baseline\n\n# Everything, every candidate (expensive -- gepa + bootstrap make many calls)\npython model_bakeoff.py --stages baseline gepa bootstrap\n\n# Just a couple of candidates\npython model_bakeoff.py --candidates llama-3.1-8b gpt-oss-20b\n\n# Skip gepa/bootstrap for anything that didn't clear a baseline threshold\npython model_bakeoff.py --min-baseline-to-optimize 0.3\n\n# Ollama, one candidate at a time (see workflow above)\npython model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages baseline\npython model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages gepa bootstrap\n\n# A model not in CANDIDATES at all -- either provider\npython model_bakeoff.py --provider ollama --model ollama_chat/llama3.1:8b-instruct-q8_0 --label llama-3.1-8b-q8\n\n# Optimizer knobs\npython model_bakeoff.py --auto medium                    # gepa's (and miprov2's) budget preset\npython model_bakeoff.py --max-metric-calls 40             # exact gepa budget instead of --auto\npython model_bakeoff.py --bootstrap-optimizer miprov2     # heavier alternative to bootstrap-fewshot\npython model_bakeoff.py --max-bootstrapped-demos 4 --max-labeled-demos 4\n\npython model_bakeoff.py --out results.csv                 # merge into a specific file\nThe full flag reference is always available with python model_bakeoff.py --help; the ones most worth knowing up front:\n\n--provider {huggingface,ollama} — where candidates run (default huggingface).\n--candidates LABEL [LABEL ...] — restrict to specific labels from CANDIDATES (default: all of them; --provider ollama requires exactly one).\n--model / --label — an ad hoc pair for a model not in CANDIDATES at all; both or neither.\n--stages {baseline,gepa,bootstrap} — which stage(s) to run this invocation (default: all three).\n--bootstrap-optimizer {bootstrap-fewshot,miprov2} — which optimizer implements the bootstrap stage (default bootstrap-fewshot, cheaper).\n--min-baseline-to-optimize — skip gepa/bootstrap for a candidate whose zero-shot mean is below this threshold, whether that baseline came from this invocation or a previously recorded row.\n--out — the results file to merge into (default model_bakeoff_results.csv).\n\n\n\n\nResults accumulate in a CSV file (model_bakeoff_results.csv by default), keyed by (label, provider, stage). Each invocation reads the contents, merges in new rows, and writes the whole thing back out, sorted by CANDIDATES order and then by stage. You could, for example, run a Hugging Face pass today and an Ollama pass tomorrow, or score one Ollama model per day as you cycle through them, and the results all accumulate in the same file. If you re-run the same combination of label, provider and stage, that overwrites only that single row; other rows are untouched.\n\nColumns: label, provider, model (the resolved model string actually called), family, tier, stage, n (held-out example count), mean/min/max (blended score), field_mean/relation_mean/vu_mean, elapsed_s, n_calls, total_cost (blank when the provider doesn’t report per-call cost — Ollama never will, since it’s local), and error (set instead of scores if the candidate was skipped entirely, e.g. a missing API key).\n\nEach optimized gepa/bootstrap run is also saved to disk as optimized_&lt;label&gt;_&lt;provider&gt;_&lt;stage&gt;.json, alongside the CSV row — load one of these into a dspy.ChainOfThought(SyntaxAnalysis) instance with .load(...) if you want to inspect or reuse the actual optimized program, not just its score.\n\n\n\nCANDIDATES, near the top of the file, spans roughly 3B to 120B+ parameters across several major open-weight families, plus one reasoning-distilled model (DeepSeek-R1-Distill-Llama-8B) at the same size as its plain counterpart (Llama-3.1-8B), to see whether chain-of-thought distillation specifically helps a multi-hop structural task like this one.\n\n\n\nlabel\nfamily\ntier\n\n\n\n\nphi-4-mini\nMicrosoft Phi\n~4B\n\n\nllama-3.2-3b\nMeta Llama\n~3B\n\n\nllama-3.1-8b\nMeta Llama\n~8B\n\n\ndeepseek-r1-distill-llama-8b\nDeepSeek (R1 distill)\n~8B\n\n\nqwen-8b\nAlibaba Qwen\n~7B\n\n\ngpt-oss-20b\nOpenAI (open weights)\n~20B\n\n\nmistral-small-24b\nMistral AI\n~24B\n\n\nllama-3.3-70b\nMeta Llama\n~70B\n\n\ndeepseek-r1-distill-llama-70b\nDeepSeek (R1 distill)\n~70B\n\n\ngpt-oss-120b\nOpenAI (open weights)\n~120B\n\n\n\nModel availability and naming move fast on both sides. This roster is just a snapshot, so recheck against Hugging Face’s Inference Providers docs, each model’s Hub page, and ollama list before running.\nTo add a new candidate permanently, add a dict(...) entry to CANDIDATES with at least label, model (the huggingface/org/repo string), and ollama_model (the exact Ollama pull tag); for a one-off you don’t want to add to the roster at all, use --model/--label instead (see the Running it examples above).",
     "crumbs": [
       "Guides",
       "Comparing models with `model_bakeoff.py`"
@@ -180,7 +231,7 @@
     "href": "guides/bakeoff.html#three-stages-of-evaluation",
     "title": "Comparing models with model_bakeoff.py",
     "section": "",
-    "text": "“Can a given model run arsgrammatica?” is really three separate questions:\n\nHow good is the model with the instructions already written and tuned against Opus 5, without optimization?\nHow much does the performance improve if we let dspy.GEPA optimize instructions for the model?\nHow much does the performance improve if we use Opus 5 as a “teacher” model and modify the candidate model’s instructions?\n\nYou can answer each of those questions with the model_bakeoff.py script, selecting from these values for the --stages:\n\nbaseline : zero-shot testing answering question 1, how good is the model without optimization? The cheapest stage by far (one call per held-out example) and worth running alone first.\ngepa — uses dspy.GEPA is allowed to rewrite the instructions for this candidate (question 2). The candidate still solves every example itself, both during optimization and at final scoring; only the wording changes.\nbootstrap uses Opus as a “teacher” model, and attaches verified correct traces to the model’s instructions as few-shot examples. Here the candidate never has to solve a training example itself — only the held-out scoring examples afterward.\n\nComparing baseline against gepa and bootstrap distinguishes “Does this model already perform adequately?” from “How much can it be improved?”. Comparing gepa against bootstrap separates two different ways of improving the model (with or without a separate “teacher” model). A candidate that is mediocre at baseline but closes most of the gap at gepa or bootstrap might be a good prospect for optimization. A mediocre performance on all three stages probably reflects a real ceiling on the model’s capabilities.\n\n\n\n\n\n\nTipManaging cost\n\n\n\ngepa and bootstrap make many more LM calls than baseline (since they involve calls both to the candidate and the “teacher” model). so start with --stages baseline across every candidate you’re curious about, then spend the heavier stages only on the ones worth the API usage.",
+    "text": "“Can a given model run arsgrammatica?” is really three separate questions:\n\nHow good is the model with the instructions already written and tuned against Opus 5, without optimization?\nHow much does the performance improve if we let dspy.GEPA optimize instructions for the model?\nHow much does the performance improve if we use Opus 5 as a “teacher” model and modify the candidate model’s instructions?\n\nYou can answer each of those questions with the model_bakeoff.py script, selecting from these values for the --stages:\n\nbaseline : zero-shot testing answering question 1, how good is the model without optimization? The cheapest stage by far (one call per held-out example) and worth running alone first.\ngepa — uses dspy.GEPA to rewrite the instructions for the candidate model. The candidate still solves every example itself, both during optimization and at final scoring; only the wording changes. This answers question 2.\nbootstrap uses Opus 5 as a “teacher” model, and attaches verified correct traces to the model’s instructions as few-shot examples. Here the candidate never has to solve a training example itself — only the held-out scoring examples afterward.\n\nComparing baseline against gepa and bootstrap distinguishes “Does this model already perform adequately?” from “How much can it be improved?”. Comparing gepa against bootstrap separates two different ways of improving the model (with or without a separate “teacher” model). A candidate that is mediocre at baseline but closes most of the gap at gepa or bootstrap might be a good prospect for optimization. A mediocre performance on all three stages probably reflects a real ceiling on the model’s capabilities.\n\n\n\n\n\n\nTipManaging cost\n\n\n\ngepa and bootstrap make many more LM calls than baseline (since they involve calls both to the candidate and the “teacher” model). so start with baseline across every candidate you’re curious about, then spend the heavier stages only on the ones worth the API usage.",
     "crumbs": [
       "Guides",
       "Comparing models with `model_bakeoff.py`"
@@ -213,7 +264,7 @@
     "href": "guides/bakeoff.html#reading-the-scores",
     "title": "Comparing models with model_bakeoff.py",
     "section": "",
-    "text": "Every stage reports a blended mean score in [0, 1] over the held-out set, plus three unblended sub-scores from arsgrammatica.gepa_metric.syntax_metric():\n\nfield_mean — basic per-token fields (tokentype, lemma, which verbal unit a token belongs to).\nrelation_mean — the actual dependency relations, weighted highest (0.5 of the blend) since they’re the heart of the scheme.\nvu_mean — verbal-expression classification (syntactic_type/semantic_type).\n\nA model that scores well on field_mean but collapses on relation_mean is failing at multi-hop structural reasoning specifically — a different problem (and probably less susceptible to fixing with prompts) than a model that is just generally worse across the board. The console output also prints, per held-out example, any that raised an outright error (a request that failed, or output that didn’t parse into the expected shape) rather than silently folding those into the average — worth reading before trusting a low score.\nThis script doesn’t compute a malformed-output rate as its own number (validate()/find_unanchored_coordinated_verbs() in the main package can do that over raw predictions if you want it), and it doesn’t do real weight-level fine-tuning — the bootstrap stage attaches Opus-solved examples to the candidate’s prompt, never touching its weights. dspy.BootstrapFinetune is real fine-tuning, but needs different infrastructure than either provider here and isn’t wired in.",
+    "text": "Every stage reports a blended mean score in [0, 1] over the held-out set, plus three unblended sub-scores from arsgrammatica.gepa_metric.syntax_metric():\n\nfield_mean — basic per-token fields (tokentype, lemma, which verbal unit a token belongs to).\nrelation_mean — the actual dependency relations, weighted highest (0.5 of the blend) since they’re the heart of the scheme.\nvu_mean — verbal-expression classification (syntactic_type/semantic_type).\n\nA model that scores well on field_mean but collapses on relation_mean is failing at multi-hop structural reasoning specifically — a different problem (and probably less susceptible to fixing with prompts) than a model that is just generally worse across the board. The console output also prints, per held-out example, any that raised an outright error (a request that failed, or output that didn’t parse into the expected shape) rather than silently folding those into the average — worth reading before trusting a low score.",
     "crumbs": [
       "Guides",
       "Comparing models with `model_bakeoff.py`"
@@ -352,240 +403,6 @@
     ]
   },
   {
-    "objectID": "guides/index.html",
-    "href": "guides/index.html",
-    "title": "Recipes",
-    "section": "",
-    "text": "Guides for using arsgrammatica for particular tasks.",
-    "crumbs": [
-      "Guides",
-      "Recipes"
-    ]
-  },
-  {
-    "objectID": "guides/index.html#analyzing-and-visualizing-syntax",
-    "href": "guides/index.html#analyzing-and-visualizing-syntax",
-    "title": "Recipes",
-    "section": "Analyzing and visualizing syntax",
-    "text": "Analyzing and visualizing syntax\n\nAnalyzing Latin texts\n\nInstalling arsgrammatica\nAnalyzing Latin syntax with a configured language model\nSaving and loading analyses\n\n\n\nVisualizing analyses\n\nHighlighting text syntactically in HTML\nVisualizing syntax graphs with Mermaid\n\n\n\nAnalyzing analyses as graph structures\n\nCharacterizing syntactic analyses with graph metrics\nBuilding an Agent-Action-Target (AAT) graph",
-    "crumbs": [
-      "Guides",
-      "Recipes"
-    ]
-  },
-  {
-    "objectID": "guides/index.html#training-a-language-model",
-    "href": "guides/index.html#training-a-language-model",
-    "title": "Recipes",
-    "section": "Training a language model",
-    "text": "Training a language model\n\nOptimizing\nHarvesting gold examples from real analyses\nComparing models\nA development work flow\nTest suite\nTokenizing text without analysis",
-    "crumbs": [
-      "Guides",
-      "Recipes"
-    ]
-  },
-  {
-    "objectID": "guides/index.html#managing-a-language-model",
-    "href": "guides/index.html#managing-a-language-model",
-    "title": "Recipes",
-    "section": "Managing a language model",
-    "text": "Managing a language model\n\nEstimating tokens budget\nKeeping prompt size manageable",
-    "crumbs": [
-      "Guides",
-      "Recipes"
-    ]
-  },
-  {
-    "objectID": "guides/install.html",
-    "href": "guides/install.html",
-    "title": "Installing arsgrammatica",
-    "section": "",
-    "text": "Install directly from its github repository:\npip install git+https://github.com/neelsmith/arsgrammatica.git\nPin to a specific branch, e.g. for the wip branch:\npip install git+https://github.com/neelsmith/arsgrammatica.git@wip\nPin to a tagged version, e.g., v0.5.0:\npip install git+https://github.com/neelsmith/arsgrammatica.git@v0.5.0",
-    "crumbs": [
-      "Guides",
-      "Installing `arsgrammatica`"
-    ]
-  },
-  {
-    "objectID": "guides/testing.html",
-    "href": "guides/testing.html",
-    "title": "Running tests with pytest",
-    "section": "",
-    "text": "The arsgrammatica package includes two kinds of tests:",
-    "crumbs": [
-      "Guides",
-      "Running tests with `pytest`"
-    ]
-  },
-  {
-    "objectID": "guides/testing.html#off-line-testing",
-    "href": "guides/testing.html#off-line-testing",
-    "title": "Running tests with pytest",
-    "section": "Off-line testing",
-    "text": "Off-line testing\nThe whole pytest suite runs against DummyLM, not a real model. In tests/fixtures/gold_examples.py’s, GOLD_EXAMPLES defines a deliberately curated corpus. test_coverage.py enforces that every documented relation label, verbal-expression classification, and token type has at least one example exercising it.\nTests that call the configured LM are marked live and skipped by default. To run all offline tests:\npytest",
-    "crumbs": [
-      "Guides",
-      "Running tests with `pytest`"
-    ]
-  },
-  {
-    "objectID": "guides/testing.html#testing-with-a-real-model",
-    "href": "guides/testing.html#testing-with-a-real-model",
-    "title": "Running tests with pytest",
-    "section": "Testing with a real model",
-    "text": "Testing with a real model\nTesting uses the model configured in your .env file. Run the live tests:\npytest -m live",
-    "crumbs": [
-      "Guides",
-      "Running tests with `pytest`"
-    ]
-  },
-  {
-    "objectID": "guides/testing.html#pytest-cheat-sheet",
-    "href": "guides/testing.html#pytest-cheat-sheet",
-    "title": "Running tests with pytest",
-    "section": "pytest cheat sheet",
-    "text": "pytest cheat sheet\nSome standard pytest shorthands:\n\npytest to run all.\npytest -v for per-test names instead of dots.\npytest tests/test_gold_examples.py to run just one file.\npytest -k agent to run only tests matching a substring.\npytest --collect-only if you just want to see what it discovered without running anything.",
-    "crumbs": [
-      "Guides",
-      "Running tests with `pytest`"
-    ]
-  },
-  {
-    "objectID": "guides/saving-loading.html",
-    "href": "guides/saving-loading.html",
-    "title": "Saving and loading analyses",
-    "section": "",
-    "text": "You can serialize analyses to a delimited-text file, and read saved analyses back using the write_analyses and read_analyses functions.",
-    "crumbs": [
-      "Guides",
-      "Saving and loading analyses"
-    ]
-  },
-  {
-    "objectID": "guides/saving-loading.html#saving-analyses",
-    "href": "guides/saving-loading.html#saving-analyses",
-    "title": "Saving and loading analyses",
-    "section": "Saving analyses",
-    "text": "Saving analyses\nIf you have analyzed one or more passages into two variables sentences and results (like these examples), here’s how to serialize them.\nfrom arsgrammatica import write_analyses, combined_tokengraph\n\ntokengraph = combined_tokengraph(results)\nverbalunits = [vu for result in results for vu in result.verbalunits]\n\nwarnings = write_analyses(sentences, verbalunits, tokengraph, \"analysis.txt\")\nwrite_analyses expects sentences, verbal units, and tokens to be separately organized, and writes them to a named file. We already have a sentences variable. We can extract from the results variable separate lists for verbal units (the nested for comprehension) and the token graph (the combined_tokengraph function).\nwrite_analyses returns a list with any warnings encountered in serializing the analyses. We could check those:\nfor w in warnings:\n    print(f\"Warning: {w}\")\nYou may also optionally record in a separate block of the delimited-text file the language model and its reasoning as part of the sentence-by-sentence record, using the optional parameters model and reasoning.\nimport os\n\nwarnings = write_analyses(\n    sentences, verbalunits, tokengraph, \"analysis.txt\",\n    model=os.environ[\"MODEL\"],\n    reasoning=[result.reasoning for result in results],\n)",
-    "crumbs": [
-      "Guides",
-      "Saving and loading analyses"
-    ]
-  },
-  {
-    "objectID": "guides/saving-loading.html#reading-saved-analyses",
-    "href": "guides/saving-loading.html#reading-saved-analyses",
-    "title": "Saving and loading analyses",
-    "section": "Reading saved analyses",
-    "text": "Reading saved analyses\nYou can read back a flat list of all the four parts of a serialization with the read_analyses function.\nfrom arsgrammatica import read_analyses\n\ntokengraph, verbalunits, sentences, lm_infos = \n    read_analyses(\"analysis.txt\")\nTo split up the composite token graph by sentence, use split_analysis_by_sentence.\nfrom arsgrammatica import split_analysis_by_sentence\nsentencetokens = split_analysis_by_sentence(tokengraph, verbalunits, sentences)\n\nfor (sentence_tokengraph, sentence_verbalunits) in \n    zip(sentences, sentencetokens):\n    ...  # work with analysis data per sentence\nFor details of the serialization format, see the reference documentation",
-    "crumbs": [
-      "Guides",
-      "Saving and loading analyses"
-    ]
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "arsgrammatica",
-    "section": "",
-    "text": "A python package leveraging LLMs with dspy to analyze the syntax of passages of Latin..\narsgrammatica offers an alternative analytic scheme to Universal Dependencies, designed to describe Latin syntax in familiar terms that are convenient for research and teaching. Released under the GNU General Public License v3 or later."
-  },
-  {
-    "objectID": "index.html#related-work",
-    "href": "index.html#related-work",
-    "title": "arsgrammatica",
-    "section": "Related work",
-    "text": "Related work\n\ngrammatike: a parallel Python package for analyzing passages of ancient Greek with LMs\ndiqduq: a parallel Python package for analyzing passages of Biblical Hebrew with LMs\naat : Agent-Action-Target model, a reductive model of natural-language syntax"
-  },
-  {
-    "objectID": "guides/mermaid.html",
-    "href": "guides/mermaid.html",
-    "title": "Visualizing syntax graphs with Mermaid",
-    "section": "",
-    "text": "Mermaid is a lightweight diagramming language that is easily used in many Markdown viewers and editors, web environments, the https://mermaid.live mermaid editor, and others. To compose a Mermaid diagram for a token graph:\nwarnings lists any edge that got skipped because it pointed at a punctuation token or an id missing from tokengraph.\nYou can save the diagram to a file with save_mermaid.\nBoth tokengraph_to_mermaid and save_mermaid accept one of Mermaid’s orientation codes (BT, TB, LR, RL) in an optional orientation argument, with default value BT (bottom-to-top). Remember that the token graph is directed from subordinate to governing nodes. BT will result in root elements at the top, and RL will place root elements at the left of the diagram.",
-    "crumbs": [
-      "Guides",
-      "Visualizing syntax graphs with Mermaid"
-    ]
-  },
-  {
-    "objectID": "guides/mermaid.html#limitations",
-    "href": "guides/mermaid.html#limitations",
-    "title": "Visualizing syntax graphs with Mermaid",
-    "section": "Limitations",
-    "text": "Limitations\nMermaid’s layout engine cannot enforce aligning nodes by rank. (You can think of rank as the syntactic depth of the node, like the generations in a family tree.) This kind of alignment can make the diagram of very complex sentences easier to read. If you want diagrams aligned by rank, you can use the open-source graphviz program: see “Diagramming syntactic analyses”.",
-    "crumbs": [
-      "Guides",
-      "Visualizing syntax graphs with Mermaid"
-    ]
-  },
-  {
-    "objectID": "guides/budgetingtokens.html",
-    "href": "guides/budgetingtokens.html",
-    "title": "Estimating and enforcing a max_tokens budget",
-    "section": "",
-    "text": "SyntaxAnalysis’s output (a reasoning field plus JSON-serialized verbalunits/tokengraph) grows with how long and how syntactically complex a sentence is, not by a fixed amount, so a single hard-coded max_tokens value is eventually wrong: too small for a long or deeply subordinated sentence (truncation), too large for a short one (wasted budget). arsgrammatica/token_budget.py addresses this with a calibrate-then-retry approach, and pipeline.py’s analyze_sources() already uses it – both analyze_sources() and analyze_passage() get this for free, with nothing to change in your own calling code.\nFirst, calibrate against your own configured model:\nThis is a live-LM script (real API cost, one call per GOLD_EXAMPLES entry) that measures how many completion tokens the real model actually uses for each gold example, fits completion_tokens ~= intercept + slope * num_input_tokens by least squares, and writes the result to arsgrammatica/token_budget_calibration.json. Re-run it whenever the configured model, the SyntaxAnalysis prompt, or the TokenAnalysis/VerbalExpression schema changes substantially. Until you’ve run it at least once, estimate_max_tokens() falls back to an untuned, deliberately generous placeholder fit – safe, but not a real measurement of your model.\nestimate_max_tokens() takes the calibrated (or fallback) fit, multiplies it by a safety_margin (default 1.4, covering reasoning-length variance the fit alone doesn’t), and clamps the result to [floor, ceiling]. Set ceiling to your actual model’s real max-output-tokens limit – the module’s own DEFAULT_CEILING is only a placeholder stand-in, since that limit varies by provider/model and there’s no single correct default.\nFor the retry half, analyze_with_retry() wraps analyze():\nIt starts from estimate_max_tokens(len(tokens)) (or initial_max_tokens, if you pass one), and checks the result two ways: whether the returned tokengraph is missing any of tokens’ own ids (the primary, provider-independent signal – a real truncation, LM-JSON getting cut off mid-list, always shows up here), and, as a corroborating check, whether the LM’s own finish_reason was \"length\". If either signals truncation and a retry is still available (max_retries, default 1) with budget left before ceiling, it multiplies the budget by growth_factor (default 2.0) and calls again – max_tokens is part of DSPy’s own LM cache key, so the retry always reaches the LM again rather than replaying the same truncated cached response. If retries run out: a call that raised re-raises (nothing to fall back to); a call that returned an incomplete result is returned anyway, with a UserWarning naming the missing ids, rather than treated as fatal – consistent with validate()’s own warn-don’t-raise convention for imperfect LM output.\nget_calibration() reports which fit is currently active (the real one from calibrate_max_tokens.py, or the untuned fallback) if you want to check before relying on an estimate.",
-    "crumbs": [
-      "Guides",
-      "Estimating and enforcing a `max_tokens` budget"
-    ]
-  },
-  {
-    "objectID": "guides/budgetingtokens.html#anthropic-prompt-caching",
-    "href": "guides/budgetingtokens.html#anthropic-prompt-caching",
-    "title": "Estimating and enforcing a max_tokens budget",
-    "section": "Anthropic prompt caching",
-    "text": "Anthropic prompt caching\nSyntaxAnalysis’s system message – its own instructions plus the full TokenAnalysis/VerbalExpression field descriptions – runs to roughly 40,000 characters and is byte-identical on every single call, regardless of passage; only the small per-sentence user message actually varies (typically well under 1,000 characters). Every _configure_lm() in this repo (syntaxer_main.py, calibrate_max_tokens.py, and the marimo notebooks) turns on Anthropic prompt caching automatically when MODEL routes to Anthropic – there’s no .env setting for this, and switching MODEL to a non-Anthropic backend (Ollama, OpenAI, etc.) skips it with nothing to turn off by hand:\nif \"anthropic\" in model.lower():\n    lm_kwargs[\"cache_control_injection_points\"] = [\n        {\"location\": \"message\", \"role\": \"system\"}\n    ]\ncache_control_injection_points is a litellm parameter (which dspy.LM forwards straight through, along with any other kwarg) that marks a message with Anthropic’s ephemeral cache_control breakpoint – everything up to and including that message can be reused by a later call within Anthropic’s cache TTL (5 minutes by default) at roughly a tenth of its normal input-token price, instead of paying full price every time. Since there are no few-shot demos attached to analyze today, one breakpoint on the system message covers the whole static prefix; if a compiled/optimized program with demos is ever loaded, add a second point, {\"location\": \"message\", \"index\": -2}, to fold the demo turns into the same cached prefix (the real, always-different input is always the last message, so -2 is “whatever precedes it,” demos or not).\nThis is a net win specifically for anything that fires several calls close together against the same system message – analyze_sources() walking a multi-sentence passage, calibrate_max_tokens.py’s run over the whole GOLD_EXAMPLES corpus (one call per entry, 43 as of this writing), or an interactive marimo session. A single, isolated call costs a little more than before (a modest write premium with no offsetting read), so this only pays off because these scripts are rarely run for just one call.",
-    "crumbs": [
-      "Guides",
-      "Estimating and enforcing a `max_tokens` budget"
-    ]
-  },
-  {
-    "objectID": "guides/tokenizing.html",
-    "href": "guides/tokenizing.html",
-    "title": "Tokenizing a source file without full syntax analysis",
-    "section": "",
-    "text": "utilities/tokenize_ctsdata.py is a command-line script that reads every passage out of a #!ctsdata (CEX) source file, tokenizes and sentence-splits the WHOLE collected text in one shot via segment_sources() (the same LM-driven segmentation stage analyze_sources() runs before syntax analysis, and the same way latin_syntaxer_ctsdata.py’s own “Analyze every selected passage, together” cell does), and writes the result to standard output using arsgrammatica.serialize_segmentation() – no SyntaxAnalysis call, no TokenAnalysis/VerbalExpression, one LM call for the whole file rather than one per sentence:\npython3 utilities/tokenize_ctsdata.py passages.txt &gt; tokenized.txt\nEvery row is segmented together, in file order, so a sentence may run from the end of one row’s text into the start of the next – exactly like analyze_sources() – and token ids (t0, t1, …) are globally unique across the whole output.\nThe output has two #!-labeled, pipe-delimited blocks. The first, #!sentences, is in exactly the same shape arsgrammatica.serialization writes for its own #!sentences block (this script imports those constants directly, so the two can’t drift apart). The second, #!tokens, lists every token in every sentence; it shares that name with arsgrammatica.serialization’s own #!tokens block, but not its columns – there’s no tokentype/lemma/relation data to write here, since nothing in this script ever runs syntax analysis. Because of that column mismatch, read_analyses() still can’t parse this file as a whole, even though its #!sentences half alone is exactly what that function expects:\n#!sentences\ncontext_begin|first_token|context_end|last_token\nurn:cts:compnov:bible.genesis.vulgate:45.1|t0|urn:cts:compnov:bible.genesis.vulgate:45.1|t4\n\n#!tokens\ncontext|sentence_index|id|text\nurn:cts:compnov:bible.genesis.vulgate:45.1|0|t0|Non\nurn:cts:compnov:bible.genesis.vulgate:45.1|0|t1|se\n...\n#!sentences has one row per sentence: context_begin/first_token are that sentence’s own first token’s citation/id, context_end/last_token its own last token’s citation/id – same fields serialize_analyses() itself writes. #!tokens has one row per token: context is that token’s own citation, sentence_index is that token’s own sentence’s 0-based position across the whole file (not reset per source row), and id/text are the token’s own id/surface text. --delimiter controls the source #!ctsdata file’s own column delimiter, matching read_ctsdata()’s own option; the output this script writes always uses |.\nThis format is written and read by arsgrammatica.segmentation_serialization, exported at package level as serialize_segmentation()/write_segmentation()/read_segmentation() – a lighter counterpart to serialize_analyses()/write_analyses()/read_analyses() for a plain List[Sentence] with no syntax analysis run over it at all. Unlike that format, a #!sentences/#!tokens label here may not repeat: read_segmentation() raises ValueError on a second occurrence of either label, since (unlike serialization.py’s globally-unique token ids) this format’s token ids and sentence_index values are only unique within one segment_sources() call’s own output, so silently concatenating two such files would produce colliding ids and sentence numbers rather than a combined result. read_segmentation() groups #!tokens rows by sentence_index (validated to run 0..N-1 with no gaps) to reconstruct each Sentence, then cross-checks the #!sentences block’s own first/last token and citation fields against that grouping, raising ValueError naming the line on any mismatch. marimo/latin_syntaxer_tokenized.py (see below) is the notebook that reads a file back this way to pick a sentence and analyze it on demand.",
-    "crumbs": [
-      "Guides",
-      "Tokenizing a source file without full syntax analysis"
-    ]
-  },
-  {
-    "objectID": "guides/texthiliting.html",
-    "href": "guides/texthiliting.html",
-    "title": "Highlighting syntactic analysis in HTML",
-    "section": "",
-    "text": "arsgrammatica includes utility functions to display a text in HTML with highlighting of its syntactic structure. First analyze a string or a passage.",
-    "crumbs": [
-      "Guides",
-      "Highlighting syntactic analysis in HTML"
-    ]
-  },
-  {
-    "objectID": "guides/texthiliting.html#coloring-by-verbal-expression",
-    "href": "guides/texthiliting.html#coloring-by-verbal-expression",
-    "title": "Highlighting syntactic analysis in HTML",
-    "section": "Coloring by verbal expression",
-    "text": "Coloring by verbal expression\nOnce you have an analysis result, you can compose an HTML string that colors tokens by the verbal expression they belong to, using the same colors as arsgramamtica’s Mermaid diagrams.\nfrom arsgrammatica import tokengraph_to_html\nhtml = tokengraph_to_html(result.tokengraph)\n(Use this in a web environment (like a Marimo notebook) to see the real results.)",
-    "crumbs": [
-      "Guides",
-      "Highlighting syntactic analysis in HTML"
-    ]
-  },
-  {
-    "objectID": "guides/texthiliting.html#add-indentation-by-depth-of-subordination",
-    "href": "guides/texthiliting.html#add-indentation-by-depth-of-subordination",
-    "title": "Highlighting syntactic analysis in HTML",
-    "section": "Add indentation by depth of subordination",
-    "text": "Add indentation by depth of subordination\nThe tokengraph_to_depth_html function uses the same color highlighting as tokengraph_to_html, but instead of laying out the text in a single paragaph, it indents sequences of tokens by their level of subordination.\nfrom arsgrammatica import tokengraph_to_depth_html\nhtml, warnings = tokengraph_to_depth_html(result.tokengraph)\nYou can limit the tokens included in the display by their depth of subordination with the depth parameter. (This is especially useful in an interactive display where you can explore a passage at different levels of subordination.)\n# depth=0 limits the display to root/independent clauses only:\nhtml, warnings = tokengraph_to_depth_html(result.tokengraph, depth=0)",
-    "crumbs": [
-      "Guides",
-      "Highlighting syntactic analysis in HTML"
-    ]
-  },
-  {
     "objectID": "guides/managing_prompt_size.html",
     "href": "guides/managing_prompt_size.html",
     "title": "Keeping requests to an LM at a manageable size",
@@ -641,14 +458,281 @@
     ]
   },
   {
-    "objectID": "guides/harvesting.html",
-    "href": "guides/harvesting.html",
-    "title": "Harvesting gold examples from real analyses",
+    "objectID": "guides/texthiliting.html",
+    "href": "guides/texthiliting.html",
+    "title": "Highlighting syntactic analysis in HTML",
     "section": "",
-    "text": "gold_example_from_analysis()/format_gold_example_source() (in tests/fixtures/harvest.py) turn a real analysis’s own sentences/verbalunits/tokengraph – the same triple write_analyses()/serialize_analyses() take – into a GoldExample (tests/fixtures/gold_examples.py), instead of hand-writing a canned_answer dict from scratch:\nfrom fixtures.harvest import gold_example_from_analysis, format_gold_example_source\n\nsentences, results = analyze_passage(\"Some new passage you've reviewed by hand.\")\nresult = results[0]  # one result per sentence; pick whichever one you're harvesting\n\nexample = gold_example_from_analysis(\n    slug=\"some_new_construction_example\",\n    tags=[\"the construction this example is meant to cover\"],\n    sentences=sentences,\n    verbalunits=result.verbalunits,\n    tokengraph=result.tokengraph,\n    reasoning=result.reasoning,  # dspy.ChainOfThought's own reasoning field\n)\nprint(format_gold_example_source(example, \"_SOME_NEW_CONSTRUCTION_ANSWER\"))\nformat_gold_example_source()’s output is ready-to-paste Python: a _SOME_NEW_CONSTRUCTION_ANSWER = {...} dict literal followed by the GoldExample(...) entry that references it, in the same two-part shape every existing block in gold_examples.py already uses. gold_example_from_analysis() runs validate() against the given sentences/verbalunits/tokengraph before returning (pass skip_validation=True to bypass) – catching a referentially-malformed analysis, but not judging whether the analysis is actually correct; that’s still on you, per “an analysis you’ve reviewed by hand” above.\nShould a harvested example go into the trainset GEPA optimizes against, or into a held-out evaluation set? Usually the latter. A correct analysis is, by definition, something the current model/prompt already gets right – adding it to optimize_gepa.py’s trainset (all of GOLD_EXAMPLES today; see that script’s own docstring for why there’s no split at all there) mostly dilutes the trainset with an easy case GEPA gets to self-grade against, without teaching it anything new.\nThe better default is to add the harvested example to GOLD_EXAMPLES and to model_bakeoff.py’s HELD_OUT_SLUGS (see BAKEOFF.md’s “The held-out evaluation set”) – growing a real regression corpus that catches a future prompt/model change breaking something that currently works, without inflating GEPA’s own self-graded trainset.\nThe exception is a rare construction the model only sometimes gets right, where locking in a correct demonstration genuinely is useful training signal – that’s what model_bakeoff.py’s bootstrap stage already does on purpose with a few-shot demo pool. gold_example_from_analysis() itself has no opinion baked in – the choice of which list you paste the result into (and whether you also add its slug to HELD_OUT_SLUGS) is entirely on you.",
+    "text": "arsgrammatica includes utility functions to display a text in HTML with highlighting of its syntactic structure. First analyze a string or a passage.",
     "crumbs": [
       "Guides",
-      "Harvesting gold examples from real analyses"
+      "Highlighting syntactic analysis in HTML"
+    ]
+  },
+  {
+    "objectID": "guides/texthiliting.html#coloring-by-verbal-expression",
+    "href": "guides/texthiliting.html#coloring-by-verbal-expression",
+    "title": "Highlighting syntactic analysis in HTML",
+    "section": "Coloring by verbal expression",
+    "text": "Coloring by verbal expression\nOnce you have an analysis result, you can compose an HTML string that colors tokens by the verbal expression they belong to, using the same colors as arsgramamtica’s Mermaid diagrams.\nfrom arsgrammatica import tokengraph_to_html\nhtml = tokengraph_to_html(result.tokengraph)\n(Use this in a web environment (like a Marimo notebook) to see the real results.)",
+    "crumbs": [
+      "Guides",
+      "Highlighting syntactic analysis in HTML"
+    ]
+  },
+  {
+    "objectID": "guides/texthiliting.html#add-indentation-by-depth-of-subordination",
+    "href": "guides/texthiliting.html#add-indentation-by-depth-of-subordination",
+    "title": "Highlighting syntactic analysis in HTML",
+    "section": "Add indentation by depth of subordination",
+    "text": "Add indentation by depth of subordination\nThe tokengraph_to_depth_html function uses the same color highlighting as tokengraph_to_html, but instead of laying out the text in a single paragaph, it indents sequences of tokens by their level of subordination.\nfrom arsgrammatica import tokengraph_to_depth_html\nhtml, warnings = tokengraph_to_depth_html(result.tokengraph)",
+    "crumbs": [
+      "Guides",
+      "Highlighting syntactic analysis in HTML"
+    ]
+  },
+  {
+    "objectID": "guides/texthiliting.html#limiting-display-by-syntactic-depth",
+    "href": "guides/texthiliting.html#limiting-display-by-syntactic-depth",
+    "title": "Highlighting syntactic analysis in HTML",
+    "section": "Limiting display by syntactic depth",
+    "text": "Limiting display by syntactic depth\nBoth tokengraph_to_html and tokengraph_to_depth_html accept an optional depth parameter. tokengraph_to_html will highlight only tokens at or below the specified syntactic depth; tokengraph_to_html entirely omits tokens above the cutoff depth. (These features are used interactively in the marimo notebooks to analyze passages and review analyses.)\n# depth=0 limits the display to root/independent clauses only:\nhtml, warnings = tokengraph_to_depth_html(result.tokengraph, depth=0)",
+    "crumbs": [
+      "Guides",
+      "Highlighting syntactic analysis in HTML"
+    ]
+  },
+  {
+    "objectID": "guides/tokenizing.html",
+    "href": "guides/tokenizing.html",
+    "title": "Tokenizing a source file without full syntax analysis",
+    "section": "",
+    "text": "utilities/tokenize_ctsdata.py is a command-line script that reads every passage out of a #!ctsdata (CEX) source file, tokenizes and sentence-splits the WHOLE collected text in one shot via segment_sources() (the same LM-driven segmentation stage analyze_sources() runs before syntax analysis, and the same way latin_syntaxer_ctsdata.py’s own “Analyze every selected passage, together” cell does), and writes the result to standard output using arsgrammatica.serialize_segmentation() – no SyntaxAnalysis call, no TokenAnalysis/VerbalExpression, one LM call for the whole file rather than one per sentence:\npython3 utilities/tokenize_ctsdata.py passages.txt &gt; tokenized.txt\nEvery row is segmented together, in file order, so a sentence may run from the end of one row’s text into the start of the next – exactly like analyze_sources() – and token ids (t0, t1, …) are globally unique across the whole output.\nThe output has two #!-labeled, pipe-delimited blocks. The first, #!sentences, is in exactly the same shape arsgrammatica.serialization writes for its own #!sentences block (this script imports those constants directly, so the two can’t drift apart). The second, #!tokens, lists every token in every sentence; it shares that name with arsgrammatica.serialization’s own #!tokens block, but not its columns – there’s no tokentype/lemma/relation data to write here, since nothing in this script ever runs syntax analysis. Because of that column mismatch, read_analyses() still can’t parse this file as a whole, even though its #!sentences half alone is exactly what that function expects:\n#!sentences\ncontext_begin|first_token|context_end|last_token\nurn:cts:compnov:bible.genesis.vulgate:45.1|t0|urn:cts:compnov:bible.genesis.vulgate:45.1|t4\n\n#!tokens\ncontext|sentence_index|id|text\nurn:cts:compnov:bible.genesis.vulgate:45.1|0|t0|Non\nurn:cts:compnov:bible.genesis.vulgate:45.1|0|t1|se\n...\n#!sentences has one row per sentence: context_begin/first_token are that sentence’s own first token’s citation/id, context_end/last_token its own last token’s citation/id – same fields serialize_analyses() itself writes. #!tokens has one row per token: context is that token’s own citation, sentence_index is that token’s own sentence’s 0-based position across the whole file (not reset per source row), and id/text are the token’s own id/surface text. --delimiter controls the source #!ctsdata file’s own column delimiter, matching read_ctsdata()’s own option; the output this script writes always uses |.\nThis format is written and read by arsgrammatica.segmentation_serialization, exported at package level as serialize_segmentation()/write_segmentation()/read_segmentation() – a lighter counterpart to serialize_analyses()/write_analyses()/read_analyses() for a plain List[Sentence] with no syntax analysis run over it at all. Unlike that format, a #!sentences/#!tokens label here may not repeat: read_segmentation() raises ValueError on a second occurrence of either label, since (unlike serialization.py’s globally-unique token ids) this format’s token ids and sentence_index values are only unique within one segment_sources() call’s own output, so silently concatenating two such files would produce colliding ids and sentence numbers rather than a combined result. read_segmentation() groups #!tokens rows by sentence_index (validated to run 0..N-1 with no gaps) to reconstruct each Sentence, then cross-checks the #!sentences block’s own first/last token and citation fields against that grouping, raising ValueError naming the line on any mismatch. marimo/latin_syntaxer_tokenized.py (see below) is the notebook that reads a file back this way to pick a sentence and analyze it on demand.",
+    "crumbs": [
+      "Guides",
+      "Tokenizing a source file without full syntax analysis"
+    ]
+  },
+  {
+    "objectID": "guides/saving-loading.html",
+    "href": "guides/saving-loading.html",
+    "title": "Saving and loading analyses",
+    "section": "",
+    "text": "You can serialize analyses to a delimited-text file, and read saved analyses back using the write_analyses and read_analyses functions.",
+    "crumbs": [
+      "Guides",
+      "Saving and loading analyses"
+    ]
+  },
+  {
+    "objectID": "guides/saving-loading.html#saving-analyses",
+    "href": "guides/saving-loading.html#saving-analyses",
+    "title": "Saving and loading analyses",
+    "section": "Saving analyses",
+    "text": "Saving analyses\nIf you have analyzed one or more passages into two variables sentences and results (like these examples), here’s how to serialize them.\nfrom arsgrammatica import write_analyses, combined_tokengraph\n\ntokengraph = combined_tokengraph(results)\nverbalunits = [vu for result in results for vu in result.verbalunits]\n\nwarnings = write_analyses(sentences, verbalunits, tokengraph, \"analysis.txt\")\nwrite_analyses expects sentences, verbal units, and tokens to be separately organized, and writes them to a named file. We already have a sentences variable. We can extract from the results variable separate lists for verbal units (the nested for comprehension) and the token graph (the combined_tokengraph function).\nwrite_analyses returns a list with any warnings encountered in serializing the analyses. We could check those:\nfor w in warnings:\n    print(f\"Warning: {w}\")\nYou may also optionally record in a separate block of the delimited-text file the language model and its reasoning as part of the sentence-by-sentence record, using the optional parameters model and reasoning.\nimport os\n\nwarnings = write_analyses(\n    sentences, verbalunits, tokengraph, \"analysis.txt\",\n    model=os.environ[\"MODEL\"],\n    reasoning=[result.reasoning for result in results],\n)",
+    "crumbs": [
+      "Guides",
+      "Saving and loading analyses"
+    ]
+  },
+  {
+    "objectID": "guides/saving-loading.html#reading-saved-analyses",
+    "href": "guides/saving-loading.html#reading-saved-analyses",
+    "title": "Saving and loading analyses",
+    "section": "Reading saved analyses",
+    "text": "Reading saved analyses\nYou can read back a flat list of all the four parts of a serialization with the read_analyses function.\nfrom arsgrammatica import read_analyses\n\ntokengraph, verbalunits, sentences, lm_infos = \n    read_analyses(\"analysis.txt\")\nTo split up the composite token graph by sentence, use split_analysis_by_sentence.\nfrom arsgrammatica import split_analysis_by_sentence\nsentencetokens = split_analysis_by_sentence(tokengraph, verbalunits, sentences)\n\nfor (sentence_tokengraph, sentence_verbalunits) in \n    zip(sentences, sentencetokens):\n    ...  # work with analysis data per sentence\nFor details of the serialization format, see the reference documentation",
+    "crumbs": [
+      "Guides",
+      "Saving and loading analyses"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "arsgrammatica",
+    "section": "",
+    "text": "A python package leveraging LLMs with dspy to analyze the syntax of passages of Latin..\narsgrammatica offers an alternative analytic scheme to Universal Dependencies, designed to describe Latin syntax in familiar terms that are convenient for research and teaching. Released under the GNU General Public License v3 or later."
+  },
+  {
+    "objectID": "index.html#related-work",
+    "href": "index.html#related-work",
+    "title": "arsgrammatica",
+    "section": "Related work",
+    "text": "Related work\nUniversal models for cross-lingual syntactic alignment:\n\nudsyntax : get Universal Dependency data from spaCy into a simple syntax graph format\naat : Agent-Action-Target model, a reductive model of natural-language syntax\n\nLanguage-specific models for detailed syntactic analysis:\n\ngrammatike: a parallel Python package for analyzing passages of ancient Greek with LMs\ndiqduq: a parallel Python package for analyzing passages of Biblical Hebrew with LMs"
+  },
+  {
+    "objectID": "guides/mermaid.html",
+    "href": "guides/mermaid.html",
+    "title": "Visualizing syntax graphs with Mermaid",
+    "section": "",
+    "text": "Mermaid is a lightweight diagramming language that is easily used in many Markdown viewers and editors, web environments, the https://mermaid.live mermaid editor, and others. To compose a Mermaid diagram for a token graph:\nwarnings lists any edge that got skipped because it pointed at a punctuation token or an id missing from tokengraph.\nYou can save the diagram to a file with save_mermaid.\nBoth tokengraph_to_mermaid and save_mermaid accept one of Mermaid’s orientation codes (BT, TB, LR, RL) in an optional orientation argument, with default value BT (bottom-to-top). Remember that the token graph is directed from subordinate to governing nodes. BT will result in root elements at the top, and RL will place root elements at the left of the diagram.",
+    "crumbs": [
+      "Guides",
+      "Visualizing syntax graphs with Mermaid"
+    ]
+  },
+  {
+    "objectID": "guides/mermaid.html#limitations",
+    "href": "guides/mermaid.html#limitations",
+    "title": "Visualizing syntax graphs with Mermaid",
+    "section": "Limitations",
+    "text": "Limitations\nMermaid’s layout engine cannot enforce aligning nodes by rank. (You can think of rank as the syntactic depth of the node, like the generations in a family tree.) This kind of alignment can make the diagram of very complex sentences easier to read. If you want diagrams aligned by rank, you can use the open-source graphviz program: see “Diagramming syntactic analyses”.",
+    "crumbs": [
+      "Guides",
+      "Visualizing syntax graphs with Mermaid"
+    ]
+  },
+  {
+    "objectID": "guides/budgetingtokens.html",
+    "href": "guides/budgetingtokens.html",
+    "title": "Estimating and enforcing a max_tokens budget",
+    "section": "",
+    "text": "SyntaxAnalysis’s output (a reasoning field plus JSON-serialized verbalunits/tokengraph) grows with how long and how syntactically complex a sentence is, not by a fixed amount, so a single hard-coded max_tokens value is eventually wrong: too small for a long or deeply subordinated sentence (truncation), too large for a short one (wasted budget). arsgrammatica/token_budget.py addresses this with a calibrate-then-retry approach, and pipeline.py’s analyze_sources() already uses it – both analyze_sources() and analyze_passage() get this for free, with nothing to change in your own calling code.\nFirst, calibrate against your own configured model:\nThis is a live-LM script (real API cost, one call per GOLD_EXAMPLES entry) that measures how many completion tokens the real model actually uses for each gold example, fits completion_tokens ~= intercept + slope * num_input_tokens by least squares, and writes the result to arsgrammatica/token_budget_calibration.json. Re-run it whenever the configured model, the SyntaxAnalysis prompt, or the TokenAnalysis/VerbalExpression schema changes substantially. Until you’ve run it at least once, estimate_max_tokens() falls back to an untuned, deliberately generous placeholder fit – safe, but not a real measurement of your model.\nestimate_max_tokens() takes the calibrated (or fallback) fit, multiplies it by a safety_margin (default 1.4, covering reasoning-length variance the fit alone doesn’t), and clamps the result to [floor, ceiling]. Set ceiling to your actual model’s real max-output-tokens limit – the module’s own DEFAULT_CEILING is only a placeholder stand-in, since that limit varies by provider/model and there’s no single correct default.\nFor the retry half, analyze_with_retry() wraps analyze():\nIt starts from estimate_max_tokens(len(tokens)) (or initial_max_tokens, if you pass one), and checks the result two ways: whether the returned tokengraph is missing any of tokens’ own ids (the primary, provider-independent signal – a real truncation, LM-JSON getting cut off mid-list, always shows up here), and, as a corroborating check, whether the LM’s own finish_reason was \"length\". If either signals truncation and a retry is still available (max_retries, default 1) with budget left before ceiling, it multiplies the budget by growth_factor (default 2.0) and calls again – max_tokens is part of DSPy’s own LM cache key, so the retry always reaches the LM again rather than replaying the same truncated cached response. If retries run out: a call that raised re-raises (nothing to fall back to); a call that returned an incomplete result is returned anyway, with a UserWarning naming the missing ids, rather than treated as fatal – consistent with validate()’s own warn-don’t-raise convention for imperfect LM output.\nget_calibration() reports which fit is currently active (the real one from calibrate_max_tokens.py, or the untuned fallback) if you want to check before relying on an estimate.",
+    "crumbs": [
+      "Guides",
+      "Estimating and enforcing a `max_tokens` budget"
+    ]
+  },
+  {
+    "objectID": "guides/budgetingtokens.html#anthropic-prompt-caching",
+    "href": "guides/budgetingtokens.html#anthropic-prompt-caching",
+    "title": "Estimating and enforcing a max_tokens budget",
+    "section": "Anthropic prompt caching",
+    "text": "Anthropic prompt caching\nSyntaxAnalysis’s system message – its own instructions plus the full TokenAnalysis/VerbalExpression field descriptions – runs to roughly 40,000 characters and is byte-identical on every single call, regardless of passage; only the small per-sentence user message actually varies (typically well under 1,000 characters). Every _configure_lm() in this repo (syntaxer_main.py, calibrate_max_tokens.py, and the marimo notebooks) turns on Anthropic prompt caching automatically when MODEL routes to Anthropic – there’s no .env setting for this, and switching MODEL to a non-Anthropic backend (Ollama, OpenAI, etc.) skips it with nothing to turn off by hand:\nif \"anthropic\" in model.lower():\n    lm_kwargs[\"cache_control_injection_points\"] = [\n        {\"location\": \"message\", \"role\": \"system\"}\n    ]\ncache_control_injection_points is a litellm parameter (which dspy.LM forwards straight through, along with any other kwarg) that marks a message with Anthropic’s ephemeral cache_control breakpoint – everything up to and including that message can be reused by a later call within Anthropic’s cache TTL (5 minutes by default) at roughly a tenth of its normal input-token price, instead of paying full price every time. Since there are no few-shot demos attached to analyze today, one breakpoint on the system message covers the whole static prefix; if a compiled/optimized program with demos is ever loaded, add a second point, {\"location\": \"message\", \"index\": -2}, to fold the demo turns into the same cached prefix (the real, always-different input is always the last message, so -2 is “whatever precedes it,” demos or not).\nThis is a net win specifically for anything that fires several calls close together against the same system message – analyze_sources() walking a multi-sentence passage, calibrate_max_tokens.py’s run over the whole GOLD_EXAMPLES corpus (one call per entry, 43 as of this writing), or an interactive marimo session. A single, isolated call costs a little more than before (a modest write premium with no offsetting read), so this only pays off because these scripts are rarely run for just one call.",
+    "crumbs": [
+      "Guides",
+      "Estimating and enforcing a `max_tokens` budget"
+    ]
+  },
+  {
+    "objectID": "guides/install.html",
+    "href": "guides/install.html",
+    "title": "Installing arsgrammatica",
+    "section": "",
+    "text": "Install directly from its github repository:\npip install git+https://github.com/neelsmith/arsgrammatica.git\nPin to a specific branch, e.g. for the wip branch:\npip install git+https://github.com/neelsmith/arsgrammatica.git@wip\nPin to a tagged version, e.g., v0.5.0:\npip install git+https://github.com/neelsmith/arsgrammatica.git@v0.5.0",
+    "crumbs": [
+      "Guides",
+      "Installing `arsgrammatica`"
+    ]
+  },
+  {
+    "objectID": "guides/index.html",
+    "href": "guides/index.html",
+    "title": "Recipes",
+    "section": "",
+    "text": "Guides for using arsgrammatica for particular tasks.",
+    "crumbs": [
+      "Guides",
+      "Recipes"
+    ]
+  },
+  {
+    "objectID": "guides/index.html#analyzing-and-visualizing-syntax",
+    "href": "guides/index.html#analyzing-and-visualizing-syntax",
+    "title": "Recipes",
+    "section": "Analyzing and visualizing syntax",
+    "text": "Analyzing and visualizing syntax\n\nAnalyzing Latin texts\n\nInstalling arsgrammatica\nAnalyzing Latin syntax with a configured language model\nSaving and loading analyses\n\n\n\nVisualizing analyses\n\nHighlighting text syntactically in HTML\nVisualizing syntax graphs with Mermaid\n\n\n\nAnalyzing analyses as graph structures\n\nCharacterizing syntactic analyses with graph metrics\nBuilding an Agent-Action-Target (AAT) graph",
+    "crumbs": [
+      "Guides",
+      "Recipes"
+    ]
+  },
+  {
+    "objectID": "guides/index.html#training-a-language-model",
+    "href": "guides/index.html#training-a-language-model",
+    "title": "Recipes",
+    "section": "Training a language model",
+    "text": "Training a language model\n\nOptimizing\nA development work flow\nHow to write a gold example\nComparing models",
+    "crumbs": [
+      "Guides",
+      "Recipes"
+    ]
+  },
+  {
+    "objectID": "guides/index.html#managing-a-language-model",
+    "href": "guides/index.html#managing-a-language-model",
+    "title": "Recipes",
+    "section": "Managing a language model",
+    "text": "Managing a language model\n\nTokenizing text without analysis\nEstimating tokens budget\nKeeping prompt size manageable",
+    "crumbs": [
+      "Guides",
+      "Recipes"
+    ]
+  },
+  {
+    "objectID": "guides/batch-texts.html",
+    "href": "guides/batch-texts.html",
+    "title": "Utilities to simplify analyzing a corpus",
+    "section": "",
+    "text": "You can analyze an entire corpus in a CEX-format file with analyze_ctsdata_to_files.py. An analysis file is written for each sentence to an output directory you provide.\npython utilities/analyze_ctsdata_to_files.py corpus.cex \n     --output-dir analyses/",
+    "crumbs": [
+      "Guides",
+      "Utilities to simplify analyzing a corpus"
+    ]
+  },
+  {
+    "objectID": "guides/batch-texts.html#analyzing-a-corpus",
+    "href": "guides/batch-texts.html#analyzing-a-corpus",
+    "title": "Utilities to simplify analyzing a corpus",
+    "section": "",
+    "text": "You can analyze an entire corpus in a CEX-format file with analyze_ctsdata_to_files.py. An analysis file is written for each sentence to an output directory you provide.\npython utilities/analyze_ctsdata_to_files.py corpus.cex \n     --output-dir analyses/",
+    "crumbs": [
+      "Guides",
+      "Utilities to simplify analyzing a corpus"
+    ]
+  },
+  {
+    "objectID": "guides/batch-texts.html#working-with-part-of-a-corpus",
+    "href": "guides/batch-texts.html#working-with-part-of-a-corpus",
+    "title": "Utilities to simplify analyzing a corpus",
+    "section": "Working with part of a corpus",
+    "text": "Working with part of a corpus\nYou may not be able to analyze a large corpus all at once. The utilities directory includes scripts that do not require a language model to help you work with parts of a corpus.\n\nGroup cited passages by sentence boundaries\nIf you want to analyze a subset of a corpus where sentences and citation units do not always coincide (typical for Latin poetry cited by verse line), you can group passages into sequences that begin and end on sentence boundaries with group_ctsdata_by_sentence.py. This script writes to standard output a list of URNs for each group on a single line.\nIf we segemented a text of the Aeneid like this:\npython utilities/group_ctsdata_by_sentence.py aeneid.cex\nthe first two lines would list passages for a sentence beginning at Aeneid 1.1 and a second sentence beginning at Aeneid 1.8*, like this:\nurn:cts:latinLit:phi0690.phi003:1.1 urn:cts:latinLit:phi0690.phi003:1.2 urn:cts:latinLit:phi0690.phi003:1.3 urn:cts:latinLit:phi0690.phi003:1.4 urn:cts:latinLit:phi0690.phi003:1.5 urn:cts:latinLit:phi0690.phi003:1.6 urn:cts:latinLit:phi0690.phi003:1.7\nurn:cts:latinLit:phi0690.phi003:1.8 urn:cts:latinLit:phi0690.phi003:1.9 urn:cts:latinLit:phi0690.phi003:1.10 urn:cts:latinLit:phi0690.phi003:1.11\nUse normal IO redirection to save the results in a file:\npython utilities/group_ctsdata_by_sentence.py aeneid.cex &gt; aeneid-linegroups.txt\n\n\nDefine citable tokens and sentence units\nIt can be useful to cite tokens with the same stable identifiers produced by a syntactic analysis with arsgrammatica. The script tokenize_ctsdata.py reads a text corpus from a CEX-format file, and writes to standard output a delimited-text listing of all the tokens in the corpus, and a list of sentences defined by the starting and ending token of each sentence.\npython utilities/tokenize_ctsdata.py corpus.cex &gt; tokens-sentences.cex\nFor details of the output format, see the reference documentation",
+    "crumbs": [
+      "Guides",
+      "Utilities to simplify analyzing a corpus"
+    ]
+  },
+  {
+    "objectID": "guides/gold.html",
+    "href": "guides/gold.html",
+    "title": "How to add a gold example",
+    "section": "",
+    "text": "A fundamental part of the DSPy development are the GoldExample pairings of a Latin passage with a hand-verified canned_answer. These are defined in tests/fixtures/gold_examples.py. Every GoldExample entry lives in the single GOLD_EXAMPLES list at the bottom of that file. You can add examples there that you have either hand-written, or harvested from successful analyses.",
+    "crumbs": [
+      "Guides",
+      "How to add a gold example"
+    ]
+  },
+  {
+    "objectID": "guides/gold.html#harvesting-from-a-successful-analysis",
+    "href": "guides/gold.html#harvesting-from-a-successful-analysis",
+    "title": "How to add a gold example",
+    "section": "Harvesting from a successful analysis",
+    "text": "Harvesting from a successful analysis\nIf you have analyzed a difficult construction that you want to add to the core training sets, you can save the analysis and use the analysis_to_gold_example.py script to compose the Python you need.\nPass it two arguments: the analysis file, and an identifying label for the analysis. The identifying label is a short, unique, descriptive id (e.g. cicero_proarchia_exordium) that serves as the pytest id for every test parametrized over GOLD_EXAMPLES. Include the --tags parameter to name constructions the example is meant to exercise, for a human skimming the file. Run analysis_to_gold_example -h to see all the optional parameters the script accepts.\nRun it like this:\npython3 utilities/analysis_to_gold_example.py analysisfile.cex cicero_proarchia_exordium --tags \"complex subordination\" \nThis prints to standard output a string in two parts . The first part is a Python dictionary, which in this example will be named _CICERO_PROARCHIA_EXORDIUM_ANSWER. The dictionary contains the complete analysis data (the model’s reasoning, the verbal expressions table, and the token graph).\nThe second part is a GoldExample object identifying the labelled analysis as the correct canned_answer for the passage. In our example, it would look like this:\n\nGoldExample(\n    slug=\"cicero_proarchia_exordium\",\n    passage=\"ac ne quis a nobis hoc ita dici forte miretur, quod alia quaedam in hoc facultas sit ingeni neque haec dicendi ratio aut disciplina, ne nos quidem huic uni studio penitus umquam dediti fuimus.\",\n    tags=[\"complex subordination\"],\n    canned_answer=_CICERO_PROARCHIA_EXORDIUM_ANSWER,\n),\nIn tests/fixtures/gold_examples.py, you can paste the dict above the list beginning GOLD_EXAMPLES = [ and place the new GoldExample(...) entry inside the list.\nBe sure to reeview the reasoning property of dict you’ve pasted in. It’s the model’s own recorded reasoning, and not guaranteed to read the way you would write it by hand.",
+    "crumbs": [
+      "Guides",
+      "How to add a gold example"
+    ]
+  },
+  {
+    "objectID": "guides/gold.html#hand-writing-a-goldexample",
+    "href": "guides/gold.html#hand-writing-a-goldexample",
+    "title": "How to add a gold example",
+    "section": "Hand writing a GoldExample",
+    "text": "Hand writing a GoldExample\nIf you want to add a small, deliberately-constructed example targeting one specific construction, refer to the existing examples and:\n\nWrite a module-level _SOME_ANSWER = {...} dict: reasoning (a real explanation, not a placeholder), verbalunits (one entry per verbal expression – id/syntactic_type/semantic_type), tokengraph (one entry per token – id/token/tokentype, plus whichever of lemma/verbalunitid/relatedtoken1/relationship1/relatedtoken2/relationship2 actually apply; omit a field entirely rather than setting it to None, matching every existing entry). See arsgrammatica/models.py’s TokenAnalysis/VerbalExpression and syntax_model.md for what’s allowed, and notes/relationship_labels.md for the relation-label catalog.\nAdd a GoldExample(slug=..., passage=..., tags=[...], canned_answer=_SOME_ANSWER) entry to GOLD_EXAMPLES, referencing that dict.",
+    "crumbs": [
+      "Guides",
+      "How to add a gold example"
+    ]
+  },
+  {
+    "objectID": "guides/gold.html#before-you-add-it",
+    "href": "guides/gold.html#before-you-add-it",
+    "title": "How to add a gold example",
+    "section": "Before you add it",
+    "text": "Before you add it\n\nRun pytest -k &lt;slug&gt;: test_gold_examples.py checks validate() and a clean Mermaid render for every fixture automatically, no test-file changes needed.\ntest_coverage.py reports which relation labels / verbal-expression types / tokentypes still have no example – worth a look if you’re deliberately filling a gap.",
+    "crumbs": [
+      "Guides",
+      "How to add a gold example"
     ]
   },
   {
@@ -656,7 +740,18 @@
     "href": "guides/aat.html",
     "title": "Building an AAT (Agent-Action-Target) graph",
     "section": "",
-    "text": "The aat package defines a reductive model of natural language syntax focusing only on Agent-Action-Target relations, instantiated in an AATGraph. You can construct an AATGraph from an arsgrammatica analysis with the attgraph function.\nLoad a saved analysis, or analyze some Latin text:\nfrom arsgrammatica import analyze_string\nsentences, results = analyze_string(\"Troia et huic loco nomen est.\", citation=\"Livy 1.1.4:\")\nYou can then construct an AATGraph from the resulting sentences and analyses.\nfrom arsgrammatica import attgraph\ngraph, warnings = attgraph(sentences, results)\nFor more information about AAT graphs, see the aat github repository.",
+    "text": "The aat package defines a reductive model of natural language syntax focusing only on Agent-Action-Target relations, instantiated in an AATGraph. You can construct an AATGraph from an arsgrammatica analysis with the attgraph function.\nLoad a saved analysis, or analyze some Latin text:\nYou can then construct an AATGraph from the resulting sentences and analyses.\nFor more information about AAT graphs, see the aat github repository.",
+    "crumbs": [
+      "Guides",
+      "Building an AAT (Agent-Action-Target) graph"
+    ]
+  },
+  {
+    "objectID": "guides/aat.html#a-graph-theoretic-note",
+    "href": "guides/aat.html#a-graph-theoretic-note",
+    "title": "Building an AAT (Agent-Action-Target) graph",
+    "section": "A graph-theoretic note",
+    "text": "A graph-theoretic note\nAAT graphs (like UD graphs) are guaranteed to be trees. While arsgrammatica’s syntax graphs tend to approximate a tree structure, they may include doubly linked nodes (like que in this example), and are not guaranteed to be acyclic.\nAAT graphs, like arsgrammatica’s graphs, are directed towards root-level verbal elements.",
     "crumbs": [
       "Guides",
       "Building an AAT (Agent-Action-Target) graph"
@@ -667,7 +762,7 @@
     "href": "guides/optimizing.html",
     "title": "Optimizing with GEPA",
     "section": "",
-    "text": "One of dspy’s strengths is its streamlined path to optimize a program for a specific configured langauge model without you having to change any code.\n\n\ndspy allows you to configure two models: the “teacher” and the “student.”\narsgrammatica uses an .env file with the same values as the rest of arsgrammatica’s programs to configure the target (“student”) model: API_BASE, MODEL, and API_KEY.If you add a parallel trio REFLECTION_API_BASE, REFLECTION_MODEL, and REFLECTION_API_KEY to configure a more powerful reasoning model as the “teacher”, arsgrammatica will take that as the “teacher” model, and GEPA will reason with the “teacher” model while optimizing for the “student” mode. If you do not configure a second reflection model, GEPA will the same model for both “teacher” and “student.”\n\n\n\nThe script optimize_gepa.py runs one of dspy’s most advanced optimizers, GEPA (dspy.GEPA) to improve SyntaxAnalysis’s instructions against the gold examples in tests/fixtures/gold_examples.py. Since this requires making the specified request, and then a further request to a reflection model, this can potentially be expensive, so optimize_gepa lets you regulate this stage of work with these parameters:\npython optimize_gepa.py                    # --auto light (cheapest; default)\npython optimize_gepa.py --auto medium       # more thorough, more expensive\npython optimize_gepa.py --auto heavy        # most thorough, most expensive\npython optimize_gepa.py --max-metric-calls 40   # exact call budget instead of a preset\npython optimize_gepa.py --skip-baseline     # skip the pre-GEPA scoring pass (saves N calls)\nThis optimizes SyntaxAnalysis by training on all the gold examples in GOLD_EXAMPLES (a small, hand-curated set built to exercise every documented construction at least once) with no separate held-out evaluation set. If you have files of analyses you have verified, you can add those to the pool optimize_gepa uses and specify the fraction to be used for an evaluation set.\n\n\n\n\n\n\nTip\n\n\n\nThe data directory of the arsgrammatica repository includes hand-vetted analyses you can use in optimizing the package for a new model.\n\n\n# Include individual files with analyses:\npython3 utilities/optimize_gepa.py --eval-file urn_cts_compnov_bible_genesis_vulgate_42_1.cex urn_cts_compnov_bible_genesis_vulgate_42_2.cex\n\n# Include all files in a directory, and hold out 25% for evaluation set:\npython3 utilities/optimize_gepa.py --eval-dir data/vulgate/ --val-fraction 0.25\n\n# Include all files in a directory with no separate evaluation set:\npython3 utilities/optimize_gepa.py --eval-dir data/vulgate/ --val-fraction 0 \n\n\n\narsgrammatica defines a syntax_metric. This compares the responses verbalunits and tokengraph against the gold answer and returns a score from 0 to 1. The score is computed weighing score for correct relations at 50%, score for classifying verbal-expressions at 30%, scoring for basic fields for each token fields at 20%. It includes specific, human-readable feedback naming every mismatched token/relation/classification, which GEPA’s reflection model can read and take advantage of.\n\n\n\noptimize_gepa.py saves the optimized program’s instructions to a JSON file named in the --out parameter or defaulting to optimized_syntax_analysis.json.\nTo use the saved model, load it right after importing analyze and before calling any analysis functions:\nfrom arsgrammatica.latin_syntax_dspy import analyze\nanalyze.load(\"optimized_syntax_analysis.json\")",
+    "text": "One of dspy’s strengths is its streamlined path to optimize a program for a specific configured langauge model without you having to change any code.\n\n\ndspy allows you to configure two models: the “teacher” and the “student.”\narsgrammatica configures the target (“student”) model from the same .env file as the rest of arsgrammatica’s programs, with values for API_BASE, MODEL, and API_KEY.\nYou can configure a more powerful reasoning model to use as the “teacher” by adding a parallel trio of values for REFLECTION_API_BASE, REFLECTION_MODEL, and REFLECTION_API_KEY. GEPA will reason with the “teacher” model while optimizing for the “student” model.\nIf you do not configure a second reflection model, GEPA will use the same model for both “teacher” and “student.”\n\n\n\nThe script optimize_gepa.py runs GEPA to improve SyntaxAnalysis’s instructions against the gold examples in tests/fixtures/gold_examples.py. This requires making the specified request, and then a further request to a reflection model, so it can potentially be expensive. optimize_gepa lets you regulate this stage of work with these parameters:\npython optimize_gepa.py                    # --auto light (cheapest; default)\npython optimize_gepa.py --auto medium       # more thorough, more expensive\npython optimize_gepa.py --auto heavy        # most thorough, most expensive\npython optimize_gepa.py --max-metric-calls 40   # exact call budget instead of a preset\npython optimize_gepa.py --skip-baseline     # skip the pre-GEPA scoring pass (saves N calls)\nBy default, optimize_gepa trains on all the gold examples in GOLD_EXAMPLES (a small, hand-curated set built to exercise every documented construction at least once) with no separate held-out evaluation set. If you have files of analyses you have verified, you can add those to the testing pool optimize_gepa uses and specify the fraction to be used for an evaluation set:\n# Include individual files with analyses:\npython3 utilities/optimize_gepa.py --eval-file urn_cts_compnov_bible_genesis_vulgate_42_1.cex urn_cts_compnov_bible_genesis_vulgate_42_2.cex\n\n# Include all files in a directory, and hold out 25% for evaluation set:\npython3 utilities/optimize_gepa.py --eval-dir data/vulgate/ --val-fraction 0.25\n\n# Include all files in a directory with no separate evaluation set:\npython3 utilities/optimize_gepa.py --eval-dir data/vulgate/ --val-fraction 0 \n\n\n\n\n\n\nTip\n\n\n\nThe data directory of the arsgrammatica repository includes hand-vetted analyses you can use in optimizing the package for a new model.\n\n\n\n\n\narsgrammatica defines a syntax_metric that compares the responses values for verbalunits and tokengraph against the gold answer, and returns a score from 0 to 1. The final metric is computed by weighing a score for correct relations at 50%, a score for classifying verbal expressions at 30%, and scoring for basic fields for each token at 20%. syntax_metric includes specific, human-readable feedback naming every mismatched token/relation/classification, which GEPA’s reflection model can read and take advantage of.\n\n\n\noptimize_gepa.py saves the optimized program’s instructions to a JSON file named in the --out parameter or defaulting to optimized_syntax_analysis.json.\nTo use the saved model, load it right after importing analyze and before calling any analysis functions:\nfrom arsgrammatica.latin_syntax_dspy import analyze\nanalyze.load(\"optimized_syntax_analysis.json\")\n\n\n\n\n\n\nTip\n\n\n\nThe optimization directory of the arsgrammatica repository includes saved models in JSON format. File names are based on the target model, the version of arsgrammatica that was targeted, and a directory with the supplementary training data used. A file name like optimized_opus_5_ag_0_7_0_vulgate.json means that this output targeted Opus 5, using arsgrammatica release 0.7.0, with training data from the data/vulgate directory of this repository.",
     "crumbs": [
       "Guides",
       "Optimizing with GEPA"
@@ -678,7 +773,7 @@
     "href": "guides/optimizing.html#configuration",
     "title": "Optimizing with GEPA",
     "section": "",
-    "text": "dspy allows you to configure two models: the “teacher” and the “student.”\narsgrammatica uses an .env file with the same values as the rest of arsgrammatica’s programs to configure the target (“student”) model: API_BASE, MODEL, and API_KEY.If you add a parallel trio REFLECTION_API_BASE, REFLECTION_MODEL, and REFLECTION_API_KEY to configure a more powerful reasoning model as the “teacher”, arsgrammatica will take that as the “teacher” model, and GEPA will reason with the “teacher” model while optimizing for the “student” mode. If you do not configure a second reflection model, GEPA will the same model for both “teacher” and “student.”",
+    "text": "dspy allows you to configure two models: the “teacher” and the “student.”\narsgrammatica configures the target (“student”) model from the same .env file as the rest of arsgrammatica’s programs, with values for API_BASE, MODEL, and API_KEY.\nYou can configure a more powerful reasoning model to use as the “teacher” by adding a parallel trio of values for REFLECTION_API_BASE, REFLECTION_MODEL, and REFLECTION_API_KEY. GEPA will reason with the “teacher” model while optimizing for the “student” model.\nIf you do not configure a second reflection model, GEPA will use the same model for both “teacher” and “student.”",
     "crumbs": [
       "Guides",
       "Optimizing with GEPA"
@@ -689,7 +784,7 @@
     "href": "guides/optimizing.html#running-optimize_gepa",
     "title": "Optimizing with GEPA",
     "section": "",
-    "text": "The script optimize_gepa.py runs one of dspy’s most advanced optimizers, GEPA (dspy.GEPA) to improve SyntaxAnalysis’s instructions against the gold examples in tests/fixtures/gold_examples.py. Since this requires making the specified request, and then a further request to a reflection model, this can potentially be expensive, so optimize_gepa lets you regulate this stage of work with these parameters:\npython optimize_gepa.py                    # --auto light (cheapest; default)\npython optimize_gepa.py --auto medium       # more thorough, more expensive\npython optimize_gepa.py --auto heavy        # most thorough, most expensive\npython optimize_gepa.py --max-metric-calls 40   # exact call budget instead of a preset\npython optimize_gepa.py --skip-baseline     # skip the pre-GEPA scoring pass (saves N calls)\nThis optimizes SyntaxAnalysis by training on all the gold examples in GOLD_EXAMPLES (a small, hand-curated set built to exercise every documented construction at least once) with no separate held-out evaluation set. If you have files of analyses you have verified, you can add those to the pool optimize_gepa uses and specify the fraction to be used for an evaluation set.\n\n\n\n\n\n\nTip\n\n\n\nThe data directory of the arsgrammatica repository includes hand-vetted analyses you can use in optimizing the package for a new model.\n\n\n# Include individual files with analyses:\npython3 utilities/optimize_gepa.py --eval-file urn_cts_compnov_bible_genesis_vulgate_42_1.cex urn_cts_compnov_bible_genesis_vulgate_42_2.cex\n\n# Include all files in a directory, and hold out 25% for evaluation set:\npython3 utilities/optimize_gepa.py --eval-dir data/vulgate/ --val-fraction 0.25\n\n# Include all files in a directory with no separate evaluation set:\npython3 utilities/optimize_gepa.py --eval-dir data/vulgate/ --val-fraction 0",
+    "text": "The script optimize_gepa.py runs GEPA to improve SyntaxAnalysis’s instructions against the gold examples in tests/fixtures/gold_examples.py. This requires making the specified request, and then a further request to a reflection model, so it can potentially be expensive. optimize_gepa lets you regulate this stage of work with these parameters:\npython optimize_gepa.py                    # --auto light (cheapest; default)\npython optimize_gepa.py --auto medium       # more thorough, more expensive\npython optimize_gepa.py --auto heavy        # most thorough, most expensive\npython optimize_gepa.py --max-metric-calls 40   # exact call budget instead of a preset\npython optimize_gepa.py --skip-baseline     # skip the pre-GEPA scoring pass (saves N calls)\nBy default, optimize_gepa trains on all the gold examples in GOLD_EXAMPLES (a small, hand-curated set built to exercise every documented construction at least once) with no separate held-out evaluation set. If you have files of analyses you have verified, you can add those to the testing pool optimize_gepa uses and specify the fraction to be used for an evaluation set:\n# Include individual files with analyses:\npython3 utilities/optimize_gepa.py --eval-file urn_cts_compnov_bible_genesis_vulgate_42_1.cex urn_cts_compnov_bible_genesis_vulgate_42_2.cex\n\n# Include all files in a directory, and hold out 25% for evaluation set:\npython3 utilities/optimize_gepa.py --eval-dir data/vulgate/ --val-fraction 0.25\n\n# Include all files in a directory with no separate evaluation set:\npython3 utilities/optimize_gepa.py --eval-dir data/vulgate/ --val-fraction 0 \n\n\n\n\n\n\nTip\n\n\n\nThe data directory of the arsgrammatica repository includes hand-vetted analyses you can use in optimizing the package for a new model.",
     "crumbs": [
       "Guides",
       "Optimizing with GEPA"
@@ -700,7 +795,7 @@
     "href": "guides/optimizing.html#scoring",
     "title": "Optimizing with GEPA",
     "section": "",
-    "text": "arsgrammatica defines a syntax_metric. This compares the responses verbalunits and tokengraph against the gold answer and returns a score from 0 to 1. The score is computed weighing score for correct relations at 50%, score for classifying verbal-expressions at 30%, scoring for basic fields for each token fields at 20%. It includes specific, human-readable feedback naming every mismatched token/relation/classification, which GEPA’s reflection model can read and take advantage of.",
+    "text": "arsgrammatica defines a syntax_metric that compares the responses values for verbalunits and tokengraph against the gold answer, and returns a score from 0 to 1. The final metric is computed by weighing a score for correct relations at 50%, a score for classifying verbal expressions at 30%, and scoring for basic fields for each token at 20%. syntax_metric includes specific, human-readable feedback naming every mismatched token/relation/classification, which GEPA’s reflection model can read and take advantage of.",
     "crumbs": [
       "Guides",
       "Optimizing with GEPA"
@@ -711,40 +806,109 @@
     "href": "guides/optimizing.html#using-the-result",
     "title": "Optimizing with GEPA",
     "section": "",
-    "text": "optimize_gepa.py saves the optimized program’s instructions to a JSON file named in the --out parameter or defaulting to optimized_syntax_analysis.json.\nTo use the saved model, load it right after importing analyze and before calling any analysis functions:\nfrom arsgrammatica.latin_syntax_dspy import analyze\nanalyze.load(\"optimized_syntax_analysis.json\")",
+    "text": "optimize_gepa.py saves the optimized program’s instructions to a JSON file named in the --out parameter or defaulting to optimized_syntax_analysis.json.\nTo use the saved model, load it right after importing analyze and before calling any analysis functions:\nfrom arsgrammatica.latin_syntax_dspy import analyze\nanalyze.load(\"optimized_syntax_analysis.json\")\n\n\n\n\n\n\nTip\n\n\n\nThe optimization directory of the arsgrammatica repository includes saved models in JSON format. File names are based on the target model, the version of arsgrammatica that was targeted, and a directory with the supplementary training data used. A file name like optimized_opus_5_ag_0_7_0_vulgate.json means that this output targeted Opus 5, using arsgrammatica release 0.7.0, with training data from the data/vulgate directory of this repository.",
     "crumbs": [
       "Guides",
       "Optimizing with GEPA"
     ]
   },
   {
-    "objectID": "concepts/index.html",
-    "href": "concepts/index.html",
-    "title": "Concepts",
+    "objectID": "concepts/ud.html",
+    "href": "concepts/ud.html",
+    "title": "arsgrammatica and Universal Dependencies",
     "section": "",
-    "text": "designed for study of Latin texts (for research or teaching) using familiar terminology\ntokenizes and classifies tokens from strings of text\norganizes syntactic analysis in coordinated and subordinated verbal expressions, subject-verb-object expressions generally corresponding to clauses in an English translation\nrelates all lexical tokens to other tokens in a dependency graph following a defined scheme\ntokens are uniquely citable within uniquely citable passages of text\n\n\n\n\nSyntactic analysis of a complete Latin sentence.",
+    "text": "The Universal Dependencies framework (UD) proposes annotation schemes for parts of speech, morphological features, and syntactic dependencies to apply across many languages, that have already been applied to more than 150 languages. UD is especially significant to Latinists because of Patrick Burns’ work on LatinCy, language models that work with the Python spaCy package for natural-language processing. Each token analyzed with spaCy has a head property linking it to another token in the syntax graph, and a dep_ property with the UD annotation for syntactic relationship (dependency).\n\n\n\n\n\n\nTipThe udsyntax package\n\n\n\nspaCy’s annotations for each analyzed token are extensive, but include many elements that are not helpful for Latinists (e.g., like_email, like_url). You can extract the syntactic relations from spaCy’s tokens into a simple syntactic graph structure with the udsyntax package.",
     "crumbs": [
-      "Concepts"
+      "Concepts",
+      "`arsgrammatica` and Universal Dependencies"
     ]
   },
   {
-    "objectID": "concepts/index.html#key-features-of-arsgrammaticas-syntax-model",
-    "href": "concepts/index.html#key-features-of-arsgrammaticas-syntax-model",
-    "title": "Concepts",
+    "objectID": "concepts/ud.html#universal-dependencies",
+    "href": "concepts/ud.html#universal-dependencies",
+    "title": "arsgrammatica and Universal Dependencies",
     "section": "",
-    "text": "designed for study of Latin texts (for research or teaching) using familiar terminology\ntokenizes and classifies tokens from strings of text\norganizes syntactic analysis in coordinated and subordinated verbal expressions, subject-verb-object expressions generally corresponding to clauses in an English translation\nrelates all lexical tokens to other tokens in a dependency graph following a defined scheme\ntokens are uniquely citable within uniquely citable passages of text\n\n\n\n\nSyntactic analysis of a complete Latin sentence.",
+    "text": "The Universal Dependencies framework (UD) proposes annotation schemes for parts of speech, morphological features, and syntactic dependencies to apply across many languages, that have already been applied to more than 150 languages. UD is especially significant to Latinists because of Patrick Burns’ work on LatinCy, language models that work with the Python spaCy package for natural-language processing. Each token analyzed with spaCy has a head property linking it to another token in the syntax graph, and a dep_ property with the UD annotation for syntactic relationship (dependency).\n\n\n\n\n\n\nTipThe udsyntax package\n\n\n\nspaCy’s annotations for each analyzed token are extensive, but include many elements that are not helpful for Latinists (e.g., like_email, like_url). You can extract the syntactic relations from spaCy’s tokens into a simple syntactic graph structure with the udsyntax package.",
     "crumbs": [
-      "Concepts"
+      "Concepts",
+      "`arsgrammatica` and Universal Dependencies"
     ]
   },
   {
-    "objectID": "concepts/index.html#relation-to-other-models",
-    "href": "concepts/index.html#relation-to-other-models",
-    "title": "Concepts",
-    "section": "Relation to other models",
-    "text": "Relation to other models\nDifferent models of syntax serve different purposes.\n\nRelation to Universal Dependencies (UD) TBA\nRelation to Agent-Action-Target (AAT) TBA",
+    "objectID": "concepts/ud.html#a-simple-illustration",
+    "href": "concepts/ud.html#a-simple-illustration",
+    "title": "arsgrammatica and Universal Dependencies",
+    "section": "A simple illustration",
+    "text": "A simple illustration\nConsider a very short Latin sentence, and a visualization of the dependency graphs that UD annotation and arsgrammatica build for it.\n\narma virumque cano.\n\n\n\n\n\n\n\n\nUD\narsgrammatica\n\n\n\n\n\n\n\n\n\n\n\n\n\nSeveral features of the UD graph will seem odd to a Latinist. The UD has only one direct object (tagged obj) of the verb token cano. The noun uirum is tagged as a dependency of arma, in the relation tagged conj. The conjunction que is not related to virum but is a dependency of arma. The terminal period appears as part of the syntactic analysis.\narsgrammatica’s Latin-focused graph is a more natural representation for research questions like “What are the direct objects in this sentence?” In Latin classrooms, many teachers may find the UD representation unusuable or simply “wrong.” arsgrammatica’s representation more closely follows what students will find in Latin textbooks.",
     "crumbs": [
-      "Concepts"
+      "Concepts",
+      "`arsgrammatica` and Universal Dependencies"
+    ]
+  },
+  {
+    "objectID": "concepts/ud.html#two-graph-theoretic-details",
+    "href": "concepts/ud.html#two-graph-theoretic-details",
+    "title": "arsgrammatica and Universal Dependencies",
+    "section": "Two graph-theoretic details",
+    "text": "Two graph-theoretic details\n\nThe UD guidelines guarantee that all syntax graphs are trees. As this example shows, that is not true for arsgrammatica’s directed graphs. In fact, although arsgrammatica’s syntax graphs often approximate a tree structure, they are not guaranteed to be acyclic either: elements like relative pronouns have relations both to their antecedent and to their function in the relative clause, which can set up cycles. (See examples with relative pronouns in the documentation.)\nUD graphs are oriented with relations from root-level verbal structures flowing down; arsgrammatica graphs are oriented so that related elements from up to root-level verbal structures.",
+    "crumbs": [
+      "Concepts",
+      "`arsgrammatica` and Universal Dependencies"
+    ]
+  },
+  {
+    "objectID": "concepts/aat.html",
+    "href": "concepts/aat.html",
+    "title": "arsgrammatica and the AAT model",
+    "section": "",
+    "text": "Agent-Action-Target (AAT) is a universal syntactic model, but it takes a very different approach from the Universal Dependency scheme. Instead of trying to map every syntactic feature of a given language onto a universal scheme, AAT is a reductive model focused on verbal ideas (actions), with their immediate subjects and objects (actors and targets). In Latin, AAT’s actors and targets correspond to subjects and direct objects of transitive active verbs, and to agents and subjects of transitive passive verbs. AAT’s graph maintains coordinated or subordinated ranking of its actions, so it is possible to construct a semantically compatible AAT graph using a subset of the tokens in arsgrammatica’s dependency graph.",
+    "crumbs": [
+      "Concepts",
+      "`arsgrammatica` and the AAT model"
+    ]
+  },
+  {
+    "objectID": "concepts/aat.html#a-simple-example",
+    "href": "concepts/aat.html#a-simple-example",
+    "title": "arsgrammatica and the AAT model",
+    "section": "A simple example",
+    "text": "A simple example\nConsider a very short Latin sentence, and compare the visualization of the arsgrammatica dependency graphs with its AAT reduction.\n\narma virumque cano.\n\n\n\n\narsgrammatica\n\n\n\n\nAAT reduction\n\n\n\n\nThe similarity in their structure is obvious. Both graphs take cano for the root; the direct objects of the arsgrammatica graph correspond to the targets of the AAT graph. Note that the AAT reduction, working from the arsgrammatica tokenization where the enclitic -que was correctly handled as a distinct token from virum, omits the conjunction.\nNow consider a possible English translation of the same passage. Since the aat package (https://github.com/neelsmith/aat) includes a module implementing the AAT scheme for English, we can juxtapse its AAT graph with the AAT reduction of the Latin passage.\n\nI sing of arms and the man.\n\n\n\n\nAAT graph of translation\n\n\n\n\nAAT graph of Latin\n\n\n\n\nThis is a very simple example, but it at least suggests the potential of AAT models for comparing and aligning syntactic structure across languages. We can see that English explicitly names an agent (“I”), where in Latin that role is incorporated in the finite verb form cano; the action and the two targets in each language directly align.",
+    "crumbs": [
+      "Concepts",
+      "`arsgrammatica` and the AAT model"
+    ]
+  },
+  {
+    "objectID": "tutorials/cli.html",
+    "href": "tutorials/cli.html",
+    "title": "A command-line script for analyzing Latin syntax",
+    "section": "",
+    "text": "syntaxer_main.py reads authentication credentials for your LM from your environment and analyzes a passage. It writes the result in to standard output in arsgrammatica’s standard serialization format. Create an .env to configure your LM credentials, like this:\nAPI_BASE=https://localmodel/api\nMODEL=litellm/modelname\nAPI_KEY=your-key-here\nThen run syntaxer_main.py with a passage argument:\npython3 syntaxer_main.py --passage \"Gallia est omnis divisa in partes tres.\"\nTo include a citation reference (e.g. a CTS URN), use the --citation argument:\npython3 syntaxer_main.py --passage \"Arma virumque canō.\" --citation \"urn:cts:latinLit:phi0690.phi003.perseus:1.1\"\nRedirect the output to a file with standard IO redirection:\npython3 syntaxer_main.py --passage \"Arma virumque canō.\" \n    --citation \"urn:cts:latinLit:phi0690.phi003.perseus:1.1\" &gt; aeneid_analysis.cex\nThe results look like this:\n#!sentences\ncontext_begin|first_token|context_end|last_token\nurn:cts:latinLit:phi0690.phi003.perseus:1.1|t0|urn:cts:latinLit:phi0690.phi003.perseus:1.1|t4\n\n#!verbal_units\ncontext|token|syntactic_type|semantic_type\nurn:cts:latinLit:phi0690.phi003.perseus:1.1|t3|independent|transitive active\n\n#!tokens\ncontext|id|tokentype|text|lemma|verbalunit|related1|relationship1|related2|relationship2\nurn:cts:latinLit:phi0690.phi003.perseus:1.1|t0|lexical|Arma|arma||t3|direct object||\nurn:cts:latinLit:phi0690.phi003.perseus:1.1|t1|lexical|virum|vir||t3|direct object||\nurn:cts:latinLit:phi0690.phi003.perseus:1.1|t2|enclitic|que|que||t0|coordinating conjunction|t1|coordinating conjunction\nurn:cts:latinLit:phi0690.phi003.perseus:1.1|t3|lexical|canō|cano|t3|root|unit verb||\nurn:cts:latinLit:phi0690.phi003.perseus:1.1|t4|punctuation|.||||||",
+    "crumbs": [
+      "Tutorials",
+      "A command-line script for analyzing Latin syntax"
+    ]
+  },
+  {
+    "objectID": "tutorials/diagrams.html",
+    "href": "tutorials/diagrams.html",
+    "title": "Diagramming syntactic analyses with graphviz",
+    "section": "",
+    "text": "If you have saved an analysis from a marimo notebook or a command-line script, you can use the open-source graphviz application to diagram the analysis. The command-line script analysis_to_dot.py creates a graph in the dot format used by graphviz.\nCreate a dot file from an analysis file::\nIf dot is installed, you can directly create a .png file:",
+    "crumbs": [
+      "Tutorials",
+      "Diagramming syntactic analyses with `graphviz`"
+    ]
+  },
+  {
+    "objectID": "tutorials/diagrams.html#how-to-install-dot",
+    "href": "tutorials/diagrams.html#how-to-install-dot",
+    "title": "Diagramming syntactic analyses with graphviz",
+    "section": "How to install dot",
+    "text": "How to install dot\nMac OS:\nbrew install graphviz\nWindows: download from https://graphviz.org/download/ or\nwinget install --id Graphviz.Graphviz\nVerify it worked: print a version string.\ndot -V",
+    "crumbs": [
+      "Tutorials",
+      "Diagramming syntactic analyses with `graphviz`"
     ]
   },
   {
@@ -752,18 +916,18 @@
     "href": "tutorials/marimo.html",
     "title": "Marimo notebooks for Latin syntactic analysis",
     "section": "",
-    "text": "marimo is a reactive notebook system written in Python. You can find the notebooks listed in the marimo directory of the arsgrammatica github repository, here are available in the marimo directory, and run them as you would any marimo notebook, e.g., marimo run NOTEBOOKNAME.py.",
+    "text": "Marimo is a reactive notebook system written in Python. You can run the notebooks listed in the marimo directory as you would any marimo notebook, e.g., marimo run marimo/NOTEBOOKNAME.py.",
     "crumbs": [
       "Tutorials",
       "Marimo notebooks for Latin syntactic analysis"
     ]
   },
   {
-    "objectID": "tutorials/marimo.html#marimo-notebooks-for-analysis-with-a-configured-language-model",
-    "href": "tutorials/marimo.html#marimo-notebooks-for-analysis-with-a-configured-language-model",
+    "objectID": "tutorials/marimo.html#notebooks-for-analysis-with-a-configured-language-model",
+    "href": "tutorials/marimo.html#notebooks-for-analysis-with-a-configured-language-model",
     "title": "Marimo notebooks for Latin syntactic analysis",
-    "section": "Marimo notebooks for analysis with a configured language model",
-    "text": "Marimo notebooks for analysis with a configured language model\nlatin_syntaxer_workflow.py and latin_syntaxer_ctsdata.py use a configured language model to analyze the syntax of Latin text. To configure your model, create an .env file like this:\nAPI_BASE=https://localmodel/api\nMODEL=litellm/modelname\nAPI_KEY=your-key-here\n\nlatin_syntaxer_workflow.py\nA notebook for a real-world testing loop. Enter text content and identifier for a passage, analyze it, and visualize the results. Optionally download the analysis results.\n\n\nlatin_syntaxer_ctsdata.py\nCitable passage to analyze come from a source file in CEX format. Load a file, then pick one or more passages to analyze from a multiselect menu. Note: this can be handy when you want to analyze sentences that span more than one citation unit, as frequently or usually happens in Latin poetry. Analyze and visualize the result. Optionally download the analysis results",
+    "section": "Notebooks for analysis with a configured language model",
+    "text": "Notebooks for analysis with a configured language model\nlatin_syntaxer_textinput.py and latin_syntaxer_ctsdata.py use a configured language model to analyze the syntax of Latin text. To configure your model, create an .env file like this:\nAPI_BASE=https://localmodel/api\nMODEL=litellm/modelname\nAPI_KEY=your-key-here\n\nlatin_syntaxer_textinput.py\nEnter text and identifier for a passage interactively, analyze and visualize the results. Optionally download the analysis results.\n\n\nlatin_syntaxer_ctsdata.py\nUpload a citable text from a source file in CEX format. Select one or more passages, anlayze and visualize the results. Optionally download the analysis results",
     "crumbs": [
       "Tutorials",
       "Marimo notebooks for Latin syntactic analysis"
@@ -774,94 +938,65 @@
     "href": "tutorials/marimo.html#notebooks-for-working-with-saved-analyses",
     "title": "Marimo notebooks for Latin syntactic analysis",
     "section": "Notebooks for working with saved analyses",
-    "text": "Notebooks for working with saved analyses\n\nlatin_syntaxer_review.py\nReview and visualize an analysis. Load a file with one or more saved analyses, pick a sentence from the menu that appears, and visualize it, as well as the interpretation of the analysis as an Agent-Action-Target (AAT)) graph.\n\n\nlatin_syntaxer_compose_diagram.py\nCompose diagrams of an analysis in the dot format used by the open-source graphviz software. Load a file with one or more saved analyses, pick a sentence from the menu that appears, and set diagramming opens. If you have installed graphviz on your system, displays within the notebook with option to save the dot file.\n\nHow to install dot\n\n\n\nlatin_syntaxer_graphs.py\nCompute graph metrics for an analysis. Similar to latin_syntaxer_review.py, but pick one or more sentences from a multiselect (rather than a single sentence from a dropdown). The dependency graph for each sentence is instantiated as a NetworkX MultiDiGraph and basic graph metrics are computed to compare the syntactic form and complexity of the chosen sentences.",
+    "text": "Notebooks for working with saved analyses\n\nlatin_syntaxer_review.py\nUpoad a file with one or more saved analyses, pick a sentence to review, and visualize it, including the interpretation of the analysis as an Agent-Action-Target (AAT) graph.\n\n\nlatin_syntaxer_graph_metrics.py\nUpoad a file with one or more saved analyses, pick one or more sentences to analyze, and compute basic graph metrics to compare the syntactic form and complexity of the chosen sentences.",
     "crumbs": [
       "Tutorials",
       "Marimo notebooks for Latin syntactic analysis"
     ]
   },
   {
-    "objectID": "tutorials/index.html",
-    "href": "tutorials/index.html",
-    "title": "Tutorials",
-    "section": "",
-    "text": "Install arsgrammatica:\npip install git+https://github.com/neelsmith/arsgrammatica.git\nConfigure your language model in a .env file ilke this:\nAPI_BASE=https://serviceprovider\nMODEL=litellm_proxy/Claude Opus 5\nAPI_KEY=your_key",
-    "crumbs": [
-      "Tutorials"
-    ]
-  },
-  {
-    "objectID": "tutorials/index.html#prerequisites",
-    "href": "tutorials/index.html#prerequisites",
-    "title": "Tutorials",
-    "section": "",
-    "text": "Install arsgrammatica:\npip install git+https://github.com/neelsmith/arsgrammatica.git\nConfigure your language model in a .env file ilke this:\nAPI_BASE=https://serviceprovider\nMODEL=litellm_proxy/Claude Opus 5\nAPI_KEY=your_key",
-    "crumbs": [
-      "Tutorials"
-    ]
-  },
-  {
-    "objectID": "tutorials/index.html#preassembled-resources",
-    "href": "tutorials/index.html#preassembled-resources",
-    "title": "Tutorials",
-    "section": "Preassembled resources",
-    "text": "Preassembled resources\n\nmarimo notebooks for syntax analysis\nanalyze Latin with a command line script\ndiagram analyses with graphviz\ngenerate PNG diagrams from saved analyses with graphviz\nsimplify batch-processing texts",
-    "crumbs": [
-      "Tutorials"
-    ]
-  },
-  {
-    "objectID": "tutorials/index.html#using-the-arsgrammatica-package-in-python",
-    "href": "tutorials/index.html#using-the-arsgrammatica-package-in-python",
-    "title": "Tutorials",
-    "section": "Using the arsgrammatica package in python",
-    "text": "Using the arsgrammatica package in python\n\nQuickest possible start to querying a language model",
-    "crumbs": [
-      "Tutorials"
-    ]
-  },
-  {
-    "objectID": "tutorials/batch-texts.html",
-    "href": "tutorials/batch-texts.html",
-    "title": "Utilities to simplify analyzing a corpus",
-    "section": "",
-    "text": "You can analyze an entire corpus in a CEX-format file with analyze_ctsdata_to_files.py. An analysis file is written for each sentence to an output directory you provide.\npython utilities/analyze_ctsdata_to_files.py corpus.cex \n     --output-dir analyses/",
+    "objectID": "tutorials/marimo.html#a-convenience-notebook",
+    "href": "tutorials/marimo.html#a-convenience-notebook",
+    "title": "Marimo notebooks for Latin syntactic analysis",
+    "section": "A convenience notebook",
+    "text": "A convenience notebook\n\nlewis_short_lookup.py\nLoad a Markdown-formatted text of Lewis-Short’s Latin Dictionary from a local file or URL, and lookup articles by headword.",
     "crumbs": [
       "Tutorials",
-      "Utilities to simplify analyzing a corpus"
+      "Marimo notebooks for Latin syntactic analysis"
     ]
   },
   {
-    "objectID": "tutorials/batch-texts.html#analyzing-a-corpus",
-    "href": "tutorials/batch-texts.html#analyzing-a-corpus",
-    "title": "Utilities to simplify analyzing a corpus",
+    "objectID": "reference/testing.html",
+    "href": "reference/testing.html",
+    "title": "Running tests with pytest",
     "section": "",
-    "text": "You can analyze an entire corpus in a CEX-format file with analyze_ctsdata_to_files.py. An analysis file is written for each sentence to an output directory you provide.\npython utilities/analyze_ctsdata_to_files.py corpus.cex \n     --output-dir analyses/",
-    "crumbs": [
-      "Tutorials",
-      "Utilities to simplify analyzing a corpus"
-    ]
-  },
-  {
-    "objectID": "tutorials/batch-texts.html#working-with-part-of-a-corpus",
-    "href": "tutorials/batch-texts.html#working-with-part-of-a-corpus",
-    "title": "Utilities to simplify analyzing a corpus",
-    "section": "Working with part of a corpus",
-    "text": "Working with part of a corpus\nYou may not be able to analyze a large corpus all at once. The utilities directory includes scripts that do not require a language model to help you work with parts of a corpus.\n\nGroup cited passages by sentence boundaries\nIf you want to analyze a subset of a corpus where sentences and citation units do not always coincide (typical for Latin poetry cited by verse line), you can group passages into sequences that begin and end on sentence boundaries with group_ctsdata_by_sentence.py. This script writes to standard output a list of URNs for each group on a single line.\nIf we segemented a text of the Aeneid like this:\npython utilities/group_ctsdata_by_sentence.py aeneid.cex\nthe first two lines would list passages for a sentence beginning at Aeneid 1.1 and a second sentence beginning at Aeneid 1.8*, like this:\nurn:cts:latinLit:phi0690.phi003:1.1 urn:cts:latinLit:phi0690.phi003:1.2 urn:cts:latinLit:phi0690.phi003:1.3 urn:cts:latinLit:phi0690.phi003:1.4 urn:cts:latinLit:phi0690.phi003:1.5 urn:cts:latinLit:phi0690.phi003:1.6 urn:cts:latinLit:phi0690.phi003:1.7\nurn:cts:latinLit:phi0690.phi003:1.8 urn:cts:latinLit:phi0690.phi003:1.9 urn:cts:latinLit:phi0690.phi003:1.10 urn:cts:latinLit:phi0690.phi003:1.11\nUse normal IO redirection to save the results in a file:\npython utilities/group_ctsdata_by_sentence.py aeneid.cex &gt; aeneid-linegroups.txt\n\n\nDefine citable tokens and sentence units\nIt can be useful to cite tokens with the same stable identifiers produced by a syntactic analysis with arsgrammatica. The script tokenize_ctsdata.py reads a text corpus from a CEX-format file, and writes to standard output a delimited-text listing of all the tokens in the corpus, and a list of sentences defined by the starting and ending token of each sentence.\npython utilities/tokenize_ctsdata.py corpus.cex &gt; tokens-sentences.cex\nFor details of the output format, see the reference documentation",
-    "crumbs": [
-      "Tutorials",
-      "Utilities to simplify analyzing a corpus"
-    ]
-  },
-  {
-    "objectID": "reference/relationshipvalues.html",
-    "href": "reference/relationshipvalues.html",
-    "title": "Values for syntactic relationships",
-    "section": "",
-    "text": "unit verb – the finite verb of a clause, linked either to its subordinating word in subordinate epxressions, or to the reserved node value root. for independent clauses.\nsubordinating conjunction – a subordinating word, linked to the verb of the governing clause.\nrelative pronoun – a relative pronoun, linked both to its antecedent and to its function in the relative clause.\nsubject – a substantive linked to the verb of its verbal expression.\ndirect object – a substantive linked to its transitive-active verbal expression.\npredicate – a substantive linked to a linking verb.\nagent – the head of a prepositional phrase expressing agent with a/ab, linked to a passive verb.\nauxiliary – a participle linked to a form of sum in compound forms of the perfect-passive/future-active systems.\nobject of preposition – a substantive linked to its governing preposition.\nadverbial – an adverb, or a prepositional phrase used adverbially, linked to the verb it modifies.\nattributive – a prepositional phrase linking to the noun it modifies.\nadjectival – an adjective (or gerundive) linking to the noun it agrees with.\ngenitive – a genitive substantive linked to the noun or verb it modifies.\ndative – a dative substantive linked to the noun or verb it relates to.\nablative – an ablative substantive linked to the noun or verb it relates to.\naccusative – an accusative substantive that is not the special case of a direct object, linked to the verb or noun it relates to.\nvocative – a vocative substantive, linked to the verb of the clause it appears in.\ndirect quote – verbal expression of directly quoted speech, linked to the verb introducing the direct speech.\naside – verb of a a parenthetical aside, linked to the verb of the clause it interrupts.\nindirect statement – an infinitive in indirect-statement, linked to the governing verb.\ncircumstantial participle – a participle linked to the substantive it agrees with.\nablative absolute – an ablative substantive syntactically absolute from the verbal expression where it appears, linked to the verb of the verbal expression.\ncoordinating conjunction – a coordinating conjunction, linked to the two items (nouns, adjectives, prepositional phrases, or verbal expressions) it joins.\napposition – a subtantive in apposition, linked to the subtantive it stands in apposition to.\ncomplementary infinitive – an infinitive completing a governing verb like volo/incipio/audeo/licet/decet, linked to that verb.\npraenomen – an abbreviated Roman first-name token, linked to the associated nomen or cognomen.",
+    "text": "The arsgrammatica package includes two kinds of tests:",
     "crumbs": [
       "Reference",
-      "Values for syntactic relationships"
+      "Running tests with `pytest`"
+    ]
+  },
+  {
+    "objectID": "reference/testing.html#off-line-testing",
+    "href": "reference/testing.html#off-line-testing",
+    "title": "Running tests with pytest",
+    "section": "Off-line testing",
+    "text": "Off-line testing\nThe whole pytest suite runs against DummyLM, not a real model. In tests/fixtures/gold_examples.py’s, GOLD_EXAMPLES defines a deliberately curated corpus. test_coverage.py enforces that every documented relation label, verbal-expression classification, and token type has at least one example exercising it.\nTests that call the configured LM are marked live and skipped by default. To run all offline tests:\npytest",
+    "crumbs": [
+      "Reference",
+      "Running tests with `pytest`"
+    ]
+  },
+  {
+    "objectID": "reference/testing.html#testing-with-a-real-model",
+    "href": "reference/testing.html#testing-with-a-real-model",
+    "title": "Running tests with pytest",
+    "section": "Testing with a real model",
+    "text": "Testing with a real model\nTesting uses the model configured in your .env file. Run the live tests:\npytest -m live",
+    "crumbs": [
+      "Reference",
+      "Running tests with `pytest`"
+    ]
+  },
+  {
+    "objectID": "reference/testing.html#pytest-cheat-sheet",
+    "href": "reference/testing.html#pytest-cheat-sheet",
+    "title": "Running tests with pytest",
+    "section": "pytest cheat sheet",
+    "text": "pytest cheat sheet\nSome standard pytest shorthands:\n\npytest to run all.\npytest -v for per-test names instead of dots.\npytest tests/test_gold_examples.py to run just one file.\npytest -k agent to run only tests matching a substring.\npytest --collect-only if you just want to see what it discovered without running anything.",
+    "crumbs": [
+      "Reference",
+      "Running tests with `pytest`"
     ]
   },
   {
@@ -869,7 +1004,7 @@
     "href": "reference/index.html",
     "title": "Reference",
     "section": "",
-    "text": "API docs\nlist of all values used for relationships in syntax graph\nextending the syntax scheme\nformat of delimited-text serialization",
+    "text": "API docs\nlist of all values used for relationships in syntax graph\nextending the syntax scheme\nformat of delimited-text serialization\ntesting with pytest",
     "crumbs": [
       "Reference"
     ]

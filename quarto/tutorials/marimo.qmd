@@ -1,0 +1,48 @@
+---
+title: Marimo notebooks for Latin syntactic analysis
+---
+
+[Marimo](https://marimo.io) is a reactive notebook system written in Python. You can run the notebooks listed in the `marimo` directory as you would any marimo notebook, e.g., `marimo run marimo/NOTEBOOKNAME.py`.
+
+## Notebooks for analysis with a configured language model
+
+`latin_syntaxer_textinput.py` and `latin_syntaxer_ctsdata.py` use a configured language model to analyze the syntax of Latin text. To configure your model, create an `.env` file like this:
+
+
+```bash
+API_BASE=https://localmodel/api
+MODEL=litellm/modelname
+API_KEY=your-key-here
+```
+
+
+
+### `latin_syntaxer_textinput.py`
+
+Enter text and identifier for a passage interactively, analyze and visualize the results. Optionally download the analysis results.
+
+### `latin_syntaxer_ctsdata.py`
+
+Upload a citable text from a source file in CEX format. Select one or more passages, anlayze and visualize the results. Optionally download the analysis results
+
+
+## Notebooks for working with saved analyses
+
+
+
+### `latin_syntaxer_review.py`
+
+Upoad a file with one or more saved analyses, pick a sentence to review, and visualize it, including the interpretation of the analysis as an Agent-Action-Target (AAT) graph.
+
+
+### `latin_syntaxer_graph_metrics.py`
+
+Upoad a file with one or more saved analyses, pick one or more sentences to analyze, and compute basic graph metrics to compare the syntactic form and complexity of the chosen sentences.
+
+
+
+## A convenience notebook
+
+### `lewis_short_lookup.py`
+
+Load a Markdown-formatted text of Lewis-Short's *Latin Dictionary* from a local file or URL, and lookup articles by headword.

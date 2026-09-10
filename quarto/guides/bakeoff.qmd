@@ -18,8 +18,8 @@
 You can answer each of those questions with the `model_bakeoff.py` script, selecting from these values for the `--stages`:
 
 1. **`baseline`** : zero-shot testing answering question 1, how good is the model without optimization? The cheapest stage by far (one call per held-out example) and worth running alone first.
-2. **`gepa`** — uses `dspy.GEPA` is allowed to rewrite the instructions for this candidate (question 2). The candidate still solves every example itself, both during optimization and at final scoring; only the wording changes.
-3. **`bootstrap`** uses Opus as a "teacher" model, and attaches verified correct traces to the model's instructions as few-shot examples. Here the candidate never has to solve a *training* example itself — only the held-out *scoring* examples afterward.
+2. **`gepa`** — uses `dspy.GEPA` to rewrite the instructions for the candidate model. The candidate still solves every example itself, both during optimization and at final scoring; only the wording changes. This answers question 2.
+3. **`bootstrap`** uses Opus 5 as a "teacher" model, and attaches verified correct traces to the model's instructions as few-shot examples. Here the candidate never has to solve a *training* example itself — only the held-out *scoring* examples afterward.
 
 
 
@@ -29,7 +29,7 @@ Comparing `baseline` against `gepa` and `bootstrap` distinguishes "Does this mod
 :::{.callout-tip}
 ### Managing cost
  
-`gepa` and `bootstrap` make many more LM calls than `baseline` (since they involve calls both to the candidate and the "teacher" model). so start with `--stages baseline` across every candidate you're curious about, then spend the heavier stages only on the ones worth the API usage.
+`gepa` and `bootstrap` make many more LM calls than `baseline` (since they involve calls both to the candidate and the "teacher" model). so start with `baseline` across every candidate you're curious about, then spend the heavier stages only on the ones worth the API usage.
 :::
 
 
@@ -73,8 +73,6 @@ Every stage reports a blended `mean` score in [0, 1] over the held-out set, plus
 - **`vu_mean`** — verbal-expression classification (`syntactic_type`/`semantic_type`).
 
 A model that scores well on `field_mean` but collapses on `relation_mean` is failing at multi-hop structural reasoning specifically — a different problem (and probably less susceptible to fixing with prompts) than a model that is just generally worse across the board. The console output also prints, per held-out example, any that raised an outright error (a request that failed, or output that didn't parse into the expected shape) rather than silently folding those into the average — worth reading before trusting a low score.
-
-This script doesn't compute a malformed-output rate as its own number (`validate()`/`find_unanchored_coordinated_verbs()` in the main package can do that over raw predictions if you want it), and it doesn't do real weight-level fine-tuning — the `bootstrap` stage attaches Opus-solved examples to the candidate's *prompt*, never touching its weights. `dspy.BootstrapFinetune` is real fine-tuning, but needs different infrastructure than either provider here and isn't wired in.
 
 
 

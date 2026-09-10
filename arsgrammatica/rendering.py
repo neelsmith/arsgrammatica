@@ -146,7 +146,10 @@ def tokengraph_to_text(tokengraph: List[TokenAnalysis]) -> str:
     return "".join(pieces)
  
  
-def tokengraph_to_html(tokengraph: List[TokenAnalysis]) -> str:
+def tokengraph_to_html(
+    tokengraph: List[TokenAnalysis],
+    depth: Optional[int] = None,
+) -> str:
     """Render `tokengraph` as an HTML string: the same continuous text
     `tokengraph_to_text()` produces -- identical spacing rules, and the same
     punctuation/enclitic/quote-pair handling -- except every **lexical**
@@ -160,6 +163,30 @@ def tokengraph_to_html(tokengraph: List[TokenAnalysis]) -> str:
     first-appearance palette ordering `tokengraph_to_mermaid()` uses for its
     node coloring -- so a passage rendered here and the same passage's
     Mermaid diagram color each verbal unit identically.
+
+    `depth`, if given, caps how deep the *color highlighting* goes -- it
+    never affects which tokens appear. The complete reconstructed passage
+    is always rendered, exactly as with `depth` left unset; a token whose
+    verbal unit's depth of subordination (see
+    `verbal_units.compute_subordination_depths()`) exceeds `depth` simply
+    falls back to plain, unhighlighted (but still escaped) text, exactly
+    like a token with no verbal-unit assignment already does today. This is
+    the same clause-level subordination-depth notion
+    `tokengraph_to_depth_html()`'s own `depth` parameter uses -- NOT the
+    AAT/rank depth `tokengraph_to_mermaid()`'s `rank_by_depth` uses, nor the
+    graph-distance depth `tokengraph_to_dot()`'s `depth` uses (see
+    notes/dot_diagrams.md's note on the three distinct "depth" notions in
+    this codebase). Unlike `tokengraph_to_depth_html()`, which DROPS an
+    entire out-of-depth block from its output, this function never drops
+    any token -- only the highlighting is limited. `depth=0` highlights
+    root/independent-clause units only; omit `depth` (or pass `None`, the
+    default) to highlight every unit, same as before this parameter
+    existed. A negative `depth` raises `ValueError`, matching
+    `tokengraph_to_depth_html()`'s own validation. A verbal unit whose depth
+    couldn't be resolved (see `compute_subordination_depths()`) is treated
+    as depth 0 for this purpose -- the same "unresolved counts as root"
+    convention `tokengraph_to_depth_html()` uses -- so it stays highlighted
+    at any valid (non-negative) `depth`, same as a genuine root clause.
 
     The coordinating-conjunction carve-out exists because a conjunction
     like "-que" or "-ve" is typically tokentype "enclitic", not "lexical",
@@ -240,8 +267,27 @@ def tokengraph_to_html(tokengraph: List[TokenAnalysis]) -> str:
     color the surrounding page has set, matching the explicit black
     `color:` every Mermaid node in that unit also gets.
     """
+    if depth is not None and depth < 0:
+        raise ValueError(f"depth must be >= 0 (root clauses only), got {depth!r}")
+
     assignment = assign_verbal_units(tokengraph)
     colors, _warnings = assign_verbal_unit_colors(tokengraph, assignment=assignment)
+
+    if depth is not None:
+        # Limit highlighting, not content: drop the out-of-depth units from
+        # `colors` (rather than filtering `tokengraph`/`assignment`) so
+        # _tokens_to_html() still walks every token unchanged, but a token
+        # whose unit's color entry was removed here takes the same
+        # `colors.get(unit_id) is None` fallback to plain text that an
+        # unassigned token already takes -- no change needed to
+        # _tokens_to_html() itself.
+        depths, _depth_warnings = compute_subordination_depths(tokengraph)
+        colors = {
+            unit_id: color
+            for unit_id, color in colors.items()
+            if (depths.get(unit_id) or 0) <= depth
+        }
+
     return _tokens_to_html(tokengraph, assignment, colors)
 
 

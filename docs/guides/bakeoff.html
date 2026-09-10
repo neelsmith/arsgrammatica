@@ -149,11 +149,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/neelsmith/arsgrammatica"> <i class="bi bi-github" role="img" aria-label="GitHub">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-bi-github" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="bi bi-github" role="img">
 </i> 
-<span class="menu-text"></span></a>
+ <span class="menu-text"></span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-bi-github">    
+        <li>
+    <a class="dropdown-item" href="https://github.com/neelsmith/arsgrammatica">
+ <span class="dropdown-text">arsgrammatica on github</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="https://neelsmith.github.io">
+ <span class="dropdown-text">About me</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://neelsmith.github.io/projects">
+ <span class="dropdown-text">Other projects</span></a>
+  </li>  
+    </ul>
+  </li>
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -202,6 +218,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Saving and loading analyses</span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/batch-texts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Utilities to simplify analyzing a corpus</span></a>
+  </div>
+</li>
         <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
@@ -237,8 +259,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/harvesting.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Harvesting gold examples from real analyses</span></a>
+  <a href="../guides/development.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Improving <code>arsgrammatica</code> by reading Latin</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/gold.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">How to add a gold example</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -247,25 +275,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Comparing models with <code>model_bakeoff.py</code></span></a>
   </div>
 </li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/development.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Improving <code>arsgrammatica</code> by reading Latin</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/testing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Running tests with <code>pytest</code></span></a>
-  </div>
-</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../guides/tokenizing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Tokenizing a source file without full syntax analysis</span></a>
   </div>
 </li>
-        <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../guides/budgetingtokens.html" class="sidebar-item-text sidebar-link">
@@ -322,8 +338,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>You can answer each of those questions with the <code>model_bakeoff.py</code> script, selecting from these values for the <code>--stages</code>:</p>
 <ol type="1">
 <li><strong><code>baseline</code></strong> : zero-shot testing answering question 1, how good is the model without optimization? The cheapest stage by far (one call per held-out example) and worth running alone first.</li>
-<li><strong><code>gepa</code></strong> — uses <code>dspy.GEPA</code> is allowed to rewrite the instructions for this candidate (question 2). The candidate still solves every example itself, both during optimization and at final scoring; only the wording changes.</li>
-<li><strong><code>bootstrap</code></strong> uses Opus as a “teacher” model, and attaches verified correct traces to the model’s instructions as few-shot examples. Here the candidate never has to solve a <em>training</em> example itself — only the held-out <em>scoring</em> examples afterward.</li>
+<li><strong><code>gepa</code></strong> — uses <code>dspy.GEPA</code> to rewrite the instructions for the candidate model. The candidate still solves every example itself, both during optimization and at final scoring; only the wording changes. This answers question 2.</li>
+<li><strong><code>bootstrap</code></strong> uses Opus 5 as a “teacher” model, and attaches verified correct traces to the model’s instructions as few-shot examples. Here the candidate never has to solve a <em>training</em> example itself — only the held-out <em>scoring</em> examples afterward.</li>
 </ol>
 <p>Comparing <code>baseline</code> against <code>gepa</code> and <code>bootstrap</code> distinguishes “Does this model already perform adequately?” from “How much can it be improved?”. Comparing <code>gepa</code> against <code>bootstrap</code> separates two different ways of improving the model (with or without a separate “teacher” model). A candidate that is mediocre at <code>baseline</code> but closes most of the gap at <code>gepa</code> or <code>bootstrap</code> might be a good prospect for <a href="../guides/optimizing.html">optimization</a>. A mediocre performance on all three stages probably reflects a real ceiling on the model’s capabilities.</p>
 <div class="callout callout-style-default callout-tip callout-titled">
@@ -336,7 +352,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><code>gepa</code> and <code>bootstrap</code> make many more LM calls than <code>baseline</code> (since they involve calls both to the candidate and the “teacher” model). so start with <code>--stages baseline</code> across every candidate you’re curious about, then spend the heavier stages only on the ones worth the API usage.</p>
+<p><code>gepa</code> and <code>bootstrap</code> make many more LM calls than <code>baseline</code> (since they involve calls both to the candidate and the “teacher” model). so start with <code>baseline</code> across every candidate you’re curious about, then spend the heavier stages only on the ones worth the API usage.</p>
 </div>
 </div>
 </section>
@@ -366,7 +382,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><strong><code>vu_mean</code></strong> — verbal-expression classification (<code>syntactic_type</code>/<code>semantic_type</code>).</li>
 </ul>
 <p>A model that scores well on <code>field_mean</code> but collapses on <code>relation_mean</code> is failing at multi-hop structural reasoning specifically — a different problem (and probably less susceptible to fixing with prompts) than a model that is just generally worse across the board. The console output also prints, per held-out example, any that raised an outright error (a request that failed, or output that didn’t parse into the expected shape) rather than silently folding those into the average — worth reading before trusting a low score.</p>
-<p>This script doesn’t compute a malformed-output rate as its own number (<code>validate()</code>/<code>find_unanchored_coordinated_verbs()</code> in the main package can do that over raw predictions if you want it), and it doesn’t do real weight-level fine-tuning — the <code>bootstrap</code> stage attaches Opus-solved examples to the candidate’s <em>prompt</em>, never touching its weights. <code>dspy.BootstrapFinetune</code> is real fine-tuning, but needs different infrastructure than either provider here and isn’t wired in.</p>
 </section>
 <section id="running-it" class="level2">
 <h2 class="anchored" data-anchor-id="running-it">Running it</h2>
@@ -894,7 +909,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.7.0</strong></p>
+<p>Documentation for release version <strong>0.8.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

@@ -129,7 +129,7 @@ A headword Lewis & Short split into homonyms (e.g. `abdico1`/`abdico2`) has no b
 
 ## `marimo/lewis_short_lookup.py`
 
-A no-LM notebook UI for `LewisShortLexicon`/`lookup()`: browse for a copy of `ls-articles.cex` (same `mo.ui.file_browser` single-file pattern every other notebook in this codebase uses, e.g. `latin_syntaxer_review.py`'s `analysis_file_browser`), type a headword into a single-line `mo.ui.text` box (mirroring `latin_syntaxer_workflow.py`'s own `urnbase`/`citation_context` inputs), and see the result. No `limit`/`cutoff` tuning UI -- `lookup()`'s own defaults (`limit=5, cutoff=0.6`) are used as-is, a deliberate scope decision matching this codebase's convention against adding UI for parameters nobody's asked to tune yet.
+A no-LM notebook UI for `LewisShortLexicon`/`lookup()`: browse for a copy of `ls-articles.cex` (same `mo.ui.file_browser` single-file pattern every other notebook in this codebase uses, e.g. `latin_syntaxer_review.py`'s `analysis_file_browser`), type a headword into a single-line `mo.ui.text` box (mirroring `latin_syntaxer_textinput.py`'s own `urnbase`/`citation_context` inputs), and see the result. No `limit`/`cutoff` tuning UI -- `lookup()`'s own defaults (`limit=5, cutoff=0.6`) are used as-is, a deliberate scope decision matching this codebase's convention against adding UI for parameters nobody's asked to tune yet.
 
 The file is only re-read/re-indexed when the file_browser's own selection changes, never on a headword lookup -- loading the real ~28MB/51,596-entry file takes about 1.5s, and that cost is paid once per file choice, not per keystroke or per lookup.
 

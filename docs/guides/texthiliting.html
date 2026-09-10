@@ -149,11 +149,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/neelsmith/arsgrammatica"> <i class="bi bi-github" role="img" aria-label="GitHub">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-bi-github" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="bi bi-github" role="img">
 </i> 
-<span class="menu-text"></span></a>
+ <span class="menu-text"></span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-bi-github">    
+        <li>
+    <a class="dropdown-item" href="https://github.com/neelsmith/arsgrammatica">
+ <span class="dropdown-text">arsgrammatica on github</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="https://neelsmith.github.io">
+ <span class="dropdown-text">About me</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://neelsmith.github.io/projects">
+ <span class="dropdown-text">Other projects</span></a>
+  </li>  
+    </ul>
+  </li>
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -202,6 +218,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Saving and loading analyses</span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/batch-texts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Utilities to simplify analyzing a corpus</span></a>
+  </div>
+</li>
         <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
@@ -237,8 +259,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/harvesting.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Harvesting gold examples from real analyses</span></a>
+  <a href="../guides/development.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Improving <code>arsgrammatica</code> by reading Latin</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/gold.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">How to add a gold example</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -247,25 +275,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Comparing models with <code>model_bakeoff.py</code></span></a>
   </div>
 </li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/development.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Improving <code>arsgrammatica</code> by reading Latin</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/testing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Running tests with <code>pytest</code></span></a>
-  </div>
-</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../guides/tokenizing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Tokenizing a source file without full syntax analysis</span></a>
   </div>
 </li>
-        <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../guides/budgetingtokens.html" class="sidebar-item-text sidebar-link">
@@ -290,6 +306,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#coloring-by-verbal-expression" id="toc-coloring-by-verbal-expression" class="nav-link active" data-scroll-target="#coloring-by-verbal-expression">Coloring by verbal expression</a></li>
   <li><a href="#add-indentation-by-depth-of-subordination" id="toc-add-indentation-by-depth-of-subordination" class="nav-link" data-scroll-target="#add-indentation-by-depth-of-subordination">Add indentation by depth of subordination</a></li>
+  <li><a href="#limiting-display-by-syntactic-depth" id="toc-limiting-display-by-syntactic-depth" class="nav-link" data-scroll-target="#limiting-display-by-syntactic-depth">Limiting display by syntactic depth</a></li>
   </ul>
 </nav>
     </div>
@@ -328,7 +345,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The <code>tokengraph_to_depth_html</code> function uses the same color highlighting as tokengraph_to_html, but instead of laying out the text in a single paragaph, it indents sequences of tokens by their level of subordination.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> tokengraph_to_depth_html</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>html, warnings <span class="op">=</span> tokengraph_to_depth_html(result.tokengraph)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>You can limit the tokens included in the display by their depth of subordination with the <code>depth</code> parameter. (This is especially useful in an interactive display where you can explore a passage at different levels of subordination.)</p>
+</section>
+<section id="limiting-display-by-syntactic-depth" class="level2">
+<h2 class="anchored" data-anchor-id="limiting-display-by-syntactic-depth">Limiting display by syntactic depth</h2>
+<p>Both <code>tokengraph_to_html</code> and <code>tokengraph_to_depth_html</code> accept an optional <code>depth</code> parameter. <code>tokengraph_to_html</code> will highlight only tokens at or below the specified syntactic depth; <code>tokengraph_to_html</code> entirely omits tokens above the cutoff depth. (These features are used interactively in the <a href="../tutorials/marimo.html">marimo notebooks</a> to analyze passages and review analyses.)</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># depth=0 limits the display to root/independent clauses only:</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>html, warnings <span class="op">=</span> tokengraph_to_depth_html(result.tokengraph, depth<span class="op">=</span><span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
@@ -743,7 +763,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.7.0</strong></p>
+<p>Documentation for release version <strong>0.8.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

@@ -50,6 +50,17 @@ governing verb, so `depth=0` shows ONLY root verbal-unit anchors -- not
 "the whole root clause" the way tokengraph_to_depth_html()'s block-level
 depth would. See tokengraph_to_dot()'s own docstring for the full
 rationale, including how a dropped node's dangling edges are handled.
+
+tokengraph_to_dot() ALSO takes `aat_depth`, a second, independent
+node-dropping filter alongside `depth` above, using compute_aat_depths()
+instead -- the SAME depth notion `rank_by_depth` uses to align nodes,
+mirroring tokengraph_to_mermaid()'s own `aat_depth` parameter exactly.
+Since compute_aat_depths() (like compute_subordination_depths()) shares a
+single depth across a whole clause's verb and all of its ordinary
+dependents, `aat_depth=0` shows a root clause IN FULL, unlike `depth=0`
+above (which shows only the bare root verb, no dependents at all). `depth`
+and `aat_depth` compose freely -- a node survives only if it clears BOTH
+cutoffs. See tokengraph_to_dot()'s own docstring for the full rationale.
 """
 
 from typing import Dict, List, Optional, Tuple
@@ -214,6 +225,7 @@ def tokengraph_to_dot(
     color_by_verbal_unit: bool = True,
     rank_by_depth: bool = True,
     depth: Optional[int] = None,
+    aat_depth: Optional[int] = None,
 ) -> Tuple[str, List[str]]:
     """Build a Graphviz DOT `digraph` from a tokengraph -- the same
     diagram tokengraph_to_mermaid() draws (same nodes, same edges, same
@@ -280,18 +292,43 @@ def tokengraph_to_dot(
     Returns below) -- `depth` filtering degrades visibly rather than
     emitting a dangling `->` line Graphviz would reject.
 
+    `aat_depth`, if given, is a SEPARATE filter from `depth` above, using
+    the SAME verbal_units.compute_aat_depths() notion `rank_by_depth` uses
+    to align nodes -- now used to drop them instead, mirroring
+    mermaid.tokengraph_to_mermaid()'s own `aat_depth` parameter exactly
+    (see that function's docstring for the full rationale). Every token
+    takes the AAT depth of the verbal unit it belongs to
+    (verbal_units.assign_verbal_units()), so a whole clause's subject,
+    object, and other ordinary dependents share ONE depth with their own
+    governing verb -- unlike `depth` above, where each is its own hop of
+    GRAPH distance. `aat_depth=0` therefore shows a root/independent
+    clause IN FULL (its verb plus every one of that clause's own ordinary
+    dependents), not just the bare root verb the way `depth=0` does. A
+    token belonging to no verbal unit at all defaults to depth 0 (kept),
+    same "can't determine, default to root level" fallback used
+    throughout this codebase. Omit `aat_depth` (or pass `None`, the
+    default) to show every node with respect to this filter; a value at
+    or beyond verbal_units.max_aat_depth()'s own return value for this
+    `tokengraph` shows everything too; a negative `aat_depth` raises
+    `ValueError`. `depth` and `aat_depth` compose freely -- a node is kept
+    only if it survives BOTH cutoffs (whichever are actually given); a
+    dangling edge left by either one is skipped with the same warning.
+
     Returns `(dot_source, warnings)` -- same shape and same warnings as
     tokengraph_to_mermaid(): an edge skipped because it targets a
-    punctuation token, a token excluded by the `depth` cutoff, or an id not
-    present in `tokengraph` (except the 'root' sentinel, skipped silently,
-    same as there); if `color_by_verbal_unit` is True and the passage has
-    more than 8 verbal units, one warning that colors are repeating.
-    `depth` filtering itself never adds a warning (compute_graph_depths()
-    has no unresolved state -- an unrelated or cyclic token just defaults
-    to depth 0), same as `rank_by_depth` -- see compute_aat_depths().
+    punctuation token, a token excluded by the `depth` or `aat_depth`
+    cutoff, or an id not present in `tokengraph` (except the 'root'
+    sentinel, skipped silently, same as there); if `color_by_verbal_unit`
+    is True and the passage has more than 8 verbal units, one warning that
+    colors are repeating. Neither `depth` nor `aat_depth` filtering itself
+    ever adds a warning (compute_graph_depths() and compute_aat_depths()
+    both have no unresolved state -- an unrelated or cyclic token just
+    defaults to depth 0 in either), same as `rank_by_depth`.
     """
     if depth is not None and depth < 0:
         raise ValueError(f"depth must be >= 0 (root nodes only), got {depth!r}")
+    if aat_depth is not None and aat_depth < 0:
+        raise ValueError(f"aat_depth must be >= 0 (root clauses only), got {aat_depth!r}")
 
     node_ids = {tok.id for tok in tokengraph if tok.tokentype != "punctuation"}
 
@@ -300,6 +337,22 @@ def tokengraph_to_dot(
         graph_depths = compute_graph_depths(tokengraph)
         depth_excluded_ids = {tok_id for tok_id, d in graph_depths.items() if d > depth}
         node_ids -= depth_excluded_ids
+
+    if aat_depth is not None:
+        aat_depth_assignment = assign_verbal_units(tokengraph)
+        aat_depths_by_anchor = compute_aat_depths(tokengraph)
+        aat_depth_excluded_ids = {
+            tok.id
+            for tok in tokengraph
+            if tok.id in node_ids
+            and (
+                aat_depths_by_anchor.get(aat_depth_assignment.get(tok.id), 0)
+                if aat_depth_assignment.get(tok.id) is not None
+                else 0
+            )
+            > aat_depth
+        }
+        node_ids -= aat_depth_excluded_ids
 
     colors_by_unit = {}
     implied_ids: set = set()
@@ -348,8 +401,8 @@ def tokengraph_to_dot(
             if related_id not in node_ids:
                 warnings.append(
                     f"skipped edge {tok.id} -[{label}]-> {related_id}: "
-                    f"target is punctuation, excluded by the depth cutoff, "
-                    f"or not in tokengraph"
+                    f"target is punctuation, excluded by the depth or "
+                    f"aat_depth cutoff, or not in tokengraph"
                 )
                 continue
             lines.append(f'    {tok.id} -> {related_id} [label="{_escape_label(label)}"];')
@@ -361,23 +414,23 @@ def tokengraph_to_dot(
         # chains -- see that function's own comment for why
         # aat_depths.get() being None here means "not an anchor", never
         # "unresolved depth" (compute_aat_depths() has no such state).
-        # Named aat_depths (not `depths`, and this loop's own variable not
-        # `depth`) to avoid shadowing the `depth` PARAMETER above -- a
-        # different depth notion entirely, see this function's own
-        # docstring.
+        # This loop's own per-anchor variable is named `rank_depth`, not
+        # `depth` or `aat_depth`, to avoid shadowing EITHER of this
+        # function's own depth-filtering parameters above -- two different
+        # depth notions entirely, see this function's own docstring.
         depth_groups: dict = {}
         for tok in tokengraph:
             if tok.id not in node_ids:
                 continue
-            aat_depth = aat_depths.get(tok.id)
-            if aat_depth is None:
+            rank_depth = aat_depths.get(tok.id)
+            if rank_depth is None:
                 continue
-            depth_groups.setdefault(aat_depth, []).append(tok.id)
+            depth_groups.setdefault(rank_depth, []).append(tok.id)
 
         rank_lines = [
             "    {rank=same; " + "; ".join(ids) + ";}"
-            for aat_depth in sorted(depth_groups)
-            for ids in (depth_groups[aat_depth],)
+            for rank_depth in sorted(depth_groups)
+            for ids in (depth_groups[rank_depth],)
             if len(ids) > 1
         ]
         if rank_lines:
@@ -395,6 +448,7 @@ def save_dot(
     color_by_verbal_unit: bool = True,
     rank_by_depth: bool = True,
     depth: Optional[int] = None,
+    aat_depth: Optional[int] = None,
 ) -> List[str]:
     """Write the diagram to `path` (e.g. 'analysis.dot') and return any
     warnings from tokengraph_to_dot()."""
@@ -404,6 +458,7 @@ def save_dot(
         color_by_verbal_unit=color_by_verbal_unit,
         rank_by_depth=rank_by_depth,
         depth=depth,
+        aat_depth=aat_depth,
     )
     with open(path, "w", encoding="utf-8") as f:
         f.write(diagram + "\n")

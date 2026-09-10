@@ -23,26 +23,40 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    > No LM access needed -- browse for a copy of `ls-articles.cex` (Lewis & Short's *A Latin Dictionary*, delimited-text edition -- see `notes/lewis_short.md` and `arsgrammatica/lewis_short.py`), then type a headword. An exact match (case- and diacritic-insensitive) is shown directly; anything else falls back to a ranked list of the closest headwords by spelling to choose from.
+    > No LM access needed -- either browse for a local copy of `ls-articles.cex` (Lewis & Short's *A Latin Dictionary*, delimited-text edition -- see `notes/lewis_short.md` and `arsgrammatica/lewis_short.py`) or download it fresh from its published URL, then type a headword. An exact match (case- and diacritic-insensitive) is shown directly; anything else falls back to a ranked list of the closest headwords by spelling to choose from.
     """)
     return
 
 
 @app.cell(hide_code=True)
-def _(lexicon_file_browser):
-    lexicon_file_browser
+def _(download_button, input_source, lexicon_file_browser, lexicon_url, mo):
+    # Only the control(s) for the currently-chosen source are shown --
+    # input_source itself always is, so switching sources is always one
+    # click away. "Local file" (the default) shows the same file_browser
+    # this notebook has always used; "Download from URL" shows the URL
+    # field plus its own explicit Download trigger (see download_button's
+    # own definition below for why a click, not a reactive fetch).
+    if input_source.value == "Download from URL":
+        source_controls = mo.vstack([input_source, lexicon_url, download_button])
+    else:
+        source_controls = mo.vstack([input_source, lexicon_file_browser])
+
+    source_controls
     return
 
 
 @app.cell(hide_code=True)
-def _(lexicon, lexicon_error, mo):
+def _(input_source, lexicon, lexicon_error, mo):
     if lexicon_error is not None:
         lexicon_status = mo.callout(
-            mo.md(f"Could not read this file as a Lewis & Short lexicon: {lexicon_error}"),
+            mo.md(f"Could not load a Lewis & Short lexicon from this source: {lexicon_error}"),
             kind="danger",
         )
     elif lexicon is None:
-        lexicon_status = mo.md("*Choose a copy of `ls-articles.cex` above to look up headwords.*")
+        if input_source.value == "Download from URL":
+            lexicon_status = mo.md("*Enter a URL and click Download above to look up headwords.*")
+        else:
+            lexicon_status = mo.md("*Choose a copy of `ls-articles.cex` above to look up headwords.*")
     else:
         lexicon_status = mo.md(f"*{len(lexicon)} article(s) loaded.*")
 
@@ -97,6 +111,21 @@ def _(mo):
 
 
 @app.cell
+def _(mo):
+    # Chooses which of the two loading paths below (lexicon_file_browser or
+    # lexicon_url/download_button) actually feeds the lexicon cell --
+    # "Local file" is the default, matching this notebook's original,
+    # only behavior before it could reach the published URL at all.
+    input_source = mo.ui.radio(
+        options=["Local file", "Download from URL"],
+        value="Local file",
+        inline=True,
+        label="*Lexicon source*:",
+    )
+    return (input_source,)
+
+
+@app.cell
 def _(Path, mo):
     # Same file_browser pattern every other notebook in this codebase uses
     # for a single required input file -- see e.g.
@@ -105,7 +134,9 @@ def _(Path, mo):
     # mo.ui.file_browser's "directory" selection mode). ls-articles.cex
     # isn't checked into this repo (it's ~28MB -- see notes/lewis_short.md)
     # so there's no default path to preselect; Neel's own copy lives in
-    # the git-ignored scratch/ directory.
+    # the git-ignored scratch/ directory. Only consulted when
+    # input_source.value == "Local file" (the default) -- see the lexicon
+    # cell below.
     lexicon_file_browser = mo.ui.file_browser(
         initial_path=Path(__file__).parent.parent,
         selection_mode="file",
@@ -116,28 +147,72 @@ def _(Path, mo):
 
 
 @app.cell
-def _(LewisShortLexicon, lexicon_file_browser):
-    # Re-read/re-index the file every time the file_browser's own selection
-    # changes -- same convention every other file_browser-driven notebook
-    # in this codebase uses (see e.g. latin_syntaxer_review.py's own
-    # analysis_path cell). Loading the real ~28MB/51,596-entry file takes
-    # about 1.5s; this cell only re-runs on a NEW file selection, never on
-    # a headword lookup below, so repeated lookups against the same file
-    # pay that cost exactly once, not per lookup.
-    lexicon_path = lexicon_file_browser.path(index=0)
+def _(LEWIS_SHORT_URL, mo):
+    # Prefilled with the dictionary's own published, stable location
+    # (LEWIS_SHORT_URL -- see arsgrammatica/lewis_short.py's own module
+    # docstring) but editable, for a mirror or alternate copy sharing the
+    # same file shape. Only consulted when input_source.value ==
+    # "Download from URL" -- see the lexicon cell below.
+    lexicon_url = mo.ui.text(value=LEWIS_SHORT_URL, full_width=True, label="*Lexicon URL*:")
+    return (lexicon_url,)
+
+
+@app.cell
+def _(lexicon_url, mo):
+    # A run_button, not a reactive fetch-on-every-keystroke: downloading
+    # the real ~28MB/51,596-entry file over HTTP (read_lewis_short_from_url()'s
+    # own 60s default timeout) is far too expensive to trigger on every
+    # character typed into lexicon_url above. Same convention
+    # latin_syntaxer_ctsdata.py's own analyze_button uses: .value is True
+    # for exactly the one reactive cycle triggered by a click; a NEW
+    # instance (value reset to False) is created whenever lexicon_url's
+    # own text changes, so editing the URL always requires a fresh,
+    # deliberate click rather than silently reusing a previous one.
+    download_button = mo.ui.run_button(
+        label="Download",
+        disabled=not lexicon_url.value.strip(),
+    )
+    return (download_button,)
+
+
+@app.cell
+def _(LewisShortLexicon, download_button, input_source, lexicon_file_browser, lexicon_url):
+    # Two independent loading paths, chosen by input_source's own radio
+    # above -- a local file (lexicon_file_browser, the default) or a fresh
+    # HTTP download (lexicon_url + download_button). Only one ever runs.
+    # The local-file path re-triggers this cell on every NEW selection,
+    # same convention every other file_browser-driven notebook in this
+    # codebase uses (see e.g. latin_syntaxer_review.py's own analysis_path
+    # cell); the URL path only runs on an actual Download click
+    # (download_button.value is True for exactly that one reactive cycle
+    # -- see that widget's own definition above), never on a keystroke in
+    # lexicon_url or an unrelated reactive rerun elsewhere in the
+    # notebook. Either way, loading the real ~28MB/51,596-entry lexicon
+    # takes about 1.5s locally (or however long the download itself takes,
+    # remotely) -- this cell only re-runs when its own trigger fires,
+    # never on a headword lookup below, so repeated lookups against the
+    # same lexicon pay that cost exactly once, not per lookup.
     lexicon = None
     lexicon_error = None
-    if lexicon_path is not None:
-        try:
-            lexicon = LewisShortLexicon.from_file(str(lexicon_path))
-        except (ValueError, OSError) as e:
-            lexicon_error = str(e)
+    if input_source.value == "Download from URL":
+        if download_button.value and lexicon_url.value.strip():
+            try:
+                lexicon = LewisShortLexicon.from_url(lexicon_url.value)
+            except (ValueError, OSError) as e:
+                lexicon_error = str(e)
+    else:
+        lexicon_path = lexicon_file_browser.path(index=0)
+        if lexicon_path is not None:
+            try:
+                lexicon = LewisShortLexicon.from_file(str(lexicon_path))
+            except (ValueError, OSError) as e:
+                lexicon_error = str(e)
     return lexicon, lexicon_error
 
 
 @app.cell
 def _(mo):
-    # Freeform single-headword entry -- mirrors latin_syntaxer_workflow.py's
+    # Freeform single-headword entry -- mirrors latin_syntaxer_textinput.py's
     # own mo.ui.text() inputs (urnbase/citation_context).
     headword_input = mo.ui.text(
         value="",
@@ -277,9 +352,9 @@ def _():
 
     sys.path.insert(0, str(Path(__file__).parent.parent))
 
-    from arsgrammatica import LewisShortLexicon
+    from arsgrammatica import LEWIS_SHORT_URL, LewisShortLexicon
 
-    return LewisShortLexicon, Path
+    return LEWIS_SHORT_URL, LewisShortLexicon, Path
 
 
 if __name__ == "__main__":

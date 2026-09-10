@@ -144,6 +144,36 @@ def test_analyze_with_retry_retries_once_on_missing_ids_then_succeeds():
     assert [tok.id for tok in result.tokengraph] == [e["id"] for e in full_tokengraph]
 
 
+def test_analyze_with_retry_default_max_retries_survives_two_doublings():
+    """Real, reproducible case: a sentence whose completion needed TWO
+    budget doublings, not just one, because its `reasoning` field came
+    back noticeably longer on one call than another for the exact same
+    short sentence -- see analyze_with_retry()'s own `max_retries`
+    docstring note and DEFAULT_CEILING's comment for the incident this
+    guards against. With the OLD default (max_retries=1), this would have
+    exhausted its one retry after the second still-truncated attempt and
+    returned an incomplete result (or raised) -- deliberately not passing
+    max_retries here, so this exercises whatever the module's actual
+    default is, not a hand-picked value that happens to work."""
+    example = _example("unit_verb_hercules_cum")
+    full_tokengraph = example.canned_answer["tokengraph"]
+    tokens = tokens_from_canned_answer(example.canned_answer)
+
+    truncated_once = copy.deepcopy(example.canned_answer)
+    truncated_once["tokengraph"] = full_tokengraph[: len(full_tokengraph) // 3]
+    truncated_twice = copy.deepcopy(example.canned_answer)
+    truncated_twice["tokengraph"] = full_tokengraph[: 2 * len(full_tokengraph) // 3]
+
+    dspy.configure(lm=DummyLM([truncated_once, truncated_twice, example.canned_answer]))
+
+    with pytest.warns(UserWarning, match="missing"):
+        result = analyze_with_retry(example.passage, tokens)
+
+    # The complete, THIRD answer -- only reachable via two retries, i.e.
+    # only possible if the default max_retries is at least 2.
+    assert [tok.id for tok in result.tokengraph] == [e["id"] for e in full_tokengraph]
+
+
 def test_analyze_with_retry_gives_up_after_max_retries_and_returns_incomplete_result():
     example = _example("unit_verb_hercules_cum")
     full_tokengraph = example.canned_answer["tokengraph"]
@@ -249,6 +279,66 @@ def test_analyze_with_retry_retries_once_on_malformed_non_truncated_output_then_
     assert calls[0]["max_tokens"] == calls[1]["max_tokens"]
     assert "cache" not in calls[0]
     assert calls[1]["cache"] is False
+
+
+def test_analyze_with_retry_grows_budget_on_truncation_even_if_finish_reason_is_wrong(monkeypatch):
+    """Real bug report: a call genuinely cut off mid-JSON by max_tokens,
+    against a provider/proxy that doesn't forward litellm's own
+    finish_reason="length" faithfully -- `_finish_reason_was_length()`
+    alone would misreport this as "not a truncation" and retry at the
+    SAME (still too small) budget, reaching the identical failure again
+    and then raising once max_retries is exhausted, even though the
+    actual fix (a bigger budget) was available the whole time.
+
+    `_looks_truncated()`'s bracket/brace-balance heuristic is what catches
+    this case even when finish_reason doesn't: the raw response text below
+    is cut off mid-string, with one more '{' than '}' and one more '['
+    than ']' -- unlike the well-terminated-but-malformed fake response in
+    test_analyze_with_retry_retries_once_on_malformed_non_truncated_output_then_succeeds
+    above, whose brackets balance despite being schema-invalid."""
+    example = _example("unit_verb_hercules_cum")
+    tokens = tokens_from_canned_answer(example.canned_answer)
+
+    good_result = dspy.Prediction(
+        reasoning="fine",
+        verbalunits=[],
+        tokengraph=[dspy.Prediction(**e) for e in example.canned_answer["tokengraph"]],
+    )
+
+    truncated_raw_response = (
+        '{"reasoning": "...", "verbalunits": [{"id": "t1"}], '
+        '"tokengraph": [{"id": "t0", "lemma": "quin", "relatedtoken1": "t1", '
+        '"relationship1": "'
+    )
+
+    calls = []
+
+    def fake_analyze(*, passage, tokens, config):
+        calls.append(dict(config))
+        if len(calls) == 1:
+            raise AdapterParseError(
+                adapter_name="ChatAdapter",
+                signature=SentenceAnalysis,
+                lm_response=truncated_raw_response,
+                message="Failed to parse field tokengraph: unterminated string",
+            )
+        return good_result
+
+    monkeypatch.setattr("arsgrammatica.token_budget.analyze", fake_analyze)
+    # Simulates the misreporting provider/proxy: even though this call was
+    # genuinely truncated, finish_reason doesn't say so.
+    monkeypatch.setattr("arsgrammatica.token_budget._finish_reason_was_length", lambda: False)
+
+    with pytest.warns(UserWarning, match="truncated"):
+        result = analyze_with_retry(example.passage, tokens, max_retries=1)
+
+    assert result is good_result
+    assert len(calls) == 2
+    # The budget actually grew on the retry, rather than being replayed
+    # unchanged -- this is the fix: growing is what a real truncation
+    # needs, and _looks_truncated() supplies that signal even when
+    # finish_reason doesn't.
+    assert calls[1]["max_tokens"] > calls[0]["max_tokens"]
 
 
 def test_analyze_with_retry_gives_up_after_max_retries_on_persistent_malformed_output(monkeypatch):

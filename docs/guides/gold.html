@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Reference – arsgrammatica</title>
+<title>How to add a gold example – arsgrammatica</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -22,6 +22,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -105,11 +140,11 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Tutorials</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../guides/index.html"> 
+    <a class="nav-link active" href="../guides/index.html" aria-current="page"> 
 <span class="menu-text">Guides</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="../reference/index.html" aria-current="page"> 
+    <a class="nav-link" href="../reference/index.html"> 
 <span class="menu-text">Reference</span></a>
   </li>  
 </ul>
@@ -146,7 +181,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/index.html">Reference</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guides/gold.html">How to add a gold example</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -160,39 +195,103 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/index.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Reference</span></a>
+  <a href="../guides/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Recipes</span></a>
   </div>
 </li>
         <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="https://neelsmith.github.io/arsgrammatica/arsgrammatica-api-docs.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">API docs</span></a>
+  <a href="../guides/install.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Installing <code>arsgrammatica</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/relationshipvalues.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Values for syntactic relationships</span></a>
+  <a href="../guides/analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Analyzing syntax with a language model</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/extendingscheme.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Extending the syntax scheme</span></a>
+  <a href="../guides/saving-loading.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Saving and loading analyses</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/outputformats.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Format of delimited-text serializations</span></a>
+  <a href="../guides/batch-texts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Utilities to simplify analyzing a corpus</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/texthiliting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Highlighting syntactic analysis in HTML</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/testing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Running tests with <code>pytest</code></span></a>
+  <a href="../guides/mermaid.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Visualizing syntax graphs with Mermaid</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/graphmetrics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Characterizing syntax analyses with graph metrics</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/aat.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Building an AAT (Agent-Action-Target) graph</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/optimizing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Optimizing with GEPA</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/development.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Improving <code>arsgrammatica</code> by reading Latin</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/gold.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">How to add a gold example</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/bakeoff.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Comparing models with <code>model_bakeoff.py</code></span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/tokenizing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Tokenizing a source file without full syntax analysis</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/budgetingtokens.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Estimating and enforcing a <code>max_tokens</code> budget</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../guides/managing_prompt_size.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Keeping requests to an LM at a manageable size</span></a>
   </div>
 </li>
     </ul>
@@ -200,15 +299,23 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#harvesting-from-a-successful-analysis" id="toc-harvesting-from-a-successful-analysis" class="nav-link active" data-scroll-target="#harvesting-from-a-successful-analysis">Harvesting from a successful analysis</a></li>
+  <li><a href="#hand-writing-a-goldexample" id="toc-hand-writing-a-goldexample" class="nav-link" data-scroll-target="#hand-writing-a-goldexample">Hand writing a <code>GoldExample</code></a></li>
+  <li><a href="#before-you-add-it" id="toc-before-you-add-it" class="nav-link" data-scroll-target="#before-you-add-it">Before you add it</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Reference</h1>
+<h1 class="title">How to add a gold example</h1>
 </div>
 
 
@@ -225,15 +332,42 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<p>A fundamental part of the DSPy development are the <code>GoldExample</code> pairings of a Latin <code>passage</code> with a hand-verified <code>canned_answer</code>. These are defined in <code>tests/fixtures/gold_examples.py</code>. Every <code>GoldExample</code> entry lives in the single <code>GOLD_EXAMPLES</code> list at the bottom of that file. You can add examples there that you have either hand-written, or harvested from successful analyses.</p>
+<section id="harvesting-from-a-successful-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="harvesting-from-a-successful-analysis">Harvesting from a successful analysis</h2>
+<p>If you have analyzed a difficult construction that you want to add to the core training sets, you can save the analysis and use the <code>analysis_to_gold_example.py</code> script to compose the Python you need.</p>
+<p>Pass it two arguments: the analysis file, and an identifying label for the analysis. The identifying label is a short, unique, descriptive id (e.g.&nbsp;<code>cicero_proarchia_exordium</code>) that serves as the <code>pytest</code> id for every test parametrized over <code>GOLD_EXAMPLES</code>. Include the <code>--tags</code> parameter to name constructions the example is meant to exercise, for a human skimming the file. Run <code>analysis_to_gold_example -h</code> to see all the optional parameters the script accepts.</p>
+<p>Run it like this:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/analysis_to_gold_example.py analysisfile.cex cicero_proarchia_exordium <span class="at">--tags</span> <span class="st">"complex subordination"</span> </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This prints to standard output a string in two parts . The first part is a Python dictionary, which in this example will be named <code>_CICERO_PROARCHIA_EXORDIUM_ANSWER</code>. The dictionary contains the complete analysis data (the model’s reasoning, the verbal expressions table, and the token graph).</p>
+<p>The second part is a <code>GoldExample</code> object identifying the labelled analysis as the correct <code>canned_answer</code> for the passage. In our example, it would look like this:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>GoldExample(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    slug<span class="op">=</span><span class="st">"cicero_proarchia_exordium"</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    passage<span class="op">=</span><span class="st">"ac ne quis a nobis hoc ita dici forte miretur, quod alia quaedam in hoc facultas sit ingeni neque haec dicendi ratio aut disciplina, ne nos quidem huic uni studio penitus umquam dediti fuimus."</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    tags<span class="op">=</span>[<span class="st">"complex subordination"</span>],</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    canned_answer<span class="op">=</span>_CICERO_PROARCHIA_EXORDIUM_ANSWER,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>),</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>In <code>tests/fixtures/gold_examples.py</code>, you can paste the dict above the list beginning <code>GOLD_EXAMPLES = [</code> and place the new <code>GoldExample(...)</code> entry inside the list.</p>
+<p>Be sure to reeview the <code>reasoning</code> property of dict you’ve pasted in. It’s the model’s own recorded reasoning, and not guaranteed to read the way you would write it by hand.</p>
+</section>
+<section id="hand-writing-a-goldexample" class="level2">
+<h2 class="anchored" data-anchor-id="hand-writing-a-goldexample">Hand writing a <code>GoldExample</code></h2>
+<p>If you want to add a small, deliberately-constructed example targeting one specific construction, refer to the existing examples and:</p>
+<ol type="1">
+<li>Write a module-level <code>_SOME_ANSWER = {...}</code> dict: <code>reasoning</code> (a real explanation, not a placeholder), <code>verbalunits</code> (one entry per verbal expression – <code>id</code>/<code>syntactic_type</code>/<code>semantic_type</code>), <code>tokengraph</code> (one entry per token – <code>id</code>/<code>token</code>/<code>tokentype</code>, plus whichever of <code>lemma</code>/<code>verbalunitid</code>/<code>relatedtoken1</code>/<code>relationship1</code>/<code>relatedtoken2</code>/<code>relationship2</code> actually apply; omit a field entirely rather than setting it to <code>None</code>, matching every existing entry). See <code>arsgrammatica/models.py</code>’s <code>TokenAnalysis</code>/<code>VerbalExpression</code> and <code>syntax_model.md</code> for what’s allowed, and <code>notes/relationship_labels.md</code> for the relation-label catalog.</li>
+<li>Add a <code>GoldExample(slug=..., passage=..., tags=[...], canned_answer=_SOME_ANSWER)</code> entry to <code>GOLD_EXAMPLES</code>, referencing that dict.</li>
+</ol>
+</section>
+<section id="before-you-add-it" class="level2">
+<h2 class="anchored" data-anchor-id="before-you-add-it">Before you add it</h2>
 <ul>
-<li><a href="../arsgrammatica-api-docs.html">API docs</a></li>
-<li>list of all <a href="../reference/relationshipvalues.html">values used for relationships</a> in syntax graph</li>
-<li><a href="../reference/extendingscheme.html">extending the syntax scheme</a></li>
-<li>format of <a href="../reference/outputformats.html">delimited-text serialization</a></li>
-<li><a href="../reference/testing.html">testing with <code>pytest</code></a></li>
+<li>Run <code>pytest -k &lt;slug&gt;</code>: <code>test_gold_examples.py</code> checks <code>validate()</code> and a clean Mermaid render for every fixture automatically, no test-file changes needed.</li>
+<li><code>test_coverage.py</code> reports which relation labels / verbal-expression types / tokentypes still have no example – worth a look if you’re deliberately filling a gap.</li>
 </ul>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

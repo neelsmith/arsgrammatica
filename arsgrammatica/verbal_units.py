@@ -328,7 +328,7 @@ def find_governing_verbal_expression(
     reaching another anchor (a malformed or genuinely disconnected verbal
     expression) -- either way, "no governing verbal expression" is the
     right answer for a caller that just wants "is this subordinate to
-    something, and if so what" (e.g. aat_bridge.py's `attgraph()`,
+    something, and if so what" (e.g. aat_bridge.py's `aatgraph()`,
     building an AAT action node's `related_node`, where both cases alike
     mean `related_node = None`). A caller that needs to tell those two
     apart, or wants a warning when the chase genuinely fails, should use
@@ -453,7 +453,7 @@ def compute_subordination_depths(
     # The chase itself -- following relatedtoken1/relatedtoken2 forward
     # until another anchor is reached -- now lives in
     # find_governing_verbal_expression(), shared with aat_bridge.py's
-    # attgraph(). Computed once, up front, for every anchor; this is a
+    # aatgraph(). Computed once, up front, for every anchor; this is a
     # pure function of `tokengraph` with no dependency on `depths`'
     # memoization state, so precomputing it here for all anchors (instead
     # of the original code's lazy per-call `parent_of()`) changes nothing
@@ -504,11 +504,11 @@ def compute_subordination_depths(
 def compute_aat_depths(tokengraph: List[TokenAnalysis]) -> Dict[str, int]:
     """Compute each verbal expression's depth the way it would come out if
     you built an `aat` package AATGraph from this same `tokengraph` (via
-    `aat_bridge.attgraph()`) and walked each action node's own
+    `aat_bridge.aatgraph()`) and walked each action node's own
     `related_node` chain to the top -- an independent action (no governing
     action) is depth 0, one it governs is depth 1, and so on -- WITHOUT
     actually building that graph or depending on `aat` being installed at
-    all: `attgraph()` populates every action's `related_node` from this
+    all: `aatgraph()` populates every action's `related_node` from this
     same module's `find_governing_verbal_expression()`, so walking that
     map directly here reproduces the identical numbers `graph.
     governing_action()` chains would.
@@ -584,6 +584,112 @@ def compute_aat_depths(tokengraph: List[TokenAnalysis]) -> Dict[str, int]:
         depth_of(anchor_id)
 
     return depths
+
+
+def max_aat_depth(
+    tokengraph: List[TokenAnalysis],
+    depths: Optional[Dict[str, int]] = None,
+) -> Optional[int]:
+    """Return the deepest AAT depth reached anywhere in `tokengraph` -- the
+    highest value `compute_aat_depths()` assigns to any verbal-expression
+    anchor. Root/independent actions are depth 0, so this is also the upper
+    end of the valid `aat_depth` range for `mermaid.tokengraph_to_mermaid()`
+    and `dot.tokengraph_to_dot()`'s own `aat_depth` filtering parameter (see
+    each function's own docstring): 0, root actions only, through this
+    function's return value, everything.
+
+    Pass `depths` (`compute_aat_depths()`'s own return value) if the caller
+    already computed it, to avoid re-deriving it here; otherwise it's
+    computed internally.
+
+    Unlike `max_subordination_depth()` (which ignores any anchor whose
+    depth came back unresolved), every anchor `compute_aat_depths()` visits
+    already has a plain `int` -- that function never leaves one `None` --
+    so there's no "unresolved" case to filter out here. Returns `None`
+    only when `tokengraph` has no verbal expressions at all (an empty
+    passage, or one with none of the three constructions syntax_model.md
+    counts as one); otherwise the max of every anchor's depth.
+    """
+    if depths is None:
+        depths = compute_aat_depths(tokengraph)
+
+    if not depths:
+        return None
+    return max(depths.values())
+
+
+def filter_tokengraph_by_aat_depth(
+    tokengraph: List[TokenAnalysis],
+    aat_depth: Optional[int],
+    assignment: Optional[Dict[str, Optional[str]]] = None,
+    depths: Optional[Dict[str, int]] = None,
+) -> List[TokenAnalysis]:
+    """Return a NEW tokengraph containing only the tokens of `tokengraph`
+    whose own verbal expression is at or within `aat_depth` -- the same
+    cutoff `mermaid.tokengraph_to_mermaid()`'s and `dot.tokengraph_to_dot()`'s
+    own `aat_depth` parameter applies when deciding which nodes to draw,
+    but returned here as an actual filtered tokengraph (a plain list of
+    TokenAnalysis) rather than a set of node ids to include -- for a
+    caller that wants to shrink the ANALYSIS itself before doing something
+    else with it, rather than just limiting a diagram's own node set. The
+    motivating case: `latin_syntaxer_review.py`'s AAT (Agent-Action-Target)
+    graph display, which needs an actual depth-limited `tokengraph` (and
+    its matching `verbalunits`) to pass to `aat_bridge.aatgraph()`, not a
+    node-inclusion set for a diagram it isn't drawing.
+
+    Every token takes the AAT depth of the verbal unit it belongs to
+    (`assign_verbal_units()`), exactly the same way `tokengraph_to_mermaid()`
+    /`tokengraph_to_dot()`'s own `aat_depth` filtering groups tokens -- so a
+    whole clause's subject, object, and other ordinary dependents are kept
+    or dropped together with their own governing verb; a token belonging to
+    no verbal unit at all defaults to depth 0 (kept), the same "can't
+    determine, default to root level" fallback used throughout this
+    codebase. Unlike those two functions, punctuation tokens are NOT
+    unconditionally dropped here -- there is no diagram node set to shrink,
+    so only the depth cutoff itself matters, and a punctuation token whose
+    own resolved depth is within the cutoff is kept.
+
+    This is safe to feed straight into `aat_bridge.aatgraph()` (via
+    `find_governing_verbal_expression()`, which it also uses internally):
+    for every documented case `compute_subordination_depths()`'s own
+    docstring lists (unit verb, direct quote/aside/indirect statement,
+    circumstantial participle), whichever intermediate, non-anchor token a
+    governing-expression chase has to pass through to reach a KEPT verbal
+    expression's own governor is itself assigned (by `assign_verbal_units()`)
+    to that SAME verbal expression's own unit -- so it shares that
+    expression's depth and is filtered in or out right along with it. A
+    verbal expression that survives this filter therefore never has its own
+    governing-chain token filtered out from under it.
+
+    Returns a new list, preserving `tokengraph`'s own original order; pass
+    `aat_depth=None` to get back an equivalent copy of `tokengraph`
+    unchanged (no filtering at all). A negative `aat_depth` raises
+    `ValueError`, matching `tokengraph_to_mermaid()`'s/`tokengraph_to_dot()`'s
+    own guard. `assign_verbal_units()`'s own return value is monotonic with
+    depth here in the sense described above, not merely by coincidence --
+    see this module's own docstring for the resolution rules that make it
+    so.
+
+    Pass `assignment` (`assign_verbal_units()`'s own return value) and/or
+    `depths` (`compute_aat_depths()`'s own return value) if the caller
+    already computed either, to avoid re-deriving them here.
+    """
+    if aat_depth is not None and aat_depth < 0:
+        raise ValueError(f"aat_depth must be >= 0 (root clauses only), got {aat_depth!r}")
+
+    if aat_depth is None:
+        return list(tokengraph)
+
+    if assignment is None:
+        assignment = assign_verbal_units(tokengraph)
+    if depths is None:
+        depths = compute_aat_depths(tokengraph)
+
+    def _token_depth(tok: TokenAnalysis) -> int:
+        unit_id = assignment.get(tok.id)
+        return depths.get(unit_id, 0) if unit_id is not None else 0
+
+    return [tok for tok in tokengraph if _token_depth(tok) <= aat_depth]
 
 
 def max_subordination_depth(

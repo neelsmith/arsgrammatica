@@ -545,7 +545,11 @@ def _(finaltokens, mo, tokengraph_to_html):
 
 @app.cell
 def _(finaltokens, maxdepth, mo, tokengraph_to_depth_html):
-    indenthtml, indentwarnings = tokengraph_to_depth_html(finaltokens,depth=maxdepth.value)
+    # Guard against maxdepth being None (nothing analyzed yet) rather than
+    # calling .value unconditionally -- same guard latin_syntaxer_review.py
+    # and latin_syntaxer_tokenized.py use for the same reason.
+    depth = maxdepth.value if maxdepth is not None else None
+    indenthtml, indentwarnings = tokengraph_to_depth_html(finaltokens, depth=depth)
     indentpsg = mo.Html("<b><i>Indented by verbal unit</i></b>: " + indenthtml)
     return (indentpsg,)
 
