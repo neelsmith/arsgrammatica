@@ -677,7 +677,7 @@ came from.</p>
                             </div>
                             <div id="Token.citation" class="classattr">
                                 <div class="attr variable">
-            <span class="name">citation</span><span class="annotation">: Optional[str]</span>        =
+            <span class="name">citation</span><span class="annotation">: str | None</span>        =
 <span class="default_value">None</span>
 
         
@@ -1147,7 +1147,7 @@ the id-naming convention.</p>
                             </div>
                             <div id="TokenAnalysis.token" class="classattr">
                                 <div class="attr variable">
-            <span class="name">token</span><span class="annotation">: Optional[str]</span>        =
+            <span class="name">token</span><span class="annotation">: str | None</span>        =
 <span class="default_value">None</span>
 
         
@@ -1175,7 +1175,7 @@ the id-naming convention.</p>
                             </div>
                             <div id="TokenAnalysis.lemma" class="classattr">
                                 <div class="attr variable">
-            <span class="name">lemma</span><span class="annotation">: Optional[str]</span>        =
+            <span class="name">lemma</span><span class="annotation">: str | None</span>        =
 <span class="default_value">None</span>
 
         
@@ -1189,7 +1189,7 @@ the id-naming convention.</p>
                             </div>
                             <div id="TokenAnalysis.verbalunitid" class="classattr">
                                 <div class="attr variable">
-            <span class="name">verbalunitid</span><span class="annotation">: Optional[str]</span>        =
+            <span class="name">verbalunitid</span><span class="annotation">: str | None</span>        =
 <span class="default_value">None</span>
 
         
@@ -1203,7 +1203,7 @@ the id-naming convention.</p>
                             </div>
                             <div id="TokenAnalysis.relatedtoken1" class="classattr">
                                 <div class="attr variable">
-            <span class="name">relatedtoken1</span><span class="annotation">: Optional[str]</span>        =
+            <span class="name">relatedtoken1</span><span class="annotation">: str | None</span>        =
 <span class="default_value">None</span>
 
         
@@ -1217,7 +1217,7 @@ the id-naming convention.</p>
                             </div>
                             <div id="TokenAnalysis.relationship1" class="classattr">
                                 <div class="attr variable">
-            <span class="name">relationship1</span><span class="annotation">: Optional[Literal[&#39;unit verb&#39;, &#39;subordinating conjunction&#39;, &#39;relative pronoun&#39;, &#39;subject&#39;, &#39;direct object&#39;, &#39;predicate&#39;, &#39;agent&#39;, &#39;auxiliary&#39;, &#39;object of preposition&#39;, &#39;adverbial&#39;, &#39;attributive&#39;, &#39;adjectival&#39;, &#39;genitive&#39;, &#39;dative&#39;, &#39;ablative&#39;, &#39;accusative&#39;, &#39;vocative&#39;, &#39;direct quote&#39;, &#39;aside&#39;, &#39;indirect statement&#39;, &#39;circumstantial participle&#39;, &#39;ablative absolute&#39;, &#39;coordinating conjunction&#39;, &#39;apposition&#39;, &#39;complementary infinitive&#39;, &#39;praenomen&#39;]]</span>        =
+            <span class="name">relationship1</span><span class="annotation">: Literal[&#39;unit verb&#39;, &#39;subordinating conjunction&#39;, &#39;relative pronoun&#39;, &#39;subject&#39;, &#39;direct object&#39;, &#39;predicate&#39;, &#39;agent&#39;, &#39;auxiliary&#39;, &#39;object of preposition&#39;, &#39;adverbial&#39;, &#39;attributive&#39;, &#39;adjectival&#39;, &#39;genitive&#39;, &#39;dative&#39;, &#39;ablative&#39;, &#39;accusative&#39;, &#39;vocative&#39;, &#39;direct quote&#39;, &#39;aside&#39;, &#39;indirect statement&#39;, &#39;circumstantial participle&#39;, &#39;ablative absolute&#39;, &#39;coordinating conjunction&#39;, &#39;apposition&#39;, &#39;complementary infinitive&#39;, &#39;praenomen&#39;] | None</span>        =
 <span class="default_value">None</span>
 
         
@@ -1231,7 +1231,7 @@ the id-naming convention.</p>
                             </div>
                             <div id="TokenAnalysis.relatedtoken2" class="classattr">
                                 <div class="attr variable">
-            <span class="name">relatedtoken2</span><span class="annotation">: Optional[str]</span>        =
+            <span class="name">relatedtoken2</span><span class="annotation">: str | None</span>        =
 <span class="default_value">None</span>
 
         
@@ -1245,7 +1245,7 @@ the id-naming convention.</p>
                             </div>
                             <div id="TokenAnalysis.relationship2" class="classattr">
                                 <div class="attr variable">
-            <span class="name">relationship2</span><span class="annotation">: Optional[Literal[&#39;unit verb&#39;, &#39;subordinating conjunction&#39;, &#39;relative pronoun&#39;, &#39;subject&#39;, &#39;direct object&#39;, &#39;predicate&#39;, &#39;agent&#39;, &#39;auxiliary&#39;, &#39;object of preposition&#39;, &#39;adverbial&#39;, &#39;attributive&#39;, &#39;adjectival&#39;, &#39;genitive&#39;, &#39;dative&#39;, &#39;ablative&#39;, &#39;accusative&#39;, &#39;vocative&#39;, &#39;direct quote&#39;, &#39;aside&#39;, &#39;indirect statement&#39;, &#39;circumstantial participle&#39;, &#39;ablative absolute&#39;, &#39;coordinating conjunction&#39;, &#39;apposition&#39;, &#39;complementary infinitive&#39;, &#39;praenomen&#39;]]</span>        =
+            <span class="name">relationship2</span><span class="annotation">: Literal[&#39;unit verb&#39;, &#39;subordinating conjunction&#39;, &#39;relative pronoun&#39;, &#39;subject&#39;, &#39;direct object&#39;, &#39;predicate&#39;, &#39;agent&#39;, &#39;auxiliary&#39;, &#39;object of preposition&#39;, &#39;adverbial&#39;, &#39;attributive&#39;, &#39;adjectival&#39;, &#39;genitive&#39;, &#39;dative&#39;, &#39;ablative&#39;, &#39;accusative&#39;, &#39;vocative&#39;, &#39;direct quote&#39;, &#39;aside&#39;, &#39;indirect statement&#39;, &#39;circumstantial participle&#39;, &#39;ablative absolute&#39;, &#39;coordinating conjunction&#39;, &#39;apposition&#39;, &#39;complementary infinitive&#39;, &#39;praenomen&#39;] | None</span>        =
 <span class="default_value">None</span>
 
         
@@ -1276,7 +1276,7 @@ the id-naming convention.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">tokengraph_to_mermaid</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">orientation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;BT&#39;</span>,</span><span class="param">	<span class="n">color_by_verbal_unit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>,</span><span class="param">	<span class="n">rank_by_depth</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>,</span><span class="param">	<span class="n">aat_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>:</span></span>
+        <span class="name">tokengraph_to_mermaid</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">orientation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;BT&#39;</span>,</span><span class="param">	<span class="n">color_by_verbal_unit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>,</span><span class="param">	<span class="n">rank_by_depth</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>,</span><span class="param">	<span class="n">aat_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>:</span></span>
 
                 <label class="view-source-button" for="tokengraph_to_mermaid-view-source"><span>View Source</span></label>
 
@@ -1679,7 +1679,7 @@ logic.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">save_mermaid</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">path</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">orientation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;BT&#39;</span>,</span><span class="param">	<span class="n">color_by_verbal_unit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>,</span><span class="param">	<span class="n">rank_by_depth</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>,</span><span class="param">	<span class="n">aat_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+        <span class="name">save_mermaid</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">path</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">orientation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;BT&#39;</span>,</span><span class="param">	<span class="n">color_by_verbal_unit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>,</span><span class="param">	<span class="n">rank_by_depth</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>,</span><span class="param">	<span class="n">aat_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
 
                 <label class="view-source-button" for="save_mermaid-view-source"><span>View Source</span></label>
 
@@ -1719,7 +1719,7 @@ warnings from tokengraph_to_mermaid.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">tokengraph_to_dot</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">orientation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;BT&#39;</span>,</span><span class="param">	<span class="n">color_by_verbal_unit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>,</span><span class="param">	<span class="n">rank_by_depth</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>,</span><span class="param">	<span class="n">depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">aat_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>:</span></span>
+        <span class="name">tokengraph_to_dot</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">orientation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;BT&#39;</span>,</span><span class="param">	<span class="n">color_by_verbal_unit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>,</span><span class="param">	<span class="n">rank_by_depth</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>,</span><span class="param">	<span class="n">depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">aat_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>:</span></span>
 
                 <label class="view-source-button" for="tokengraph_to_dot-view-source"><span>View Source</span></label>
 
@@ -2200,7 +2200,7 @@ included here either).</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">max_graph_depth</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>:</span></span>
+        <span class="name">max_graph_depth</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span>:</span></span>
 
                 <label class="view-source-button" for="max_graph_depth-view-source"><span>View Source</span></label>
 
@@ -2233,7 +2233,7 @@ an empty tokengraph, or one with only punctuation.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">save_dot</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">path</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">orientation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;BT&#39;</span>,</span><span class="param">	<span class="n">color_by_verbal_unit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>,</span><span class="param">	<span class="n">rank_by_depth</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>,</span><span class="param">	<span class="n">depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">aat_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+        <span class="name">save_dot</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">path</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">orientation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;BT&#39;</span>,</span><span class="param">	<span class="n">color_by_verbal_unit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>,</span><span class="param">	<span class="n">rank_by_depth</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>,</span><span class="param">	<span class="n">depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">aat_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
 
                 <label class="view-source-button" for="save_dot-view-source"><span>View Source</span></label>
 
@@ -2381,7 +2381,7 @@ structure the sentence leans on, not just how much of it there is.</li>
                             <div id="GraphMetrics.__init__" class="classattr">
                                 <div class="attr function">
             
-        <span class="name">GraphMetrics</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">node_count</span><span class="p">:</span> <span class="nb">int</span>,</span><span class="param">	<span class="n">edge_count</span><span class="p">:</span> <span class="nb">int</span>,</span><span class="param">	<span class="n">cyclomatic_number</span><span class="p">:</span> <span class="nb">int</span>,</span><span class="param">	<span class="n">is_acyclic</span><span class="p">:</span> <span class="nb">bool</span>,</span><span class="param">	<span class="n">longest_chain</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>,</span><span class="param">	<span class="n">leaf_count</span><span class="p">:</span> <span class="nb">int</span>,</span><span class="param">	<span class="n">leaf_fraction</span><span class="p">:</span> <span class="nb">float</span>,</span><span class="param">	<span class="n">mean_dependents</span><span class="p">:</span> <span class="nb">float</span>,</span><span class="param">	<span class="n">max_dependents</span><span class="p">:</span> <span class="nb">int</span>,</span><span class="param">	<span class="n">relationship_counts</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></span>)</span>
+        <span class="name">GraphMetrics</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">node_count</span><span class="p">:</span> <span class="nb">int</span>,</span><span class="param">	<span class="n">edge_count</span><span class="p">:</span> <span class="nb">int</span>,</span><span class="param">	<span class="n">cyclomatic_number</span><span class="p">:</span> <span class="nb">int</span>,</span><span class="param">	<span class="n">is_acyclic</span><span class="p">:</span> <span class="nb">bool</span>,</span><span class="param">	<span class="n">longest_chain</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">leaf_count</span><span class="p">:</span> <span class="nb">int</span>,</span><span class="param">	<span class="n">leaf_fraction</span><span class="p">:</span> <span class="nb">float</span>,</span><span class="param">	<span class="n">mean_dependents</span><span class="p">:</span> <span class="nb">float</span>,</span><span class="param">	<span class="n">max_dependents</span><span class="p">:</span> <span class="nb">int</span>,</span><span class="param">	<span class="n">relationship_counts</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></span>)</span>
 
         
     </div>
@@ -2446,7 +2446,7 @@ structure the sentence leans on, not just how much of it there is.</li>
                             </div>
                             <div id="GraphMetrics.longest_chain" class="classattr">
                                 <div class="attr variable">
-            <span class="name">longest_chain</span><span class="annotation">: Optional[int]</span>
+            <span class="name">longest_chain</span><span class="annotation">: int | None</span>
 
         
     </div>
@@ -2686,7 +2686,7 @@ here assumes.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">assign_verbal_units</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>:</span></span>
+        <span class="name">assign_verbal_units</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>:</span></span>
 
                 <label class="view-source-button" for="assign_verbal_units-view-source"><span>View Source</span></label>
 
@@ -2832,7 +2832,7 @@ itself, and every other resolution is unchanged.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">assign_verbal_unit_colors</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">assignment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">Tuple</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>:</span></span>
+        <span class="name">assign_verbal_unit_colors</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">assignment</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">Tuple</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>:</span></span>
 
                 <label class="view-source-button" for="assign_verbal_unit_colors-view-source"><span>View Source</span></label>
 
@@ -3087,7 +3087,7 @@ by this function and keep using the original notion, unchanged.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">compute_subordination_depths</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n">Tuple</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>:</span></span>
+        <span class="name">compute_subordination_depths</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n">Tuple</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>:</span></span>
 
                 <label class="view-source-button" for="compute_subordination_depths-view-source"><span>View Source</span></label>
 
@@ -3245,7 +3245,7 @@ warnings-list convention rather than raising.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">filter_tokengraph_by_aat_depth</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">aat_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>,</span><span class="param">	<span class="n">assignment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">depths</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>:</span></span>
+        <span class="name">filter_tokengraph_by_aat_depth</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">aat_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">assignment</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">depths</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>:</span></span>
 
                 <label class="view-source-button" for="filter_tokengraph_by_aat_depth-view-source"><span>View Source</span></label>
 
@@ -3384,7 +3384,7 @@ already computed either, to avoid re-deriving them here.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">find_governing_verbal_expression</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>:</span></span>
+        <span class="name">find_governing_verbal_expression</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>:</span></span>
 
                 <label class="view-source-button" for="find_governing_verbal_expression-view-source"><span>View Source</span></label>
 
@@ -3536,7 +3536,7 @@ statement, circumstantial participle).</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">max_aat_depth</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">depths</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>:</span></span>
+        <span class="name">max_aat_depth</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">depths</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span>:</span></span>
 
                 <label class="view-source-button" for="max_aat_depth-view-source"><span>View Source</span></label>
 
@@ -3603,7 +3603,7 @@ counts as one); otherwise the max of every anchor's depth.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">max_subordination_depth</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">depths</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>:</span></span>
+        <span class="name">max_subordination_depth</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">depths</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span>:</span></span>
 
                 <label class="view-source-button" for="max_subordination_depth-view-source"><span>View Source</span></label>
 
@@ -3914,7 +3914,7 @@ order tokengraph_to_mermaid() and validate() assume).</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">tokengraph_to_html</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+        <span class="name">tokengraph_to_html</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
 
                 <label class="view-source-button" for="tokengraph_to_html-view-source"><span>View Source</span></label>
 
@@ -4191,7 +4191,7 @@ color the surrounding page has set, matching the explicit black
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">tokengraph_to_depth_html</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">indent_em</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span>,</span><span class="param">	<span class="n">depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>:</span></span>
+        <span class="name">tokengraph_to_depth_html</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">indent_em</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span>,</span><span class="param">	<span class="n">depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>:</span></span>
 
                 <label class="view-source-button" for="tokengraph_to_depth_html-view-source"><span>View Source</span></label>
 
@@ -6149,7 +6149,7 @@ write_analyses() were called without a <code><a href="#LMInfo.model">model</a></
                             <div id="LMInfo.__init__" class="classattr">
                                 <div class="attr function">
             
-        <span class="name">LMInfo</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>,</span><span class="param">	<span class="n">context</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>,</span><span class="param">	<span class="n">reasoning</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></span>)</span>
+        <span class="name">LMInfo</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>, </span><span class="param"><span class="n">context</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>, </span><span class="param"><span class="n">reasoning</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span></span>)</span>
 
         
     </div>
@@ -6162,7 +6162,7 @@ write_analyses() were called without a <code><a href="#LMInfo.model">model</a></
                             </div>
                             <div id="LMInfo.model" class="classattr">
                                 <div class="attr variable">
-            <span class="name">model</span><span class="annotation">: Optional[str]</span>
+            <span class="name">model</span><span class="annotation">: str | None</span>
 
         
     </div>
@@ -6175,7 +6175,7 @@ write_analyses() were called without a <code><a href="#LMInfo.model">model</a></
                             </div>
                             <div id="LMInfo.context" class="classattr">
                                 <div class="attr variable">
-            <span class="name">context</span><span class="annotation">: Optional[str]</span>
+            <span class="name">context</span><span class="annotation">: str | None</span>
 
         
     </div>
@@ -6188,7 +6188,7 @@ write_analyses() were called without a <code><a href="#LMInfo.model">model</a></
                             </div>
                             <div id="LMInfo.reasoning" class="classattr">
                                 <div class="attr variable">
-            <span class="name">reasoning</span><span class="annotation">: Optional[str]</span>
+            <span class="name">reasoning</span><span class="annotation">: str | None</span>
 
         
     </div>
@@ -6205,7 +6205,7 @@ write_analyses() were called without a <code><a href="#LMInfo.model">model</a></
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">serialize_analyses</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">sentences</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#Sentence">Sentence</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">verbalunits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#VerbalExpression">VerbalExpression</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>,</span><span class="param">	<span class="o">*</span>,</span><span class="param">	<span class="n">model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">reasoning</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>:</span></span>
+        <span class="name">serialize_analyses</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">sentences</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#Sentence">Sentence</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">verbalunits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#VerbalExpression">VerbalExpression</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>,</span><span class="param">	<span class="o">*</span>,</span><span class="param">	<span class="n">model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">reasoning</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>:</span></span>
 
                 <label class="view-source-button" for="serialize_analyses-view-source"><span>View Source</span></label>
 
@@ -6469,7 +6469,7 @@ with a different number of entries than <code>sentences</code>.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">write_analyses</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">sentences</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#Sentence">Sentence</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">verbalunits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#VerbalExpression">VerbalExpression</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">path</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="o">*</span>,</span><span class="param">	<span class="n">model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">reasoning</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+        <span class="name">write_analyses</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">sentences</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#Sentence">Sentence</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">verbalunits</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#VerbalExpression">VerbalExpression</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">tokengraph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#TokenAnalysis">TokenAnalysis</a></span><span class="p">]</span>,</span><span class="param">	<span class="n">path</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="o">*</span>,</span><span class="param">	<span class="n">model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">reasoning</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
 
                 <label class="view-source-button" for="write_analyses-view-source"><span>View Source</span></label>
 
@@ -7521,7 +7521,7 @@ DEFAULT_CEILING's docstring note).</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">analyze_with_retry</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">passage</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">tokens</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#Token">Token</a></span><span class="p">]</span>,</span><span class="param">	<span class="o">*</span>,</span><span class="param">	<span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span>,</span><span class="param">	<span class="n">growth_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span>,</span><span class="param">	<span class="n">safety_margin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.4</span>,</span><span class="param">	<span class="n">floor</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">256</span>,</span><span class="param">	<span class="n">ceiling</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32000</span>,</span><span class="param">	<span class="n">initial_max_tokens</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">):</span></span>
+        <span class="name">analyze_with_retry</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">passage</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">tokens</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#Token">Token</a></span><span class="p">]</span>,</span><span class="param">	<span class="o">*</span>,</span><span class="param">	<span class="n">max_retries</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span>,</span><span class="param">	<span class="n">growth_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span>,</span><span class="param">	<span class="n">safety_margin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.4</span>,</span><span class="param">	<span class="n">floor</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">256</span>,</span><span class="param">	<span class="n">ceiling</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32000</span>,</span><span class="param">	<span class="n">initial_max_tokens</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">):</span></span>
 
                 <label class="view-source-button" for="analyze_with_retry-view-source"><span>View Source</span></label>
 
@@ -7848,7 +7848,7 @@ is their sum, i.e. <code>len(history)</code>.</p>
                             <div id="LMCostSummary.__init__" class="classattr">
                                 <div class="attr function">
             
-        <span class="name">LMCostSummary</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">total_cost</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>, </span><span class="param"><span class="n">priced_calls</span><span class="p">:</span> <span class="nb">int</span>, </span><span class="param"><span class="n">uncosted_calls</span><span class="p">:</span> <span class="nb">int</span></span>)</span>
+        <span class="name">LMCostSummary</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">total_cost</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span>, </span><span class="param"><span class="n">priced_calls</span><span class="p">:</span> <span class="nb">int</span>, </span><span class="param"><span class="n">uncosted_calls</span><span class="p">:</span> <span class="nb">int</span></span>)</span>
 
         
     </div>
@@ -7861,7 +7861,7 @@ is their sum, i.e. <code>len(history)</code>.</p>
                             </div>
                             <div id="LMCostSummary.total_cost" class="classattr">
                                 <div class="attr variable">
-            <span class="name">total_cost</span><span class="annotation">: Optional[float]</span>
+            <span class="name">total_cost</span><span class="annotation">: float | None</span>
 
         
     </div>
@@ -8454,7 +8454,7 @@ docstring.</p>
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">get</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">key</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="n">Optional</span><span class="p">[</span><span class="n"><a href="#LewisShortEntry">LewisShortEntry</a></span><span class="p">]</span>:</span></span>
+        <span class="name">get</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">key</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="n"><a href="#LewisShortEntry">LewisShortEntry</a></span> <span class="o">|</span> <span class="kc">None</span>:</span></span>
 
                 <label class="view-source-button" for="LewisShortLexicon.get-view-source"><span>View Source</span></label>
 

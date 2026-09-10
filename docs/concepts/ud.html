@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Harvesting gold examples from real analyses – arsgrammatica</title>
+<title>arsgrammatica and Universal Dependencies – arsgrammatica</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -22,41 +22,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -132,7 +97,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../concepts/index.html"> 
+    <a class="nav-link active" href="../concepts/index.html" aria-current="page"> 
 <span class="menu-text">Concepts</span></a>
   </li>  
   <li class="nav-item">
@@ -140,7 +105,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Tutorials</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="../guides/index.html" aria-current="page"> 
+    <a class="nav-link" href="../guides/index.html"> 
 <span class="menu-text">Guides</span></a>
   </li>  
   <li class="nav-item">
@@ -149,11 +114,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/neelsmith/arsgrammatica"> <i class="bi bi-github" role="img" aria-label="GitHub">
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-bi-github" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="bi bi-github" role="img">
 </i> 
-<span class="menu-text"></span></a>
+ <span class="menu-text"></span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-bi-github">    
+        <li>
+    <a class="dropdown-item" href="https://github.com/neelsmith/arsgrammatica">
+ <span class="dropdown-text">arsgrammatica on github</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="https://neelsmith.github.io">
+ <span class="dropdown-text">About me</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="https://neelsmith.github.io/projects">
+ <span class="dropdown-text">Other projects</span></a>
+  </li>  
+    </ul>
+  </li>
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -165,7 +146,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guides/harvesting.html">Harvesting gold examples from real analyses</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../concepts/ud.html"><code>arsgrammatica</code> and Universal Dependencies</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -179,103 +160,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Recipes</span></a>
-  </div>
-</li>
-        <li class="px-0"><hr class="sidebar-divider hi "></li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/install.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Installing <code>arsgrammatica</code></span></a>
+  <a href="../concepts/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Modelling Latin syntax</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/analysis.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Analyzing syntax with a language model</span></a>
+  <a href="../concepts/ud.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><code>arsgrammatica</code> and Universal Dependencies</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/saving-loading.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Saving and loading analyses</span></a>
-  </div>
-</li>
-        <li class="px-0"><hr class="sidebar-divider hi "></li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/texthiliting.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Highlighting syntactic analysis in HTML</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/mermaid.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Visualizing syntax graphs with Mermaid</span></a>
-  </div>
-</li>
-        <li class="px-0"><hr class="sidebar-divider hi "></li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/graphmetrics.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Characterizing syntax analyses with graph metrics</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/aat.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Building an AAT (Agent-Action-Target) graph</span></a>
-  </div>
-</li>
-        <li class="px-0"><hr class="sidebar-divider hi "></li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/optimizing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Optimizing with GEPA</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/harvesting.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Harvesting gold examples from real analyses</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/bakeoff.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Comparing models with <code>model_bakeoff.py</code></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/development.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Improving <code>arsgrammatica</code> by reading Latin</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/testing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Running tests with <code>pytest</code></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/tokenizing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Tokenizing a source file without full syntax analysis</span></a>
-  </div>
-</li>
-        <li class="px-0"><hr class="sidebar-divider hi "></li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/budgetingtokens.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Estimating and enforcing a <code>max_tokens</code> budget</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/managing_prompt_size.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Keeping requests to an LM at a manageable size</span></a>
+  <a href="../concepts/aat.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><code>arsgrammatica</code> and the AAT model</span></a>
   </div>
 </li>
     </ul>
@@ -283,15 +181,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#universal-dependencies" id="toc-universal-dependencies" class="nav-link active" data-scroll-target="#universal-dependencies">Universal Dependencies</a></li>
+  <li><a href="#a-simple-illustration" id="toc-a-simple-illustration" class="nav-link" data-scroll-target="#a-simple-illustration">A simple illustration</a></li>
+  <li><a href="#two-graph-theoretic-details" id="toc-two-graph-theoretic-details" class="nav-link" data-scroll-target="#two-graph-theoretic-details">Two graph-theoretic details</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Harvesting gold examples from real analyses</h1>
+<h1 class="title"><code>arsgrammatica</code> and Universal Dependencies</h1>
 </div>
 
 
@@ -308,27 +214,63 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p><code>gold_example_from_analysis()</code>/<code>format_gold_example_source()</code> (in <code>tests/fixtures/harvest.py</code>) turn a real analysis’s own <code>sentences</code>/<code>verbalunits</code>/<code>tokengraph</code> – the same triple <code>write_analyses()</code>/<code>serialize_analyses()</code> take – into a <code>GoldExample</code> (<code>tests/fixtures/gold_examples.py</code>), instead of hand-writing a <code>canned_answer</code> dict from scratch:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> fixtures.harvest <span class="im">import</span> gold_example_from_analysis, format_gold_example_source</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>sentences, results <span class="op">=</span> analyze_passage(<span class="st">"Some new passage you've reviewed by hand."</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> results[<span class="dv">0</span>]  <span class="co"># one result per sentence; pick whichever one you're harvesting</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>example <span class="op">=</span> gold_example_from_analysis(</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    slug<span class="op">=</span><span class="st">"some_new_construction_example"</span>,</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    tags<span class="op">=</span>[<span class="st">"the construction this example is meant to cover"</span>],</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    sentences<span class="op">=</span>sentences,</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    verbalunits<span class="op">=</span>result.verbalunits,</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    tokengraph<span class="op">=</span>result.tokengraph,</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    reasoning<span class="op">=</span>result.reasoning,  <span class="co"># dspy.ChainOfThought's own reasoning field</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(format_gold_example_source(example, <span class="st">"_SOME_NEW_CONSTRUCTION_ANSWER"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><code>format_gold_example_source()</code>’s output is ready-to-paste Python: a <code>_SOME_NEW_CONSTRUCTION_ANSWER = {...}</code> dict literal followed by the <code>GoldExample(...)</code> entry that references it, in the same two-part shape every existing block in <code>gold_examples.py</code> already uses. <code>gold_example_from_analysis()</code> runs <code>validate()</code> against the given <code>sentences</code>/<code>verbalunits</code>/<code>tokengraph</code> before returning (pass <code>skip_validation=True</code> to bypass) – catching a referentially-malformed analysis, but <em>not</em> judging whether the analysis is actually correct; that’s still on you, per “an analysis you’ve reviewed by hand” above.</p>
-<p><strong>Should a harvested example go into the trainset GEPA optimizes against, or into a held-out evaluation set?</strong> Usually the latter. A <em>correct</em> analysis is, by definition, something the current model/prompt already gets right – adding it to <code>optimize_gepa.py</code>’s trainset (all of <code>GOLD_EXAMPLES</code> today; see that script’s own docstring for why there’s no split at all there) mostly dilutes the trainset with an easy case GEPA gets to self-grade against, without teaching it anything new.</p>
-<p>The better default is to add the harvested example to <code>GOLD_EXAMPLES</code> <em>and</em> to <code>model_bakeoff.py</code>’s <code>HELD_OUT_SLUGS</code> (see <code>BAKEOFF.md</code>’s “The held-out evaluation set”) – growing a real regression corpus that catches a future prompt/model change breaking something that currently works, without inflating GEPA’s own self-graded trainset.</p>
-<p>The exception is a rare construction the model only sometimes gets right, where locking in a correct demonstration genuinely is useful training signal – that’s what <code>model_bakeoff.py</code>’s bootstrap stage already does on purpose with a few-shot demo pool. <code>gold_example_from_analysis()</code> itself has no opinion baked in – the choice of which list you paste the result into (and whether you also add its slug to <code>HELD_OUT_SLUGS</code>) is entirely on you.</p>
+<section id="universal-dependencies" class="level2">
+<h2 class="anchored" data-anchor-id="universal-dependencies">Universal Dependencies</h2>
+<p>The <a href="https://universaldependencies.org">Universal Dependencies framework</a> (UD) proposes annotation schemes for parts of speech, morphological features, and syntactic dependencies to apply across many languages, that have already been applied to more than 150 languages. UD is especially significant to Latinists because of Patrick Burns’ work on <a href="https://latincy.github.io/latincy-book/">LatinCy</a>, language models that work with the Python spaCy package for natural-language processing. Each token analyzed with spaCy has a <code>head</code> property linking it to another token in the syntax graph, and a <code>dep_</code> property with the UD annotation for syntactic relationship (dependency).</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>The <code>udsyntax</code> package
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>spaCy’s annotations for each analyzed token are extensive, but include many elements that are not helpful for Latinists (e.g., <code>like_email</code>, <code>like_url</code>). You can extract the syntactic relations from spaCy’s tokens into a simple syntactic graph structure with the <a href="https://neelsmith.github.io/udsyntax/">udsyntax</a> package.</p>
+</div>
+</div>
+</section>
+<section id="a-simple-illustration" class="level2">
+<h2 class="anchored" data-anchor-id="a-simple-illustration">A simple illustration</h2>
+<p>Consider a very short Latin sentence, and a visualization of the dependency graphs that UD annotation and <code>arsgrammatica</code> build for it.</p>
+<blockquote class="blockquote">
+<p><em>arma virumque cano.</em></p>
+</blockquote>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>UD</th>
+<th><code>arsgrammatica</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><img src="./imgs/arma-ud.png" class="img-fluid" alt="Visualization of the UD annotation of a short sentence."></td>
+<td><img src="./imgs/armavirumquecano.png" class="img-fluid" alt="Syntactic analysis of a short Latin sentence."></td>
+</tr>
+<tr class="even">
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Several features of the UD graph will seem odd to a Latinist. The UD has only one direct object (tagged <code>obj</code>) of the verb token <em>cano</em>. The noun <em>uirum</em> is tagged as a dependency of <em>arma</em>, in the relation tagged <em>conj</em>. The conjunction <em>que</em> is not related to <em>virum</em> but is a dependency of <em>arma</em>. The terminal period appears as part of the syntactic analysis.</p>
+<p><code>arsgrammatica</code>’s Latin-focused graph is a more natural representation for <em>research</em> questions like “What are the direct objects in this sentence?” In Latin <em>classrooms</em>, many teachers may find the UD representation unusuable or simply “wrong.” <code>arsgrammatica</code>’s representation more closely follows what students will find in Latin textbooks.</p>
+</section>
+<section id="two-graph-theoretic-details" class="level2">
+<h2 class="anchored" data-anchor-id="two-graph-theoretic-details">Two graph-theoretic details</h2>
+<ol type="1">
+<li><p>The UD guidelines guarantee that all syntax graphs are <em>trees</em>. As this example shows, that is not true for <code>arsgrammatica</code>’s directed graphs. In fact, although <code>arsgrammatica</code>’s syntax graphs often approximate a tree structure, they are not guaranteed to be <em>acyclic</em> either: elements like relative pronouns have relations both to their antecedent and to their function in the relative clause, which can set up cycles. (See examples with relative pronouns in the documentation.)</p></li>
+<li><p>UD graphs are oriented with relations from root-level verbal structures flowing <em>down</em>; <code>arsgrammatica</code> graphs are oriented so that related elements from <em>up</em> to root-level verbal structures.</p></li>
+</ol>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -738,7 +680,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.7.0</strong></p>
+<p>Documentation for release version <strong>0.8.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;
