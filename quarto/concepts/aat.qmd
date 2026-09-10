@@ -7,7 +7,7 @@ Agent-Action-Target (AAT) is a *universal* syntactic model, but it takes a very 
 In Latin, AAT's actors and targets correspond to subjects and direct objects of transitive active verbs, and to agents and subjects of transitive passive verbs. AAT's graph maintains coordinated or subordinated ranking of its actions, so it is possible to construct a semantically compatible AAT graph using a subset of the tokens in `arsgrammatica`'s dependency graph. 
 
 ::: {.callout-tip}
-The `arsgrammatica` package includes a function `aatgraph` that takes the sentence and token lists returned by `arsgrammatica`'s analysis functions and constructs an A-A-T graph.
+The `arsgrammatica` package includes a function `aatgraph` that takes the sentence and token lists returned by `arsgrammatica`'s analysis functions and constructs an A-A-T graph. See [this recipe](../guides/aat.qmd).
 :::
 
 

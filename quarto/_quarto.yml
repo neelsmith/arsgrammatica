@@ -40,7 +40,7 @@ website:
       contents:
         - tutorials/index.qmd
         - "---"
-        - tutorials/marimo.md
+        - tutorials/marimo.qmd
         - tutorials/cli.qmd
         - tutorials/diagrams.qmd
         - tutorials/batch-images.qmd

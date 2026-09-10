@@ -28,7 +28,11 @@ from arsgrammatica import tokengraph_to_depth_html
 html, warnings = tokengraph_to_depth_html(result.tokengraph)
 ```
 
-You can limit the tokens included in the display by their depth of subordination with the  `depth` parameter. (This is especially useful in an interactive display where you can explore a passage at different levels of subordination.)
+
+
+## Limiting display by syntactic depth
+
+Both `tokengraph_to_html` and `tokengraph_to_depth_html` accept an optional `depth` parameter. `tokengraph_to_html` will highlight only tokens at or below the specified syntactic depth; `tokengraph_to_html` entirely omits tokens above the cutoff depth. (These features are used interactively in the [marimo notebooks](../tutorials/marimo.qmd) to analyze passages and review analyses.)
 
 ```python
 # depth=0 limits the display to root/independent clauses only:

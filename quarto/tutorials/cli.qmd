@@ -32,7 +32,7 @@ python3 syntaxer_main.py --passage "Arma virumque canō."
     --citation "urn:cts:latinLit:phi0690.phi003.perseus:1.1" > aeneid_analysis.cex
 ```
 
-THe results look like this:
+The results look like this:
 
 ```
 #!sentences
