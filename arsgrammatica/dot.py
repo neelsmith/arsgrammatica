@@ -61,6 +61,15 @@ dependents, `aat_depth=0` shows a root clause IN FULL, unlike `depth=0`
 above (which shows only the bare root verb, no dependents at all). `depth`
 and `aat_depth` compose freely -- a node survives only if it clears BOTH
 cutoffs. See tokengraph_to_dot()'s own docstring for the full rationale.
+
+tokengraph_to_dot() also takes `show_root` (default True), an unrelated,
+non-depth toggle mirroring tokengraph_to_mermaid()'s own parameter of the
+same name exactly: whether every independent verb's own 'root' relation
+(relatedtoken1 == 'root', per syntax_model.md) is drawn as a real edge
+into a single dedicated 'root' node -- a plain, uncolored oval labelled
+"root" -- or dropped silently (`show_root=False`, this module's own
+behavior before this parameter existed). See tokengraph_to_dot()'s own
+docstring for the full rationale.
 """
 
 from typing import Dict, List, Optional, Tuple
@@ -226,6 +235,7 @@ def tokengraph_to_dot(
     rank_by_depth: bool = True,
     depth: Optional[int] = None,
     aat_depth: Optional[int] = None,
+    show_root: bool = True,
 ) -> Tuple[str, List[str]]:
     """Build a Graphviz DOT `digraph` from a tokengraph -- the same
     diagram tokengraph_to_mermaid() draws (same nodes, same edges, same
@@ -314,6 +324,22 @@ def tokengraph_to_dot(
     only if it survives BOTH cutoffs (whichever are actually given); a
     dangling edge left by either one is skipped with the same warning.
 
+    `show_root` (default True) draws every independent verbal expression's
+    own 'root' relation (relatedtoken1 == 'root', relationship1 == 'unit
+    verb', per syntax_model.md) as a real edge into a single dedicated
+    'root' node, instead of dropping it -- a plain oval (`shape=oval`)
+    labelled "root", deliberately given no `fillcolor`/`style=filled` (so
+    it's never colored, regardless of `color_by_verbal_unit`) -- mirroring
+    mermaid.tokengraph_to_mermaid()'s own `show_root` parameter exactly.
+    The node is added only if at least one surviving token actually has a
+    'root' edge to draw, and -- like tokengraph_to_mermaid()'s version --
+    'root' is exempt from `depth`/`aat_depth` filtering on its own account:
+    an independent verb's anchor is always depth 0 in both
+    compute_graph_depths() and compute_aat_depths(), so it's never excluded
+    by either cutoff. Pass `show_root=False` to skip the node and its
+    edges entirely, exactly reproducing this function's behavior before
+    this parameter existed.
+
     Returns `(dot_source, warnings)` -- same shape and same warnings as
     tokengraph_to_mermaid(): an edge skipped because it targets a
     punctuation token, a token excluded by the `depth` or `aat_depth`
@@ -381,6 +407,18 @@ def tokengraph_to_dot(
                 color = colors_by_unit.get(unit_id) if unit_id is not None else None
         lines.append(f"    {tok.id} [{_node_attrs(tok, color)}];")
 
+    # The dedicated 'root' node every independent verb's own 'root' edge
+    # points to (see this module's own docstring) -- added only if at
+    # least one surviving token actually has such an edge to draw, so an
+    # empty or fully-filtered diagram never gets an orphan 'root' node.
+    # `shape=oval` with no `fillcolor`/`style=filled` -- a plain, uncolored
+    # oval regardless of `color_by_verbal_unit`.
+    has_root_edge = show_root and any(
+        tok.relatedtoken1 == "root" for tok in tokengraph if tok.id in node_ids
+    )
+    if has_root_edge:
+        lines.append('    root [label="root", shape=oval];')
+
     lines.append("")
     for tok in tokengraph:
         if tok.id not in node_ids:
@@ -395,8 +433,13 @@ def tokengraph_to_dot(
                 continue
             if related_id == "root":
                 # An independent verb's own unit-verb relation, per
-                # syntax_model.md -- intentionally not a real node, so not
-                # a warning-worthy gap. Just draw no edge for it.
+                # syntax_model.md -- never a warning-worthy gap either way.
+                # When show_root is True (the default), draw the edge into
+                # the single dedicated 'root' node built above; when False,
+                # skip it silently, exactly as before this parameter
+                # existed.
+                if show_root:
+                    lines.append(f'    {tok.id} -> root [label="{_escape_label(label)}"];')
                 continue
             if related_id not in node_ids:
                 warnings.append(
@@ -449,6 +492,7 @@ def save_dot(
     rank_by_depth: bool = True,
     depth: Optional[int] = None,
     aat_depth: Optional[int] = None,
+    show_root: bool = True,
 ) -> List[str]:
     """Write the diagram to `path` (e.g. 'analysis.dot') and return any
     warnings from tokengraph_to_dot()."""
@@ -459,6 +503,7 @@ def save_dot(
         rank_by_depth=rank_by_depth,
         depth=depth,
         aat_depth=aat_depth,
+        show_root=show_root,
     )
     with open(path, "w", encoding="utf-8") as f:
         f.write(diagram + "\n")

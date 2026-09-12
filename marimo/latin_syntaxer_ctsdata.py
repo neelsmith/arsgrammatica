@@ -233,7 +233,6 @@ def _(cost_summary, format_lm_cost, mo, seecost):
     costdisplay = None
     if seecost.value:
         costdisplay = mo.md(f"**LM cost so far**: {format_lm_cost(cost_summary)}")
-
     return (costdisplay,)
 
 
@@ -636,8 +635,8 @@ def _(finaltokens, mo, selected_rows, tokengraph_to_text):
 
 
 @app.cell
-def _(finaltokens, mo, tokengraph_to_html):
-    vuhtml = mo.Html("<b><i>Highlighted by verbal unit</i></b>: " + tokengraph_to_html(finaltokens))
+def _(depth, finaltokens, mo, tokengraph_to_html):
+    vuhtml = mo.Html("<b><i>Highlighted by verbal unit</i></b>: " + tokengraph_to_html(finaltokens, depth=depth))
     return (vuhtml,)
 
 
@@ -649,7 +648,7 @@ def _(finaltokens, maxdepth, mo, tokengraph_to_depth_html):
     depth = maxdepth.value if maxdepth is not None else None
     indenthtml, indentwarnings = tokengraph_to_depth_html(finaltokens, depth=depth)
     indentpsg = mo.Html("<b><i>Indented by verbal unit</i></b>: " + indenthtml)
-    return (indentpsg,)
+    return depth, indentpsg
 
 
 @app.cell(hide_code=True)
@@ -666,7 +665,7 @@ def _(finaltokens, lm, results, sentences, serialize_analyses):
     # serialize_analyses()/write_analyses() expect, matching how
     # combined_tokengraph() already flattens tokengraph across sentences.
     all_verbalunits = [vu for result in results for vu in result.verbalunits]
-    # '#!LM' records which model produced each sentence's analysis
+    # '#!lm' records which model produced each sentence's analysis
     # (lm.model -- the actual configured model, including configure_lm()'s
     # own fallback default, not just a raw MODEL env lookup) and that
     # sentence's own reasoning (dspy.ChainOfThought's `reasoning` output

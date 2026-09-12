@@ -15,9 +15,9 @@ Two required parameters: the input CEX file (positional) and `--output-dir`. Nee
 
 ## What gets written
 
-One `#!sentences`/`#!verbal_units`/`#!tokens`/`#!LM` file per sentence (see `serialization.py`'s module docstring for the exact shape), named `<input_file_stem>_<sentence_number>_<citation>.cex` -- alphanumeric-sanitized, the same convention `analyses_to_dot_pngs.py`'s own `sentence_filename_stem()` uses for its PNGs, prefixed with the input file's own stem so a second corpus analyzed into the same output directory doesn't collide with the first. The output directory is created if it doesn't already exist.
+One `#!sentences`/`#!verbal_units`/`#!tokens`/`#!lm` file per sentence (see `serialization.py`'s module docstring for the exact shape), named `<input_file_stem>_<sentence_number>_<citation>.cex` -- alphanumeric-sanitized, the same convention `analyses_to_dot_pngs.py`'s own `sentence_filename_stem()` uses for its PNGs, prefixed with the input file's own stem so a second corpus analyzed into the same output directory doesn't collide with the first. The output directory is created if it doesn't already exist.
 
-Each file's `#!LM` block records the configured model and that one sentence's own reasoning, matching `syntaxer_main.py`'s own convention. Every file written this way reads back with `read_analyses()` exactly like any other saved analysis -- `analysis_to_dot.py`, `analyses_to_dot_pngs.py`, and every marimo notebook that browses for a saved analysis file all work with it unchanged.
+Each file's `#!lm` block records the configured model and that one sentence's own reasoning, matching `syntaxer_main.py`'s own convention. Every file written this way reads back with `read_analyses()` exactly like any other saved analysis -- `analysis_to_dot.py`, `analyses_to_dot_pngs.py`, and every marimo notebook that browses for a saved analysis file all work with it unchanged.
 
 ## Segmentation is corpus-wide, output is per-sentence
 
@@ -29,4 +29,4 @@ Any validation problem `analyze_sources()` finds for a sentence is printed by `a
 
 ## Testing
 
-Its own separable function, `analyze_ctsdata_to_files(cited_texts, output_dir, file_stem, model=None)`, was exercised directly (bypassing argument parsing and `_configure_lm()`) with `DummyLM` standing in for the LM across a three-sentence corpus, confirming: one file per sentence, correctly named; each file round-trips through `read_analyses()` with the right tokens, verbal units, and `#!LM` entry; and no warnings on a clean corpus. No dedicated pytest file, matching `utilities/tokenize_ctsdata.py`'s own precedent -- no CLI entry-point script in this codebase has one, since each is a thin wrapper around already-tested library functions (`read_ctsdata()`, `analyze_sources()`, `write_analyses()`).
+Its own separable function, `analyze_ctsdata_to_files(cited_texts, output_dir, file_stem, model=None)`, was exercised directly (bypassing argument parsing and `_configure_lm()`) with `DummyLM` standing in for the LM across a three-sentence corpus, confirming: one file per sentence, correctly named; each file round-trips through `read_analyses()` with the right tokens, verbal units, and `#!lm` entry; and no warnings on a clean corpus. No dedicated pytest file, matching `utilities/tokenize_ctsdata.py`'s own precedent -- no CLI entry-point script in this codebase has one, since each is a thin wrapper around already-tested library functions (`read_ctsdata()`, `analyze_sources()`, `write_analyses()`).

@@ -3,6 +3,12 @@
 Current version: **0.8.0**.
 
 
+**0.9.0** *??*:
+
+- draw root option
+- label in serialization
+- flagging ambig
+
 **0.8.0** *Sept. 10, 2026*: All visualizations of analyses (as HTML, diagrams in Mermaid or graphviz `dot`) now accpet a `depth` parameter to filter the syntactic depth of the visualization. Marimo notebooks were extensively improved including better handling of token management in some notebooks. Numerous utilities were added to simplify management of development and optimization cycle, including `analysis_to_gold_example` to directly format new `GoldExample` entries for the core training set from saved analyses.
 
 

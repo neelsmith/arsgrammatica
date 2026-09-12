@@ -146,3 +146,19 @@ A dropped node's own edges, and any KEPT node's edge that happens to point at a 
 Omit `aat_depth` (or pass `None`, the default) to show every node, same as before this parameter existed. `verbal_units.max_aat_depth(result.tokengraph)` returns the deepest AAT depth reached anywhere in a tokengraph -- the natural upper bound for a slider, the same role `max_subordination_depth()` plays for `tokengraph_to_depth_html()` and `dot.max_graph_depth()` plays for `tokengraph_to_dot()`'s own `depth`. A value at or beyond that maximum shows everything; a negative `aat_depth` raises `ValueError`.
 
 `tokengraph_to_dot()` in `dot.py` takes the exact same `aat_depth` parameter, alongside its own pre-existing `depth` -- the two compose freely there (a node must clear BOTH cutoffs to survive); see `notes/dot_diagrams.md` for the DOT-side documentation.
+
+### Drawing the root node
+
+Every independent verb's own `relation1` is the special sentinel value `root` (`relationship1` is always `unit verb` -- see `syntax_model.md`); this was previously always dropped silently, since `root` isn't a real token id. `show_root` (default `True`) draws it instead: a single dedicated `root` node -- Mermaid's stadium shape (`([...])`) for a plain oval look, never assigned a `classDef`/`class` so it stays unfilled regardless of `color_by_verbal_unit` -- that every independent verb's own anchor points to, labelled with its own `unit verb` relationship exactly like any other edge:
+
+```python
+# Default: every independent verb points to a plain "root" oval.
+diagram, warnings = tokengraph_to_mermaid(result.tokengraph)
+
+# Old behavior: the 'root' relation is dropped silently, no node at all.
+diagram, warnings = tokengraph_to_mermaid(result.tokengraph, show_root=False)
+```
+
+A sentence with more than one independent (coordinated) verb still gets only ONE `root` node -- every root-anchored verb's edge points into the same node, not one each. The node is added only when at least one surviving token actually has a `root` edge to draw, so an empty or fully-filtered diagram never gets an orphan `root` node. An independent verb's anchor is always depth 0 in both `compute_graph_depths()` and `compute_aat_depths()`, so `show_root`'s node/edges are never excluded by `aat_depth` filtering -- they compose freely.
+
+`tokengraph_to_dot()` in `dot.py` takes the exact same `show_root` parameter (a plain oval via `shape=oval`, no `fillcolor`); see `notes/dot_diagrams.md`'s own "Drawing the root node" section for the DOT-side documentation.

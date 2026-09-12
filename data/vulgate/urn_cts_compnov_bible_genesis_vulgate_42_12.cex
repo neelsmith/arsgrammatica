@@ -1,4 +1,4 @@
-#!LM
+#!lm
 MODEL=litellm_proxy/anthropic/Claude Opus 5
 CONTEXT=urn:cts:compnov:bible.genesis.vulgate:42.12.t0-urn:cts:compnov:bible.genesis.vulgate:42.12.t12
 REASONING="Quibus ille respondit" — main clause: "ille" subject, "respondit" independent intransitive verb, "Quibus" a connective relative in the dative depending on "respondit" (its antecedent lies outside the passage, so only the dative relation is recorded). The colon introduces directly quoted speech: "Aliter est" ("It is otherwise") with "Aliter" as an adverb modifying "est"; "est" is a direct-quote verbal expression framed by "respondit", intransitive (no predicate complement, just an adverb). Then "immunita terrae hujus considerare venistis": "venistis" is a second direct-quote verb (intransitive, 'you have come'); "considerare" is an infinitive completing/depending on "venistis" (purpose/complementary), so it gets 'complementary infinitive' and no verbal-expression entry of its own; "immunita" (substantive neuter plural accusative) is its direct object; "terrae" is a genitive depending on "immunita"; "hujus" is adjectival modifying "terrae".

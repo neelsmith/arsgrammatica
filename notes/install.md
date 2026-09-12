@@ -72,7 +72,7 @@ Without the editable install, the same tools can still be installed by hand:
 pip install pytest python-dotenv       # running the test suite, .env-based LM config
 pip install pdoc                       # regenerating docs/arsgrammatica-api-docs.html
 pip install marimo                     # the notebooks in marimo/
-pip install graphviz                   # rendering DOT diagrams in marimo/latin_syntaxer_dot.py
+pip install graphviz                   # rendering DOT diagrams in marimo/latin_syntaxer_review.py
 ```
 
 The `graphviz` *package* is only a subprocess wrapper -- rendering a diagram (not generating its DOT source, which needs no dependency at all) also needs Graphviz's own `dot` executable installed separately and on your PATH (e.g. `brew install graphviz` on macOS, `apt install graphviz` on Linux). See `notes/dot_diagrams.md`.

@@ -5,7 +5,7 @@ citation-aware sentences and run each one through full syntax analysis --
 exactly what `analyze_sources()` already does in one call -- then write
 EACH sentence's own analysis to its own file in an output directory, using
 `serialization.py`'s `write_analyses()` format (the same
-`#!sentences`/`#!verbal_units`/`#!tokens`[/optional `#!LM`] format
+`#!sentences`/`#!verbal_units`/`#!tokens`[/optional `#!lm`] format
 `read_analyses()`, `analysis_to_dot.py`, and `analyses_to_dot_pngs.py`
 already read).
 
@@ -35,9 +35,9 @@ PNGs -- prefixed with the source file's own stem so analyzing a second
 corpus into the same output directory doesn't collide with the first. The
 output directory is created if it doesn't already exist.
 
-Each file also records a `#!LM` block (the configured model, plus that
+Each file also records a `#!lm` block (the configured model, plus that
 sentence's own reasoning), matching `syntaxer_main.py`'s own convention --
-see `serialization.py`'s module docstring for the `#!LM` block's exact
+see `serialization.py`'s module docstring for the `#!lm` block's exact
 shape. Any validation problem `analyze_sources()` finds for a sentence is
 printed by `analyze_sources()` itself (its own existing behavior, unchanged
 here) rather than duplicated by this script; any warning
@@ -82,12 +82,12 @@ def analyze_ctsdata_to_files(
     sentence's own analysis to its own file under `output_dir` -- created
     if it doesn't already exist -- named via `sentence_filename_stem()`.
 
-    `model` is recorded on every file's own `#!LM` block (see
+    `model` is recorded on every file's own `#!lm` block (see
     `serialization.py`'s module docstring), alongside that sentence's own
     `reasoning` -- typically the configured LM's own `.model` (e.g.
     `_configure_lm()`'s return value's `.model`), matching
     `syntaxer_main.py`'s own convention; omit it (the default) to skip
-    `#!LM` entirely, same as `write_analyses()` itself does when `model`
+    `#!lm` entirely, same as `write_analyses()` itself does when `model`
     isn't given.
 
     Returns a list of `(path, warnings)` pairs, one per sentence written,

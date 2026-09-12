@@ -25,16 +25,16 @@ context|id|tokentype|text|lemma|verbalunit|related1|relationship1|related2|relat
 Aeneid 1.1|t0|lexical|Arma|arma|||||
 ```
 
-A fourth block, `#!LM`, is optional and shaped differently -- no header line, not pipe-delimited, three `KEY=value` lines per sentence (`MODEL=`/`CONTEXT=`/`REASONING=`) recording what model produced that sentence's analysis, a `CONTEXT1.ID1-CONTEXT2.ID2` identifier for what it analyzed, and its own reasoning (collapsed to one line):
+A fourth block, `#!lm`, is optional and shaped differently -- no header line, not pipe-delimited, three `KEY=value` lines per sentence (`MODEL=`/`CONTEXT=`/`REASONING=`) recording what model produced that sentence's analysis, a `CONTEXT1.ID1-CONTEXT2.ID2` identifier for what it analyzed, and its own reasoning (collapsed to one line):
 
 ```
-#!LM
+#!lm
 MODEL=litellm_proxy/anthropic/Claude Opus 5
 CONTEXT=Aeneid 1.1.t0-Aeneid 1.1.t4
 REASONING=The main verb is "cano" ("I sing"), independent and transitive active...
 ```
 
-It's written only when `serialize_analyses()`/`write_analyses()` are called with `reasoning=...`; `read_analyses()` accepts a file with none at all, returning an empty list for it.
+It's written only when `serialize_analyses()`/`write_analyses()` are called with `reasoning=...`; `read_analyses()` accepts a file with none at all, returning an empty list for it. The label itself was originally written `#!LM`; `read_analyses()` still accepts that exact spelling as a synonym, so every file saved before the rename still reads back unchanged -- `write_analyses()`/`serialize_analyses()` only ever emit the lowercase `#!lm` now, matching `#!sentences`/`#!verbal_units`/`#!tokens`.
 
 Key points: `None` fields serialize as an empty string (`""`) and parse back as `None`; the literal string `"root"` (an independent verb's own `relatedtoken1`) is a real value, never confused with empty. Sentence boundaries aren't stored redundantly on every row -- `#!sentences`' `first_token`/`last_token` ids are looked up by *position* in `#!tokens`' own row order, so a sentence's tokens must form a contiguous, matching-order run in `tokengraph` (checked, and warned about, not silently trusted). Implied/elided tokens round-trip in `#!tokens` like any other row but are excluded from a sentence's reconstructed `tokens` list in both directions, since they were never part of the original per-sentence segmentation.
 
@@ -42,7 +42,7 @@ Key points: `None` fields serialize as an empty string (`""`) and parse back as 
 
 `split_analysis_by_sentence(tokengraph, verbalunits, sentences)` is the usual next step after reading a file back: it slices the flat `tokengraph`/`verbalunits` into one `(sentence_tokengraph, sentence_verbalunits)` pair per sentence, for anything that wants to review or render one sentence at a time (e.g. `marimo/latin_syntaxer_review.py`, `marimo/latin_syntaxer_graph_metrics.py`).
 
-`tests/test_serialization.py` (56 tests) covers round-tripping every field including `None`/`"root"`, the optional `#!LM` block, multiple concatenated blocks, every documented `ValueError` case, and `split_analysis_by_sentence()`'s own slicing including its one documented edge case (a trailing implied token past a sentence's last real token falls just outside the slice).
+`tests/test_serialization.py` (58 tests) covers round-tripping every field including `None`/`"root"`, the optional `#!lm` block (including its legacy `#!LM` spelling still being accepted on read), multiple concatenated blocks, every documented `ValueError` case, and `split_analysis_by_sentence()`'s own slicing including its one documented edge case (a trailing implied token past a sentence's last real token falls just outside the slice).
 
 ## 2. Tokenizations without analysis (`segmentation_serialization.py`)
 

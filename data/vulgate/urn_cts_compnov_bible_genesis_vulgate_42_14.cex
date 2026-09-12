@@ -1,4 +1,4 @@
-#!LM
+#!lm
 MODEL=litellm_proxy/anthropic/Claude Opus 5
 CONTEXT=urn:cts:compnov:bible.genesis.vulgate:42.14.t0-urn:cts:compnov:bible.genesis.vulgate:42.14.t11
 REASONING=The sentence frames direct speech with "ait" (independent, transitive active, root). The quoted words "Hoc est ... quod locutus sum: exploratores estis" are interrupted by "ait", so the quoted finite verbs "est" and "estis" are of syntactic type 'direct quote', each relating to "ait" via 'direct quote'. "Hoc" is the subject of "est"; the relative pronoun "quod" serves as the predicate/complement whose antecedent is "Hoc" — it takes relationship1 'relative pronoun' -> "Hoc" and, in its own clause, is the direct object of "locutus sum" (relatedtoken2 -> "locutus"). "locutus sum" is a compound (deponent perfect) form: the participle "locutus" anchors the dependent verbal expression (unit verb -> "quod"), and "sum" relates to it as 'auxiliary'. In the second quoted clause, "exploratores" is the predicate of the linking verb "estis". Punctuation takes no relations.

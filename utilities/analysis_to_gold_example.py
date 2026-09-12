@@ -46,12 +46,12 @@ text from the tokengraph).
 
 `--reasoning`, if omitted, is NOT always gold_example_from_analysis()'s
 own placeholder string: read_analyses() also returns each sentence's own
-`#!LM` block (serialize_analyses()'s own REASONING= line -- see
+`#!lm` block (serialize_analyses()'s own REASONING= line -- see
 notes/serialization_formats.md), and when the file has exactly one such
 block with a real reasoning string, that becomes the default instead --
 the model's own actual reasoning is usually a better draft explanation
 than a placeholder, given a single-sentence file already carries it. A
-multi-sentence file (more than one `#!LM` block) has no single unambiguous
+multi-sentence file (more than one `#!lm` block) has no single unambiguous
 reasoning to default to, so the placeholder still applies there unless
 `--reasoning` is given explicitly. Either way, re-read whatever ends up in
 the pasted snippet before treating it as more than a draft -- fill in (or
@@ -134,7 +134,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--reasoning",
         default=None,
-        help="Override canned_answer['reasoning'] (default: the file's own single #!LM "
+        help="Override canned_answer['reasoning'] (default: the file's own single #!lm "
              "reasoning, if it has exactly one, else an obvious placeholder string).",
     )
     parser.add_argument(
@@ -153,7 +153,7 @@ if __name__ == "__main__":
     tags = [t.strip() for t in args.tags.split(",") if t.strip()]
     answer_var_name = args.answer_var or default_answer_var_name(args.slug)
 
-    # A single-sentence file's own #!LM reasoning (see this script's own
+    # A single-sentence file's own #!lm reasoning (see this script's own
     # module docstring) is a better default draft explanation than
     # gold_example_from_analysis()'s own generic placeholder -- but only
     # when there's exactly one such block to draw from unambiguously; a
