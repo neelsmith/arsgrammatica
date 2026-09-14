@@ -4,7 +4,13 @@ title: Reference
 
 
 - [API docs](../arsgrammatica-api-docs.html)
-- list of all [values used for relationships](./relationshipvalues.qmd) in syntax graph
-- [extending the syntax scheme](./extendingscheme.qmd)
-- format of [delimited-text serialization](./outputformats.qmd)
+- [values used in recording verbal expressions](./vuvalues.qmd)
+- [values used for relationships](./relationshipvalues.qmd) in graph of token dependencies
 - [testing with `pytest`](./testing.qmd)
+
+
+Delimited-text output formats:
+
+- output format for [syntactic analysis](./analysisformat.qmd)
+- output format for [tokenization without analysis](./tokenizationformat.qmd)
+

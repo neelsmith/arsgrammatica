@@ -1,0 +1,30 @@
+---
+title: Serialization format of tokenization without analysis
+---
+
+
+
+
+A lighter counterpart for `segment_sources()`'s own output -- sentences and their tokens, with no syntax analysis run (or paid for) at all. Two required blocks, same label/header/one-row-per-record shape as above, but neither repeatable nor optional (this format is always written whole by one `serialize_segmentation()` call):
+
+```
+#!sentences
+context_begin|first_token|context_end|last_token
+Aeneid 1.1|t0|Aeneid 1.1|t4
+
+#!tokens
+context|sentence_index|id|text
+Aeneid 1.1|0|t0|Arma
+Aeneid 1.1|0|t1|virumque
+```
+
+`#!sentences` is *exactly* `serialization.py`'s own block (same label, header, and meaning -- imported directly from there so the two can't drift apart). `#!tokens` shares its name with `serialization.py`'s block but not its columns: no `tokentype`/`lemma`/relation data, since nothing here has been analyzed yet. It adds one column `#!tokens` (analyses) doesn't have -- `sentence_index`, the token's own sentence's 0-based position in the file -- so sentence boundaries don't need to be inferred from row position at all. `read_segmentation()` groups rows by `sentence_index` first, then cross-checks that grouping against `#!sentences`' own first_token/last_token/citations, raising `ValueError` on any disagreement (e.g. a hand-edited file) rather than trusting one block over the other.
+
+Because of the `#!tokens` column mismatch, a file in this format is never readable by `serialization.read_analyses()`, even though its `#!sentences` half alone matches exactly.
+
+`read_segmentation(path)` returns a plain `List[Sentence]` -- there's no `verbalunits`/`tokengraph`/`lm_infos` to return, since none exist yet. Same strict, raise-immediately posture as `read_analyses()`: a missing block, mismatched header, wrong column count, non-contiguous `sentence_index` values, a duplicate token id, or a `#!sentences`/`#!tokens` disagreement all raise.
+
+`utilities/tokenize_ctsdata.py` is this format's main producer (reads a `#!ctsdata` source, segments it, writes the result here); `marimo/latin_syntaxer_tokenized.py` is its main consumer (reads a file this format wrote, lets you pick one sentence, and runs syntax analysis on just that sentence on demand).
+
+`tests/test_segmentation_serialization.py` (28 tests) covers round-tripping, the shared-`#!sentences`-block guarantee, and every documented `ValueError` case.
+

@@ -32,6 +32,7 @@ Guides for using `arsgrammatica` for particular tasks.
 
 - [Optimizing](./optimizing.qmd)
 - [A development work flow](./development.qmd)
+- [Extending the syntax scheme](./extendingscheme.qmd)
 - [How to write a gold example](./gold.qmd)
 - [Comparing models](./bakeoff.qmd)
 
