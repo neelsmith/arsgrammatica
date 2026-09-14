@@ -1,0 +1,7 @@
+---
+title: Allowed terms for classifying tokens
+---
+
+
+`punctuation`,  `enclitic` , `lexical` , `praenomen`, `abbreviation`, 
+`numeral`

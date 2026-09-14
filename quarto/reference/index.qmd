@@ -3,13 +3,23 @@ title: Reference
 ---
 
 
+
 - [API docs](../arsgrammatica-api-docs.html)
-- [values used in recording verbal expressions](./vuvalues.qmd)
-- [values used for relationships](./relationshipvalues.qmd) in graph of token dependencies
 - [testing with `pytest`](./testing.qmd)
 
+## Controlled vocabulary
 
-Delimited-text output formats:
+
+
+- [values used in recording verbal expressions](./vuvalues.qmd)
+- [values used for token types](./tokentypes.qmd)
+- [values used for relationship types](./relationshipvalues.qmd) in graph of token dependencies
+
+::: {.callout-note}
+For discussion of of what each controlled vocabulary item means, see the [syntax model document](https://github.com/neelsmith/arsgrammatica/blob/main/syntax_model.md).
+:::
+
+## Delimited-text output formats
 
 - output format for [syntactic analysis](./analysisformat.qmd)
 - output format for [tokenization without analysis](./tokenizationformat.qmd)

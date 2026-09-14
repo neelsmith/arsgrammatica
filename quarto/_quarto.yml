@@ -87,11 +87,15 @@ website:
         - "---"
         - text: "API docs"
           href: https://neelsmith.github.io/arsgrammatica/arsgrammatica-api-docs.html
+        - reference/testing.qmd
+        - "---"
+
         - reference/vuvalues.qmd
+        - reference/tokentypes.qmd
         - reference/relationshipvalues.qmd   
 
         
-        - reference/testing.qmd
+
         - "---"
         - reference/analysisformat.qmd
         - reference/tokenizationformat.qmd
