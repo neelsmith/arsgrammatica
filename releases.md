@@ -1,9 +1,9 @@
 # Release history
 
-Current version: **0.8.0**.
+Current version: **0.9.0**.
 
 
-**0.9.0** *??*:
+**0.9.0** *Sept. 14, 2026*:
 
 - draw root option
 - label in serialization
