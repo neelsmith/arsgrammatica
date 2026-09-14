@@ -98,7 +98,27 @@ _FALLBACK_INTERCEPT = 900.0
 _FALLBACK_SLOPE = 90.0
 
 DEFAULT_SAFETY_MARGIN = 1.4
-DEFAULT_FLOOR = 256
+# Raised from an earlier 256 after a real calibrated fit (calibrate_max_tokens.py,
+# run against GOLD_EXAMPLES -- 3-22 input tokens each) came back with an
+# intercept of ~39 (vs. the untuned fallback's deliberately generous 900,
+# see _FALLBACK_INTERCEPT above), producing a budget under 300 tokens for a
+# short real-world passage -- nowhere near enough once you account for a
+# verbose, multi-line `reasoning` field plus the fixed per-call JSON
+# overhead (`verbalunits` plus one `TokenAnalysis` entry per token), same
+# actual failure mode _FALLBACK_INTERCEPT/_FALLBACK_SLOPE's own comment
+# describes. A calibrated line is only a genuine measurement over the
+# input-length RANGE it was fit against; extrapolated below that range
+# (calibrate_max_tokens.py's own module docstring already warns about
+# this for the long end, but a small or even near-zero intercept makes the
+# SHORT end just as fragile) it can undershoot badly for a very short
+# passage, which is exactly the case a floor exists to catch regardless of
+# which fit produced the estimate. 900 matches _FALLBACK_INTERCEPT's own
+# baseline -- a deliberately generous "even the shortest passage still
+# needs roughly this much for reasoning + JSON structure" allowance --
+# rather than picking a new, unvalidated number. analyze_with_retry()'s own
+# retry-with-growth still applies on top of this if even 900 turns out to
+# be too little for some particular passage.
+DEFAULT_FLOOR = 900
 # Stand-in for "this model's real max output tokens". There's no single
 # correct value across providers/models -- override this with whatever your
 # configured MODEL actually allows (check its provider's documentation)
