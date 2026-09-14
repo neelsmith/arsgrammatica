@@ -2,7 +2,7 @@ project:
   type: website
   output-dir: quarto-build
 
-version: "0.8.0"  
+version: "0.9.0"  
   
 
 website:
@@ -69,7 +69,8 @@ website:
 
         - "---"
         - guides/optimizing.qmd
-        - guides/development.qmd    
+        - guides/development.qmd          
+        - guides/extendingscheme.qmd
         - guides/gold.qmd    
         - guides/bakeoff.qmd
 
@@ -86,10 +87,19 @@ website:
         - "---"
         - text: "API docs"
           href: https://neelsmith.github.io/arsgrammatica/arsgrammatica-api-docs.html
-        - reference/relationshipvalues.qmd   
-        - reference/extendingscheme.qmd
-        - reference/outputformats.qmd
         - reference/testing.qmd
+        - "---"
+
+        - reference/vuvalues.qmd
+        - reference/tokentypes.qmd
+        - reference/relationshipvalues.qmd   
+
+        
+
+        - "---"
+        - reference/analysisformat.qmd
+        - reference/tokenizationformat.qmd
+
 
 format:
   html:

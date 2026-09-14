@@ -474,6 +474,27 @@ class SentenceAnalysis(dspy.Signature):
         keeps it grouped with the rest of its verbal expression (or, for
         'implied subject', the clause of the verb it's the subject of) for
         anything that reads `tokengraph` in order.
+
+    Flagging ambiguity: when a specific call above is genuinely ambiguous
+    -- the passage plausibly supports more than one defensible reading, not
+    just an ordinary judgment call you're confident in -- say so explicitly
+    in your reasoning, rather than silently picking one reading and moving
+    on. Name the specific token(s) or construction involved, the
+    alternative reading you considered, and briefly why you chose the one
+    you did. The clearest example above is an ambiguous participle's
+    attributive-vs-circumstantial reading: the rule to PREFER the
+    circumstantial reading when genuinely uncertain still applies
+    unchanged, but note in your reasoning that you made that call and why,
+    the same way you would for any other close judgment (e.g. which of two
+    candidate governing verbs an ambiguous dependent clause attaches to,
+    or whether a participle is predicate or purely attributive in the
+    first place). This does not change any tie-breaking rule given above --
+    it only adds a requirement to surface that a close call was made at
+    all, so a human reviewing this analysis later knows exactly where to
+    look rather than having to independently re-derive every judgment call
+    to find the uncertain ones. Do not flag routine analysis you're
+    confident in just to pad your reasoning with hedges -- this is for
+    genuine, specific ambiguity only.
     """
  
     passage: str = dspy.InputField(desc="The Latin passage to analyze, exactly as written.")

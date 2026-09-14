@@ -56,9 +56,18 @@ Punctuation tokens are dropped as nodes. Any edge that would point at a
 dropped or unrecognized token id is skipped rather than emitted as a broken
 reference, and reported back to the caller so silent gaps are visible --
 except the special sentinel target 'root' (an independent verb's own
-relatedtoken1, per syntax_model.md), which is skipped silently: it isn't a
-real node and was never supposed to be one, so it's not a gap worth
-reporting.
+relatedtoken1, per syntax_model.md), which is never a warning-worthy gap
+either way (see `show_root` below).
+
+By default (`show_root=True`), every independent verb's own 'root'
+relation IS drawn: a single dedicated 'root' node (a plain, uncolored
+oval, labelled "root" -- always safe to use as a literal node id, since
+syntax_model.md itself says 'root' "must not be used as identifier for
+any token") that every independent verbal expression's anchor points to,
+labelled with its own relationship1 ('unit verb', per syntax_model.md --
+the same label every other edge already uses). Pass `show_root=False` to
+omit it instead: the 'root' relation is then skipped silently, exactly as
+this function behaved before this parameter existed.
 """
  
 from typing import List, Optional, Tuple
@@ -133,6 +142,7 @@ def tokengraph_to_mermaid(
     color_by_verbal_unit: bool = True,
     rank_by_depth: bool = True,
     aat_depth: Optional[int] = None,
+    show_root: bool = True,
 ) -> Tuple[str, List[str]]:
     """Build a Mermaid `graph` diagram from a tokengraph.
 
@@ -212,6 +222,22 @@ def tokengraph_to_mermaid(
     `color_by_verbal_unit` -- a dropped node is simply never considered by
     either.
 
+    `show_root` (default True) draws every independent verbal expression's
+    own 'root' relation (relatedtoken1 == 'root', relationship1 == 'unit
+    verb', per syntax_model.md) as a real edge into a single dedicated
+    'root' node, instead of dropping it -- a plain oval (Mermaid's stadium
+    `([...])` shape) labelled "root", deliberately left uncolored/unfilled
+    regardless of `color_by_verbal_unit` (it's never assigned to any
+    verbal unit's classDef/class, so it always keeps Mermaid's own default,
+    unfilled node styling). The node is added only if at least one
+    surviving token actually has a 'root' edge to draw (so an empty or
+    fully-filtered-out diagram never gets an orphan 'root' node), and 'root'
+    itself is exempt from every depth filter above -- an independent verb's
+    anchor is always at depth 0 in every depth notion this codebase uses,
+    so it's never excluded by `aat_depth` on its own account. Pass
+    `show_root=False` to skip the node and its edges entirely, exactly
+    reproducing this function's behavior before this parameter existed.
+
     Returns (diagram_text, warnings). `warnings` lists any edges that were
     skipped because they referenced a punctuation token, a node excluded by
     the `aat_depth` cutoff, or an id not present in `tokengraph` -- worth
@@ -264,7 +290,21 @@ def tokengraph_to_mermaid(
             ("(", ")") if tok.tokentype in IMPLIED_TOKENTYPES else ("[", "]")
         )
         lines.append(f'    {tok.id}{open_bracket}"{_escape_label(label)}"{close_bracket}')
- 
+
+    # The dedicated 'root' node every independent verb's own 'root' edge
+    # points to (see this module's own docstring) -- added only if at
+    # least one surviving token actually has such an edge to draw, so an
+    # empty or fully-filtered diagram never gets an orphan 'root' node.
+    # Mermaid's stadium shape (`([...])`) for a plain oval look; no
+    # classDef/class is ever applied to it below, so it always keeps
+    # Mermaid's own default, unfilled node styling regardless of
+    # `color_by_verbal_unit`.
+    has_root_edge = show_root and any(
+        tok.relatedtoken1 == "root" for tok in tokengraph if tok.id in node_ids
+    )
+    if has_root_edge:
+        lines.append('    root(["root"])')
+
     warnings = []
     for tok in tokengraph:
         if tok.id not in node_ids:
@@ -279,8 +319,13 @@ def tokengraph_to_mermaid(
                 continue
             if related_id == "root":
                 # An independent verb's own unit-verb relation, per
-                # syntax_model.md -- intentionally not a real node, so not
-                # a warning-worthy gap. Just draw no edge for it.
+                # syntax_model.md -- never a warning-worthy gap either way.
+                # When show_root is True (the default), draw the edge into
+                # the single dedicated 'root' node built above; when False,
+                # skip it silently, exactly as before this parameter
+                # existed.
+                if show_root:
+                    lines.append(f'    {tok.id} -->|{_escape_label(label)}| root')
                 continue
             if related_id not in node_ids:
                 warnings.append(
@@ -380,6 +425,7 @@ def save_mermaid(
     color_by_verbal_unit: bool = True,
     rank_by_depth: bool = True,
     aat_depth: Optional[int] = None,
+    show_root: bool = True,
 ) -> List[str]:
     """Write the diagram to `path` (e.g. 'analysis.mmd') and return any
     warnings from tokengraph_to_mermaid."""
@@ -389,6 +435,7 @@ def save_mermaid(
         color_by_verbal_unit=color_by_verbal_unit,
         rank_by_depth=rank_by_depth,
         aat_depth=aat_depth,
+        show_root=show_root,
     )
     with open(path, "w", encoding="utf-8") as f:
         f.write(diagram + "\n")

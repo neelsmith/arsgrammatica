@@ -173,26 +173,40 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/relationshipvalues.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Values for syntactic relationships</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/extendingscheme.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Extending the syntax scheme</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../reference/outputformats.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Format of delimited-text serializations</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
   <a href="../reference/testing.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Running tests with <code>pytest</code></span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/vuvalues.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Allowed terms to document verbal expressions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/tokentypes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Allowed terms for classifying tokens</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/relationshipvalues.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Allowed values for syntactic relationships</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/analysisformat.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Serialization format of analyses</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/tokenizationformat.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Serialization format of tokenization without analysis</span></a>
   </div>
 </li>
     </ul>
@@ -200,8 +214,15 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#controlled-vocabulary" id="toc-controlled-vocabulary" class="nav-link active" data-scroll-target="#controlled-vocabulary">Controlled vocabulary</a></li>
+  <li><a href="#delimited-text-output-formats" id="toc-delimited-text-output-formats" class="nav-link" data-scroll-target="#delimited-text-output-formats">Delimited-text output formats</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -227,13 +248,38 @@ ul.task-list li input[type="checkbox"] {
 
 <ul>
 <li><a href="../arsgrammatica-api-docs.html">API docs</a></li>
-<li>list of all <a href="../reference/relationshipvalues.html">values used for relationships</a> in syntax graph</li>
-<li><a href="../reference/extendingscheme.html">extending the syntax scheme</a></li>
-<li>format of <a href="../reference/outputformats.html">delimited-text serialization</a></li>
 <li><a href="../reference/testing.html">testing with <code>pytest</code></a></li>
+</ul>
+<section id="controlled-vocabulary" class="level2">
+<h2 class="anchored" data-anchor-id="controlled-vocabulary">Controlled vocabulary</h2>
+<ul>
+<li><a href="../reference/vuvalues.html">values used in recording verbal expressions</a></li>
+<li><a href="../reference/tokentypes.html">values used for token types</a></li>
+<li><a href="../reference/relationshipvalues.html">values used for relationship types</a> in graph of token dependencies</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>For discussion of of what each controlled vocabulary item means, see the <a href="https://github.com/neelsmith/arsgrammatica/blob/main/syntax_model.md">syntax model document</a>.</p>
+</div>
+</div>
+</section>
+<section id="delimited-text-output-formats" class="level2">
+<h2 class="anchored" data-anchor-id="delimited-text-output-formats">Delimited-text output formats</h2>
+<ul>
+<li>output format for <a href="../reference/analysisformat.html">syntactic analysis</a></li>
+<li>output format for <a href="../reference/tokenizationformat.html">tokenization without analysis</a></li>
 </ul>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -643,7 +689,7 @@ ul.task-list li input[type="checkbox"] {
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.8.0</strong></p>
+<p>Documentation for release version <strong>0.9.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

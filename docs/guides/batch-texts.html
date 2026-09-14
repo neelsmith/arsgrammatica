@@ -265,6 +265,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../guides/extendingscheme.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Extending the syntax scheme</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../guides/gold.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">How to add a gold example</span></a>
   </div>
@@ -359,7 +365,7 @@ urn:cts:latinLit:phi0690.phi003:1.8 urn:cts:latinLit:phi0690.phi003:1.9 urn:cts:
 <h3 class="anchored" data-anchor-id="define-citable-tokens-and-sentence-units">Define citable tokens and sentence units</h3>
 <p>It can be useful to cite tokens with the same stable identifiers produced by a syntactic analysis with <code>arsgrammatica</code>. The script <code>tokenize_ctsdata.py</code> reads a text corpus from a CEX-format file, and writes to standard output a delimited-text listing of all the tokens in the corpus, and a list of sentences defined by the starting and ending token of each sentence.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> utilities/tokenize_ctsdata.py corpus.cex <span class="op">&gt;</span> tokens-sentences.cex</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>For details of the output format, see <a href="../reference/outputformats.html">the reference documentation</a></p>
+<p>For details of the output format, see <a href="../reference/outputformats.qmd">the reference documentation</a></p>
 
 
 </section>
@@ -773,7 +779,7 @@ urn:cts:latinLit:phi0690.phi003:1.8 urn:cts:latinLit:phi0690.phi003:1.9 urn:cts:
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.8.0</strong></p>
+<p>Documentation for release version <strong>0.9.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

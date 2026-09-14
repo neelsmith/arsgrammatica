@@ -10,7 +10,7 @@ other than PNG).
 
 No LM access needed -- read_analyses() reconstructs everything from each
 file's own text, the same way analysis_to_dot.py and
-marimo/latin_syntaxer_dot.py's own analysis_file_browser cell do.
+marimo/latin_syntaxer_review.py's own analysis_file_browser cell do.
 
 Needs the `graphviz` PyPI package AND a separate Graphviz installation
 (the `dot` command-line tool) -- see notes/graphviz_install.md and
@@ -22,10 +22,11 @@ Usage:
     python utilities/analyses_to_dot_pngs.py a.cex b.cex c.cex --output-dir diagrams/
     python utilities/analyses_to_dot_pngs.py analysis.cex --output-dir diagrams/ --orientation LR
     python utilities/analyses_to_dot_pngs.py analysis.cex --output-dir diagrams/ --no-color --no-rank
+    python utilities/analyses_to_dot_pngs.py analysis.cex --output-dir diagrams/ --no-root
 
 One PNG per sentence, named "<file_stem>_<sentence_number>_<citation>.png"
-(alphanumeric-sanitized, same convention marimo/latin_syntaxer_dot.py's
-own download button uses) -- prefixed with the source file's own stem so
+(alphanumeric-sanitized, same convention marimo/latin_syntaxer_review.py's
+own diagram download button uses) -- prefixed with the source file's own stem so
 sentences from different input files never collide in the same output
 directory. The output directory is created if it doesn't already exist.
 
@@ -54,8 +55,8 @@ except ImportError:
 
 def sentence_filename_stem(file_stem, index, citation):
     """"<file_stem>_<n>_<citation>", alphanumeric-sanitized -- same
-    convention marimo/latin_syntaxer_dot.py's own dot_filename_stem cell
-    uses for its download button, prefixed with the source file's own
+    convention marimo/latin_syntaxer_review.py's own diagram_filename_stem
+    cell uses for its download button, prefixed with the source file's own
     stem so sentences from different input files never collide in one
     output directory."""
     raw = f"{file_stem}_{index + 1}_{citation or ''}"
@@ -96,6 +97,12 @@ if __name__ == "__main__":
         action="store_true",
         help="Disable forcing same-AAT-depth verbal expressions onto the same rank "
              "(tokengraph_to_dot()'s rank_by_depth=False).",
+    )
+    parser.add_argument(
+        "--no-root",
+        action="store_true",
+        help="Omit the dedicated 'root' node every independent verb points to "
+             "(tokengraph_to_dot()'s show_root=False).",
     )
     args = parser.parse_args()
 
@@ -138,7 +145,7 @@ if __name__ == "__main__":
             continue
 
         # zip() stops at whichever list is shorter, same defensive
-        # convention marimo/latin_syntaxer_dot.py's own sentence_dropdown
+        # convention marimo/latin_syntaxer_review.py's own sentence_dropdown
         # cell uses -- a split_analysis_by_sentence() result shorter than
         # `sentences` can't produce a mismatched, out-of-range index here.
         for index, (sentence, (sentence_tokengraph, _sentence_verbalunits)) in enumerate(
@@ -150,6 +157,7 @@ if __name__ == "__main__":
                 orientation=args.orientation,
                 color_by_verbal_unit=not args.no_color,
                 rank_by_depth=not args.no_rank,
+                show_root=not args.no_root,
             )
             for w in warnings:
                 print(f"Warning ({analysis_file}, sentence {index + 1}): {w}", file=sys.stderr)

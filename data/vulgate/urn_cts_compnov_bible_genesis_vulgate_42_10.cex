@@ -1,4 +1,4 @@
-#!LM
+#!lm
 MODEL=litellm_proxy/anthropic/Claude Opus 5
 CONTEXT=urn:cts:compnov:bible.genesis.vulgate:42.10.t0-urn:cts:compnov:bible.genesis.vulgate:42.10.t16
 REASONING=The main clause is "Qui dixerunt" — "Qui" here is the connective relative used as subject of "dixerunt" (no antecedent present in the passage, so it simply takes the 'subject' relation). "dixerunt" is independent and transitive active, framing a direct quotation. Inside the quotation: "Non est ita, domine" — "est" is a linking verb of syntactic type 'direct quote', related to "dixerunt" via 'direct quote'. "Non" and "ita" are adverbs modifying "est"; "domine" is a vocative relating to "est". "sed servi tui venerunt" — "venerunt" is a second verb in the direct quotation (intransitive), also related to "dixerunt" via 'direct quote'; "sed" coordinates "est" and "venerunt". "servi" is subject of "venerunt", "tui" adjectival with "servi". "ut emerent cibos" — purpose clause: "ut" is a subordinating conjunction relating to "venerunt"; "emerent" is dependent, transitive active, with "cibos" as direct object.

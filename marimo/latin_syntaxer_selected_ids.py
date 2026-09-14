@@ -363,6 +363,18 @@ def _(finaltokens, max_subordination_depth, mo):
     return (maxdepth,)
 
 
+@app.cell
+def _(maxdepth):
+    # Guard against maxdepth being None (nothing analyzed yet) rather than
+    # calling .value unconditionally -- same guard latin_syntaxer_review.py
+    # and latin_syntaxer_tokenized.py use for the same reason. Shared by
+    # both the indented-text display and the Mermaid diagram cell below, so
+    # the diagram's own AAT-depth cutoff always matches whatever the
+    # text-display depth slider shows.
+    depth = maxdepth.value if maxdepth is not None else None
+    return (depth,)
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
@@ -454,11 +466,23 @@ def _(mo, selection_error):
 
 
 @app.cell
-def _(combined_tokengraph, results, tokengraph_to_mermaid):
-    # Compose Mermaid diagram:
+def _(combined_tokengraph, results):
+    # Pulled out as its own cell (rather than produced inside the
+    # Mermaid-diagram cell, as it used to be) so maxdepth's own slider
+    # (which itself depends on finaltokens, above) can sit upstream of, and
+    # then feed its value back into, the diagram-composition cell below
+    # without creating a reactive dependency cycle (finaltokens -> maxdepth
+    # -> depth -> diagram, never the other way around) -- same restructuring
+    # latin_syntaxer_textinput.py already uses for the same reason.
     finaltokens = combined_tokengraph(results)
-    diagram, mermaid_warnings = tokengraph_to_mermaid(finaltokens)
-    return diagram, finaltokens
+    return (finaltokens,)
+
+
+@app.cell
+def _(depth, finaltokens, tokengraph_to_mermaid):
+    # Compose Mermaid diagram:
+    diagram, mermaid_warnings = tokengraph_to_mermaid(finaltokens, aat_depth=depth)
+    return (diagram,)
 
 
 @app.cell
@@ -544,11 +568,7 @@ def _(finaltokens, mo, tokengraph_to_html):
 
 
 @app.cell
-def _(finaltokens, maxdepth, mo, tokengraph_to_depth_html):
-    # Guard against maxdepth being None (nothing analyzed yet) rather than
-    # calling .value unconditionally -- same guard latin_syntaxer_review.py
-    # and latin_syntaxer_tokenized.py use for the same reason.
-    depth = maxdepth.value if maxdepth is not None else None
+def _(depth, finaltokens, mo, tokengraph_to_depth_html):
     indenthtml, indentwarnings = tokengraph_to_depth_html(finaltokens, depth=depth)
     indentpsg = mo.Html("<b><i>Indented by verbal unit</i></b>: " + indenthtml)
     return (indentpsg,)

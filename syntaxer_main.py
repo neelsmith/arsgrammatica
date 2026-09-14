@@ -173,7 +173,7 @@ if __name__ == "__main__":
     # script's own separate print_analysis()-based display. Flattening
     # verbalunits/tokengraph across sentences first matches
     # combined_tokengraph()'s own convention (see e.g. the marimo
-    # notebook's "Save analysis" cell). '#!LM' records which model
+    # notebook's "Save analysis" cell). '#!lm' records which model
     # produced the analysis (lm.model -- the actual configured model,
     # including _configure_lm()'s own fallback default, not just a raw
     # MODEL env lookup) and each sentence's own reasoning

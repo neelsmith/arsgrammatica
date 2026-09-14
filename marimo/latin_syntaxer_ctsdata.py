@@ -110,8 +110,8 @@ def _(diagram_tool):
 def _(diagram, diagram_tool, dot_source, dot_warnings, graphviz, mo):
     # Two distinct failure modes to degrade visibly from when
     # diagram_tool.value == "graphviz", same "don't just crash the cell"
-    # convention latin_syntaxer_dot.py's own dot_display cell uses (see
-    # notes/dot_diagrams.md):
+    # convention latin_syntaxer_review.py's own diagram_display cell uses
+    # (see notes/dot_diagrams.md):
     #   - the `graphviz` package itself isn't installed -- not actually
     #     reachable here, since diagram_tool's own options only offer
     #     "graphviz" at all when graphviz_available is True (see that
@@ -233,7 +233,6 @@ def _(cost_summary, format_lm_cost, mo, seecost):
     costdisplay = None
     if seecost.value:
         costdisplay = mo.md(f"**LM cost so far**: {format_lm_cost(cost_summary)}")
-
     return (costdisplay,)
 
 
@@ -392,9 +391,21 @@ def _(mo, passage_multiselect):
 @app.cell
 def _(finaltokens, max_subordination_depth, mo):
     maxdepth = None
-    if finaltokens:    
+    if finaltokens:
         maxdepth = mo.ui.slider(start=0,stop=max_subordination_depth(finaltokens),label="*Maximum depth of subordination to display*:",show_value=True,value=max_subordination_depth(finaltokens))
     return (maxdepth,)
+
+
+@app.cell
+def _(maxdepth):
+    # Guard against maxdepth being None (nothing analyzed yet) rather than
+    # calling .value unconditionally -- same guard latin_syntaxer_review.py
+    # and latin_syntaxer_tokenized.py use for the same reason. Shared by the
+    # indented-text display and both diagram-composition cells below, so the
+    # diagrams' own AAT-depth cutoff always matches whatever the
+    # text-display depth slider shows.
+    depth = maxdepth.value if maxdepth is not None else None
+    return (depth,)
 
 
 @app.cell(hide_code=True)
@@ -495,21 +506,33 @@ def _(graphviz_available, mo):
 
 
 @app.cell
-def _(combined_tokengraph, results, tokengraph_to_mermaid):
-    # Compose Mermaid diagram:
+def _(combined_tokengraph, results):
+    # Pulled out as its own cell (rather than produced inside the
+    # Mermaid-diagram cell, as it used to be) so maxdepth's own slider
+    # (which itself depends on finaltokens, above) can sit upstream of, and
+    # then feed its value back into, the diagram-composition cells below
+    # without creating a reactive dependency cycle (finaltokens -> maxdepth
+    # -> depth -> diagram, never the other way around) -- same restructuring
+    # latin_syntaxer_textinput.py already uses for the same reason.
     finaltokens = combined_tokengraph(results)
-    diagram, mermaid_warnings = tokengraph_to_mermaid(finaltokens)
-    return diagram, finaltokens
+    return (finaltokens,)
 
 
 @app.cell
-def _(finaltokens, tokengraph_to_dot):
+def _(depth, finaltokens, tokengraph_to_mermaid):
+    # Compose Mermaid diagram:
+    diagram, mermaid_warnings = tokengraph_to_mermaid(finaltokens, aat_depth=depth)
+    return (diagram,)
+
+
+@app.cell
+def _(depth, finaltokens, tokengraph_to_dot):
     # Compose Graphviz diagram: cheap to always compute regardless of which
     # tool is currently selected -- tokengraph_to_dot() is pure string
     # building with no dependency of its own (see notes/dot_diagrams.md),
     # unlike actually rendering it, which needs the graphviz package and
     # the `dot` executable (handled in diagram_display above).
-    dot_source, dot_warnings = tokengraph_to_dot(finaltokens)
+    dot_source, dot_warnings = tokengraph_to_dot(finaltokens, aat_depth=depth)
     return dot_source, dot_warnings
 
 
@@ -521,7 +544,7 @@ def _(diagram, diagram_tool, dot_source, filename_base, finaltokens, mo):
     # analysis. Mermaid source is wrapped in a ```mermaid fenced code
     # block and saved as .md, matching latin_syntaxer_textinput.py's own
     # download_mermaid; Graphviz source is saved raw as .dot, matching
-    # latin_syntaxer_dot.py's own dot_download -- both are renderable
+    # latin_syntaxer_review.py's own diagram_download -- both are renderable
     # elsewhere (a Markdown viewer with Mermaid support, `dot -Tsvg`, an
     # online DOT viewer, Quarto's fenced ```{dot}```/```{mermaid}```
     # blocks) without needing this notebook. disabled=not finaltokens
@@ -636,17 +659,13 @@ def _(finaltokens, mo, selected_rows, tokengraph_to_text):
 
 
 @app.cell
-def _(finaltokens, mo, tokengraph_to_html):
-    vuhtml = mo.Html("<b><i>Highlighted by verbal unit</i></b>: " + tokengraph_to_html(finaltokens))
+def _(depth, finaltokens, mo, tokengraph_to_html):
+    vuhtml = mo.Html("<b><i>Highlighted by verbal unit</i></b>: " + tokengraph_to_html(finaltokens,depth=depth))
     return (vuhtml,)
 
 
 @app.cell
-def _(finaltokens, maxdepth, mo, tokengraph_to_depth_html):
-    # Guard against maxdepth being None (nothing analyzed yet) rather than
-    # calling .value unconditionally -- same guard latin_syntaxer_review.py
-    # and latin_syntaxer_tokenized.py use for the same reason.
-    depth = maxdepth.value if maxdepth is not None else None
+def _(depth, finaltokens, mo, tokengraph_to_depth_html):
     indenthtml, indentwarnings = tokengraph_to_depth_html(finaltokens, depth=depth)
     indentpsg = mo.Html("<b><i>Indented by verbal unit</i></b>: " + indenthtml)
     return (indentpsg,)
@@ -666,7 +685,7 @@ def _(finaltokens, lm, results, sentences, serialize_analyses):
     # serialize_analyses()/write_analyses() expect, matching how
     # combined_tokengraph() already flattens tokengraph across sentences.
     all_verbalunits = [vu for result in results for vu in result.verbalunits]
-    # '#!LM' records which model produced each sentence's analysis
+    # '#!lm' records which model produced each sentence's analysis
     # (lm.model -- the actual configured model, including configure_lm()'s
     # own fallback default, not just a raw MODEL env lookup) and that
     # sentence's own reasoning (dspy.ChainOfThought's `reasoning` output
@@ -726,7 +745,7 @@ def _(Path):
 
     # graphviz (the PyPI package -- a thin subprocess wrapper around the
     # separately-installed Graphviz `dot` executable) is optional the same
-    # way it is for latin_syntaxer_dot.py's own diagram display: importable
+    # way it is for latin_syntaxer_review.py's own diagram display: importable
     # or not, checked once here, rather than every display cell catching
     # ImportError itself. Whether the `dot` executable is actually on PATH
     # is a SEPARATE check (graphviz.ExecutableNotFound), made only when a

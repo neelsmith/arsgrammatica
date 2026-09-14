@@ -1,0 +1,80 @@
+---
+title: Serialization format of analyses
+---
+
+
+## Block structure
+
+Syntactic analyses produce a list of `Sentence` objects, `VerbalExpression` objects, and `TokenAnalysis` objects. These are serialized to a plain-text format with delimited-text data blocks identified by labels for each, identified by the labels `#!sentences`, `#!verbal_units` and `#!tokens` respectively. A fourth, optional block with metatadata about the language model and its reasoning is identified by the label `#!lm`. Blocks may appear in any order and may repeat (e.g. from concatenating data from multiple analyses). 
+
+The delimited-text structure of each block's data directly translates the structure of the object it is serializing. `None` fields are serialized as an empty string (`""`). By default, the pipe character `|` is used as a delimiter in delimited-text blocks.
+
+## Field structure of each block
+
+The structure of each block type is illustrated with the serialization of an analysis of a passage with text content `arma virumque cano` and CTS URN `urn:cts:latinLit:phi0690.phi003.omar:1.1`.
+
+### `#!sentences`
+
+Sentence blocks have four columns with a header `context_begin|first_token|context_end|last_token`. These give the URN content and token ID of the first and last tokens of each sentence.
+
+
+**Example**:
+
+```
+#!sentences
+context_begin|first_token|context_end|last_token
+urn:cts:latinLit:phi0690.phi003.omar:1.1|t0|urn:cts:latinLit:phi0690.phi003.omar:1.1|t3
+```
+
+
+
+### `#!verbal_units`
+
+Verbal unit blocks begin with a header `context|token|syntactic_type|semantic_type`. The token that the verbal expression is anchored to is identified by a CTS URN plus token ID.  
+
+
+**Example**:
+
+```
+#!verbal_units
+context|token|syntactic_type|semantic_type
+urn:cts:latinLit:phi0690.phi003.omar:1.1|t3|independent|transitive active
+```
+
+
+### `#!tokens`
+
+Token analysis blocks begin with a header `context|id|tokentype|text|lemma|verbalunit|related1|relationship1|related2|relationship2`
+
+Entries in the table token are *ordered*. Each token is identified by a CTS URN plus token ID, followed by the surface form appearing in the passage and a lemma (headword). The graph structure is recorded by two pairs of fields identifying a token by its ID, and classifying the relationship of the two tokens. In a successful analysis, all non-punctuation tokens have a value for `related1` and `relationship1`; the second pair (`related2` and `relationship2`) have values only for two-way relationships.
+
+**Example**:
+
+```
+#!tokens
+context|id|tokentype|text|lemma|verbalunit|related1|relationship1|related2|relationship2
+urn:cts:latinLit:phi0690.phi003.omar:1.1|t0|lexical|arma|arma||t3|direct object||
+urn:cts:latinLit:phi0690.phi003.omar:1.1|t1|lexical|virum|vir||t3|direct object||
+urn:cts:latinLit:phi0690.phi003.omar:1.1|t2|enclitic|que|que||t0|coordinating conjunction|t1|coordinating conjunction
+urn:cts:latinLit:phi0690.phi003.omar:1.1|t3|lexical|cano|cano|t3|root|unit verb||
+```
+
+
+
+### `#!lm`
+
+
+
+The optional `#!lm` block is shaped differently. It has three `KEY=value` lines per sentence with keys (`MODEL`, `CONTEXT` and `REASONING`. These record the model that produce the anlaysis, the sentences ID as a URN range, and the models reasoning (collapsed to one line).
+
+```
+#!lm
+MODEL=litellm_proxy/anthropic/Claude Opus 5
+CONTEXT=urn:cts:latinLit:phi0690.phi003.omar:1.1.t0-urn:cts:latinLit:phi0690.phi003.omar:1.1.t3
+REASONING="arma virumque cano" = "I sing of arms and a man." The only verbal expression is the finite verb "cano" (1st sg. present indicative active), an independent main verb, transitive active, with relatedtoken1 = 'root'. "arma" (neuter accusative plural) and "virum" (accusative singular) are both direct objects of "cano". The enclitic "-que" (here tokenized separately as "que") is a coordinating conjunction joining the two nouns: relatedtoken1 -> "arma", relatedtoken2 -> "virum", both relations 'coordinating conjunction'. Each noun independently keeps its own 'direct object' relation to "cano". No implied tokens are needed; no ambiguity of note ("virum" could theoretically be a genitive plural of "vir", but "arma virumque cano" is unambiguously accusative singular here as a second object of "cano").
+
+
+```
+
+
+

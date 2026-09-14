@@ -405,7 +405,7 @@ def _(finaltokens, lm, results, sentences, serialize_analyses):
     # serialize_analyses()/write_analyses() expect, matching how
     # combined_tokengraph() already flattens tokengraph across sentences.
     all_verbalunits = [vu for result in results for vu in result.verbalunits]
-    # '#!LM' records which model produced each sentence's analysis
+    # '#!lm' records which model produced each sentence's analysis
     # (lm.model -- the actual configured model, including configure_lm()'s
     # own fallback default, not just a raw MODEL env lookup) and that
     # sentence's own reasoning (dspy.ChainOfThought's `reasoning` output

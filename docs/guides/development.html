@@ -230,6 +230,12 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../guides/extendingscheme.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Extending the syntax scheme</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../guides/gold.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">How to add a gold example</span></a>
   </div>
@@ -291,7 +297,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="failed-analyses" class="level3">
 <h3 class="anchored" data-anchor-id="failed-analyses">Failed analyses</h3>
 <p>When <code>arsgrammatica</code> <em>fails</em> to analyze the syntax of a passage correctly, we can use the results to identify gaps in the schema, or areas in need of better training.</p>
-<p>First check whether <code>syntax_model.md</code> explicitly and clearly defines the construction that was not analyzed correctly. If it does not, modify <code>syntax_model.md</code> and follow the steps given in the reference section to <a href="../reference/extendingscheme.html">extend the scheme</a> for the new construction.</p>
+<p>First check whether <code>syntax_model.md</code> explicitly and clearly defines the construction that was not analyzed correctly. If it does not, modify <code>syntax_model.md</code> and follow the steps given in the reference section to <a href="../reference/extendingscheme.qmd">extend the scheme</a> for the new construction.</p>
 <p>If the scheme is already clear, but the analysis failed anyway, use <a href="../guides/gold.html">this recipe</a> to add a <code>GoldExample</code> with a <em>correct</em> <code>canned_answer</code> in <code>tests/fixtures/gold_examples.py</code>. If you’re unsure between two defensible readings, say so explicitly in a comment above the fixture rather than silently committing to one.</p>
 <p>Re-run <code>pytest</code> to confirm that the new or corrected fixture validates and that <code>test_coverage.py</code> is satisfied.</p>
 </section>
@@ -743,7 +749,7 @@ Note
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.8.0</strong></p>
+<p>Documentation for release version <strong>0.9.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

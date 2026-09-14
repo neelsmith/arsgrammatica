@@ -1,4 +1,4 @@
-#!LM
+#!lm
 MODEL=litellm_proxy/anthropic/Claude Opus 5
 CONTEXT=urn:cts:compnov:bible.genesis.vulgate:42.6.t0-urn:cts:compnov:bible.genesis.vulgate:42.6.t15
 REASONING=Two coordinated independent clauses. First: "Et Joseph erat princeps in terra aegypti" — "erat" is a linking verb, "Joseph" its subject, "princeps" the predicate noun, "in terra" a prepositional phrase modifying the verb adverbially, with "aegypti" a genitive depending on "terra". "Et" opens the sentence with no preceding verb to pair with, so only relatedtoken1 -> "erat". Second: "atque ad ejus nutum frumenta populis vendebantur" — "vendebantur" is a transitive passive finite verb, independent; "frumenta" is its subject, "populis" a dative, "ad" a prepositional phrase modifying the verb adverbially with "nutum" as object of preposition and "ejus" a genitive depending on "nutum". "atque" coordinates the two verbs "erat" and "vendebantur".

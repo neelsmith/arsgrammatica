@@ -1,0 +1,46 @@
+---
+title: Serialization format of tokenization without analysis
+---
+
+
+
+## Block structure
+
+Tokenization of a passage and segmentation into sentences can be serialized without incurring the cost of a full syntactic anlaysis. The results are serialized to a plain-text format with delimited-text data blocks labelled `#!sentences`, and `#!tokens`.  By default, the pipe character `|` is used as a delimiter in delimited-text blocks.
+
+
+## Field structure
+
+The structure of each block type is illustrated with the serialization of an analysis of a passage with text content `arma virumque cano` and CTS URN `urn:cts:latinLit:phi0690.phi003.omar:1.1`.
+
+
+### Sentences
+
+`#!sentences` blocks have four columns with a header `context_begin|first_token|context_end|last_token`. These give the URN content and token ID of the first and last tokens of each sentence. (This is identical to the `#!sentences` block [serialized for a full analysis](./analysisformat.qmd).)
+
+
+**Example**:
+
+```
+#!sentences
+context_begin|first_token|context_end|last_token
+urn:cts:latinLit:phi0690.phi003.omar:1.1|t0|urn:cts:latinLit:phi0690.phi003.omar:1.1|t3
+```
+
+
+### Tokens
+
+The  `#!tokens` block has four columns with the header `context|sentence_index|id|text`. These give the CTS URN, a sentence index number, and the token ID for each token, followed by the text content of the token.
+
+
+```
+#!tokens
+context|sentence_index|id|text
+urn:cts:latinLit:phi0690.phi003:1.1|0|t0|arma
+urn:cts:latinLit:phi0690.phi003:1.1|0|t1|virum
+urn:cts:latinLit:phi0690.phi003:1.1|0|t2|que
+urn:cts:latinLit:phi0690.phi003:1.1|0|t3|cano
+```
+
+
+

@@ -1,6 +1,6 @@
 # Installing Graphviz's `dot` binary
 
-Only needed to render `dot.py`'s DOT text into a picture (or to use `marimo/latin_syntaxer_dot.py`'s inline preview) -- generating the text itself needs nothing. See `notes/dot_diagrams.md`.
+Only needed to render `dot.py`'s DOT text into a picture (or to use `marimo/latin_syntaxer_review.py`'s inline Graphviz preview) -- generating the text itself needs nothing. See `notes/dot_diagrams.md`.
 
 ## macOS
 

@@ -291,12 +291,6 @@ def _(mo):
 
 
 @app.cell
-def _(finaltokens, tokengraph_to_mermaid):
-    diagram, mermaid_warnings = tokengraph_to_mermaid(finaltokens)
-    return (diagram,)
-
-
-@app.cell
 def _(finaltokens, mo, tokengraph_to_html):
     vuhtml = mo.Html("<b><i>Highlighted by verbal unit</i></b>: " + tokengraph_to_html(finaltokens))
     return (vuhtml,)
@@ -319,11 +313,24 @@ def _(finaltokens, max_subordination_depth, mo):
 
 
 @app.cell
-def _(finaltokens, maxdepth, mo, tokengraph_to_depth_html):
+def _(maxdepth):
     # Guard against maxdepth being None (nothing analyzed yet) rather than
     # calling .value unconditionally -- same guard latin_syntaxer_review.py
-    # uses for the same reason.
+    # uses for the same reason. Shared by both the indented-text display
+    # below and the Mermaid diagram cell, so the diagram's own AAT-depth
+    # cutoff always matches whatever the text-display depth slider shows.
     depth = maxdepth.value if maxdepth is not None else None
+    return (depth,)
+
+
+@app.cell
+def _(depth, finaltokens, tokengraph_to_mermaid):
+    diagram, mermaid_warnings = tokengraph_to_mermaid(finaltokens, aat_depth=depth)
+    return (diagram,)
+
+
+@app.cell
+def _(depth, finaltokens, tokengraph_to_depth_html, mo):
     indenthtml, indentwarnings = tokengraph_to_depth_html(finaltokens, depth=depth)
     indentpsg = mo.Html("<b><i>Indented by verbal unit</i></b>: " + indenthtml)
     return (indentpsg,)

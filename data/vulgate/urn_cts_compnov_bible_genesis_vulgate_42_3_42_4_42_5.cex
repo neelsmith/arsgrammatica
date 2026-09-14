@@ -1,4 +1,4 @@
-#!LM
+#!lm
 MODEL=litellm_proxy/anthropic/Claude Opus 5
 CONTEXT=urn:cts:compnov:bible.genesis.vulgate:42.3.t0-urn:cts:compnov:bible.genesis.vulgate:42.5.t41
 REASONING=The main clause is "fratres Joseph decem ... ingressi sunt terram aegypti" (deponent perfect with accusative object, so transitive active; "sunt" is auxiliary to "ingressi"). "Descendentes" is a circumstantial participle agreeing with "fratres". "ut emerent frumenta in aegypto" is a purpose clause depending on "Descendentes". "Benjamin domi retento a Jacob" is an ablative absolute: "retento" agrees with "Benjamin", which relates to the main verb as 'ablative absolute'; "a Jacob" is the agent. "qui dixerat fratribus ejus" is a relative clause with antecedent "Jacob". After the colon comes the quoted warning "Ne forte in itinere quidquam patiatur mali", framed by "dixerat", so "patiatur" is a 'direct quote' verbal expression; "mali" is a partitive genitive with "quidquam". Finally "qui pergebant ad emendum" is a relative clause modifying "aliis"; "emendum" is a gerund governed by "ad".

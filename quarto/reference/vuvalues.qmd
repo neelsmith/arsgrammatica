@@ -1,0 +1,23 @@
+---
+title: Allowed terms to document verbal expressions
+---
+
+
+
+
+
+
+## Syntactic type
+
+
+For finite verbs: `independent`, `dependent`, `direct quote`, `aside`
+
+For infinitives: `indirect statement`
+
+For participles: `circumstantial participle`
+
+
+## Semantic type
+
+
+`transitive active`, `transitive passive`, `intransitive`, `linking verb`

@@ -1,4 +1,4 @@
-#!LM
+#!lm
 MODEL=litellm_proxy/anthropic/Claude Opus 5
 CONTEXT=urn:cts:compnov:bible.genesis.vulgate:42.8.t0-urn:cts:compnov:bible.genesis.vulgate:42.8.t11
 REASONING="Et tamen fratres ipse cognoscens, non est cognitus ab eis." = "And yet, though he himself recognized his brothers, he was not recognized by them." - "cognoscens" (t4) is a predicate/circumstantial participle agreeing with "ipse" (t3), taking "fratres" (t2) as its direct object → its own verbal expression, dependent, transitive active. - "est cognitus" (t7 + t8) is a compound perfect passive; the participle "cognitus" (t8) anchors the verbal expression (independent, transitive passive), with "est" as its auxiliary. "ipse" is its subject (and also the antecedent of the participle, so it takes only that normal 'subject' relation). - "Et" opens the sentence with no preceding verb to pair with → only relatedtoken1 → t8. - "tamen" and "non" are adverbs modifying t8; "ab" introduces the agent (→ t8), with "eis" as object of preposition.

@@ -644,3 +644,106 @@ def test_aat_depth_zero_never_drops_a_token_from_its_own_clause(example):
         unit_depth = depths.get(unit_id, 0) if unit_id is not None else 0
         if unit_depth == 0:
             assert tok.id in node_ids, f"{example.slug}: {tok.id} should survive aat_depth=0"
+
+
+# ---------------------------------------------------------------------------
+# Drawing the 'root' node (show_root parameter, default True) -- mirrors
+# mermaid.py's own show_root parameter exactly; see test_mermaid_root.py
+# for the Mermaid-side counterpart of every test below.
+# ---------------------------------------------------------------------------
+
+
+def test_show_root_default_true_draws_root_node_and_edge():
+    example = _example("unit_verb_hercules_cum")
+    tokens, result = run_gold_example(example)
+    diagram, warnings = tokengraph_to_dot(result.tokengraph)
+    assert not warnings
+    assert '    root [label="root", shape=oval];' in diagram.splitlines()
+    assert 't5 -> root [label="unit verb"];' in diagram
+
+
+def test_show_root_false_omits_root_node_and_edge():
+    """show_root=False reproduces this function's behavior before this
+    parameter existed: the 'root' relation is skipped silently, with no
+    node and no edge for it at all."""
+    example = _example("unit_verb_hercules_cum")
+    tokens, result = run_gold_example(example)
+    diagram, warnings = tokengraph_to_dot(result.tokengraph, show_root=False)
+    assert not warnings
+    assert "root [" not in diagram
+    assert "-> root" not in diagram
+
+
+@pytest.mark.parametrize("example", GOLD_EXAMPLES, ids=lambda e: e.slug)
+def test_show_root_adds_no_new_warnings(example):
+    """Drawing the root node/edges is purely additive -- it must never
+    introduce a warning that show_root=False doesn't already have."""
+    tokens, result = run_gold_example(example)
+    _plain, plain_warnings = tokengraph_to_dot(result.tokengraph, show_root=False)
+    _rooted, rooted_warnings = tokengraph_to_dot(result.tokengraph, show_root=True)
+    assert rooted_warnings == plain_warnings, example.slug
+
+
+def test_root_node_is_plain_uncolored_oval_even_with_coloring_enabled():
+    """The 'root' node must never get a fillcolor/style=filled attribute,
+    unlike every real token node, regardless of color_by_verbal_unit."""
+    example = _example("unit_verb_hercules_cum")
+    tokens, result = run_gold_example(example)
+    diagram, _warnings = tokengraph_to_dot(result.tokengraph, color_by_verbal_unit=True)
+    root_line = next(line for line in diagram.splitlines() if line.strip().startswith("root ["))
+    assert root_line.strip() == 'root [label="root", shape=oval];'
+    assert "fillcolor" not in root_line
+    assert "style" not in root_line
+
+
+def test_multiple_independent_verbs_share_one_root_node():
+    """Same fixture as test_mermaid_root.py's own
+    test_multiple_independent_verbs_share_one_root_node: noluit (t4) and
+    adduxit (t10) are both independent root verbs -- both should draw an
+    edge into the SAME single 'root' node, not one each."""
+    example = _example("coordinating_conjunction_verbs_ille_hermionenque")
+    tokens, result = run_gold_example(example)
+    diagram, warnings = tokengraph_to_dot(result.tokengraph)
+    assert not warnings
+    lines = diagram.splitlines()
+    assert sum(1 for line in lines if line.strip().startswith("root [")) == 1
+    assert 't4 -> root [label="unit verb"];' in diagram
+    assert 't10 -> root [label="unit verb"];' in diagram
+
+
+def test_root_omitted_when_no_independent_verb_is_present():
+    """A tokengraph with no 'root'-anchored token at all must never get an
+    orphan 'root' node -- show_root only adds the node when there's at
+    least one edge to draw into it. Same fixture as test_mermaid_root.py's
+    own test_root_omitted_when_no_independent_verb_is_present."""
+    tokengraph = [
+        TokenAnalysis(
+            id="t0", token="Hercules", tokentype="lexical",
+            relatedtoken1="t1", relationship1="subject",
+        ),
+        TokenAnalysis(
+            id="t1", token="pergit", tokentype="lexical", verbalunitid="t1",
+            relatedtoken1="t2", relationship1="direct quote",
+        ),
+        TokenAnalysis(
+            id="t2", token="venit", tokentype="lexical", verbalunitid="t2",
+        ),
+    ]
+    diagram, warnings = tokengraph_to_dot(tokengraph)
+    assert not warnings
+    assert "root [" not in diagram
+    assert "-> root" not in diagram
+
+
+def test_root_survives_depth_and_aat_depth_zero_filtering():
+    """An independent verb's own anchor is always graph-depth 0 AND
+    AAT-depth 0, so it (and its 'root' edge) must never be excluded by
+    either filter -- show_root composes freely with both `depth` and
+    `aat_depth`."""
+    example = _example("unit_verb_hercules_cum")
+    tokens, result = run_gold_example(example)
+    for kwargs in ({"depth": 0}, {"aat_depth": 0}):
+        diagram, warnings = tokengraph_to_dot(result.tokengraph, **kwargs)
+        assert warnings == []
+        assert '    root [label="root", shape=oval];' in diagram.splitlines()
+        assert 't5 -> root [label="unit verb"];' in diagram

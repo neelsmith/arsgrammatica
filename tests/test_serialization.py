@@ -11,9 +11,11 @@ serialize_analyses() and write_analyses() agree exactly; that
 read_analyses() accepts a file with more than one instance of a block
 label, merging them in file order; a round trip built directly from
 real gold fixtures for realistic coverage of the scheme's relation shapes;
-and the optional '#!LM' block -- its own round trip, its
-backward-compatible absence, reasoning's newline-collapsing, and every
-malformed-'#!LM' error read_analyses() can raise.
+and the optional '#!lm' block -- its own round trip, its
+backward-compatible absence, its backward-compatible pre-rename '#!LM'
+spelling (still accepted on read, never written), reasoning's
+newline-collapsing, and every malformed-'#!lm' error read_analyses() can
+raise.
 """
 
 import pytest
@@ -729,9 +731,9 @@ def test_split_rejects_a_boundary_token_missing_from_tokengraph():
 
 
 # ---------------------------------------------------------------------------
-# The '#!LM' block: which model produced an analysis, what it was given to
+# The '#!lm' block: which model produced an analysis, what it was given to
 # analyze, and its own reasoning -- one entry per sentence, optional at
-# both ends (see the module docstring's "The #!LM block").
+# both ends (see the module docstring's "The #!lm block").
 # ---------------------------------------------------------------------------
 
 
@@ -744,18 +746,18 @@ _REASONING = [
 
 def test_lm_block_omitted_by_default(tmp_path):
     """Neither serialize_analyses() nor write_analyses() should emit
-    '#!LM' -- or change their output at all -- when called without
-    `reasoning`, exactly reproducing every pre-'#!LM' file."""
+    '#!lm' -- or change their output at all -- when called without
+    `reasoning`, exactly reproducing every pre-'#!lm' file."""
     sentences, verbalunits, tokengraph = _two_sentence_fixture()
     path = tmp_path / "analysis.txt"
 
     warnings = write_analyses(sentences, verbalunits, tokengraph, str(path))
     assert warnings == []
     text = path.read_text()
-    assert "#!LM" not in text
+    assert "#!lm" not in text
 
     content, _ = serialize_analyses(sentences, verbalunits, tokengraph)
-    assert "#!LM" not in content
+    assert "#!lm" not in content
 
     _tokengraph, _verbalunits, _sentences, lm_infos = read_analyses(str(path))
     assert lm_infos == []
@@ -769,9 +771,13 @@ def test_lm_block_appears_before_the_other_three(tmp_path):
     )
 
     text = path.read_text()
-    assert text.index("#!LM") < text.index("#!sentences")
-    assert text.index("#!LM") < text.index("#!verbal_units")
-    assert text.index("#!LM") < text.index("#!tokens")
+    assert text.index("#!lm") < text.index("#!sentences")
+    assert text.index("#!lm") < text.index("#!verbal_units")
+    assert text.index("#!lm") < text.index("#!tokens")
+    # write_analyses() must never regress to the pre-rename '#!LM' spelling
+    # (see test_legacy_uppercase_lm_label_still_reads below for the read
+    # side of this same backward-compat guarantee).
+    assert "#!LM" not in text
 
 
 def test_lm_block_round_trips(tmp_path):
@@ -859,7 +865,7 @@ def test_lm_requires_one_reasoning_entry_per_sentence(tmp_path):
 def test_repeated_lm_blocks_are_merged_in_file_order(tmp_path):
     """Same convention as the other three labels (see
     test_repeated_block_labels_are_merged_in_file_order): concatenating two
-    self-contained write_analyses() outputs, each with its own '#!LM'
+    self-contained write_analyses() outputs, each with its own '#!lm'
     section, reads back as one combined list of LMInfo entries."""
     sentence_a = Sentence(tokens=[Token(id="t0", text="foo", citation="Aeneid 1.1")])
     tokengraph_a = [
@@ -889,13 +895,58 @@ def test_repeated_lm_blocks_are_merged_in_file_order(tmp_path):
     assert [info.reasoning for info in lm_infos] == _REASONING
 
 
+def test_legacy_uppercase_lm_label_still_reads(tmp_path):
+    """read_analyses() accepts the pre-rename '#!LM' spelling as a synonym
+    for '#!lm', so every file written before the label was lowercased still
+    reads back exactly as before -- write_analyses()/serialize_analyses()
+    themselves never emit it again (see the '#!LM' not in text assertion in
+    test_lm_block_appears_before_the_other_three)."""
+    content = (
+        f"#!tokens\n{_TOKENS_HEADER}\nAeneid 1.1|t0|lexical|foo||t0|root|unit verb||\n"
+        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
+        "Aeneid 1.1|t0|Aeneid 1.1|t0\n"
+        "#!LM\nMODEL=foo\nCONTEXT=Aeneid 1.1.t0-Aeneid 1.1.t0\nREASONING=bar\n"
+    )
+    path = _write_raw(tmp_path, "legacy_lm_label.txt", content)
+
+    _tokengraph, _verbalunits, got_sentences, lm_infos = read_analyses(path)
+    assert len(got_sentences) == 1
+    assert lm_infos == [
+        LMInfo(model="foo", context="Aeneid 1.1.t0-Aeneid 1.1.t0", reasoning="bar")
+    ]
+
+
+def test_legacy_and_new_spelling_lm_blocks_are_merged_together(tmp_path):
+    """A file concatenating an old-spelling '#!LM' block with a new-spelling
+    '#!lm' one (e.g. an old saved file pasted together with a freshly
+    written one) merges both into a single combined LMInfo list, the same
+    as two same-spelling blocks already do
+    (test_repeated_lm_blocks_are_merged_in_file_order)."""
+    content = (
+        f"#!tokens\n{_TOKENS_HEADER}\nAeneid 1.1|t0|lexical|foo||t0|root|unit verb||\n"
+        "Aeneid 1.2|t1|lexical|bar||t1|root|unit verb||\n"
+        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
+        "Aeneid 1.1|t0|Aeneid 1.1|t0\n"
+        "Aeneid 1.2|t1|Aeneid 1.2|t1\n"
+        "#!LM\nMODEL=foo\nCONTEXT=Aeneid 1.1.t0-Aeneid 1.1.t0\nREASONING=first\n"
+        "#!lm\nMODEL=foo\nCONTEXT=Aeneid 1.2.t1-Aeneid 1.2.t1\nREASONING=second\n"
+    )
+    path = _write_raw(tmp_path, "mixed_lm_labels.txt", content)
+
+    _tokengraph, _verbalunits, got_sentences, lm_infos = read_analyses(path)
+    assert len(got_sentences) == 2
+    assert [info.reasoning for info in lm_infos] == ["first", "second"]
+
+
 def test_lm_block_line_count_not_a_multiple_of_three_raises(tmp_path):
     content = (
         f"#!tokens\n{_TOKENS_HEADER}\nAeneid 1.1|t0|lexical|foo||t0|root|unit verb||\n"
         "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
         "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
         "Aeneid 1.1|t0|Aeneid 1.1|t0\n"
-        "#!LM\nMODEL=foo\nCONTEXT=bar\n"  # missing REASONING= line
+        "#!lm\nMODEL=foo\nCONTEXT=bar\n"  # missing REASONING= line
     )
     path = _write_raw(tmp_path, "lm_bad_count.txt", content)
     with pytest.raises(ValueError, match="not a multiple of 3"):
@@ -916,7 +967,7 @@ def test_lm_block_wrong_prefix_raises(tmp_path, lm_lines, expected_match):
         "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
         "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
         "Aeneid 1.1|t0|Aeneid 1.1|t0\n"
-        f"#!LM\n{lm_lines}\n"
+        f"#!lm\n{lm_lines}\n"
     )
     path = _write_raw(tmp_path, "lm_bad_prefix.txt", content)
     with pytest.raises(ValueError, match=expected_match):
@@ -924,13 +975,13 @@ def test_lm_block_wrong_prefix_raises(tmp_path, lm_lines, expected_match):
 
 
 def test_lm_entry_count_mismatch_with_sentences_raises(tmp_path):
-    """Two '#!LM' entries but only one reconstructed sentence."""
+    """Two '#!lm' entries but only one reconstructed sentence."""
     content = (
         f"#!tokens\n{_TOKENS_HEADER}\nAeneid 1.1|t0|lexical|foo||t0|root|unit verb||\n"
         "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
         "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
         "Aeneid 1.1|t0|Aeneid 1.1|t0\n"
-        "#!LM\nMODEL=foo\nCONTEXT=bar\nREASONING=baz\n"
+        "#!lm\nMODEL=foo\nCONTEXT=bar\nREASONING=baz\n"
         "MODEL=foo\nCONTEXT=bar2\nREASONING=baz2\n"
     )
     path = _write_raw(tmp_path, "lm_count_mismatch.txt", content)

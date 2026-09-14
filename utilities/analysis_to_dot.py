@@ -2,23 +2,24 @@
 Read a saved analysis file (write_analyses()'s own pipe-delimited format --
 see USAGE.md's "Saving and loading analyses", or notes/dot_diagrams.md) and
 print its tokengraph as Graphviz DOT source, via tokengraph_to_dot(). The
-command-line counterpart to marimo/latin_syntaxer_dot.py's own interactive
-DOT display, for scripting/piping instead of notebook use.
+command-line counterpart to marimo/latin_syntaxer_review.py's own
+interactive Graphviz display, for scripting/piping instead of notebook use.
 
 No LM access needed -- read_analyses() reconstructs everything from the
-file's own text, the same way marimo/latin_syntaxer_dot.py's own
+file's own text, the same way marimo/latin_syntaxer_review.py's own
 analysis_file_browser cell does.
 
 Operates on the file's whole tokengraph as read_analyses() returns it --
 already one flat list spanning every sentence in the file, the same shape
 write_analyses() saved it in -- not one sentence at a time. Use
-marimo/latin_syntaxer_dot.py instead if you want to pick a single sentence
+marimo/latin_syntaxer_review.py instead if you want to pick a single sentence
 out of a multi-sentence file.
 
 Usage:
     python utilities/analysis_to_dot.py analysis.cex > analysis.dot
     python utilities/analysis_to_dot.py analysis.cex --orientation LR > analysis.dot
     python utilities/analysis_to_dot.py analysis.cex --no-color --no-rank > analysis.dot
+    python utilities/analysis_to_dot.py analysis.cex --no-root > analysis.dot
 
     # Piped straight into Graphviz, if it's installed (see notes/install.md):
     python utilities/analysis_to_dot.py analysis.cex | dot -Tsvg > analysis.svg
@@ -60,6 +61,12 @@ if __name__ == "__main__":
         help="Disable forcing same-AAT-depth verbal expressions onto the same rank "
              "(tokengraph_to_dot()'s rank_by_depth=False).",
     )
+    parser.add_argument(
+        "--no-root",
+        action="store_true",
+        help="Omit the dedicated 'root' node every independent verb points to "
+             "(tokengraph_to_dot()'s show_root=False).",
+    )
     args = parser.parse_args()
 
     try:
@@ -73,6 +80,7 @@ if __name__ == "__main__":
         orientation=args.orientation,
         color_by_verbal_unit=not args.no_color,
         rank_by_depth=not args.no_rank,
+        show_root=not args.no_root,
     )
 
     # Only the DOT source goes to stdout, so `... > analysis.dot` or
