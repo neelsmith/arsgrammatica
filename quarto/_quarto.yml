@@ -77,7 +77,7 @@ website:
         - "---"
         - guides/tokenizing.qmd
         - guides/budgetingtokens.qmd
-        - guides/managing_prompt_size.qmd
+
 
 
         
@@ -99,6 +99,8 @@ website:
         - "---"
         - reference/analysisformat.qmd
         - reference/tokenizationformat.qmd
+        - "---"
+        - reference/managing_prompt_size.qmd        
 
 
 format:

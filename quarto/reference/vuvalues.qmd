@@ -1,5 +1,5 @@
 ---
-title: Allowed terms to document verbal expressions
+title: Allowed terms for documenting verbal expressions
 ---
 
 
