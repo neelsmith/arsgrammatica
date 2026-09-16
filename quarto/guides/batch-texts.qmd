@@ -48,7 +48,7 @@ It can be useful to cite tokens with the same stable identifiers produced by a s
 python utilities/tokenize_ctsdata.py corpus.cex > tokens-sentences.cex
 ```
 
-For details of the output format, see [the reference documentation](../reference/outputformats.qmd)
+For details of the output format, see [the reference documentation](../reference)
 
 
 

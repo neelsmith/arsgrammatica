@@ -10,7 +10,7 @@ You can incorporate the results of reading real Latin texts with `arsgrammatica`
 
 When `arsgrammatica` *fails* to analyze the syntax of a passage correctly, we can use the results to identify gaps in the schema, or areas in need of better training.
 
-First check whether `syntax_model.md` explicitly and clearly defines the construction that was not analyzed correctly. If it does not, modify `syntax_model.md` and follow the steps given in the reference section to [extend the scheme](../reference/extendingscheme.qmd) for the new construction.
+First check whether `syntax_model.md` explicitly and clearly defines the construction that was not analyzed correctly. If it does not, modify `syntax_model.md` and follow the steps given in the reference section to [extend the scheme](../guides/extendingscheme.qmd) for the new construction.
 
 If the scheme is already clear, but the analysis failed anyway, use [this recipe](./gold.qmd) to add a `GoldExample` with a *correct* `canned_answer` in `tests/fixtures/gold_examples.py`. If you're unsure between two defensible readings, say so explicitly in a comment above the fixture rather than silently committing to one.
 
