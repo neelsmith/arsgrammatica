@@ -39,20 +39,62 @@ Three public functions, in increasing order of what they do:
   output, this needs no external renderer to view: open the file in any
   browser.
 
-**Word order and the exclusion of implied/elided tokens.** displaCy's
-dependency view is fundamentally about a linear reading-order sequence of
-words with arcs between them; a token with no surface realization at all
-(models.py's IMPLIED_TOKENTYPES -- "implied sum", "continued discourse",
-"implied subject") has no such position to draw it at, unlike
-mermaid.py's node-and-edge graph, which can place one anywhere. So, unlike
-mermaid.py (which draws these as amber diamond-ish nodes), this module
-drops them from the word list entirely; any relation pointing into or out
-of a dropped token is skipped and reported as a warning, same "degrade
-visibly, don't silently drop it" convention mermaid.py's own `warnings`
-return value already uses for a relation to punctuation or a missing id
-(neither of which applies here, since punctuation and every other real
-tokentype DOES get a word slot -- see `tokengraph_to_displacy_data()`'s own
-docstring).
+**Word order, punctuation excluded, and implied/elided tokens included only
+when something links to them.** displaCy's dependency view is fundamentally
+about a linear reading-order sequence of words with arcs between them.
+Punctuation (unlike mermaid.py's node graph, which draws it as an ordinary
+node) is dropped from the word list entirely: a diagram of a sentence's
+dependency structure reads more clearly as just its words, with the commas
+and periods left to the caption/plain text instead.
+
+A token with no surface realization at all (models.py's IMPLIED_TOKENTYPES
+-- "implied sum", "continued discourse", "implied subject") has no
+inherent position in the sentence's own reading order the way a real word
+does, unlike mermaid.py's node-and-edge graph, which can place one
+anywhere. But when some OTHER, surviving token's own relation actually
+names it as a target (relatedtoken1/2 pointing at it -- a real participle
+agreeing with an implied subject, an infinitive's "indirect statement"
+pointing at an implied governing verb, and so on), that's the missing half
+of a real relation, not just noise to drop -- so this module includes it
+after all, positioned immediately after that OTHER token in the word
+sequence, the nearest thing to "a position" an unpositioned token can be
+given. (When more than one surviving token names the SAME implied token as
+a target -- e.g. three indirect-statement infinitives all sharing one
+understood governing verb -- it can still only occupy one slot; this
+module places it after the LAST such token, in reading order, deterministic
+but not a claim about which position reads most naturally in every case.)
+Once included this way, the implied token behaves exactly like any other
+word: its own relatedtoken1/2 relations (e.g. an elided "sunt" pointing at
+the participle it supports, or an implied verb's own "root" edge) are drawn
+too, provided their targets resolve normally.
+
+An implied/elided token that nothing else's relation ever names as a
+target -- one that only relates OUTWARD to something else, with nothing
+pointing back at it -- has no anchor position to be placed at and is
+dropped from the word list entirely, exactly as before this existed; its
+own outgoing relations are then simply never drawn (nothing survives to
+draw them from). Any relation pointing at a token dropped for some OTHER
+reason (punctuation, or excluded by `aat_depth` -- see below) is skipped
+and reported as a warning, same "degrade visibly, don't silently drop it"
+convention mermaid.py's own `warnings` return value already uses for a
+relation to a missing id.
+
+**Word tags.** Each surviving word's own "tag" (displayed the way a
+part-of-speech tag would be) is its tokentype string -- but ONLY when
+that tokentype is something other than "lexical": an ordinary word is the
+overwhelming majority of most sentences, so labelling every single one
+"lexical" would just be noise; "enclitic", "numeral", "praenomen", and
+"abbreviation" are the genuinely informative minority worth calling out.
+A "lexical" word's own tag is the empty string (rendered as no tag line at
+all in `tokengraph_to_displacy_svg()`). A linked implied/elided token's own
+tag is its tokentype too ("implied sum", "continued discourse", "implied
+subject"), same rule, since none of those is "lexical" either -- its word
+TEXT, though, can't be `tok.token` (implied tokens have none -- `tok.token
+is None`), so it uses mermaid.py's own `token_label()` instead, the exact
+same placeholder ("elided sum" for "implied sum", the tokentype string
+verbatim otherwise) mermaid.py's own diagram already shows for the same
+token, so a reader sees the same label whichever diagram they're looking
+at.
 
 **The 'root' sentinel.** An independent verb's own `relatedtoken1 ==
 'root'` (syntax_model.md's 'unit verb' relation) has no real word to point
@@ -68,9 +110,11 @@ mermaid.py's and dot.py's own `show_root` already use.
 from typing import Dict, List, Optional, Tuple
 from xml.sax.saxutils import escape as _xml_escape
 
+from .mermaid import token_label
 from .models import IMPLIED_TOKENTYPES, TokenAnalysis
 from .rendering import tokengraph_to_text
 from .verbal_units import (
+    _IMPLIED_TOKEN_COLOR,
     assign_verbal_unit_colors,
     assign_verbal_units,
     compute_aat_depths,
@@ -94,19 +138,30 @@ def tokengraph_to_displacy_data(
     documents for `displacy.render(data, style="dep", manual=True)`.
 
     **Words.** One word per tokengraph entry, IN TOKENGRAPH ORDER (already
-    reading order -- see Sentence's own docstring), EXCEPT any
-    implied/elided token (tokentype in IMPLIED_TOKENTYPES), which has no
-    surface realization to give it a position at all (see this module's own
-    docstring) and is skipped here -- unlike mermaid.py, which still draws
-    these as nodes. Punctuation IS included as an ordinary word (a real
-    dependency parse's own convention, and unlike mermaid.py's node graph,
-    which drops it): a period or comma is still a word in the sentence's own
-    reading order, even on the rare occasion it has no relation of its own
-    to draw an arc for. Each word's own "tag" is its tokentype string
-    verbatim ("lexical", "enclitic", "punctuation", "numeral", "praenomen",
-    or "abbreviation") -- not a part-of-speech tag in spaCy's own sense
-    (this codebase's tokentype vocabulary doesn't have one), but the closest
-    equivalent this data has, and displayed the same way a POS tag would be.
+    reading order -- see Sentence's own docstring), EXCEPT: punctuation,
+    which (unlike mermaid.py's node graph, which draws it) this module
+    omits entirely, for a cleaner "just the words" diagram; and an
+    implied/elided token (tokentype in IMPLIED_TOKENTYPES) that nothing
+    else's relation ever names as a target, which has no surface
+    realization to give it a position at all (see this module's own
+    docstring) and is skipped here too. An implied/elided token that SOME
+    surviving token's relation DOES name as a target is instead included,
+    positioned immediately after that other token (the last one, in reading
+    order, if more than one names the same target) -- see this module's own
+    docstring for the full rule. Each word's own "tag" is its tokentype
+    string verbatim ("enclitic", "numeral", "praenomen", "abbreviation",
+    "implied sum", "continued discourse", or "implied subject" --
+    "punctuation" can't appear here at all, since punctuation never gets a
+    word; see above), EXCEPT "lexical" -- the ordinary case, and by far the
+    most common tokentype in most sentences -- which gets an empty tag
+    instead, so the diagram calls out only the genuinely informative
+    minority. This still isn't a part-of-speech tag in spaCy's own sense
+    (this codebase's tokentype vocabulary doesn't have one), but the
+    closest equivalent this data has, displayed the same way a POS tag
+    would be. A word's own TEXT is `tok.token`, except for an included
+    implied/elided token (`tok.token` is always `None`), which uses
+    mermaid.py's own `token_label()` placeholder instead -- the same label
+    mermaid.py's diagram already shows for that same token.
 
     If `show_root` (default True), one further, synthetic word --
     displayed text "ROOT", tag "" -- is appended at the END of the word
@@ -133,13 +188,18 @@ def tokengraph_to_displacy_data(
     "relates to", regardless of which one comes first in the sentence.
 
     A relation is skipped, and reported as a warning, rather than turned
-    into a malformed arc, when: its target is an implied/elided token
-    (dropped from the word list, per above -- there's no word index for it);
-    its target was excluded by `aat_depth` (see below); its target id isn't
-    in `tokengraph` at all (the same "referentially malformed" case
-    mermaid.py already guards against); or its target IS its own source
-    token (a self-relation -- never valid, but defensively guarded against
-    rather than assumed impossible).
+    into a malformed arc, when: its target is a punctuation token (dropped
+    from the word list, per above -- there's no word index for one); its
+    target was excluded by `aat_depth` (see below); its target id isn't in
+    `tokengraph` at all (the same "referentially malformed" case mermaid.py
+    already guards against); or its target IS its own source token (a
+    self-relation -- never valid, but defensively guarded against rather
+    than assumed impossible). A relation whose target is an implied/elided
+    token, by contrast, is exactly the case that gets the target INCLUDED
+    (per above) rather than skipped -- so this specific reason should never
+    actually surface in practice for a relation whose own source survives;
+    it's kept as a defensive fallback (same "guard it anyway" spirit as the
+    self-relation check) rather than assumed impossible.
 
     `aat_depth`, if given, drops every token belonging to a verbal
     expression DEEPER than that AAT-graph depth (`verbal_units.
@@ -153,17 +213,22 @@ def tokengraph_to_displacy_data(
     relations are simply never drawn (no warning -- there's no arc AT ALL to
     skip, since the token isn't iterated for its own outgoing relations
     once it has no word slot); a SURVIVING token's relation that points AT
-    a dropped one is what gets skipped-with-a-warning, same as a relation
-    into an implied/elided token. Omit `aat_depth` (or pass `None`, the
-    default) to show every word; a negative `aat_depth` raises
-    `ValueError`.
+    a dropped one is what gets skipped-with-a-warning. An implied/elided
+    token is never itself excluded by `aat_depth` (same exemption
+    `tokengraph_to_mermaid()`'s/`tokengraph_to_dot()`'s own `aat_depth`
+    already give it) -- whether it appears in the diagram at all is
+    decided solely by whether something links to it, per above, regardless
+    of depth. Omit `aat_depth` (or pass `None`, the default) to show every
+    word; a negative `aat_depth` raises `ValueError`.
 
     Returns `(data, word_token_ids, warnings)`. `word_token_ids` is a list
     parallel to `data["words"]`, giving the ORIGINAL tokengraph id each word
-    came from (`None` for the synthetic ROOT word, if present) -- for a
-    caller (this module's own `tokengraph_to_displacy_svg()`) that wants to
-    recover "which token is word index 3" without re-deriving this
-    function's own word-selection/ordering rules. `warnings` is the list of
+    came from (`None` for the synthetic ROOT word, if present -- an
+    included implied/elided token gets its own real id here, same as any
+    other word) -- for a caller (this module's own
+    `tokengraph_to_displacy_svg()`) that wants to recover "which token is
+    word index 3" without re-deriving this function's own
+    word-selection/ordering rules. `warnings` is the list of
     skipped-relation messages described above.
     """
     if aat_depth is not None and aat_depth < 0:
@@ -187,17 +252,75 @@ def tokengraph_to_displacy_data(
             > aat_depth
         }
 
+    # Every ordinary (non-implied) token that survives punctuation- and
+    # aat_depth-exclusion, in tokengraph's own reading order -- exactly
+    # this function's word list before implied/elided tokens could ever be
+    # included at all.
+    base_ids: List[str] = [
+        tok.id
+        for tok in tokengraph
+        if tok.tokentype not in IMPLIED_TOKENTYPES
+        and tok.tokentype != "punctuation"
+        and tok.id not in aat_depth_excluded_ids
+    ]
+    base_id_set = set(base_ids)
+
+    # Which implied/elided tokens get included, and where. `anchor_id[i]`
+    # is the id of the token an included implied token `i` goes right
+    # after -- the LAST token, in tokengraph order, whose own
+    # relatedtoken1/2 names `i` as a target (see this module's own
+    # docstring: only one slot exists per implied token, so ties favor the
+    # most recent linker). This is a fixed-point computation, not a single
+    # pass, so a linked implied token can itself anchor a FURTHER implied
+    # token through its own outgoing relations (a chain) -- no current gold
+    # example needs more than one link, but nothing here assumes that.
+    implied_by_id = {
+        tok.id: tok for tok in tokengraph if tok.tokentype in IMPLIED_TOKENTYPES
+    }
+    anchor_id: Dict[str, str] = {}
+    newly_linked = True
+    while newly_linked:
+        newly_linked = False
+        for tok in tokengraph:
+            if tok.id not in base_id_set and tok.id not in anchor_id:
+                continue  # tok itself isn't (yet) known to survive
+            for related_field in ("relatedtoken1", "relatedtoken2"):
+                related_id = getattr(tok, related_field)
+                if related_id is None or related_id == "root":
+                    continue
+                if related_id in implied_by_id:
+                    if related_id not in anchor_id:
+                        newly_linked = True
+                    anchor_id[related_id] = tok.id
+
+    # Every implied token anchored to a given real (or already-included
+    # implied) token id, in tokengraph order among themselves.
+    implied_after: Dict[str, List[str]] = {}
+    for tok in tokengraph:
+        anchor = anchor_id.get(tok.id)
+        if anchor is not None:
+            implied_after.setdefault(anchor, []).append(tok.id)
+
+    ordered_ids: List[str] = []
+
+    def _place(token_id: str) -> None:
+        ordered_ids.append(token_id)
+        for implied_id in implied_after.get(token_id, ()):
+            _place(implied_id)
+
+    for token_id in base_ids:
+        _place(token_id)
+
     word_texts: List[str] = []
     word_tags: List[str] = []
     word_token_ids: List[Optional[str]] = []
     index_by_id: Dict[str, int] = {}
 
-    for tok in tokengraph:
-        if tok.tokentype in IMPLIED_TOKENTYPES or tok.id in aat_depth_excluded_ids:
-            continue
+    for token_id in ordered_ids:
+        tok = by_id[token_id]
         index_by_id[tok.id] = len(word_texts)
-        word_texts.append(tok.token)
-        word_tags.append(tok.tokentype)
+        word_texts.append(token_label(tok))
+        word_tags.append(tok.tokentype if tok.tokentype != "lexical" else "")
         word_token_ids.append(tok.id)
 
     warnings: List[str] = []
@@ -216,9 +339,14 @@ def tokengraph_to_displacy_data(
     for tok in tokengraph:
         source_index = index_by_id.get(tok.id)
         if source_index is None:
-            # tok itself was dropped (an implied/elided token) -- it can
-            # still be the TARGET of someone else's relation (handled via
-            # index_by_id.get() below), but has none of its own to draw.
+            # tok itself was dropped (an unlinked implied/elided token,
+            # punctuation, or excluded by aat_depth) -- it can still be the
+            # TARGET of someone else's relation (handled via
+            # index_by_id.get() below), but has none of its own to draw. A
+            # LINKED implied/elided token, by contrast, already has an
+            # index_by_id entry by this point (see above), so it reaches
+            # this loop as an ordinary source and gets its own outgoing
+            # relations drawn exactly like any other token's.
             continue
         for related_field, label_field in (
             ("relatedtoken1", "relationship1"),
@@ -243,10 +371,21 @@ def tokengraph_to_displacy_data(
                 if target_tok is None:
                     reason = "target id is not present in tokengraph"
                 elif target_tok.tokentype in IMPLIED_TOKENTYPES:
+                    # A relation naming an implied/elided token as its
+                    # target is exactly the case this module now INCLUDES
+                    # the target for (see this module's own docstring), so
+                    # this branch should never actually run for a relation
+                    # whose own source survives -- kept as a defensive
+                    # fallback, same "guard it anyway" spirit as the
+                    # self-relation check below, rather than assumed
+                    # impossible.
                     reason = (
-                        "target is an implied/elided token, with no position "
-                        "in the sentence's own reading order to draw an arc to"
+                        "target is an implied/elided token that no "
+                        "surviving token's own relation named as a target, "
+                        "so it never gained a position to draw an arc to"
                     )
+                elif target_tok.tokentype == "punctuation":
+                    reason = "target is a punctuation token, omitted from the diagram"
                 else:
                     reason = "target is excluded by the aat_depth cutoff"
                 warnings.append(
@@ -343,10 +482,14 @@ def tokengraph_to_displacy_svg(
     `assign_verbal_unit_colors()` -- the SAME shared palette and
     first-appearance ordering mermaid.py and rendering.py already use, so
     all three visualizations of the same sentence agree on which color
-    means which clause. An implied/elided token never gets a word box at
-    all here (see this module's own docstring), so
-    `verbal_units._IMPLIED_TOKEN_COLOR` is never used by this function,
-    unlike mermaid.py. The synthetic ROOT word (if present) is never
+    means which clause. An INCLUDED implied/elided token (see this module's
+    own docstring for when that happens) is the one exception: it always
+    gets `verbal_units._IMPLIED_TOKEN_COLOR` -- the same dedicated
+    "caution" amber mermaid.py's own diagram already uses for the very same
+    token -- regardless of which verbal unit it belongs to, exactly
+    mermaid.py's own convention. An unlinked implied/elided token, dropped
+    from the word list entirely, still never gets a word box at all, same
+    as before this existed. The synthetic ROOT word (if present) is never
     colored, same as mermaid.py's own dedicated 'root' node.
 
     `aat_depth`, if given, is passed straight through to
@@ -374,6 +517,14 @@ def tokengraph_to_displacy_svg(
         by_id = {tok.id: tok for tok in tokengraph}
         for i, token_id in enumerate(word_token_ids):
             if token_id is None:
+                continue  # the synthetic ROOT word -- never colored
+            tok = by_id.get(token_id)
+            if tok is not None and tok.tokentype in IMPLIED_TOKENTYPES:
+                # An included implied/elided token always gets the same
+                # dedicated "caution" amber mermaid.py's own diagram
+                # already uses for it, regardless of which verbal unit it
+                # belongs to -- see this function's own docstring.
+                word_colors[i] = _IMPLIED_TOKEN_COLOR
                 continue
             unit_id = assignment.get(token_id)
             if unit_id in colors:

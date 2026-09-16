@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.16"
+__generated_with = "0.24.0"
 app = marimo.App(width="medium")
 
 
@@ -56,14 +56,24 @@ def _(mo, read_error, sentence_dropdown, sentences, split_error):
 
 
 @app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    ## Selected text
+    """)
+    return
+
+
+@app.cell(hide_code=True)
 def _(plaintext_html):
     plaintext_html
     return
 
 
 @app.cell(hide_code=True)
-def _(vuhtml):
-    vuhtml
+def _(mo):
+    mo.md("""
+    ## Highlighted by verbal units
+    """)
     return
 
 
@@ -74,8 +84,23 @@ def _(maxdepth):
 
 
 @app.cell(hide_code=True)
-def _(indentpsg):
-    indentpsg
+def _(vuhtml):
+    vuhtml
+    return
+
+
+@app.cell(hide_code=True)
+def _(indentpsg, mo):
+    mo.accordion({"***Fold/unfold passage indented by verbal unit***": indentpsg})
+
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    ## Diagram syntactic relations
+    """)
     return
 
 
@@ -155,6 +180,14 @@ def _(
 @app.cell(hide_code=True)
 def _(diagram_download):
     diagram_download
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    ## Reduction to AAT graph
+    """)
     return
 
 
@@ -285,7 +318,12 @@ def _(sentence_dropdown, sentence_slices, sentences):
         selected_tokengraph, selected_verbalunits = sentence_slices[sentence_dropdown.value]
         selected_sentence = sentences[sentence_dropdown.value]
         selected_citation = selected_sentence.tokens[0].citation if selected_sentence.tokens else None
-    return selected_citation, selected_sentence, selected_tokengraph, selected_verbalunits
+    return (
+        selected_citation,
+        selected_sentence,
+        selected_tokengraph,
+        selected_verbalunits,
+    )
 
 
 @app.cell(hide_code=True)
@@ -456,7 +494,7 @@ def _(mo, selected_tokengraph, tokengraph_to_text):
     import html as _html
 
     plaintext_html = mo.Html(
-        "<b><i>Plain text</i></b>: " + _html.escape(tokengraph_to_text(selected_tokengraph))
+        "<b><i>Passage text</i></b>: " + _html.escape(tokengraph_to_text(selected_tokengraph))
     )
     return (plaintext_html,)
 
@@ -472,7 +510,7 @@ def _(depth, mo, selected_tokengraph, tokengraph_to_html):
 @app.cell
 def _(depth, mo, selected_tokengraph, tokengraph_to_depth_html):
     indenthtml, indentwarnings = tokengraph_to_depth_html(selected_tokengraph, depth=depth)
-    indentpsg = mo.Html("<b><i>Indented by verbal unit</i></b>: " + indenthtml)
+    indentpsg = mo.Html(indenthtml)
     return (indentpsg,)
 
 
@@ -615,7 +653,6 @@ def _():
     except ImportError:
         graphviz = None
         graphviz_available = False
-
     return (
         Path,
         SimpleNamespace,

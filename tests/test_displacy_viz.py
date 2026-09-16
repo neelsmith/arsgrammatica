@@ -3,8 +3,10 @@ Tests for displacy_viz.py: `tokengraph_to_displacy_data()` (the
 words/arcs data conversion), `tokengraph_to_displacy_svg()` (the SVG
 renderer built on top of it), and `save_displacy_html()` (the HTML
 wrapper) -- see that module's own docstring for the design this exercises:
-implied/elided tokens excluded from the word list, the synthetic ROOT
-pseudo-word, arc direction, and verbal-unit coloring.
+punctuation excluded from the word list, an implied/elided token included
+(right after the token that links to it) only when something actually
+does, the synthetic ROOT pseudo-word, arc direction, and verbal-unit
+coloring.
 """
 
 import os
@@ -52,10 +54,11 @@ def test_data_shape_matches_displacy_manual_format():
     assert len(word_token_ids) == len(data["words"])
 
 
-def test_words_are_in_reading_order_including_punctuation():
-    """Unlike mermaid.py's node graph, punctuation IS a word here -- the
-    word list should read as the sentence's own reconstructed text, one
-    token per word, in tokengraph order."""
+def test_words_are_in_reading_order_excluding_punctuation():
+    """Punctuation is omitted entirely (unlike mermaid.py's node graph,
+    which draws it) -- the word list should read as the sentence's own
+    words only, in tokengraph order, with no "tag" at all for an ordinary
+    lexical word."""
     example = _example("unit_verb_hercules_cum")
     tokens, result = run_gold_example(example)
     data, word_token_ids, _warnings = tokengraph_to_displacy_data(
@@ -63,11 +66,43 @@ def test_words_are_in_reading_order_including_punctuation():
     )
     texts = [w["text"] for w in data["words"]]
     assert texts == [
-        "Hercules", "cum", "gregem", "perlustrasset", ",",
-        "pergit", "ad", "proximam", "speluncam", ".",
+        "Hercules", "cum", "gregem", "perlustrasset",
+        "pergit", "ad", "proximam", "speluncam",
     ]
-    assert word_token_ids == [f"t{i}" for i in range(10)]
-    assert [w["tag"] for w in data["words"]][4] == "punctuation"
+    assert word_token_ids == ["t0", "t1", "t2", "t3", "t5", "t6", "t7", "t8"]
+    assert all(tag == "" for tag in (w["tag"] for w in data["words"]))
+
+
+def test_punctuation_never_appears_as_a_word():
+    example = _example("unit_verb_hercules_cum")
+    tokens, result = run_gold_example(example)
+    data, word_token_ids, _warnings = tokengraph_to_displacy_data(result.tokengraph)
+    punctuation_ids = {
+        tok.id for tok in result.tokengraph if tok.tokentype == "punctuation"
+    }
+    assert punctuation_ids  # sanity: this fixture does have punctuation
+    assert not (punctuation_ids & set(word_token_ids))
+    assert "," not in [w["text"] for w in data["words"]]
+    assert "." not in [w["text"] for w in data["words"]]
+
+
+def test_only_non_lexical_tokentypes_get_a_tag():
+    """'lexical' -- the ordinary, overwhelming-majority case -- gets an
+    empty tag; a genuinely distinctive tokentype (here, 'praenomen' and
+    'abbreviation') still gets its own tag."""
+    example = _example("praenomen_abbreviation_m_agrippa_cos")
+    tokens, result = run_gold_example(example)
+    data, word_token_ids, _warnings = tokengraph_to_displacy_data(result.tokengraph)
+    tag_by_id = dict(zip(word_token_ids, (w["tag"] for w in data["words"])))
+    tag_by_id.pop(None, None)  # the synthetic ROOT word, if present
+    tokentype_by_id = {tok.id: tok.tokentype for tok in result.tokengraph}
+    for token_id, tag in tag_by_id.items():
+        expected = tokentype_by_id[token_id]
+        if expected == "lexical":
+            assert tag == "", token_id
+        else:
+            assert tag == expected, token_id
+    assert "praenomen" in tag_by_id.values() or "abbreviation" in tag_by_id.values()
 
 
 def test_arc_direction_points_at_the_related_token():
@@ -158,40 +193,95 @@ def test_multiple_independent_verbs_share_one_root_word():
     assert root_arc_sources == {i4, i10}
 
 
-# --- implied/elided tokens: excluded from words, warned about as arc targets ---
+# --- implied/elided tokens: included (right after their linking token)
+# only when something surviving actually links to them; otherwise still
+# excluded, exactly as before this existed. ---
 
 
 @pytest.mark.parametrize(
-    "slug",
+    "slug, implied_id, linking_id, is_linked",
     [
-        "implied_sum_omnia_praeclara_rara",
-        "implied_sum_consules_facti",
-        "implied_participle_of_sum_consulibus",
-        "implied_subject_recordatus_somniorum_ait",
+        # t2_implied is targeted by BOTH t0 (subject) and t2 (predicate) --
+        # "last one wins" places it right after t2, the later of the two.
+        ("implied_sum_omnia_praeclara_rara", "t2_implied", "t2", True),
+        # t7_implied (the elided "sunt") only relates OUTWARD to t7 --
+        # nothing else's relation ever names it as a target, so it stays
+        # excluded, same as before this existed.
+        ("implied_sum_consules_facti", "t7_implied", None, False),
+        # t8_implied (the always-implied participle of sum) likewise only
+        # relates outward (to t8) -- nothing targets it.
+        ("implied_participle_of_sum_consulibus", "t8_implied", None, False),
+        # t0_implied is targeted only by t0 (Recordatus).
+        ("implied_subject_recordatus_somniorum_ait", "t0_implied", "t0", True),
     ],
 )
-def test_implied_tokens_never_appear_as_words(slug):
+def test_implied_token_appears_as_a_word_only_when_something_links_to_it(
+    slug, implied_id, linking_id, is_linked
+):
     example = _example(slug)
     tokens, result = run_gold_example(example)
-    data, word_token_ids, _warnings = tokengraph_to_displacy_data(result.tokengraph)
+    data, word_token_ids, warnings = tokengraph_to_displacy_data(result.tokengraph)
+    assert not warnings
 
     from arsgrammatica.models import IMPLIED_TOKENTYPES
 
-    implied_ids = {
-        tok.id for tok in result.tokengraph if tok.tokentype in IMPLIED_TOKENTYPES
-    }
-    assert not (implied_ids & set(word_token_ids))
-    # Every real (non-implied) token still gets its own word.
+    if is_linked:
+        assert implied_id in word_token_ids
+        i_implied = word_token_ids.index(implied_id)
+        i_linker = word_token_ids.index(linking_id)
+        assert i_implied == i_linker + 1, (
+            f"{implied_id} should sit immediately after {linking_id}"
+        )
+    else:
+        assert implied_id not in word_token_ids
+
+    # Every real, non-punctuation token still gets its own word either way.
     real_ids = {
-        tok.id for tok in result.tokengraph if tok.tokentype not in IMPLIED_TOKENTYPES
+        tok.id
+        for tok in result.tokengraph
+        if tok.tokentype not in IMPLIED_TOKENTYPES and tok.tokentype != "punctuation"
     }
     assert real_ids <= set(word_token_ids)
 
 
-def test_relation_into_implied_token_is_skipped_with_a_warning():
+def test_continuation_indirect_discourse_root_verb_now_appears_and_gets_a_root_arc():
+    """continuation_indirect_discourse_tarquinios_adsuesse's own implied
+    governing verb (t0_implied) is targeted by THREE infinitives (t3, t8,
+    t11) via 'indirect statement' -- it goes right after the LAST of them
+    (t11, 'regnasse'), and -- now that it has a word slot at all -- its OWN
+    'root'/'unit verb' relation finally gets a ROOT word and arc drawn,
+    something no earlier version of this diagram could ever show for this
+    passage (the only root-pointing token was always excluded before)."""
+    example = _example("continuation_indirect_discourse_tarquinios_adsuesse")
+    tokens, result = run_gold_example(example)
+    data, word_token_ids, warnings = tokengraph_to_displacy_data(result.tokengraph)
+    assert not warnings
+
+    i_implied = word_token_ids.index("t0_implied")
+    i_regnasse = word_token_ids.index("t11")
+    assert i_implied == i_regnasse + 1
+
+    assert data["words"][-1] == {"text": "ROOT", "tag": ""}
+    assert word_token_ids[-1] is None
+    root_index = len(data["words"]) - 1
+    assert any(
+        a["label"] == "unit verb" and root_index in (a["start"], a["end"])
+        and i_implied in (a["start"], a["end"])
+        for a in data["arcs"]
+    )
+    # And each of the three infinitives' own 'indirect statement' arcs all
+    # converge on that SAME word index -- one shared slot, three arcs.
+    indirect_statement_arcs = [a for a in data["arcs"] if a["label"] == "indirect statement"]
+    assert len(indirect_statement_arcs) == 3
+    assert all(i_implied in (a["start"], a["end"]) for a in indirect_statement_arcs)
+
+
+def test_linked_implied_token_is_included_right_after_its_source():
     """A hand-built tokengraph where a real token's relation points at an
-    implied one -- the arc must be dropped, not turned into a malformed
-    word-index reference, and reported as a warning."""
+    implied one: unlike a relation into punctuation or an aat_depth-
+    excluded token, this is the one case that gets its target INCLUDED
+    rather than skipped -- positioned immediately after the source, with a
+    real arc drawn between them, not a warning."""
     tokengraph = [
         TokenAnalysis(
             id="t0", token="dictum", tokentype="lexical",
@@ -202,10 +292,81 @@ def test_relation_into_implied_token_is_skipped_with_a_warning():
         ),
     ]
     data, word_token_ids, warnings = tokengraph_to_displacy_data(tokengraph)
-    assert len(data["words"]) == 1
+    assert not warnings
+    assert word_token_ids == ["t0", "implied0"]
+    assert [w["text"] for w in data["words"]] == ["dictum", "elided sum"]
+    assert data["arcs"] == [{"start": 0, "end": 1, "label": "auxiliary", "dir": "right"}]
+
+
+def test_unlinked_implied_token_is_excluded_with_no_warning():
+    """An implied/elided token that nothing else's relation ever names as
+    a target has no anchor position to be placed at, and stays excluded
+    exactly as before this existed -- its own outgoing relation is simply
+    never drawn, silently (there's no arc at all to skip, same as an
+    ordinary aat_depth-excluded token's own relations)."""
+    tokengraph = [
+        TokenAnalysis(
+            id="implied0", token=None, tokentype="implied sum",
+            relatedtoken1="t0", relationship1="auxiliary",
+        ),
+        TokenAnalysis(id="t0", token="factum", tokentype="lexical"),
+    ]
+    data, word_token_ids, warnings = tokengraph_to_displacy_data(tokengraph)
+    assert not warnings
+    assert word_token_ids == ["t0"]
     assert data["arcs"] == []
-    assert len(warnings) == 1
-    assert "implied" in warnings[0]
+
+
+def test_implied_token_linked_by_multiple_sources_goes_after_the_last_one():
+    """When more than one surviving token's own relation names the SAME
+    implied token as a target, it can still only occupy one slot in the
+    word sequence -- this module places it right after the LAST such
+    token, in reading order (see this module's own docstring), with both
+    relations still drawn as separate arcs converging on that one slot."""
+    tokengraph = [
+        TokenAnalysis(
+            id="t0", token="primum", tokentype="lexical",
+            relatedtoken1="implied0", relationship1="indirect statement",
+        ),
+        TokenAnalysis(
+            id="t1", token="secundum", tokentype="lexical",
+            relatedtoken1="implied0", relationship1="indirect statement",
+        ),
+        TokenAnalysis(
+            id="implied0", token=None, tokentype="continued discourse",
+            relatedtoken1="root", relationship1="unit verb",
+        ),
+    ]
+    data, word_token_ids, warnings = tokengraph_to_displacy_data(tokengraph)
+    assert not warnings
+    assert word_token_ids == ["t0", "t1", "implied0", None]  # ROOT still last
+    i0, i1, i_implied = 0, 1, 2
+    assert {
+        (a["start"], a["end"]) for a in data["arcs"] if a["label"] == "indirect statement"
+    } == {(i0, i_implied), (i1, i_implied)}
+
+
+def test_implied_token_can_itself_anchor_a_further_implied_token():
+    """A linked implied token can itself be the target of ANOTHER implied
+    token's own relation -- a chain, resolved via this module's own
+    fixed-point pass, not just a single one."""
+    tokengraph = [
+        TokenAnalysis(
+            id="t0", token="foo", tokentype="lexical",
+            relatedtoken1="implied1", relationship1="circumstantial participle",
+        ),
+        TokenAnalysis(
+            id="implied1", token=None, tokentype="implied subject",
+            relatedtoken1="implied2", relationship1="subject",
+        ),
+        TokenAnalysis(
+            id="implied2", token=None, tokentype="implied sum",
+            relatedtoken1="root", relationship1="unit verb",
+        ),
+    ]
+    data, word_token_ids, warnings = tokengraph_to_displacy_data(tokengraph)
+    assert not warnings
+    assert word_token_ids == ["t0", "implied1", "implied2", None]
 
 
 def test_relation_to_missing_id_is_skipped_with_a_warning():
@@ -219,6 +380,25 @@ def test_relation_to_missing_id_is_skipped_with_a_warning():
     assert data["arcs"] == []
     assert len(warnings) == 1
     assert "t99" in warnings[0]
+
+
+def test_relation_into_punctuation_is_skipped_with_a_warning():
+    """A hand-built tokengraph where a real token's relation points at a
+    punctuation token -- punctuation never gets a word slot (see this
+    module's own docstring), so the arc must be dropped, not turned into a
+    malformed word-index reference, and reported as a warning."""
+    tokengraph = [
+        TokenAnalysis(
+            id="t0", token="foo", tokentype="lexical",
+            relatedtoken1="t1", relationship1="subject",
+        ),
+        TokenAnalysis(id="t1", token=",", tokentype="punctuation"),
+    ]
+    data, word_token_ids, warnings = tokengraph_to_displacy_data(tokengraph)
+    assert len(data["words"]) == 1
+    assert data["arcs"] == []
+    assert len(warnings) == 1
+    assert "punctuation" in warnings[0]
 
 
 def test_self_relation_is_skipped_with_a_warning():
@@ -274,6 +454,20 @@ def test_root_word_is_never_colored():
     root_text_match = re.search(r'<text[^>]*>ROOT</text>', svg)
     assert root_text_match is not None
     assert 'font-style="italic"' in root_text_match.group(0)
+
+
+def test_included_implied_token_gets_the_dedicated_amber_color():
+    """An included implied/elided token always gets
+    `verbal_units._IMPLIED_TOKEN_COLOR` -- the same dedicated 'caution'
+    amber mermaid.py's own diagram uses for the very same token --
+    regardless of which verbal unit it belongs to."""
+    from arsgrammatica.verbal_units import _IMPLIED_TOKEN_COLOR
+
+    example = _example("implied_subject_recordatus_somniorum_ait")
+    tokens, result = run_gold_example(example)
+    svg, _warnings = tokengraph_to_displacy_svg(result.tokengraph, color_by_verbal_unit=True)
+    fill, _stroke, _text = _IMPLIED_TOKEN_COLOR
+    assert fill in svg
 
 
 def test_arc_levels_stack_overlapping_arcs_without_collision():
@@ -452,11 +646,14 @@ def test_aat_depth_zero_never_drops_a_token_from_its_own_clause(example):
     depths = compute_aat_depths(tokengraph)
     assignment = assign_verbal_units(tokengraph)
     for tok in tokengraph:
-        if tok.tokentype in IMPLIED_TOKENTYPES:
-            # Implied/elided tokens never get a word slot here at all,
-            # regardless of aat_depth -- an orthogonal design choice (see
-            # displacy_viz.py's own module docstring), not something this
-            # "clause stays together" check is about.
+        if tok.tokentype in IMPLIED_TOKENTYPES or tok.tokentype == "punctuation":
+            # Punctuation never gets a word slot here at all. An
+            # implied/elided token is never itself excluded by aat_depth
+            # either way (see displacy_viz.py's own module docstring) --
+            # whether it ends up in the diagram depends solely on whether
+            # something links to it, an orthogonal design choice this
+            # "clause stays together" check isn't about, so it's skipped
+            # here regardless of which way that turned out.
             continue
         unit_id = assignment.get(tok.id)
         unit_depth = depths.get(unit_id, 0) if unit_id is not None else 0
