@@ -71,20 +71,39 @@ def _(rawpreview):
 
 
 @app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    ## Analysis
+    """)
+    return
+
+
+@app.cell(hide_code=True)
 def _(mo, results):
     mo.md("**Discussion**:\n\n" + "\n\n".join(f"> {result.reasoning}" for result in results))
     return
 
 
 @app.cell(hide_code=True)
-def _(psghtml):
-    psghtml
+def _(mo):
+    mo.md("""
+    ## Highlighted by verbal unit
+    """)
     return
 
 
 @app.cell(hide_code=True)
-def _(vuhtml):
-    vuhtml
+def _(analysis_warnings, download_widget, mo, save_extension):
+    mo.vstack(
+        [
+            mo.hstack([save_extension, download_widget], justify="start"),
+        ]
+        + (
+            [mo.callout(mo.md("\n".join(f"- {w}" for w in analysis_warnings)), kind="warn")]
+            if analysis_warnings
+            else []
+        )
+    )
     return
 
 
@@ -95,8 +114,22 @@ def _(maxdepth):
 
 
 @app.cell(hide_code=True)
-def _(indentpsg):
-    indentpsg
+def _(vuhtml):
+    vuhtml
+    return
+
+
+@app.cell(hide_code=True)
+def _(indentpsg, mo):
+    mo.accordion({"***Fold/unfold passage indented by verbal unit***": indentpsg})
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    ## Diagram syntactic relations
+    """)
     return
 
 
@@ -107,7 +140,16 @@ def _(diagram_tool):
 
 
 @app.cell(hide_code=True)
-def _(diagram, diagram_tool, dot_source, dot_warnings, graphviz, mo):
+def _(
+    diagram,
+    diagram_tool,
+    displacy_svg,
+    displacy_warnings,
+    dot_source,
+    dot_warnings,
+    graphviz,
+    mo,
+):
     # Two distinct failure modes to degrade visibly from when
     # diagram_tool.value == "graphviz", same "don't just crash the cell"
     # convention latin_syntaxer_review.py's own diagram_display cell uses
@@ -121,6 +163,10 @@ def _(diagram, diagram_tool, dot_source, dot_warnings, graphviz, mo):
     #     (graphviz.ExecutableNotFound, only raised once you actually try
     #     to render something) -- this one genuinely can't be known ahead
     #     of time without trying, so it's still handled here.
+    # displaCy (see notes/displacy_viz.md) needs neither check: it has no
+    # external dependency at all -- displacy_svg above is already a
+    # complete, ready-to-display SVG string the moment it's computed, same
+    # as tokengraph_to_mermaid()'s own diagram text.
     if diagram_tool.value == "graphviz":
         try:
             svg_bytes = graphviz.Source(dot_source).pipe(format="svg")
@@ -144,6 +190,15 @@ def _(diagram, diagram_tool, dot_source, dot_warnings, graphviz, mo):
                 ),
                 kind="warn",
             )
+    elif diagram_tool.value == "displacy":
+        diagram_display = mo.vstack(
+            [mo.Html(displacy_svg)]
+            + (
+                [mo.callout(mo.md("\n".join(f"- {w}" for w in displacy_warnings)), kind="warn")]
+                if displacy_warnings
+                else []
+            )
+        )
     else:
         diagram_display = mo.mermaid(diagram)
 
@@ -158,21 +213,6 @@ def _(diagram_download):
 
 
 @app.cell(hide_code=True)
-def _(analysis_warnings, download_widget, mo, save_extension):
-    mo.vstack(
-        [
-            mo.hstack([save_extension, download_widget], justify="start"),
-        ]
-        + (
-            [mo.callout(mo.md("\n".join(f"- {w}" for w in analysis_warnings)), kind="warn")]
-            if analysis_warnings
-            else []
-        )
-    )
-    return
-
-
-@app.cell
 def _(mo):
     seetokens = mo.ui.checkbox(label="*See list of tokens*")
     seecost = mo.ui.checkbox(label="*See cost*")
@@ -191,6 +231,14 @@ def _(mo):
     disable_cache = mo.ui.checkbox(label="*Disable LM cache (debugging)*")
     mo.hstack([seetokens, seeprompts], justify="start")
     return disable_cache, seecost, seeprompts, seetokens
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    ## Choose optional optimized program
+    """)
+    return
 
 
 @app.cell(hide_code=True)
@@ -495,9 +543,11 @@ def _(graphviz_available, mo):
     # callout. This can't rule out the OTHER failure mode (the package
     # installed but the `dot` executable missing from PATH), which is why
     # diagram_display still has to handle graphviz.ExecutableNotFound even
-    # though this list is filtered.
+    # though this list is filtered. "displacy" (see notes/displacy_viz.md)
+    # is always offered, unlike "graphviz", since tokengraph_to_displacy_svg()
+    # has no external dependency to check for at all.
     diagram_tool = mo.ui.radio(
-        options=["mermaid", "graphviz"] if graphviz_available else ["mermaid"],
+        options=["mermaid", "graphviz", "displacy"] if graphviz_available else ["mermaid", "displacy"],
         value="mermaid",
         inline=True,
         label="*Diagram tool*:",
@@ -537,7 +587,27 @@ def _(depth, finaltokens, tokengraph_to_dot):
 
 
 @app.cell
-def _(diagram, diagram_tool, dot_source, filename_base, finaltokens, mo):
+def _(depth, finaltokens, tokengraph_to_displacy_svg):
+    # Compose the displaCy-style diagram: cheap to always compute regardless
+    # of which tool is currently selected, same reasoning as dot_source
+    # above -- but unlike dot_source, tokengraph_to_displacy_svg() has no
+    # external dependency at all (see notes/displacy_viz.md), so this is
+    # already a complete, ready-to-display SVG string, with no separate
+    # rendering step for diagram_display to handle.
+    displacy_svg, displacy_warnings = tokengraph_to_displacy_svg(finaltokens, aat_depth=depth)
+    return displacy_svg, displacy_warnings
+
+
+@app.cell
+def _(
+    diagram,
+    diagram_tool,
+    displacy_svg,
+    dot_source,
+    filename_base,
+    finaltokens,
+    mo,
+):
     # Downloads whichever diagram is currently selected/displayed above,
     # not both -- same reactive "follows the widget" convention
     # save_extension/download_widget already use for the serialized
@@ -551,13 +621,25 @@ def _(diagram, diagram_tool, dot_source, filename_base, finaltokens, mo):
     # rather than checking the diagram/dot_source strings themselves --
     # both always render a non-empty header (e.g. "graph BT") even for an
     # empty tokengraph, so the strings alone can't tell "nothing to show
-    # yet" apart from "a real, if minimal, diagram".
+    # yet" apart from "a real, if minimal, diagram". displaCy's own SVG is
+    # already fully rendered the moment it's computed (unlike Mermaid/DOT
+    # source, which still need mo.mermaid()/Graphviz to become one), so its
+    # download offers the .svg directly, matching latin_syntaxer_review.py's
+    # own diagram_download.
     if diagram_tool.value == "graphviz":
         diagram_download = mo.download(
             data=dot_source.encode("utf-8"),
             filename=f"{filename_base}.dot",
             label="Download Graphviz DOT source (.dot)",
             mimetype="text/plain",
+            disabled=not finaltokens,
+        )
+    elif diagram_tool.value == "displacy":
+        diagram_download = mo.download(
+            data=displacy_svg.encode("utf-8"),
+            filename=f"{filename_base}_displacy.svg",
+            label="Download displaCy-style diagram (.svg)",
+            mimetype="image/svg+xml",
             disabled=not finaltokens,
         )
     else:
@@ -655,12 +737,12 @@ def _(finaltokens, mo, selected_rows, tokengraph_to_text):
     psghtml = mo.Html(
         f"<b><i>Reconstructed passage {citation_label}</i></b>: " + tokengraph_to_text(finaltokens)
     )
-    return (psghtml,)
+    return
 
 
 @app.cell
-def _(depth, finaltokens, mo, tokengraph_to_html):
-    vuhtml = mo.Html("<b><i>Highlighted by verbal unit</i></b>: " + tokengraph_to_html(finaltokens,depth=depth))
+def _(finaltokens, mo, tokengraph_to_html):
+    vuhtml = mo.Html("<b><i>Highlighted by verbal unit</i></b>: " + tokengraph_to_html(finaltokens))
     return (vuhtml,)
 
 
@@ -736,6 +818,7 @@ def _(Path):
         tokengraph_to_html,
         tokengraph_to_text,
         tokengraph_to_depth_html,
+        tokengraph_to_displacy_svg,
         serialize_analyses,
         read_ctsdata,
         max_subordination_depth,
@@ -770,6 +853,7 @@ def _(Path):
         serialize_analyses,
         summarize_lm_cost,
         tokengraph_to_depth_html,
+        tokengraph_to_displacy_svg,
         tokengraph_to_dot,
         tokengraph_to_html,
         tokengraph_to_mermaid,
