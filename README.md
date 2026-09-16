@@ -43,3 +43,5 @@ Packages for working with universal syntax models:
 Using syntax from `arsgrammatica` for contextual disambiguation of morphological analyses:
 
 - [tabulaedspy](https://github.com/neelsmith/tabulaedspy): a Python package adding disambiguated morphological analyses to `arsgrammatica` tokens.
+
+See [more of my current projects](https://neelsmith.github.io/projects/).
