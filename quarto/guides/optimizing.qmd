@@ -2,7 +2,7 @@
 
 
 
-One of `dspy`'s strengths is its streamlined path to optimize a program for a specific configured langauge model without you having to change any code.
+One of `dspy`'s strengths is its streamlined path to optimize a program for a specific configured language model without you having to change any code.
 
 ## Configuration
 
@@ -19,17 +19,19 @@ If you do not configure a second reflection model, GEPA will use the same model 
 
 ## Running `optimize_gepa`
 
-The script `optimize_gepa.py` runs GEPA to improve `SyntaxAnalysis`'s instructions against the gold examples in `tests/fixtures/gold_examples.py`. This requires making the specified request, and then a further request to a reflection model, so it can potentially be expensive. `optimize_gepa` lets you regulate this stage of work with these parameters:
+The script `optimize_gepa.py` runs GEPA to improve `SentenceAnalysis`'s instructions against the gold examples in `tests/fixtures/gold_examples.py`. This requires making the specified request, and then a further request to a reflection model, so it can potentially be expensive. `optimize_gepa` lets you regulate this stage of work with these parameters:
 
 ```bash
-python optimize_gepa.py                    # --auto light (cheapest; default)
-python optimize_gepa.py --auto medium       # more thorough, more expensive
-python optimize_gepa.py --auto heavy        # most thorough, most expensive
-python optimize_gepa.py --max-metric-calls 40   # exact call budget instead of a preset
-python optimize_gepa.py --skip-baseline     # skip the pre-GEPA scoring pass (saves N calls)
+python3 optimize_gepa.py                    # --auto light (cheapest; default)
+python3 optimize_gepa.py --auto medium       # more thorough, more expensive
+python3 optimize_gepa.py --auto heavy        # most thorough, most expensive
+python3 optimize_gepa.py --max-metric-calls 40   # exact call budget instead of a preset
+python3 optimize_gepa.py --skip-baseline     # skip the pre-GEPA scoring pass (saves N calls)
 ```
 
-By default, `optimize_gepa` trains on all the gold examples in `GOLD_EXAMPLES` (a small, hand-curated set built to exercise every documented construction at least once) with no separate held-out evaluation set. If you have files of analyses you have verified, you can add those to the testing pool `optimize_gepa` uses and specify the fraction to be used for an evaluation set:
+
+
+By default, `optimize_gepa` trains on all the gold examples in `GOLD_EXAMPLES` (a small, hand-curated set built to exercise every documented construction at least once) and holds out 20% for an evalution set. The fraction to use as an evaluation set is given in the `--val-fraction` parameter. You can set it to `0` to use all examples as a training set with no holdout. If you have files of analyses you have verified, you can add those to the testing pool `optimize_gepa` uses and specify the fraction to be used for an evaluation set:
 
 ```bash
 # Include individual files with analyses:
@@ -66,5 +68,5 @@ analyze.load("optimized_syntax_analysis.json")
 
 
 ::: {.callout-tip}
-The `optimization` directory of the `arsgrammatica` repository includes saved models in JSON format. File names are based on the target model, the version of `arsgrammatica` that was targeted, and a directory with the supplementary training data used. A file name like `optimized_opus_5_ag_0_7_0_vulgate.json` means that this output targeted Opus 5, using `arsgrammatica` release 0.7.0, with training data from the `data/vulgate` directory of this repository.
+The `optimized` directory of the `arsgrammatica` repository includes saved models in JSON format. File names are based on the target model, the version of `arsgrammatica` that was targeted, and a directory with the supplementary training data used. A file name like `optimized_opus_5_ag_0_7_0_vulgate.json` means that this output targeted Opus 5, using `arsgrammatica` release 0.7.0, with training data from the `data/vulgate` directory of this repository.
 :::

@@ -41,7 +41,7 @@ GoldExample(
 
 In `tests/fixtures/gold_examples.py`, you can paste the dict above the list beginning `GOLD_EXAMPLES = [` and place the new `GoldExample(...)` entry inside the list.
 
-Be sure to reeview the `reasoning` property of dict you've pasted in. It's the model's own recorded reasoning, and not guaranteed to read the way you would write it by hand.
+Be sure to review the `reasoning` property of dict you've pasted in. It's the model's own recorded reasoning, and not guaranteed to read the way you would write it by hand.
 
 
 ## Hand writing a `GoldExample`

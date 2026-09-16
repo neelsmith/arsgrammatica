@@ -2,7 +2,7 @@
 title: Tokenizing a source file without full syntax analysis
 ---
 
-`utilities/tokenize_ctsdata.py` is a command-line script that reads every passage out of a `#!ctsdata` (CEX) source file, tokenizes and sentence-splits the WHOLE collected text in one shot via `segment_sources()` (the same LM-driven segmentation stage `analyze_sources()` runs before syntax analysis, and the same way `latin_syntaxer_ctsdata.py`'s own "Analyze every selected passage, together" cell does), and writes the result to standard output using `arsgrammatica.serialize_segmentation()` -- no `SyntaxAnalysis` call, no `TokenAnalysis`/`VerbalExpression`, one LM call for the whole file rather than one per sentence:
+`utilities/tokenize_ctsdata.py` is a command-line script that reads every passage out of a `#!ctsdata` (CEX) source file, tokenizes and sentence-splits the WHOLE collected text in one shot via `segment_sources()` (the same LM-driven segmentation stage `analyze_sources()` runs before syntax analysis, and the same way `latin_syntaxer_ctsdata.py`'s own "Analyze every selected passage, together" cell does), and writes the result to standard output using `arsgrammatica.serialize_segmentation()` -- no `SentenceAnalysis` call, no `TokenAnalysis`/`VerbalExpression`, one LM call for the whole file rather than one per sentence:
 
 ```bash
 python3 utilities/tokenize_ctsdata.py passages.txt > tokenized.txt

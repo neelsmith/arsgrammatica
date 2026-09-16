@@ -10,7 +10,7 @@ You can incorporate the results of reading real Latin texts with `arsgrammatica`
 
 When `arsgrammatica` *fails* to analyze the syntax of a passage correctly, we can use the results to identify gaps in the schema, or areas in need of better training.
 
-First check whether `syntax_model.md` explicitly and clearly defines the construction that was not analyzed correctly. If it does not, modify `syntax_model.md` and follow the steps given in the reference section to [extend the scheme](../guides/extendingscheme.qmd) for the new construction.
+First check whether `syntax_model.md` explicitly and clearly defines the construction that was not analyzed correctly. If it does not, modify `syntax_model.md` and follow the steps given in the reference section to [extend the scheme](./extendingscheme.qmd) for the new construction.
 
 If the scheme is already clear, but the analysis failed anyway, use [this recipe](./gold.qmd) to add a `GoldExample` with a *correct* `canned_answer` in `tests/fixtures/gold_examples.py`. If you're unsure between two defensible readings, say so explicitly in a comment above the fixture rather than silently committing to one.
 
@@ -26,14 +26,13 @@ When `arsgrammatica` *correctly* analyzes a passage, that is real evidence that 
 
 #### An unusual or difficult construction
 
-If the response correctly analyzes an unusual or difficult construction that you think it might not always this is worth reinforcing in the core training set. If you save the analysis to a file, you can use the utility script `analysis_to_gold_example` to write the necessary Python for you that you can paste in to `gold_examples.py`. 
+If the response correctly analyzes an unusual or difficult construction that you think it might not always get right, this is worth reinforcing in the core training set. If you save the analysis to a file, you can use the script `utilities/analysis_to_gold_example.py` to write the necessary Python for you that you can paste in to `gold_examples.py`. 
 
 #### Ordinary constructions
  
 If the analysis correctly identified something you already expected it to get right, such as a simple independent clause with direct object, this is still real evidence, but of low value as *training* signal. If we add more examples of easy cases that the model already gets right, it teaches the optimizer nothing new, and dilutes the training set with redundant coverage.
 
-Instead, serialize and save the analysis in a directory you can later pass to `optimize_gepa.py` with the `--eval-dir` parameter
- as part of the larger training and evaluation set ith the [x parameter](./optimizing.qmd)
+Instead, serialize and save the analysis in a directory you can later pass to `optimize_gepa.py` with the `--eval-dir` parameter as part of the larger [training and evaluation set](./optimizing.qmd).
 
 
 
