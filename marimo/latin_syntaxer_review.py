@@ -86,7 +86,16 @@ def _(diagram_tool):
 
 
 @app.cell(hide_code=True)
-def _(diagram, diagram_tool, dot_source, dot_warnings, graphviz, mo):
+def _(
+    diagram,
+    diagram_tool,
+    displacy_svg,
+    displacy_warnings,
+    dot_source,
+    dot_warnings,
+    graphviz,
+    mo,
+):
     # Two distinct failure modes to degrade visibly from when
     # diagram_tool.value == "graphviz", same convention
     # latin_syntaxer_textinput.py's own diagram_display cell uses (see
@@ -100,6 +109,10 @@ def _(diagram, diagram_tool, dot_source, dot_warnings, graphviz, mo):
     #     (graphviz.ExecutableNotFound, only raised once you actually try
     #     to render something) -- this one genuinely can't be known ahead
     #     of time without trying, so it's still handled here.
+    # displaCy (see notes/displacy_viz.md) needs neither check: it has no
+    # external dependency at all -- displacy_svg above is already a
+    # complete, ready-to-display SVG string the moment it's computed, same
+    # as tokengraph_to_mermaid()'s own diagram text.
     if diagram_tool.value == "graphviz":
         try:
             svg_bytes = graphviz.Source(dot_source).pipe(format="svg")
@@ -123,6 +136,15 @@ def _(diagram, diagram_tool, dot_source, dot_warnings, graphviz, mo):
                 ),
                 kind="warn",
             )
+    elif diagram_tool.value == "displacy":
+        diagram_display = mo.vstack(
+            [mo.Html(displacy_svg)]
+            + (
+                [mo.callout(mo.md("\n".join(f"- {w}" for w in displacy_warnings)), kind="warn")]
+                if displacy_warnings
+                else []
+            )
+        )
     else:
         diagram_display = mo.mermaid(diagram)
 
@@ -320,9 +342,11 @@ def _(graphviz_available, mo):
     # rationale; this can't rule out the OTHER failure mode (the package
     # installed but the `dot` executable missing from PATH), which is why
     # diagram_display still has to handle graphviz.ExecutableNotFound even
-    # though this list is filtered.
+    # though this list is filtered. "displacy" (see notes/displacy_viz.md)
+    # is always offered, unlike "graphviz" -- it has no external dependency
+    # to check for at all.
     diagram_tool = mo.ui.radio(
-        options=["mermaid", "graphviz"] if graphviz_available else ["mermaid"],
+        options=["mermaid", "graphviz", "displacy"] if graphviz_available else ["mermaid", "displacy"],
         value="mermaid",
         inline=True,
         label="*Diagram tool*:",
@@ -348,6 +372,18 @@ def _(depth, selected_tokengraph, tokengraph_to_dot):
 
 
 @app.cell
+def _(depth, selected_tokengraph, tokengraph_to_displacy_svg):
+    # Compose the displaCy-style diagram: cheap to always compute regardless
+    # of which tool is currently selected, same reasoning as dot_source
+    # above -- but unlike dot_source, tokengraph_to_displacy_svg() has no
+    # external dependency at all (see notes/displacy_viz.md), so this is
+    # already a complete, ready-to-display SVG string, with no separate
+    # rendering step for diagram_display to handle.
+    displacy_svg, displacy_warnings = tokengraph_to_displacy_svg(selected_tokengraph, aat_depth=depth)
+    return displacy_svg, displacy_warnings
+
+
+@app.cell
 def _(selected_citation, sentence_dropdown):
     # Same alphanumeric-sanitizing convention latin_syntaxer_textinput.py's own
     # filename_base uses -- the sentence's own 1-based menu number goes
@@ -364,7 +400,15 @@ def _(selected_citation, sentence_dropdown):
 
 
 @app.cell
-def _(diagram, diagram_filename_stem, diagram_tool, dot_source, mo, selected_tokengraph):
+def _(
+    diagram,
+    diagram_filename_stem,
+    diagram_tool,
+    displacy_svg,
+    dot_source,
+    mo,
+    selected_tokengraph,
+):
     # Downloads whichever diagram is currently selected/displayed above,
     # not both -- same reactive "follows the widget" convention
     # latin_syntaxer_textinput.py's own diagram_download cell uses. Mermaid
@@ -372,13 +416,25 @@ def _(diagram, diagram_filename_stem, diagram_tool, dot_source, mo, selected_tok
     # choice of diagram tool at all); Graphviz source is likewise saved raw,
     # as .dot -- both are renderable elsewhere (mermaid.live, a README code
     # block, `dot -Tsvg`, an online DOT viewer) without needing this
-    # notebook.
+    # notebook. displaCy's own output is ALREADY a rendered picture (an SVG
+    # string, not a diagram-tool source format needing a separate renderer),
+    # so its download is the .svg itself -- open it directly, same as
+    # save_displacy_html()'s own HTML file, just without the caption/page
+    # wrapper.
     if diagram_tool.value == "graphviz":
         diagram_download = mo.download(
             data=dot_source.encode("utf-8"),
             filename=f"{diagram_filename_stem}_dot.dot",
             label="Download Graphviz DOT source (.dot)",
             mimetype="text/plain",
+            disabled=not selected_tokengraph,
+        )
+    elif diagram_tool.value == "displacy":
+        diagram_download = mo.download(
+            data=displacy_svg.encode("utf-8"),
+            filename=f"{diagram_filename_stem}_displacy.svg",
+            label="Download displaCy-style diagram (.svg)",
+            mimetype="image/svg+xml",
             disabled=not selected_tokengraph,
         )
     else:
@@ -521,6 +577,7 @@ def _():
         read_analyses,
         split_analysis_by_sentence,
         tokengraph_to_depth_html,
+        tokengraph_to_displacy_svg,
         tokengraph_to_dot,
         tokengraph_to_html,
         tokengraph_to_mermaid,
@@ -572,6 +629,7 @@ def _():
         read_analyses,
         split_analysis_by_sentence,
         tokengraph_to_depth_html,
+        tokengraph_to_displacy_svg,
         tokengraph_to_dot,
         tokengraph_to_html,
         tokengraph_to_mermaid,

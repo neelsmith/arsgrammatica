@@ -18,6 +18,11 @@ from .verbal_units import (
     find_unanchored_coordinated_verbs,
 )
 from .rendering import tokengraph_to_text, tokengraph_to_html, tokengraph_to_depth_html
+from .displacy_viz import (
+    tokengraph_to_displacy_data,
+    tokengraph_to_displacy_svg,
+    save_displacy_html,
+)
 from .latin_syntax_dspy import (
     SentenceAnalysis,
     analyze,
@@ -117,6 +122,9 @@ __all__ = [
     "tokengraph_to_text",
     "tokengraph_to_html",
     "tokengraph_to_depth_html",
+    "tokengraph_to_displacy_data",
+    "tokengraph_to_displacy_svg",
+    "save_displacy_html",
     "SentenceAnalysis",
     "analyze",
     "analyze_string",
