@@ -3,6 +3,9 @@
 Current version: **0.10.0**.
 
 
+
+**??** *??*: review of docs with Claude's help.
+
 **0.10.0** *Sept. 16, 2026*: Adds displacy-style visualization of syntactic relations. Regularizes formatting of analyses in marimo nbs.
 
 **0.9.0** *Sept. 14, 2026*: 
