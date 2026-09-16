@@ -141,12 +141,13 @@ def _(
     mo,
 ):
     # Two distinct failure modes to degrade visibly from when
-    # diagram_tool.value == "graphviz", same convention
-    # latin_syntaxer_ctsdata.py's own diagram_display cell uses (see
-    # notes/dot_diagrams.md):
+    # diagram_tool.value == "dot" (this notebook's own name for the
+    # graphviz-rendered option -- see diagram_tool's own definition below),
+    # same convention latin_syntaxer_ctsdata.py's own diagram_display cell
+    # uses for its "graphviz"-named option (see notes/dot_diagrams.md):
     #   - the `graphviz` package itself isn't installed -- not actually
     #     reachable here, since diagram_tool's own options only offer
-    #     "graphviz" at all when graphviz_available is True (see that
+    #     "dot" at all when graphviz_available is True (see that
     #     widget's own definition), but the "mermaid"-only fallback is
     #     what a user without the package ever sees instead;
     #   - it IS installed, but the Graphviz `dot` executable isn't on PATH
@@ -157,7 +158,7 @@ def _(
     # external dependency at all -- displacy_svg above is already a
     # complete, ready-to-display SVG string the moment it's computed, same
     # as tokengraph_to_mermaid()'s own diagram text.
-    if diagram_tool.value == "graphviz":
+    if diagram_tool.value == "dot":
         try:
             svg_bytes = graphviz.Source(dot_source).pipe(format="svg")
             diagram_display = mo.vstack(
@@ -342,15 +343,21 @@ def _(maxdepth):
 
 @app.cell
 def _(graphviz_available, mo):
-    # "graphviz" is only ever offered as a choice when the graphviz PyPI
-    # package actually imported successfully above -- see
-    # latin_syntaxer_ctsdata.py's own diagram_tool cell for the identical
-    # rationale; this can't rule out the OTHER failure mode (the package
-    # installed but the `dot` executable missing from PATH), which is why
-    # diagram_display still has to handle graphviz.ExecutableNotFound even
-    # though this list is filtered.
+    # "dot" (rendered via the `graphviz` PyPI package + the system `dot`
+    # executable -- named "dot" here, unlike latin_syntaxer_ctsdata.py's/
+    # latin_syntaxer_review.py's own "graphviz" option, to match this
+    # codebase's own naming for the same thing elsewhere: tokengraph_to_dot(),
+    # dot.py, analysis_to_dot.py, notes/dot_diagrams.md -- purely a display
+    # label difference, the underlying rendering is identical) is only ever
+    # offered as a choice when the graphviz PyPI package actually imported
+    # successfully above -- see latin_syntaxer_ctsdata.py's own
+    # diagram_tool cell for the identical availability-check rationale;
+    # this can't rule out the OTHER failure mode (the package installed but
+    # the `dot` executable missing from PATH), which is why diagram_display
+    # still has to handle graphviz.ExecutableNotFound even though this list
+    # is filtered.
     diagram_tool = mo.ui.radio(
-        options=["mermaid", "graphviz", "displacy"] if graphviz_available else ["mermaid", "displacy"],
+        options=["mermaid", "dot", "displacy"] if graphviz_available else ["mermaid", "displacy"],
         value="mermaid",
         inline=True,
         label="*Diagram tool*:",
@@ -600,7 +607,7 @@ def _(
     # strings themselves -- both always render a non-empty header (e.g.
     # "graph BT") even for an empty tokengraph, so the strings alone can't
     # tell "nothing to show yet" apart from "a real, if minimal, diagram".
-    if diagram_tool.value == "graphviz":
+    if diagram_tool.value == "dot":
         diagram_download = mo.download(
             data=dot_source.encode("utf-8"),
             filename=f"{filename_base}.dot",
