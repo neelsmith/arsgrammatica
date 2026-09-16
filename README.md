@@ -11,6 +11,18 @@
 - See [release history](https://github.com/neelsmith/arsgrammatica/blob/main/releases.md).
 - See the [project issue tracker](https://github.com/neelsmith/arsgrammatica/issues) for known gaps and work in progress.
 
+## Visualizations
+
+The `arsgrammatica` package includes numerous utilities for visualizing syntactic relations.
+
+![Diagram with graphviz](./imgs/Suet_Claudius_42_dot.png)
+
+
+![Custom displaCy-style display](./imgs/Suet_Claudius_42_displacy.png)
+
+
+
+
 ## Related work
 
 
