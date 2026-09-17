@@ -2,7 +2,7 @@
 title: Extending the syntax scheme
 ---
 
-To add a new syntacatic relation to `arsgrammatica`:
+To add a new syntactic relation to `arsgrammatica`:
 
 1. Add the new label to `RelationLabel` in `arsgrammatica/models.py`.
 2. Describe when to use it in `SentenceAnalysis`'s docstring in
