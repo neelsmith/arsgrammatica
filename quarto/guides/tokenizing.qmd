@@ -5,9 +5,9 @@ title: Tokenizing a source file without full syntax analysis
 
 ## The problem
 
-`arsgrammatica` ensures that every token in a citable passage is uniquely identified by tokenizing the passage, and assigning identifers to each token. When you analyze a full passage, `arsgrammatica` next segments the sequence of tokens into sentence units, and analyzes one sentence at a time.
+`arsgrammatica` ensures that every token in a citable passage is uniquely identified by tokenizing the passage, and assigning identifiers to each token. When you analyze a full passage, `arsgrammatica` next segments the sequence of tokens into sentence units, and analyzes one sentence at a time.
 
-`arsgrammatica`'s build-in management of token lengths is very good at preventing the analysis of a single sentence from overflowing your limits on the size of a request and reply. If, however, a single passage contains many long and complex sentences, the toal reply from analyzing all the sentences in a passage could still result in a truncated reply. (Anyone interested in reading some orations of Cicero, for example?)
+`arsgrammatica`'s build-in management of token lengths is very good at preventing the analysis of a single sentence from overflowing your limits on the size of a request and reply. If, however, a single passage contains many long and complex sentences, the total reply from analyzing all the sentences in a passage could still result in a truncated reply. (Anyone interested in reading some orations of Cicero, for example?)
 
 The solution is to submit separate requests for each sentence, but to do that, the tokens must *already* be uniquely identified. Otherwise the analysis of each sentence would once again begin assigning id values from `t0`, and tokens would no longer be uniquely identified within their citable context.
 
@@ -20,7 +20,7 @@ python3 utilities/tokenize_ctsdata.py passages.cex > tokenized.txt
 ```
 
 
-The marimo notebook `marimo/latin_syntaxer_tokenized.py`reads files with tokenized data in the format written by `tokenize_ctsdata.py`. Users can this choose a tokenized sentence, and analyze it.
+The marimo notebook `marimo/latin_syntaxer_tokenized.py` reads files with tokenized data in the format written by `tokenize_ctsdata.py`. Users can this choose a tokenized sentence, and analyze it.
 
 ::: {.callout-tip}
 See the reference section for information about the [output format](../reference/tokenizationformat.qmd).
