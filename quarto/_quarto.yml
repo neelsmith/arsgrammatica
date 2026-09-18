@@ -41,8 +41,12 @@ website:
         - tutorials/index.qmd
         - "---"
         - tutorials/marimo.qmd
+        - "---"        
         - tutorials/cli.qmd
+        - tutorials/corpus.qmd
+        - "---"                
         - tutorials/diagrams.qmd
+
         - tutorials/batch-images.qmd
 
         - "---"

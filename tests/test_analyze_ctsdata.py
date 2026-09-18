@@ -16,6 +16,15 @@ Three things worth checking that no other test exercises together:
   - the `delimiter` argument is actually passed through to read_ctsdata();
   - a malformed/missing file raises read_ctsdata()'s own error WITHOUT
     ever touching the LM (no DummyLM configured for that test).
+
+Every citation here is a real 5-part CTS URN, so analyze_sources()'s own
+assign_passage_scoped_ids() step rewrites every token's bare segmentation
+id (as DummyLM's canned _SEG responses hand them back, "t0"/"t1"/...) to
+a passage-scoped composite id before SentenceAnalysis ever sees them --
+each fixture's own canned _ANALYSIS response is written in terms of THOSE
+composite ids (matching what the citation's own final URN segment
+produces), not the original bare segmentation ids, since that's what a
+real LM would be shown and would echo back.
 """
 
 import dspy
@@ -50,17 +59,22 @@ _ONE_SENTENCE_SEG = {
 }
 
 _ONE_SENTENCE_ANALYSIS = {
+    # analyze_sources() rewrites the segmentation's bare "t0"/"t1"/"t2"/"t3"
+    # to passage-scoped ids ("1.1.t0", ...) BEFORE this SentenceAnalysis
+    # call ever happens, since citation "...:1.1" is a 5-part CTS URN -- a
+    # real LM would only ever see and echo back the composite ids, so this
+    # fixture is written in terms of them too.
     "reasoning": "cano is the main verb; arma and virumque are its objects.",
     "verbalunits": [
-        {"id": "t2", "syntactic_type": "independent", "semantic_type": "transitive active"},
+        {"id": "1.1.t2", "syntactic_type": "independent", "semantic_type": "transitive active"},
     ],
     "tokengraph": [
-        {"id": "t0", "token": "arma", "tokentype": "lexical",
-         "relatedtoken1": "t2", "relationship1": "direct object"},
-        {"id": "t1", "token": "virumque", "tokentype": "lexical",
-         "relatedtoken1": "t2", "relationship1": "direct object"},
-        {"id": "t2", "token": "cano", "tokentype": "lexical", "verbalunitid": "t2"},
-        {"id": "t3", "token": ".", "tokentype": "punctuation"},
+        {"id": "1.1.t0", "token": "arma", "tokentype": "lexical",
+         "relatedtoken1": "1.1.t2", "relationship1": "direct object"},
+        {"id": "1.1.t1", "token": "virumque", "tokentype": "lexical",
+         "relatedtoken1": "1.1.t2", "relationship1": "direct object"},
+        {"id": "1.1.t2", "token": "cano", "tokentype": "lexical", "verbalunitid": "1.1.t2"},
+        {"id": "1.1.t3", "token": ".", "tokentype": "punctuation"},
     ],
 }
 
@@ -82,22 +96,29 @@ _TWO_SENTENCES_SEG = {
 }
 
 _ITA_ANALYSIS = {
+    # Passage "urn:cts:compnov:test.example:1" -> composite prefix "1",
+    # local counter restarting at 0 for this (its only) passage.
     "reasoning": "No finite verb in this fragment; ita is an adverb, no verbal units.",
     "verbalunits": [],
     "tokengraph": [
-        {"id": "t0", "token": "ita", "tokentype": "lexical"},
-        {"id": "t1", "token": ".", "tokentype": "punctuation"},
+        {"id": "1.t0", "token": "ita", "tokentype": "lexical"},
+        {"id": "1.t1", "token": ".", "tokentype": "punctuation"},
     ],
 }
 
 _VALE_ANALYSIS = {
+    # Passage "urn:cts:compnov:test.example:2" -> composite prefix "2",
+    # its OWN local counter restarting at 0 -- not continuing from
+    # passage "1"'s t0/t1, even though the raw segmentation call (which
+    # segmented both passages together) numbered this sentence's tokens
+    # t2/t3.
     "reasoning": "vale is an imperative verbal expression.",
     "verbalunits": [
-        {"id": "t2", "syntactic_type": "independent", "semantic_type": "intransitive"},
+        {"id": "2.t0", "syntactic_type": "independent", "semantic_type": "intransitive"},
     ],
     "tokengraph": [
-        {"id": "t2", "token": "vale", "tokentype": "lexical", "verbalunitid": "t2"},
-        {"id": "t3", "token": ".", "tokentype": "punctuation"},
+        {"id": "2.t0", "token": "vale", "tokentype": "lexical", "verbalunitid": "2.t0"},
+        {"id": "2.t1", "token": ".", "tokentype": "punctuation"},
     ],
 }
 
@@ -111,9 +132,9 @@ def test_reads_and_analyzes_a_single_passage_file(tmp_path):
     assert len(sentences) == 1
     assert len(results) == 1
     tokens = sentences[0].tokens
-    assert [t.id for t in tokens] == ["t0", "t1", "t2", "t3"]
+    assert [t.id for t in tokens] == ["1.1.t0", "1.1.t1", "1.1.t2", "1.1.t3"]
     assert all(t.citation == "urn:cts:compnov:test.aeneid:1.1" for t in tokens)
-    assert results[0].verbalunits[0].id == "t2"
+    assert results[0].verbalunits[0].id == "1.1.t2"
 
 
 def test_analyzes_every_passage_in_file_order(tmp_path):
@@ -126,8 +147,10 @@ def test_analyzes_every_passage_in_file_order(tmp_path):
     assert len(results) == 2
     assert sentences[0].tokens[0].citation == "urn:cts:compnov:test.example:1"
     assert sentences[1].tokens[0].citation == "urn:cts:compnov:test.example:2"
+    assert [t.id for t in sentences[0].tokens] == ["1.t0", "1.t1"]
+    assert [t.id for t in sentences[1].tokens] == ["2.t0", "2.t1"]
     assert results[0].verbalunits == []
-    assert results[1].verbalunits[0].id == "t2"
+    assert results[1].verbalunits[0].id == "2.t0"
 
 
 def test_custom_delimiter_is_passed_through_to_read_ctsdata(tmp_path):
@@ -137,10 +160,14 @@ def test_custom_delimiter_is_passed_through_to_read_ctsdata(tmp_path):
         "urn:cts:compnov:test.example:1;vale.\n"
     )
     path = _write(tmp_path, "corpus.cex", content)
-    # This is a single-passage file, so segmentation restarts token
-    # numbering at t0/t1 -- _VALE_ANALYSIS's ids (t2/t3) don't apply here,
-    # so a fresh analysis fixture matching THIS test's own token ids is
-    # needed rather than reusing it.
+    # This is a single-passage file, so raw segmentation restarts token
+    # numbering at t0/t1 -- and since it's the ONLY passage in this call,
+    # assign_passage_scoped_ids()'s own per-passage counter for
+    # "urn:cts:compnov:test.example:1" (composite prefix "1") also happens
+    # to restart at 0, giving the same "1.t0"/"1.t1" either way.
+    # _VALE_ANALYSIS's ids ("2.t0"/"2.t1", prefix "2" for a DIFFERENT
+    # passage) don't apply here, so a fresh analysis fixture matching
+    # THIS test's own composite token ids is needed rather than reusing it.
     dspy.configure(lm=DummyLM([
         {
             "reasoning": "One passage, one sentence.",
@@ -152,11 +179,11 @@ def test_custom_delimiter_is_passed_through_to_read_ctsdata(tmp_path):
         {
             "reasoning": "vale is an imperative verbal expression.",
             "verbalunits": [
-                {"id": "t0", "syntactic_type": "independent", "semantic_type": "intransitive"},
+                {"id": "1.t0", "syntactic_type": "independent", "semantic_type": "intransitive"},
             ],
             "tokengraph": [
-                {"id": "t0", "token": "vale", "tokentype": "lexical", "verbalunitid": "t0"},
-                {"id": "t1", "token": ".", "tokentype": "punctuation"},
+                {"id": "1.t0", "token": "vale", "tokentype": "lexical", "verbalunitid": "1.t0"},
+                {"id": "1.t1", "token": ".", "tokentype": "punctuation"},
             ],
         },
     ]))
@@ -165,7 +192,8 @@ def test_custom_delimiter_is_passed_through_to_read_ctsdata(tmp_path):
 
     assert len(sentences) == 1
     assert sentences[0].tokens[0].citation == "urn:cts:compnov:test.example:1"
-    assert results[0].verbalunits[0].id == "t0"
+    assert [t.id for t in sentences[0].tokens] == ["1.t0", "1.t1"]
+    assert results[0].verbalunits[0].id == "1.t0"
 
 
 def test_missing_file_raises_without_touching_the_lm(tmp_path):

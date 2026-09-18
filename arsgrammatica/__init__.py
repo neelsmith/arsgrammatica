@@ -38,6 +38,7 @@ from .pipeline import (
     combined_tokengraph,
 )
 from .passage_grouping import group_passages_by_sentence_boundary
+from .token_ids import assign_passage_scoped_ids
 from .serialization import (
     LMInfo,
     serialize_analyses,
@@ -137,6 +138,7 @@ __all__ = [
     "analyze_ctsdata",
     "combined_tokengraph",
     "group_passages_by_sentence_boundary",
+    "assign_passage_scoped_ids",
     "LMInfo",
     "serialize_analyses",
     "write_analyses",

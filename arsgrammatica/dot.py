@@ -100,6 +100,24 @@ def _escape_label(text: str) -> str:
     return text
 
 
+def _dot_id(node_id: str) -> str:
+    """Quote `node_id` as a DOT quoted identifier -- every token id this
+    module writes into DOT source goes through this, not just labels.
+    Graphviz's own unquoted-ID grammar is alphanumeric-and-underscore-only
+    (plus a separate numeral rule that only accepts a plain integer or
+    decimal, which unquoted text starting with a digit is parsed against
+    FIRST) -- so a token id is never safe to write bare. This wasn't
+    reachable before every id was a plain 't0'-style string, but
+    token_ids.assign_passage_scoped_ids() now gives CTS-URN-cited tokens
+    composite ids like '1.1.t0' (see that module's own docstring):
+    unquoted, Graphviz's `dot` lexes '1.1.t0' as the number '1.1' followed
+    by a syntax error on the stray '.t0'. Quoting unconditionally, rather
+    than only when an id happens to look risky, means this never depends
+    on correctly predicting every shape Graphviz's numeral rule might
+    reject."""
+    return f'"{_escape_label(node_id)}"'
+
+
 def _node_attrs(tok: TokenAnalysis, color: Optional[Tuple[str, str, str]] = None) -> str:
     """The bracketed attribute list for one node line: always `label=`,
     plus `style=rounded` for an implied/elided token (models.py's
@@ -405,7 +423,7 @@ def tokengraph_to_dot(
             else:
                 unit_id = assignment.get(tok.id)
                 color = colors_by_unit.get(unit_id) if unit_id is not None else None
-        lines.append(f"    {tok.id} [{_node_attrs(tok, color)}];")
+        lines.append(f"    {_dot_id(tok.id)} [{_node_attrs(tok, color)}];")
 
     # The dedicated 'root' node every independent verb's own 'root' edge
     # points to (see this module's own docstring) -- added only if at
@@ -417,7 +435,7 @@ def tokengraph_to_dot(
         tok.relatedtoken1 == "root" for tok in tokengraph if tok.id in node_ids
     )
     if has_root_edge:
-        lines.append('    root [label="root", shape=oval];')
+        lines.append(f'    {_dot_id("root")} [label="root", shape=oval];')
 
     lines.append("")
     for tok in tokengraph:
@@ -439,7 +457,7 @@ def tokengraph_to_dot(
                 # skip it silently, exactly as before this parameter
                 # existed.
                 if show_root:
-                    lines.append(f'    {tok.id} -> root [label="{_escape_label(label)}"];')
+                    lines.append(f'    {_dot_id(tok.id)} -> {_dot_id("root")} [label="{_escape_label(label)}"];')
                 continue
             if related_id not in node_ids:
                 warnings.append(
@@ -448,7 +466,7 @@ def tokengraph_to_dot(
                     f"aat_depth cutoff, or not in tokengraph"
                 )
                 continue
-            lines.append(f'    {tok.id} -> {related_id} [label="{_escape_label(label)}"];')
+            lines.append(f'    {_dot_id(tok.id)} -> {_dot_id(related_id)} [label="{_escape_label(label)}"];')
 
     if rank_by_depth:
         aat_depths = compute_aat_depths(tokengraph)
@@ -471,7 +489,7 @@ def tokengraph_to_dot(
             depth_groups.setdefault(rank_depth, []).append(tok.id)
 
         rank_lines = [
-            "    {rank=same; " + "; ".join(ids) + ";}"
+            "    {rank=same; " + "; ".join(_dot_id(i) for i in ids) + ";}"
             for rank_depth in sorted(depth_groups)
             for ids in (depth_groups[rank_depth],)
             if len(ids) > 1

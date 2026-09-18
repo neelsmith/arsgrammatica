@@ -36,7 +36,7 @@ class Token(BaseModel):
     actually populates it, knowing which CitedText source unit each token
     came from."""
  
-    id: str = Field(description="Stable token id, globally unique and sequential across the whole input, e.g. 't0', 't1', ...")
+    id: str = Field(description="Stable token id, unique across the whole input, e.g. 't0', 't1', .... As produced directly by segment_sources(), sequential and unique only WITHIN that one call; a caller that combines several such calls (or wants a given passage to keep the same ids across separate runs) should rewrite these first -- see token_ids.assign_passage_scoped_ids().")
     text: str = Field(description="The token's surface text, exactly as it appears in the source.")
     citation: Optional[str] = Field(
         default=None,
@@ -46,11 +46,16 @@ class Token(BaseModel):
  
 class Sentence(BaseModel):
     """One sentence's worth of tokens, in reading order, as produced by the
-    LLM-driven segmentation stage (segmentation_dspy.py). Token ids are
-    global across the whole passage -- numbering continues across sentence
-    boundaries rather than restarting at t0 for each sentence -- so a
-    Sentence is a contiguous slice of the passage's id sequence, not an
-    independently-numbered unit."""
+    LLM-driven segmentation stage (segmentation_dspy.py). Ids are global
+    across whatever ONE segment_sources() call produced this Sentence --
+    numbering continues across sentence boundaries within that call rather
+    than restarting at t0 for each sentence -- so a freshly-segmented
+    Sentence is a contiguous slice of that call's own id sequence, not an
+    independently-numbered unit. A Sentence handed back by
+    pipeline.analyze_sources() (or read back from a file
+    tokenize_ctsdata.py wrote) may instead carry passage-scoped composite
+    ids (token_ids.assign_passage_scoped_ids()) in place of that raw
+    per-call numbering -- see that module's own docstring."""
  
     tokens: List[Token] = Field(
         description="This sentence's tokens, in reading order, using the passage's global token ids."

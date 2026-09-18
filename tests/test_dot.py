@@ -48,7 +48,7 @@ def test_gold_example_renders_dot(example):
     for tok in result.tokengraph:
         if tok.tokentype == "punctuation":
             continue
-        assert re.search(rf"^\s*{re.escape(tok.id)} \[", diagram, re.MULTILINE), (
+        assert re.search(rf'^\s*"{re.escape(tok.id)}" \[', diagram, re.MULTILINE), (
             f"{example.slug}: {tok.id} missing its own node line"
         )
 
@@ -111,7 +111,7 @@ def test_implied_token_gets_its_own_dedicated_color_and_label():
     assert implied_ids, "fixture should contain an implied sum token"
 
     for tid in implied_ids:
-        m = re.search(rf'^\s*{re.escape(tid)} \[(.*)\];$', diagram, re.MULTILINE)
+        m = re.search(rf'^\s*"{re.escape(tid)}" \[(.*)\];$', diagram, re.MULTILINE)
         assert m, f"{tid} missing its own node line"
         attrs = m.group(1)
         assert 'label="elided sum"' in attrs
@@ -137,14 +137,14 @@ def test_implied_subject_token_gets_dedicated_color_and_fallback_label():
     implied_ids = [tok.id for tok in result.tokengraph if tok.tokentype == "implied subject"]
     assert implied_ids == ["t0_implied"]
 
-    m = re.search(r'^\s*t0_implied \[(.*)\];$', diagram, re.MULTILINE)
+    m = re.search(r'^\s*"t0_implied" \[(.*)\];$', diagram, re.MULTILINE)
     assert m
     attrs = m.group(1)
     assert 'label="implied subject"' in attrs
     assert 'fillcolor="#ffc107"' in attrs
 
     # Recordatus (t0) itself keeps an ordinary (non-amber) color.
-    m2 = re.search(r'^\s*t0 \[(.*)\];$', diagram, re.MULTILINE)
+    m2 = re.search(r'^\s*"t0" \[(.*)\];$', diagram, re.MULTILINE)
     assert m2
     assert 'fillcolor="#ffc107"' not in m2.group(1)
 
@@ -164,7 +164,7 @@ def test_aside_example_gets_three_distinct_colors():
     assert len(fillcolors) >= 3
 
     # nos (t7) has no verbal unit -- must not be colored at all.
-    m = re.search(r'^\s*t7 \[(.*)\];$', diagram, re.MULTILINE)
+    m = re.search(r'^\s*"t7" \[(.*)\];$', diagram, re.MULTILINE)
     assert m
     assert "fillcolor" not in m.group(1)
 
@@ -191,7 +191,7 @@ def test_two_independent_verbs_get_ranked_together():
     tokens, result = run_gold_example(example)
     diagram, warnings = tokengraph_to_dot(result.tokengraph)
     assert not warnings
-    assert "    {rank=same; t4; t10;}" in diagram.splitlines()
+    assert '    {rank=same; "t4"; "t10";}' in diagram.splitlines()
 
 
 def test_multiple_depth_groups_each_get_their_own_rank_statement():
@@ -205,8 +205,8 @@ def test_multiple_depth_groups_each_get_their_own_rank_statement():
     diagram, warnings = tokengraph_to_dot(result.tokengraph)
     assert not warnings
     lines = diagram.splitlines()
-    assert "    {rank=same; t1; t4; t19;}" in lines  # moriens, sciret, esse -- depth 1
-    assert "    {rank=same; t15; t20;}" in lines  # dedit, dixit -- depth 0
+    assert '    {rank=same; "t1"; "t4"; "t19";}' in lines  # moriens, sciret, esse -- depth 1
+    assert '    {rank=same; "t15"; "t20";}' in lines  # dedit, dixit -- depth 0
     rank_lines = [line for line in lines if "rank=same" in line]
     assert len(rank_lines) == 2
     ranked_ids = {tid for line in rank_lines for tid in re.findall(r"t\d+\w*", line)}
@@ -290,7 +290,7 @@ def test_depth_zero_shows_only_root_anchors():
     tokens, result = run_gold_example(example)
     diagram, warnings = tokengraph_to_dot(result.tokengraph, depth=0)
     assert warnings == []
-    assert re.search(r"^    t5 \[", diagram, re.MULTILINE)  # pergit, the root anchor
+    assert re.search(r'^    "t5" \[', diagram, re.MULTILINE)  # pergit, the root anchor
     for other_id in ("t0", "t1", "t2", "t3", "t6", "t8"):
         assert f"{other_id} [" not in diagram, other_id
     # t7 "proximam" has no coded relation at all in this fixture (an
@@ -299,7 +299,7 @@ def test_depth_zero_shows_only_root_anchors():
     # depth 0, the same root-level fallback compute_subordination_depths()
     # and tokengraph_to_depth_html() both use for their own unresolved
     # cases, so it appears even at depth=0.
-    assert re.search(r"^    t7 \[", diagram, re.MULTILINE)
+    assert re.search(r'^    "t7" \[', diagram, re.MULTILINE)
 
 
 def test_depth_one_adds_direct_dependents_of_the_root():
@@ -312,7 +312,7 @@ def test_depth_one_adds_direct_dependents_of_the_root():
     diagram, warnings = tokengraph_to_dot(result.tokengraph, depth=1)
     assert warnings == []
     for kept_id in ("t0", "t1", "t5", "t6", "t7"):
-        assert re.search(rf"^    {kept_id} \[", diagram, re.MULTILINE), kept_id
+        assert re.search(rf'^    "{kept_id}" \[', diagram, re.MULTILINE), kept_id
     for dropped_id in ("t2", "t3", "t8"):
         assert f"{dropped_id} [" not in diagram, dropped_id
 
@@ -351,7 +351,7 @@ def test_depth_and_ranking_compose():
     example = _example("unit_verb_hercules_cum")
     tokens, result = run_gold_example(example)
     diagram, _warnings = tokengraph_to_dot(result.tokengraph, depth=1)
-    node_ids = set(re.findall(r"^    (\S+) \[", diagram, re.MULTILINE))
+    node_ids = set(re.findall(r'^    "([^"]*)" \[', diagram, re.MULTILINE))
     rank_lines = [line for line in diagram.splitlines() if "rank=same" in line]
     ranked_ids = {tid for line in rank_lines for tid in re.findall(r"t\d+\w*", line)}
     assert ranked_ids <= node_ids
@@ -400,7 +400,7 @@ def test_depth_relative_pronoun_double_duty_deepens_correctly():
 
     diagram0, warnings0 = tokengraph_to_dot(tokengraph, depth=0, color_by_verbal_unit=False)
     assert warnings0 == []
-    assert re.search(r"^    t16 \[", diagram0, re.MULTILINE)
+    assert re.search(r'^    "t16" \[', diagram0, re.MULTILINE)
     for other_id in ("t19", "t21", "t22", "t23"):
         assert f"{other_id} [" not in diagram0, other_id
 
@@ -431,7 +431,7 @@ def test_depth_dangling_edge_from_kept_node_is_skipped_with_a_warning():
     ]
     diagram, warnings = tokengraph_to_dot(tokengraph, depth=2, color_by_verbal_unit=False)
 
-    assert "t21 [" in diagram
+    assert '"t21" [' in diagram
     assert "t22 [" not in diagram
     assert "-> t22" not in diagram  # the dangling edge itself must not appear
     assert any(
@@ -455,8 +455,8 @@ def test_depth_filtering_never_leaves_a_dangling_edge(example):
 
     for cap in range(0, maxd + 1):
         diagram, _warnings = tokengraph_to_dot(tokengraph, depth=cap)
-        node_ids = set(re.findall(r"^    (\S+) \[", diagram, re.MULTILINE))
-        for source, target in re.findall(r"^    (\S+) -> (\S+) \[", diagram, re.MULTILINE):
+        node_ids = set(re.findall(r'^    "([^"]*)" \[', diagram, re.MULTILINE))
+        for source, target in re.findall(r'^    "([^"]*)" -> "([^"]*)" \[', diagram, re.MULTILINE):
             assert source in node_ids, f"{example.slug} depth={cap}: edge source {source} has no node"
             assert target in node_ids, f"{example.slug} depth={cap}: edge target {target} has no node"
 
@@ -489,7 +489,7 @@ def test_aat_depth_zero_shows_the_whole_root_clause():
     diagram, warnings = tokengraph_to_dot(result.tokengraph, aat_depth=0)
     assert warnings == []
     for kept_id in ("t0", "t5", "t6", "t7", "t8"):
-        assert re.search(rf"^    {kept_id} \[", diagram, re.MULTILINE), kept_id
+        assert re.search(rf'^    "{kept_id}" \[', diagram, re.MULTILINE), kept_id
     for dropped_id in ("t1", "t2", "t3"):
         assert f"{dropped_id} [" not in diagram, dropped_id
 
@@ -505,7 +505,7 @@ def test_aat_depth_differs_from_graph_depth_at_the_same_cutoff():
     aat_diagram, _w2 = tokengraph_to_dot(result.tokengraph, aat_depth=0)
     assert graph_diagram != aat_diagram
     assert "t0 [" not in graph_diagram  # Hercules dropped by graph depth=0
-    assert "t0 [" in aat_diagram  # but kept by aat_depth=0 (same clause as pergit)
+    assert '"t0" [' in aat_diagram  # but kept by aat_depth=0 (same clause as pergit)
 
 
 def test_aat_depth_at_or_beyond_passage_max_matches_aat_depth_none():
@@ -538,7 +538,7 @@ def test_aat_depth_and_ranking_compose():
     example = _example("depth_two_cum_sciret_peccavisse_doluit")
     tokens, result = run_gold_example(example)
     diagram, _warnings = tokengraph_to_dot(result.tokengraph, aat_depth=1)
-    node_ids = set(re.findall(r"^    (\S+) \[", diagram, re.MULTILINE))
+    node_ids = set(re.findall(r'^    "([^"]*)" \[', diagram, re.MULTILINE))
     rank_lines = [line for line in diagram.splitlines() if "rank=same" in line]
     ranked_ids = {tid for line in rank_lines for tid in re.findall(r"t\d+\w*", line)}
     assert ranked_ids <= node_ids
@@ -591,7 +591,7 @@ def test_aat_depth_dangling_edge_from_kept_node_is_skipped_with_a_warning():
     ]
     diagram, warnings = tokengraph_to_dot(tokengraph, aat_depth=0, color_by_verbal_unit=False)
 
-    assert "t1 [" in diagram  # que itself: assigned to cano's unit (t5), depth 0, kept
+    assert '"t1" [' in diagram  # que itself: assigned to cano's unit (t5), depth 0, kept
     assert "t2 [" not in diagram  # virum: its OWN unit, depth 1, excluded
     assert "-> t2" not in diagram  # the dangling edge itself must not appear
     assert any(
@@ -614,8 +614,8 @@ def test_aat_depth_filtering_never_leaves_a_dangling_edge(example):
 
     for cap in range(0, maxd + 1):
         diagram, _warnings = tokengraph_to_dot(tokengraph, aat_depth=cap)
-        node_ids = set(re.findall(r"^    (\S+) \[", diagram, re.MULTILINE))
-        for source, target in re.findall(r"^    (\S+) -> (\S+) \[", diagram, re.MULTILINE):
+        node_ids = set(re.findall(r'^    "([^"]*)" \[', diagram, re.MULTILINE))
+        for source, target in re.findall(r'^    "([^"]*)" -> "([^"]*)" \[', diagram, re.MULTILINE):
             assert source in node_ids, f"{example.slug} aat_depth={cap}: edge source {source} has no node"
             assert target in node_ids, f"{example.slug} aat_depth={cap}: edge target {target} has no node"
 
@@ -633,7 +633,7 @@ def test_aat_depth_zero_never_drops_a_token_from_its_own_clause(example):
     tokens, result = run_gold_example(example)
     tokengraph = result.tokengraph
     diagram, _warnings = tokengraph_to_dot(tokengraph, aat_depth=0)
-    node_ids = set(re.findall(r"^    (\S+) \[", diagram, re.MULTILINE))
+    node_ids = set(re.findall(r'^    "([^"]*)" \[', diagram, re.MULTILINE))
 
     depths = compute_aat_depths(tokengraph)
     assignment = assign_verbal_units(tokengraph)
@@ -658,8 +658,8 @@ def test_show_root_default_true_draws_root_node_and_edge():
     tokens, result = run_gold_example(example)
     diagram, warnings = tokengraph_to_dot(result.tokengraph)
     assert not warnings
-    assert '    root [label="root", shape=oval];' in diagram.splitlines()
-    assert 't5 -> root [label="unit verb"];' in diagram
+    assert '    "root" [label="root", shape=oval];' in diagram.splitlines()
+    assert '"t5" -> "root" [label="unit verb"];' in diagram
 
 
 def test_show_root_false_omits_root_node_and_edge():
@@ -690,8 +690,8 @@ def test_root_node_is_plain_uncolored_oval_even_with_coloring_enabled():
     example = _example("unit_verb_hercules_cum")
     tokens, result = run_gold_example(example)
     diagram, _warnings = tokengraph_to_dot(result.tokengraph, color_by_verbal_unit=True)
-    root_line = next(line for line in diagram.splitlines() if line.strip().startswith("root ["))
-    assert root_line.strip() == 'root [label="root", shape=oval];'
+    root_line = next(line for line in diagram.splitlines() if line.strip().startswith('"root" ['))
+    assert root_line.strip() == '"root" [label="root", shape=oval];'
     assert "fillcolor" not in root_line
     assert "style" not in root_line
 
@@ -706,9 +706,9 @@ def test_multiple_independent_verbs_share_one_root_node():
     diagram, warnings = tokengraph_to_dot(result.tokengraph)
     assert not warnings
     lines = diagram.splitlines()
-    assert sum(1 for line in lines if line.strip().startswith("root [")) == 1
-    assert 't4 -> root [label="unit verb"];' in diagram
-    assert 't10 -> root [label="unit verb"];' in diagram
+    assert sum(1 for line in lines if line.strip().startswith('"root" [')) == 1
+    assert '"t4" -> "root" [label="unit verb"];' in diagram
+    assert '"t10" -> "root" [label="unit verb"];' in diagram
 
 
 def test_root_omitted_when_no_independent_verb_is_present():
@@ -745,5 +745,5 @@ def test_root_survives_depth_and_aat_depth_zero_filtering():
     for kwargs in ({"depth": 0}, {"aat_depth": 0}):
         diagram, warnings = tokengraph_to_dot(result.tokengraph, **kwargs)
         assert warnings == []
-        assert '    root [label="root", shape=oval];' in diagram.splitlines()
-        assert 't5 -> root [label="unit verb"];' in diagram
+        assert '    "root" [label="root", shape=oval];' in diagram.splitlines()
+        assert '"t5" -> "root" [label="unit verb"];' in diagram
