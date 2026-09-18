@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.24.0"
+__generated_with = "0.24.2"
 app = marimo.App(width="medium")
 
 
@@ -53,30 +53,6 @@ def _(analyze_button, mo, read_error, sentence_dropdown, sentences):
 
 
 @app.cell(hide_code=True)
-def _(diagram, mo):
-    mo.mermaid(diagram)
-    return
-
-
-@app.cell(hide_code=True)
-def _(vuhtml):
-    vuhtml
-    return
-
-
-@app.cell(hide_code=True)
-def _(maxdepth):
-    maxdepth
-    return
-
-
-@app.cell(hide_code=True)
-def _(indentpsg):
-    indentpsg
-    return
-
-
-@app.cell(hide_code=True)
 def _(mo):
     # Same "See cost" checkbox latin_syntaxer_ctsdata.py's own analysis
     # notebooks offer -- this one makes real LM calls too
@@ -93,6 +69,133 @@ def _(cost_summary, format_lm_cost, mo, seecost):
     if seecost.value:
         costdisplay = mo.md(f"**LM cost so far**: {format_lm_cost(cost_summary)}")
     costdisplay
+    return
+
+
+@app.cell(hide_code=True)
+def _(sentence_preview):
+    sentence_preview
+    return
+
+
+@app.cell(hide_code=True)
+def _(analysis_warnings, download_widget, mo, save_extension):
+    # Same download row as latin_syntaxer_ctsdata.py's own -- a save_extension
+    # radio (cex/txt) next to the download button, plus any warning
+    # serialize_analyses() itself raised (an id it couldn't find a
+    # citation for, a sentence whose tokens don't form a contiguous run --
+    # see serialization.py's own docstring), shown the same "don't just
+    # crash, show a callout" way.
+    mo.vstack(
+        [
+            mo.hstack([save_extension, download_widget], justify="start"),
+        ]
+        + (
+            [mo.callout(mo.md("\n".join(f"- {w}" for w in analysis_warnings)), kind="warn")]
+            if analysis_warnings
+            else []
+        )
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(maxdepth):
+    maxdepth
+    return
+
+
+@app.cell(hide_code=True)
+def _(vuhtml):
+    vuhtml
+    return
+
+
+@app.cell(hide_code=True)
+def _(indentpsg):
+    indentpsg
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    ## Diagram syntactic relations
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(diagram_tool):
+    diagram_tool
+    return
+
+
+@app.cell(hide_code=True)
+def _(
+    diagram,
+    diagram_tool,
+    displacy_svg,
+    displacy_warnings,
+    dot_source,
+    dot_warnings,
+    graphviz,
+    mo,
+):
+    # Same three-way diagram_tool branch, and the same two distinct
+    # Graphviz failure modes to degrade visibly from, as
+    # latin_syntaxer_ctsdata.py's own diagram_display cell (see
+    # notes/dot_diagrams.md/notes/displacy_viz.md): the `graphviz` package
+    # itself missing is never reachable here either, since diagram_tool's
+    # own options only offer "graphviz" when graphviz_available is True
+    # (see that widget's definition below); the `dot` executable missing
+    # from PATH (graphviz.ExecutableNotFound) can only be discovered by
+    # actually trying, so it's still handled here. displaCy needs neither
+    # check -- displacy_svg below is already a complete, ready-to-display
+    # SVG string the moment it's computed, same as tokengraph_to_mermaid()'s
+    # own diagram text.
+    if diagram_tool.value == "graphviz":
+        try:
+            svg_bytes = graphviz.Source(dot_source).pipe(format="svg")
+            diagram_display = mo.vstack(
+                [mo.Html(svg_bytes.decode("utf-8"))]
+                + (
+                    [mo.callout(mo.md("\n".join(f"- {w}" for w in dot_warnings)), kind="warn")]
+                    if dot_warnings
+                    else []
+                )
+            )
+        except graphviz.ExecutableNotFound:
+            diagram_display = mo.callout(
+                mo.md(
+                    "The `graphviz` package is installed, but the Graphviz "
+                    "`dot` command itself isn't on your system's PATH -- "
+                    "install Graphviz separately (e.g. `brew install "
+                    "graphviz` on macOS, `apt install graphviz` on Linux), "
+                    "or switch back to *Mermaid* above. See "
+                    "notes/dot_diagrams.md."
+                ),
+                kind="warn",
+            )
+    elif diagram_tool.value == "displacy":
+        diagram_display = mo.vstack(
+            [mo.Html(displacy_svg)]
+            + (
+                [mo.callout(mo.md("\n".join(f"- {w}" for w in displacy_warnings)), kind="warn")]
+                if displacy_warnings
+                else []
+            )
+        )
+    else:
+        diagram_display = mo.mermaid(diagram)
+
+    diagram_display
+    return
+
+
+@app.cell(hide_code=True)
+def _(diagram_download):
+    diagram_download
     return
 
 
@@ -215,6 +318,66 @@ def _(sentence_dropdown, sentences):
     return (selected_sentence,)
 
 
+@app.cell
+def _(mo, selected_sentence):
+    # A plain, uncolored preview of the selected sentence's own raw text --
+    # shown as soon as a sentence is picked, independent of whether Analyze
+    # has been clicked yet (no LM call involved, same reasoning as
+    # latin_syntaxer_ctsdata.py's own rawpreview cell). Uses the same naive
+    # "join every token's own text with a space" approximation as
+    # sentence_label()'s own preview and the Analysis cell's own
+    # passage_text -- these are pre-analysis Tokens, so there's no
+    # tokentype-aware spacing/enclitic handling available yet (see
+    # sentence_label()'s own docstring). Deliberately plain text, with no
+    # verbal-unit coloring, unlike vuhtml below -- a stable, always-legible
+    # reference for the colored rendering below it.
+    import html as _html
+
+    if selected_sentence is not None and selected_sentence.tokens:
+        _text = " ".join(tok.text for tok in selected_sentence.tokens)
+        sentence_preview = mo.md(f"**Selected sentence**: {_html.escape(_text)}")
+    else:
+        sentence_preview = mo.md("")
+    return (sentence_preview,)
+
+
+@app.cell
+def _(selected_sentence):
+    # A readable default filename base for the diagram download below,
+    # drawn from the selected sentence's own citation (every token in one
+    # sentence shares the same `citation` -- see arsgrammatica/models.py's
+    # Token) -- same alnum-sanitizing convention latin_syntaxer_ctsdata.py's
+    # own filename_base uses, just derived from one sentence rather than a
+    # list of selected passages. This notebook has no "serialize analysis
+    # to file" section of its own (unlike latin_syntaxer_ctsdata.py) to
+    # share a filename_base with -- it exists here purely for the diagram
+    # download's own filename.
+    filename_base = "analysis"
+    if selected_sentence is not None and selected_sentence.tokens:
+        _citation = selected_sentence.tokens[0].citation
+        if _citation:
+            filename_base = _citation
+    filename_base = "".join(c if c.isalnum() else "_" for c in filename_base).strip("_") or "analysis"
+    return (filename_base,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    ## UI selections for serialization
+    """)
+    return
+
+
+@app.cell
+def _(mo):
+    # Same save_extension radio as latin_syntaxer_ctsdata.py's own.
+    save_extension = mo.ui.radio(
+        options=["cex", "txt"], value="cex", inline=True, label="*File extension*:"
+    )
+    return (save_extension,)
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
@@ -248,6 +411,22 @@ def _(analyze_button, analyze_with_retry, selected_sentence, validate):
             for p in problems:
                 print(f"  - {p}")
     return (result,)
+
+
+@app.cell
+def _(graphviz_available, mo):
+    # Same "graphviz" option, gated on graphviz_available, as
+    # latin_syntaxer_ctsdata.py's own diagram_tool -- see that notebook's
+    # identical cell/comment. "displacy" (notes/displacy_viz.md) is always
+    # offered, unlike "graphviz", since tokengraph_to_displacy_svg() has no
+    # external dependency to check for at all.
+    diagram_tool = mo.ui.radio(
+        options=["mermaid", "graphviz", "displacy"] if graphviz_available else ["mermaid", "displacy"],
+        value="mermaid",
+        inline=True,
+        label="*Diagram tool*:",
+    )
+    return (diagram_tool,)
 
 
 @app.cell
@@ -291,8 +470,16 @@ def _(mo):
 
 
 @app.cell
-def _(finaltokens, mo, tokengraph_to_html):
-    vuhtml = mo.Html("<b><i>Highlighted by verbal unit</i></b>: " + tokengraph_to_html(finaltokens))
+def _(depth, finaltokens, mo, tokengraph_to_html):
+    # depth=depth (not omitted): tokengraph_to_html()'s own `depth`
+    # parameter caps how deep the COLOR highlighting goes -- it never drops
+    # a token from the rendered text, only un-highlights one whose verbal
+    # unit's subordination depth exceeds `depth`, falling back to plain,
+    # unhighlighted (but still escaped) text -- same clause-level
+    # subordination-depth notion tokengraph_to_depth_html() already uses
+    # for indentpsg below, via the same `depth` value from maxdepth's own
+    # slider, so both displays' idea of "how deep" always agree.
+    vuhtml = mo.Html("<b><i>Highlighted by verbal unit</i></b>: " + tokengraph_to_html(finaltokens, depth=depth))
     return (vuhtml,)
 
 
@@ -330,10 +517,132 @@ def _(depth, finaltokens, tokengraph_to_mermaid):
 
 
 @app.cell
-def _(depth, finaltokens, tokengraph_to_depth_html, mo):
+def _(depth, finaltokens, tokengraph_to_dot):
+    # Compose Graphviz diagram: cheap to always compute regardless of which
+    # tool is currently selected -- tokengraph_to_dot() is pure string
+    # building with no dependency of its own (see notes/dot_diagrams.md),
+    # unlike actually rendering it, which needs the graphviz package and
+    # the `dot` executable (handled in the diagram_display cell above).
+    # Same cell as latin_syntaxer_ctsdata.py's own.
+    dot_source, dot_warnings = tokengraph_to_dot(finaltokens, aat_depth=depth)
+    return dot_source, dot_warnings
+
+
+@app.cell
+def _(depth, finaltokens, tokengraph_to_displacy_svg):
+    # Compose the displaCy-style diagram: cheap to always compute regardless
+    # of which tool is currently selected, same reasoning as dot_source
+    # above -- but unlike dot_source, tokengraph_to_displacy_svg() has no
+    # external dependency at all (see notes/displacy_viz.md), so this is
+    # already a complete, ready-to-display SVG string, with no separate
+    # rendering step for diagram_display to handle. Same cell as
+    # latin_syntaxer_ctsdata.py's own.
+    displacy_svg, displacy_warnings = tokengraph_to_displacy_svg(finaltokens, aat_depth=depth)
+    return displacy_svg, displacy_warnings
+
+
+@app.cell
+def _(
+    diagram,
+    diagram_tool,
+    displacy_svg,
+    dot_source,
+    filename_base,
+    finaltokens,
+    mo,
+):
+    # Downloads whichever diagram is currently selected/displayed above,
+    # not both -- same reactive "follows the widget" convention as
+    # latin_syntaxer_ctsdata.py's own diagram_download. Mermaid source is
+    # wrapped in a ```mermaid fenced code block and saved as .md; Graphviz
+    # source is saved raw as .dot; displaCy's own SVG is already fully
+    # rendered the moment it's computed, so its download offers the .svg
+    # directly. disabled=not finaltokens rather than checking the
+    # diagram/dot_source strings themselves -- both always render a
+    # non-empty header (e.g. "graph BT") even for an empty tokengraph, so
+    # the strings alone can't tell "nothing to show yet" apart from "a
+    # real, if minimal, diagram".
+    if diagram_tool.value == "graphviz":
+        diagram_download = mo.download(
+            data=dot_source.encode("utf-8"),
+            filename=f"{filename_base}.dot",
+            label="Download Graphviz DOT source (.dot)",
+            mimetype="text/plain",
+            disabled=not finaltokens,
+        )
+    elif diagram_tool.value == "displacy":
+        diagram_download = mo.download(
+            data=displacy_svg.encode("utf-8"),
+            filename=f"{filename_base}_displacy.svg",
+            label="Download displaCy-style diagram (.svg)",
+            mimetype="image/svg+xml",
+            disabled=not finaltokens,
+        )
+    else:
+        diagram_download = mo.download(
+            data=("```mermaid\n\n" + diagram + "\n```\n").encode("utf-8"),
+            filename=f"{filename_base}.md",
+            label="Download Mermaid diagram (.md)",
+            mimetype="text/plain",
+            disabled=not finaltokens,
+        )
+    return (diagram_download,)
+
+
+@app.cell
+def _(depth, finaltokens, mo, tokengraph_to_depth_html):
     indenthtml, indentwarnings = tokengraph_to_depth_html(finaltokens, depth=depth)
     indentpsg = mo.Html("<b><i>Indented by verbal unit</i></b>: " + indenthtml)
     return (indentpsg,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    ## Save analysis
+    """)
+    return
+
+
+@app.cell
+def _(finaltokens, lm, result, selected_sentence, serialize_analyses):
+    # Same serialize_analyses() call as latin_syntaxer_ctsdata.py's own,
+    # just over this notebook's own single selected_sentence/result rather
+    # than a flattened list spanning several passages: `sentences` is
+    # `[selected_sentence]` (the one pre-analysis Sentence this tokengraph
+    # came from), `verbalunits` is that one result's own list (no
+    # flattening needed for a single sentence), and `reasoning` is its one
+    # entry, matching '#!lm's "one reasoning per sentence" contract (see
+    # serialization.py's own docstring). Left empty until an analysis has
+    # actually run, same guard finaltokens/vuhtml/etc. already use.
+    analysis_text, analysis_warnings = "", []
+    if result is not None and selected_sentence is not None:
+        analysis_text, analysis_warnings = serialize_analyses(
+            [selected_sentence],
+            result.verbalunits,
+            finaltokens,
+            model=lm.model,
+            reasoning=[result.reasoning],
+        )
+    return analysis_text, analysis_warnings
+
+
+@app.cell
+def _(analysis_text, filename_base, mo, result, save_extension):
+    # mo.download() puts the browser in charge of where the file lands,
+    # same as latin_syntaxer_ctsdata.py's own download_widget -- filename
+    # reactively follows both the sentence-derived filename_base and
+    # whichever extension is chosen. disabled=result is None (not
+    # `not analysis_text`, which an all-warnings-no-content edge case could
+    # still leave falsy) -- there's exactly one result here, not a list.
+    download_widget = mo.download(
+        data=analysis_text.encode("utf-8"),
+        filename=f"{filename_base}.{save_extension.value}",
+        label="Download analysis",
+        mimetype="text/plain",
+        disabled=result is None,
+    )
+    return (download_widget,)
 
 
 @app.cell(hide_code=True)
@@ -365,7 +674,10 @@ def _(Path):
         analyze_with_retry,
         max_subordination_depth,
         read_segmentation,
+        serialize_analyses,
         tokengraph_to_depth_html,
+        tokengraph_to_displacy_svg,
+        tokengraph_to_dot,
         tokengraph_to_html,
         tokengraph_to_mermaid,
         validate,
@@ -373,17 +685,37 @@ def _(Path):
         format_lm_cost,
     )
 
+    # graphviz (the PyPI package -- a thin subprocess wrapper around the
+    # separately-installed Graphviz `dot` executable) is optional the same
+    # way it is for latin_syntaxer_ctsdata.py's own diagram display:
+    # importable or not, checked once here rather than every display cell
+    # catching ImportError itself. Whether the `dot` executable is actually
+    # on PATH is a SEPARATE check (graphviz.ExecutableNotFound), made only
+    # when a diagram is actually rendered -- see the diagram_display cell
+    # above.
+    try:
+        import graphviz
+
+        graphviz_available = True
+    except ImportError:
+        graphviz = None
+        graphviz_available = False
     return (
         DEFAULT_CEILING,
         analyze_with_retry,
+        format_lm_cost,
+        graphviz,
+        graphviz_available,
         max_subordination_depth,
         read_segmentation,
+        serialize_analyses,
+        summarize_lm_cost,
         tokengraph_to_depth_html,
+        tokengraph_to_displacy_svg,
+        tokengraph_to_dot,
         tokengraph_to_html,
         tokengraph_to_mermaid,
         validate,
-        summarize_lm_cost,
-        format_lm_cost,
     )
 
 

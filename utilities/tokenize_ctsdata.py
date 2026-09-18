@@ -25,6 +25,18 @@ Read the resulting file back with `arsgrammatica.read_segmentation()` --
 one sentence out of it and run THAT one sentence through syntax analysis
 on demand.
 
+After writing the segmentation to stdout, this prints one line to STDERR
+reporting the total LM cost of the `segment_sources()` call above, via
+`arsgrammatica.summarize_lm_cost()`/`format_lm_cost()` -- the same helpers
+and the same "no calls" / "all cache hits" / "priced + cached mix" /
+"every call priced" cases the marimo notebooks' own "See cost" checkbox
+and `estimate_corpus_cost.py`'s report already cover (see `lm_cost.py`'s
+module docstring). This is a single-call script (segment_sources() is the
+only LM call it ever makes), so the reported total is exactly that one
+call's own cost, not a click's worth of several. Kept off stdout
+deliberately, matching `estimate_corpus_cost.py`'s own stdout/stderr split,
+so `... > out.txt` still captures nothing but the serialized segmentation.
+
 Usage:
     python utilities/tokenize_ctsdata.py path/to/source.cex > out.txt
     python utilities/tokenize_ctsdata.py --delimiter ';' path/to/source.cex
@@ -33,7 +45,9 @@ Needs the same `.env` as syntaxer_main.py (API_BASE/MODEL/API_KEY) --
 segment_sources() is an LM call like any other stage in this codebase.
 `--delimiter` controls the SOURCE `#!ctsdata` file's own column delimiter
 (passed straight through to read_ctsdata()); the OUTPUT this script writes
-always uses '|', matching every other serialized format here.
+always uses '|', matching every other serialized format here. The stderr
+cost line above always prints, with no flag to suppress it -- it's a
+single short line, not a verbosity knob.
 """
 
 import argparse
@@ -51,7 +65,14 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from syntaxer_main import _configure_lm  # noqa: E402
 
-from arsgrammatica import CitedText, read_ctsdata, segment_sources, serialize_segmentation
+from arsgrammatica import (
+    CitedText,
+    format_lm_cost,
+    read_ctsdata,
+    segment_sources,
+    serialize_segmentation,
+    summarize_lm_cost,
+)
 
 
 def tokenize_ctsdata(rows: List[CitedText]) -> str:
@@ -94,5 +115,13 @@ if __name__ == "__main__":
     # fails fast and cheaply.
     rows = read_ctsdata(args.ctsdata_path, delimiter=args.delimiter)
 
-    _configure_lm()
+    lm = _configure_lm()
     sys.stdout.write(tokenize_ctsdata(rows))
+
+    # stdout carries nothing but the serialized segmentation above -- same
+    # stdout/stderr split as estimate_corpus_cost.py's own diagnostics and
+    # analysis_to_dot.py's "Wrote ..." lines -- so the cost line (and every
+    # case arsgrammatica.format_lm_cost() itself covers: no calls, an
+    # all-cache-hit history, a priced/cached mix) goes to stderr instead.
+    cost_summary = summarize_lm_cost(lm.history)
+    print(f"LM cost: {format_lm_cost(cost_summary)}", file=sys.stderr)
