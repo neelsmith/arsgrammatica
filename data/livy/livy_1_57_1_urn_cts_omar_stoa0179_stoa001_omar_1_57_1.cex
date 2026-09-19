@@ -1,0 +1,32 @@
+#!lm
+MODEL=litellm_proxy/anthropic/Claude Opus 5
+CONTEXT=urn:cts:omar:stoa0179.stoa001.omar:1.57.1.1.57.1.t0-urn:cts:omar:stoa0179.stoa001.omar:1.57.1.1.57.1.t15
+REASONING=Main clause: "Rutuli habebant Ardeam" — "habebant" is the independent, transitive active verb, "Rutuli" its subject, "Ardeam" its direct object. "gens ... praepollens" stands in apposition to "Rutuli" ("gens" -> "Rutuli", apposition). "praepollens" agrees with "gens"; although it could be read as a purely attributive adjective-like participle ("a nation pre-eminent in wealth"), per the preference for the circumstantial reading in ambiguous cases I treat it as a predicate-sense participle anchoring its own verbal expression (dependent, intransitive), related to "gens" via 'circumstantial participle'. "divitiis" is an ablative (of respect) depending on "praepollens". The restrictive "ut in ea regione atque in ea aetate" is genuinely ambiguous: one could posit an elided form of *sum* ("ut [erat] in ea regione...") and make "ut" a subordinating conjunction over an implied-sum clause. I rejected that because there is no subject + predicate noun/adjective pair to support a bare-predicate construction; the phrase functions as a limiting adverbial qualification of "praepollens" ("as things went in that region and age"). So "ut" is treated as an adverbial modifying "praepollens", and each "in"-phrase likewise relates adverbially to "praepollens", with "regione"/"aetate" as objects of their prepositions and the two "ea" as adjectival modifiers. "atque" coordinates the two prepositional phrases (relating to the two prepositions "in").
+
+#!sentences
+context_begin|first_token|context_end|last_token
+urn:cts:omar:stoa0179.stoa001.omar:1.57.1|1.57.1.t0|urn:cts:omar:stoa0179.stoa001.omar:1.57.1|1.57.1.t15
+
+#!verbal_units
+context|token|syntactic_type|semantic_type
+urn:cts:omar:stoa0179.stoa001.omar:1.57.1|1.57.1.t2|independent|transitive active
+urn:cts:omar:stoa0179.stoa001.omar:1.57.1|1.57.1.t14|dependent|intransitive
+
+#!tokens
+context|id|tokentype|text|lemma|verbalunit|related1|relationship1|related2|relationship2
+urn:cts:omar:stoa0179.stoa001.omar:1.57.1|1.57.1.t0|lexical|Ardeam|Ardea||1.57.1.t2|direct object||
+urn:cts:omar:stoa0179.stoa001.omar:1.57.1|1.57.1.t1|lexical|Rutuli|Rutuli||1.57.1.t2|subject||
+urn:cts:omar:stoa0179.stoa001.omar:1.57.1|1.57.1.t2|lexical|habebant|habeo|1.57.1.t2|root|unit verb||
+urn:cts:omar:stoa0179.stoa001.omar:1.57.1|1.57.1.t3|punctuation|,||||||
+urn:cts:omar:stoa0179.stoa001.omar:1.57.1|1.57.1.t4|lexical|gens|gens||1.57.1.t1|apposition||
+urn:cts:omar:stoa0179.stoa001.omar:1.57.1|1.57.1.t5|lexical|ut|ut||1.57.1.t14|adverbial||
+urn:cts:omar:stoa0179.stoa001.omar:1.57.1|1.57.1.t6|lexical|in|in||1.57.1.t14|adverbial||
+urn:cts:omar:stoa0179.stoa001.omar:1.57.1|1.57.1.t7|lexical|ea|is||1.57.1.t8|adjectival||
+urn:cts:omar:stoa0179.stoa001.omar:1.57.1|1.57.1.t8|lexical|regione|regio||1.57.1.t6|object of preposition||
+urn:cts:omar:stoa0179.stoa001.omar:1.57.1|1.57.1.t9|lexical|atque|atque||1.57.1.t6|coordinating conjunction|1.57.1.t10|coordinating conjunction
+urn:cts:omar:stoa0179.stoa001.omar:1.57.1|1.57.1.t10|lexical|in|in||1.57.1.t14|adverbial||
+urn:cts:omar:stoa0179.stoa001.omar:1.57.1|1.57.1.t11|lexical|ea|is||1.57.1.t12|adjectival||
+urn:cts:omar:stoa0179.stoa001.omar:1.57.1|1.57.1.t12|lexical|aetate|aetas||1.57.1.t10|object of preposition||
+urn:cts:omar:stoa0179.stoa001.omar:1.57.1|1.57.1.t13|lexical|divitiis|divitiae||1.57.1.t14|ablative||
+urn:cts:omar:stoa0179.stoa001.omar:1.57.1|1.57.1.t14|lexical|praepollens|praepolleo|1.57.1.t14|1.57.1.t4|circumstantial participle||
+urn:cts:omar:stoa0179.stoa001.omar:1.57.1|1.57.1.t15|punctuation|.||||||
