@@ -1,6 +1,6 @@
-# Corpus scripts: what each one does (`utilities/tokenize_ctsdata.py`, `utilities/analyze_ctsdata_to_files.py`, `utilities/analyze_tokendata_to_files.py`, `utilities/analyze_w_diagrams.py`)
+# Corpus scripts: what each one does (`utilities/tokenize_ctsdata.py`, `utilities/analyze_ctsdata_to_files.py`, `utilities/analyze_tokendata_to_files.py`, `utilities/analyze_w_diagrams.py`, `utilities/analyze_tokendata_w_diagrams.py`)
 
-Four command-line scripts turn a `#!ctsdata` (CEX) source file into syntax analyses and diagrams, at different stages and granularities. All four are corpus-scale siblings of `syntaxer_main.py` (which handles one hand-typed passage); none of them needs anything beyond the same `.env` that script does (`API_BASE`/`MODEL`/`API_KEY`).
+Five command-line scripts turn a `#!ctsdata` (CEX) source file, or an already-tokenized file derived from one, into syntax analyses and diagrams, at different stages and granularities. All five are corpus-scale siblings of `syntaxer_main.py` (which handles one hand-typed passage); none of them needs anything beyond the same `.env` that script does (`API_BASE`/`MODEL`/`API_KEY`).
 
 ## `tokenize_ctsdata.py` -- segmentation only, no syntax analysis
 
@@ -35,6 +35,15 @@ Runs a CEX corpus through all three stages above end to end, in one invocation: 
 python utilities/analyze_w_diagrams.py corpus.cex --output-dir out/
 ```
 
+## `analyze_tokendata_w_diagrams.py` -- analysis and diagrams, starting from already-tokenized files
+
+The second half of `analyze_w_diagrams.py`'s own pipeline, taken on its own, same relationship `analyze_tokendata_to_files.py` has to `analyze_ctsdata_to_files.py`: reads one or more files written by `tokenize_ctsdata.py` (accepts several at once, like `analyze_tokendata_to_files.py` and unlike `analyze_w_diagrams.py`, which always takes exactly one raw corpus file), runs full syntax analysis on each sentence they already contain (`analyze_tokendata_to_files.py`'s own analyzing function, reused directly), then renders every resulting analysis file as a Graphviz PNG (`analyze_w_diagrams.py`'s own diagram-writing helper, reused directly). One analysis file per sentence lands directly under the output directory, with PNGs in a `dots/` subdirectory -- same layout `analyze_w_diagrams.py` itself produces, minus the tokenized-data file (there's nothing to write there: the input already *is* tokenized data). One `.env` read and one combined LM-cost total cover the single LM-calling stage (diagramming makes no LM calls). A file that can't be read as tokenized data is skipped, with a message on stderr, rather than aborting the whole run -- same convention `analyze_tokendata_to_files.py` uses. Use this instead of `analyze_w_diagrams.py` to split tokenizing from analyzing-and-diagramming (e.g. tokenize once, then analyze and diagram several times), or to review a tokenized file by hand before spending anything on real analysis.
+
+```sh
+python utilities/analyze_tokendata_w_diagrams.py tokenized.txt --output-dir out/
+python utilities/analyze_tokendata_w_diagrams.py a.txt b.txt --output-dir out/
+```
+
 ## What they all share
 
-Each keeps stdout clean for its own real output -- the serialized segmentation for `tokenize_ctsdata.py`, one "Wrote ..." line per file for the other three -- and sends everything else (per-item progress messages, validation warnings, and a final total-LM-cost line via `arsgrammatica.summarize_lm_cost()`/`format_lm_cost()`) to stderr instead. The progress messages print right before each real LM call starts, so a long run over a large corpus doesn't look hung.
+Each keeps stdout clean for its own real output -- the serialized segmentation for `tokenize_ctsdata.py`, one "Wrote ..." line per file for the other four -- and sends everything else (per-item progress messages, validation warnings, and a final total-LM-cost line via `arsgrammatica.summarize_lm_cost()`/`format_lm_cost()`) to stderr instead. The progress messages print right before each real LM call starts, so a long run over a large corpus doesn't look hung.

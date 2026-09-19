@@ -3,8 +3,54 @@ title: Syntactic analysis
 ---
 
 
+## Verbal constructions
 
-1. **unit verb** -- **cano** (root) in *arma virumque cano*.
+### Independent clause
+
+*Independent* verbs are related to a hypthetical `root` value as `unit verb`. 
+
+
+**Example**: *arma virumque cano*
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *cano*  | `unit verb` | (`root`) |
+
+
+### Directly quoted speech
+
+Independent verbs in directly quoted speech related to the verb introducing the quoation as `direct quote`.
+
+**Example**: *'hanc ego aram' inquit 'Pudicitiae plebeiae dedico'*.
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *dedico* | `direct quote` | *inquit* |
+| *inquit* | `unit verb` | (`root`) |
+
+
+### Aside
+
+When the syntax of the sentence is interrupted by an independent verbal expression, the verb of the interrupting expression is related to the verb of the interrupted context as `aside`.
+
+**Example**:  *Sp. Nautius -- Octavium Maecium quidam eum tradunt -- cum auxiliaribus cohortibus erat*.
+
+| Token | relationship | related token |
+| --- | --- | --- |
+|*tradunt* | `aside` | *erat* |
+
+
+
+### Dependent clause
+
+Verbs of *dependent* clauses are related to a subordinating word (conjunction, relative pronoun) as `unit verb`. Examples:
+
+
+
+
+
+
+
 2. **subordinating conjunction** -- **cum** in *Hercules cum gregem perlustrasset*.
 3. **relative pronoun** -- **quibus** in *Latini, cum quibus ictum foedus erat*.
 4. **subject** -- **Lucumo** in *Lucumo Demarati Corinthii filius erat*.
@@ -21,8 +67,8 @@ title: Syntactic analysis
 15. **ablative** -- **ferro** in *omnia ferro flammaque miscet*.
 16. **accusative** -- **Romam** in *Romam venit*.
 17. **vocative** -- **domine** in *Non est ita, domine*.
-18. **direct quote** -- **dedico** in *'hanc ego aram' inquit 'Pudicitiae plebeiae dedico'*.
-19. **aside** -- **tradunt** in *Sp. Nautius -- Octavium Maecium quidam eum tradunt -- cum auxiliaribus cohortibus erat*.
+
+
 20. **indirect statement** -- **esse** in *id philtrum esse dixit*.
 21. **circumstantial participle** -- **regnante** in *Anco regnante Lucumo Romam commigravit*.
 22. **ablative absolute** -- **Anco** in *Anco regnante Lucumo Romam commigravit*.
@@ -30,3 +76,7 @@ title: Syntactic analysis
 24. **apposition** -- **filius** in *Aegeus Pandionis filius*.
 25. **complementary infinitive** -- **expugnare** in *cum templum Apollinis expugnare vellet*.
 26. **praenomen** -- **Sex.** in *Sex. Tarquinius*.
+
+
+## Some brief, complete examples
+
