@@ -1,19 +1,19 @@
 ---
-title: Syntactic analysis
+title: Graph of syntactic relations
 ---
 
 
-Although `arsgrammatica` tries to account for *all* syntactic features of a Latin text, its analytical scheme is anchored in the reduced Agent-Action-Target model (AAT): all syntactic features are organized around explicit or implicit verbal ideas, that may optionally include agent/target elements (e.g., for transitive active verbs, subject/direct object elements).
+When `arsgrammatica` analyses a passage of Latin, every non-punctuation token is related to one or two other tokens in a graph structure. This page summarizes all the categories of relationships that `arsgrammatica` recognizes.
 
 
 ## Constructions of verbal expressions
 
 ### Independent clause
 
-*Independent* verbs are related to a hypthetical `root` value as `unit verb`. 
+Verbs of independent (main) clauses are  related to a hypthetical `root` value as `unit verb`. 
 
 
-**Example**: *arma virumque cano*
+**Example**: *arma virumque cano*.
 
 | Token | relationship | related token |
 | --- | --- | --- |
@@ -47,7 +47,7 @@ When the syntax of the sentence is interrupted by an independent verbal expressi
 
 ### Dependent clause
 
-Verbs of *dependent* clauses are related to a subordinating word (conjunction, relative pronoun) as `unit verb`. 
+Verbs of *dependent* clauses are related to a subordinating word (such as a conjunction or relative pronoun) as `unit verb`. 
 
 
 **Example**: *Hercules cum gregem perlustrasset, pergit ad proximam speluncam.*
@@ -79,8 +79,11 @@ Circumstantial participles express a verbal idea that is related to an anteceden
 | Token | relationship | related token |
 | --- | --- | --- |
 | *adveniens* | `circumstantial participle` | *vir* |
+| *excepti* | `unit verb` | (`root`) |
+| (`elided sum`) | *excepti* | `auxiliary` |
 
 
+> See below on the `auxiliary` relation; on elided tokens, see [tokes](./tokens.qmd).
 
 
 

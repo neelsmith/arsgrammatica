@@ -54,8 +54,13 @@ website:
     - title: "Concepts"
       contents:
         - concepts/index.qmd
+        - "---"
+        - concepts/models.qmd
         - concepts/ud.qmd
         - concepts/aat.qmd
+        - "---"
+        - concepts/tokens.qmd
+        - concepts/verbalunits.qmd
         - concepts/syntactic-analysis.qmd
     - title: "Guides"
       contents: 

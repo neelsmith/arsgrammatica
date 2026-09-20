@@ -1,0 +1,8 @@
+---
+title: Verbal units
+---
+
+Although `arsgrammatica` tries to account for *all* syntactic features of a Latin text, its analytical scheme is anchored in the reduced Agent-Action-Target model (AAT): all syntactic features are organized around explicit or implicit verbal ideas, that may optionally include agent/target elements (e.g., for transitive active verbs, subject/direct object elements).
+
+
+*TBA*

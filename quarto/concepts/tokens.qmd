@@ -1,0 +1,12 @@
+---
+title: How `arsgrammatica` tokenizes Latin
+---
+
+*TBA*
+
+
+implied/elided
+
+- elided forms of *sum* in compounds
+- repeated/understood verb
+- implied substantive
