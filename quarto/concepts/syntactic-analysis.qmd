@@ -22,7 +22,7 @@ Although `arsgrammatica` tries to account for *all* syntactic features of a Lati
 
 ### Directly quoted speech
 
-Independent verbs in directly quoted speech related to the verb introducing the quoation as `direct quote`.
+Independent verbs in directly quoted speech are related to the verb introducing the quotation as `direct quote`.
 
 **Example**: *'hanc ego aram' inquit 'Pudicitiae plebeiae dedico'*.
 
@@ -148,7 +148,7 @@ The AAT focuses on two special relations to verbal ideas: the agent and the targ
 
 ## Case constructions with substantives
 
-
+Apart from the AAT relations, `ag` does not subdivide syntactic constructions semantically
 
 ### Genitive
 
@@ -200,6 +200,9 @@ The AAT focuses on two special relations to verbal ideas: the agent and the targ
 26. **praenomen** -- **Sex.** in *Sex. Tarquinius*.
 
 
+**Example**: *Sp. Nautius – Octavium Maecium quidam eum tradunt – cum auxiliaribus cohortibus erat.*
+
+
 ## Adverbial and attributive expressions
 
 
@@ -211,10 +214,7 @@ The AAT focuses on two special relations to verbal ideas: the agent and the targ
 
 ## A note on two-way linking
 
-### Conjunction
-
-
-### Relation
+Conjunction and relation
 
 ## Some brief, complete examples
 
