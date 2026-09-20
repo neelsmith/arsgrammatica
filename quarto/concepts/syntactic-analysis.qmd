@@ -3,7 +3,7 @@ title: Graph of syntactic relations
 ---
 
 
-When `arsgrammatica` analyses a passage of Latin, every non-punctuation token is related to one or two other tokens in a graph structure. This page summarizes all the categories of relationships that `arsgrammatica` recognizes.
+When `arsgrammatica` analyses a passage of Latin, every non-punctuation token is related to one or two other tokens in a graph structure. This page summarizes all relationship categories that `arsgrammatica` recognizes.
 
 
 ## Constructions of verbal expressions
@@ -90,19 +90,36 @@ Circumstantial participles express a verbal idea that is related to an anteceden
 
 ## Other constructions with verbs
 
-### Elided/understood
-
-eldied
-
-### Compound verb forms
-
-When forms of 
-
-8. **auxiliary** -- **est** in *urbs condita est*.
 
 ### Complementary infinitive
 
-25. **complementary infinitive** -- **expugnare** in *cum templum Apollinis expugnare vellet*.
+When an infinitive is used to complete the semantics of a verbal expression with certain verbs such as *volo*, the infinitive relates to the verbal expression as `complementary infinitive`.
+
+
+**Example**: *ascribi se in eam civitatem voluit*.
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *ascribi* | `complementary infinitive` | *voluit* |
+| *voluit* | `unit verb` | (`root`) |
+
+
+
+
+
+### Compound verb forms
+
+Compound forms using *sum* with a participle treat the participle as the verb of the verbal unit and the form of *sum* as an auxiliary. The participle therefore is related to its context just as any other verbal expression would be. The form of *sum* relates to the participle as `auxiliary`.
+
+**Example**: *urbs condita est*.
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *condita* | `unit verb` | (`root`) |
+| *est* | `auxiliary` | *condita* |
+
+
 
 
 
@@ -110,24 +127,113 @@ When forms of
 
 ## AAT relations
 
-The AAT focuses on two special relations to verbal ideas: the agent and the target. In* Latin (as in English), these relations are constructed differently depending on the voice of the verbal expression. *Agency* is expressed by the *subject* of transitive active, intransitive, and linking verbs, and by the ablative of *agent* construction with passive verbs. *Target* status is expressed by the *direct object* of transitive active verbs, the *predicate* of linking verbs, and by the *subject* of transitive passive verbs.
+The Agent-Action-Target model focuses on two special relations to verbal expressions: the agent and the target. In Latin (as in English), these relations are constructed differently depending on the voice of the verbal expression. *Agency* is expressed by the *subject* of transitive active, intransitive, and linking verbs, and by the ablative of *agent* construction with passive verbs. *Target* status is expressed by the *direct object* of transitive active verbs, the *predicate* of linking verbs, and by the *subject* of transitive passive verbs.
 
 ### Subject
 
-4. **subject** -- **Lucumo** in *Lucumo Demarati Corinthii filius erat*.
+A substantive functioning as the grammatical subject of a verbal expression is related to it as `subject`.
+
+
+**Example**: *Lucumo Demarati Corinthii filius erat*.
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *Lucumo* | `subject` | *erat* |
+| *erat* | `unit verb` | (`root`) |
+
 
 ### Agent
 
-7. **agent** -- **a** in *urbs a Romulo condita est*.
 
+The headword of a prepositional phrase expressing agency with passive verbs (that is, `a`/`ab`) relates to the verbal expression as `agent`.
+
+**Example**: *urbs a Romulo condita est*.
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *urbs* | `subject` | *condita* |
+| *a* | `agent` | *condita* |
+| *Romulo* | `object of preposition` | *a* |
+| *condita* | `unit verb` | (`root`) |
+| *est* | `auxiliary` | *condita* |
+
+> See below on objects of prepositions.
 
 ### Direct object
 
+May not be acc.
+Get ex. < Livy
 5. **direct object** -- **animos** in *sustulerant animos*.
 
 ### Predicate
 
-6. **predicate** -- **filius** in *Lucumo Demarati Corinthii filius erat*.
+
+Substantives or adjectives serving as predicates of linking verbs are related to the verb as `predicate`
+
+**Example**: *Lucumo Demarati Corinthii filius erat*.
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *Lucumo* | `subject` | *erat* |
+| *filius* | `predicate` | *erat* |
+| *erat* | `unit verb` | (`root`) |
+
+
+
+## Case constructions with substantives
+
+Apart from the special AAT relations, `arsgrammatica` does not subdivide syntactic constructions of substantives by their semantics. Instead, it identifies the case that constitutes the syntactic relationship. `arsgrammatica` leaves it to subsequent semantic analysis to decide if, for example, a `genitive` relation between two nouns expresses possession, a partitive idea, material or units of measure, or whether the relationship is a subjective or objective action. 
+
+### Genitive
+
+
+When a substantive in the genitive case modifies another substantive, the relationship is `genitive`.
+
+**Example**: *hic filius erat regis*.
+
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *hic* | `subject` | *erat* | 
+| *filius* | `predicate` | *erat* |
+| *erat* | `unit verb` | (`root`) |
+| *regis* | `genitive` | *filius* |
+
+
+
+### Dative
+
+14. **dative** -- **mortalibus** in *...documentum mortalibus dedero*.
+
+### Accusative
+
+16. **accusative** -- **Romam** in *Romam venit*.
+
+### Ablative
+
+15. **ablative** -- **ferro** in *omnia ferro flammaque miscet*.
+
+
+
+### Vocative 
+17. **vocative** -- **domine** in *Non est ita, domine*.
+
+
+
+
+
+
+
+
+## Special substantive relations
+
+
+### Ablative absolute
+
+22. **ablative absolute** -- **Anco** in *Anco regnante Lucumo Romam commigravit*.
 
 
 
@@ -136,6 +242,8 @@ The AAT focuses on two special relations to verbal ideas: the agent and the targ
 
 ### Coordinating word
 
+Use example like autem...
+Expand on double inks iwth et (aut)
 23. **coordinating conjunction** -- **que** in *arma virumque cano*.
 
 
@@ -147,46 +255,6 @@ The AAT focuses on two special relations to verbal ideas: the agent and the targ
 ### Relative pronoun
 
 3. **relative pronoun** -- **quibus** in *Latini, cum quibus ictum foedus erat*.
-
-
-## Case constructions with substantives
-
-Apart from the AAT relations, `ag` does not subdivide syntactic constructions semantically
-
-### Genitive
-
-13. **genitive** -- **regis** in *hic filius erat regis*.
-
-### Dative
-
-14. **dative** -- **mortalibus** in *...documentum mortalibus dedero*.
-
-### Ablative
-
-15. **ablative** -- **ferro** in *omnia ferro flammaque miscet*.
-
-
-
-
-
-
-
-21. **circumstantial participle** -- **regnante** in *Anco regnante Lucumo Romam commigravit*.
-
-
-### Accusative
-
-16. **accusative** -- **Romam** in *Romam venit*.
-
-### Vocative 
-17. **vocative** -- **domine** in *Non est ita, domine*.
-
-## Special substantive relations
-
-
-### Ablative absolute
-
-22. **ablative absolute** -- **Anco** in *Anco regnante Lucumo Romam commigravit*.
 
 
 ### Object of preposition
