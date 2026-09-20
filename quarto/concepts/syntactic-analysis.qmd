@@ -3,7 +3,10 @@ title: Syntactic analysis
 ---
 
 
-## Verbal constructions
+Although `arsgrammatica` tries to account for *all* syntactic features of a Latin text, its analytical scheme is anchored in the reduced Agent-Action-Target model (AAT): all syntactic features are organized around explicit or implicit verbal ideas, that may optionally include agent/target elements (e.g., for transitive active verbs, subject/direct object elements).
+
+
+## Constructions of verbal expressions
 
 ### Independent clause
 
@@ -38,45 +41,180 @@ When the syntax of the sentence is interrupted by an independent verbal expressi
 | Token | relationship | related token |
 | --- | --- | --- |
 |*tradunt* | `aside` | *erat* |
+| *erat* | `unit verb` | (`root`) |
 
 
 
 ### Dependent clause
 
-Verbs of *dependent* clauses are related to a subordinating word (conjunction, relative pronoun) as `unit verb`. Examples:
+Verbs of *dependent* clauses are related to a subordinating word (conjunction, relative pronoun) as `unit verb`. 
+
+
+**Example**: *Hercules cum gregem perlustrasset, pergit ad proximam speluncam.*
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *perlustrasset* | `unit verb` | *cum* |
+| *pergit* | `unit verb` | (`root`) |
+
+
+
+### Indirect statement
+
+Infinitive forms in indirect statement relate to the verb of speaking as `indirect statement`.
+
+**Example**: *id philtrum esse dixit*.
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *esse* | `indirect statement` | *dixit* |
+| *dixit* | `unit verb` | (`root`) |
+
+### Circumstantial participle
+
+Circumstantial participles express a verbal idea that is related to an antecedent substantive in the relation `circumstantial participle`.
+
+**Example**: *adveniens vir Tarquiniique excepti benigne.*
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *adveniens* | `circumstantial participle` | *vir* |
 
 
 
 
 
 
+## Other constructions with verbs
+
+### Elided/understood
+
+eldied
+
+### Compound verb forms
+
+When forms of 
+
+8. **auxiliary** -- **est** in *urbs condita est*.
+
+### Complementary infinitive
+
+25. **complementary infinitive** -- **expugnare** in *cum templum Apollinis expugnare vellet*.
+
+
+
+
+
+## AAT relations
+
+The AAT focuses on two special relations to verbal ideas: the agent and the target. In* Latin (as in English), these relations are constructed differently depending on the voice of the verbal expression. *Agency* is expressed by the *subject* of transitive active, intransitive, and linking verbs, and by the ablative of *agent* construction with passive verbs. *Target* status is expressed by the *direct object* of transitive active verbs, the *predicate* of linking verbs, and by the *subject* of transitive passive verbs.
+
+### Subject
+
+4. **subject** -- **Lucumo** in *Lucumo Demarati Corinthii filius erat*.
+
+### Agent
+
+7. **agent** -- **a** in *urbs a Romulo condita est*.
+
+
+### Direct object
+
+5. **direct object** -- **animos** in *sustulerant animos*.
+
+### Predicate
+
+6. **predicate** -- **filius** in *Lucumo Demarati Corinthii filius erat*.
+
+
+
+## Coordinating and subordinating words
+
+
+### Coordinating word
+
+23. **coordinating conjunction** -- **que** in *arma virumque cano*.
+
+
+### Subordinating word
 
 2. **subordinating conjunction** -- **cum** in *Hercules cum gregem perlustrasset*.
+
+
+### Relative pronoun
+
 3. **relative pronoun** -- **quibus** in *Latini, cum quibus ictum foedus erat*.
-4. **subject** -- **Lucumo** in *Lucumo Demarati Corinthii filius erat*.
-5. **direct object** -- **animos** in *sustulerant animos*.
-6. **predicate** -- **filius** in *Lucumo Demarati Corinthii filius erat*.
-7. **agent** -- **a** in *urbs a Romulo condita est*.
-8. **auxiliary** -- **est** in *urbs condita est*.
+
+
+## Case constructions with substantives
+
+
+
+### Genitive
+
+13. **genitive** -- **regis** in *hic filius erat regis*.
+
+### Dative
+
+14. **dative** -- **mortalibus** in *...documentum mortalibus dedero*.
+
+### Ablative
+
+15. **ablative** -- **ferro** in *omnia ferro flammaque miscet*.
+
+
+
+
+
+
+
+21. **circumstantial participle** -- **regnante** in *Anco regnante Lucumo Romam commigravit*.
+
+
+### Accusative
+
+16. **accusative** -- **Romam** in *Romam venit*.
+
+### Vocative 
+17. **vocative** -- **domine** in *Non est ita, domine*.
+
+## Special substantive relations
+
+
+### Ablative absolute
+
+22. **ablative absolute** -- **Anco** in *Anco regnante Lucumo Romam commigravit*.
+
+
+### Object of preposition
+
 9. **object of preposition** -- **Romulo** in *urbs a Romulo condita est*.
+
+### Apposition
+
+24. **apposition** -- **filius** in *Aegeus Pandionis filius*.
+
+### Praenomen
+
+
+26. **praenomen** -- **Sex.** in *Sex. Tarquinius*.
+
+
+## Adverbial and attributive expressions
+
+
 10. **adverbial** -- **forte** in *ad Ianiculum forte ventum erat*.
 11. **attributive** -- **ad** in *pugna ad Cannas*.
 12. **adjectival** -- **omnium** in *patri bonorum omnium heres*.
-13. **genitive** -- **regis** in *hic filius erat regis*.
-14. **dative** -- **mortalibus** in *...documentum mortalibus dedero*.
-15. **ablative** -- **ferro** in *omnia ferro flammaque miscet*.
-16. **accusative** -- **Romam** in *Romam venit*.
-17. **vocative** -- **domine** in *Non est ita, domine*.
 
 
-20. **indirect statement** -- **esse** in *id philtrum esse dixit*.
-21. **circumstantial participle** -- **regnante** in *Anco regnante Lucumo Romam commigravit*.
-22. **ablative absolute** -- **Anco** in *Anco regnante Lucumo Romam commigravit*.
-23. **coordinating conjunction** -- **que** in *arma virumque cano*.
-24. **apposition** -- **filius** in *Aegeus Pandionis filius*.
-25. **complementary infinitive** -- **expugnare** in *cum templum Apollinis expugnare vellet*.
-26. **praenomen** -- **Sex.** in *Sex. Tarquinius*.
 
+## A note on two-way linking
+
+### Conjunction
+
+
+### Relation
 
 ## Some brief, complete examples
 
