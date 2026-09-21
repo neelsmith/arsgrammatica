@@ -47,7 +47,7 @@ When the syntax of the sentence is interrupted by an independent verbal expressi
 
 ### Dependent clause
 
-Verbs of *dependent* clauses are related to a subordinating word (such as a conjunction or relative pronoun) as `unit verb`. 
+Verbs of dependent clauses are related to a subordinating word (such as a conjunction or relative pronoun) as `unit verb`. 
 
 
 **Example**: *Hercules cum gregem perlustrasset, pergit ad proximam speluncam.*
@@ -162,9 +162,21 @@ The headword of a prepositional phrase expressing agency with passive verbs (tha
 
 ### Direct object
 
-May not be acc.
-Get ex. < Livy
-5. **direct object** -- **animos** in *sustulerant animos*.
+
+The direct object of a transitive active verb is related to the verbal expression as `direct object`.
+
+**Example**: *Tarquinium mala libido Lucretiae per vim stuprandae capit*.
+
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *Tarquinium* | `direct object` | *capit* |
+| *libido* | `subject` | *capit* |
+| *capit* | `unit verb` | (`root`)|
+
+
+
 
 ### Predicate
 
@@ -206,21 +218,79 @@ When a substantive in the genitive case modifies another substantive, the relati
 
 ### Dative
 
+When a substantive in the dative case is related to a verb or another substantive, the relationship is `dative`.
+
+
+**Example**: *documentum mortalibus dedero*.
+
 14. **dative** -- **mortalibus** in *...documentum mortalibus dedero*.
 
 ### Accusative
 
-16. **accusative** -- **Romam** in *Romam venit*.
+When an accusative noun is related to a noun, or when it relates to a verb but does *not* express a direct object relationship, the relationship value is `accusative`.
+
+**Example**: *Romam venit*.
+
+The verb *venit* is intransitive, but *Romam* relates to it.
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *Romam* | `accusative` | *venit* |
+| *venit* | `unit verb` | (`root`) |
+
+**Example**: **duo milia passuum iter fecerunt*.
+
+The phrase *duo milia passuum* qualifies the noun *iter* with a length of distance specified in the accusative. 
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *milia* | `accusative` | *iter* | 
+| *passuum* | `genitive` | *milia* |
+| *iter* | `direct object` | *fecerunt* | 
+| *fecerunt* | `unit verb` | (`root`) |
+
 
 ### Ablative
 
-15. **ablative** -- **ferro** in *omnia ferro flammaque miscet*.
+When nouns in the ablative case are related to another noun or to a verb, the relationship is `ablative`.
 
+**Example**: *omnia ferro flammaque miscet*
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *ferro* | `ablative` | *miscet* |
+| *flamma* | `ablative` | *miscet* |
+| *miscet* | `unit verb` | (`root`) |
+
+
+**Example**: *Collatinus negat verbis opus esse*.
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *Collatinus* | `subject` | *negat* | 
+| *negat* | `unit verb` | (`root`) | 
+| *verbis* | `ablative` | *opus* |
+| *opus* | `subject` | *esse* |
+| *esse* | `indirect statement` | *negat* |
 
 
 ### Vocative 
-17. **vocative** -- **domine** in *Non est ita, domine*.
 
+Nouns in the vocative case are related to a verbal expression as `vocative`.
+
+
+**Example**: *Non est ita, domine*.
+
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *est* | `unit verb` | (`root`) |
+| *domine* | `vocative` | *est* |
 
 
 
@@ -268,10 +338,16 @@ Expand on double inks iwth et (aut)
 ### Praenomen
 
 
-26. **praenomen** -- **Sex.** in *Sex. Tarquinius*.
-
+A token `arsgrammatica` classifies as `praenomen` is an abbreviation used in conjunction wth a fully spelled out *nomen* or *cognomen*. The abbreviated *praenomen* relates to the full form clearly showing its case usage as `praenomen`.
 
 **Example**: *Sp. Nautius – Octavium Maecium quidam eum tradunt – cum auxiliaribus cohortibus erat.*
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *Sp.* | `praenomen` | *Nautius* |
+| *Nautius* | `subject` | *erat* |
+| *erat* | `unit verb` | (`root`) |
 
 
 ## Adverbial and attributive expressions
