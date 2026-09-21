@@ -54,6 +54,7 @@ from .segmentation_serialization import (
 )
 from .token_budget import estimate_max_tokens, analyze_with_retry, get_calibration, DEFAULT_CEILING
 from .lm_cost import LMCostSummary, summarize_lm_cost, format_lm_cost
+from .run_report import FailedPassage, format_warnings_report, write_warnings_report
 from .lewis_short import (
     LewisShortEntry,
     LewisShortMatch,
@@ -155,6 +156,9 @@ __all__ = [
     "LMCostSummary",
     "summarize_lm_cost",
     "format_lm_cost",
+    "FailedPassage",
+    "format_warnings_report",
+    "write_warnings_report",
     "LewisShortEntry",
     "LewisShortMatch",
     "LewisShortLexicon",

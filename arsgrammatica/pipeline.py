@@ -38,6 +38,7 @@ def analyze_sources(
     sources: List[CitedText],
     *,
     progress_callback: Optional[Callable[[int, int, Sentence], None]] = None,
+    on_sentence_error: Optional[Callable[[Sentence, Exception], None]] = None,
 ) -> Tuple[List[Sentence], list]:
     """Segment `sources` into citation-aware sentences, run each sentence's
     tokens through SentenceAnalysis, and validate each result.
@@ -67,6 +68,29 @@ def analyze_sources(
     function's return value and every other observable effect are exactly
     as they were before this parameter existed.
 
+    `on_sentence_error`, if given, is called as `on_sentence_error(sentence,
+    exc)` whenever that one sentence's own `analyze_with_retry()` call
+    raises -- even after that function's own retries are exhausted --
+    instead of letting the exception propagate out of THIS call entirely.
+    That one sentence is then left out of both returned lists (`sentences`
+    and `results` stay parallel and the same length as each other, just
+    possibly shorter than `segment_sources()`'s own output, by however many
+    sentences failed); every OTHER sentence in `sources` -- including ones
+    segmented into the SAME call as the one that failed -- still gets
+    analyzed normally. Omitted (the default, `None`), this function's
+    behavior is exactly what it always was: a failing sentence's exception
+    propagates immediately, and this call returns nothing at all. Existing
+    callers that don't pass it (`analyze_string()`,
+    `analyze_selected_passages()`, `analyze_ctsdata()`, `syntaxer_main.py`,
+    every marimo notebook) are unaffected by this parameter's existence --
+    that's the right default for a single hand-typed passage in an
+    interactive session, where the real exception should surface right
+    away rather than being swallowed into a report nobody's watching yet.
+    Only a script wide enough to want to survive one bad passage out of
+    many should pass this -- see `utilities/analyze_ctsdata_to_files.py`'s
+    own use of it, and `arsgrammatica.FailedPassage`/`write_warnings_report()`
+    for a ready-made way to collect and report what it catches.
+
     Before any SentenceAnalysis call, every token whose citation is a CTS
     URN (`token_ids.assign_passage_scoped_ids()`) has its id rewritten to a
     passage-scoped composite id (e.g. `1.1.t0`) instead of whatever bare id
@@ -82,12 +106,19 @@ def analyze_sources(
     """
     sentences = assign_passage_scoped_ids(segment_sources(sources))
 
+    kept_sentences = []
     results = []
     for index, sentence in enumerate(sentences):
         if progress_callback is not None:
             progress_callback(index, len(sentences), sentence)
 
-        result = analyze_with_retry(passage=_render_sentence_text(sentence), tokens=sentence.tokens)
+        try:
+            result = analyze_with_retry(passage=_render_sentence_text(sentence), tokens=sentence.tokens)
+        except Exception as exc:
+            if on_sentence_error is None:
+                raise
+            on_sentence_error(sentence, exc)
+            continue
 
         problems = validate(sentence.tokens, result)
         if problems:
@@ -101,9 +132,10 @@ def analyze_sources(
             for p in problems:
                 print(f"  - {p}", file=sys.stderr)
 
+        kept_sentences.append(sentence)
         results.append(result)
 
-    return sentences, results
+    return kept_sentences, results
  
  
 def combined_tokengraph(results) -> list:

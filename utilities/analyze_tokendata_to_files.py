@@ -39,7 +39,22 @@ can't be read back as `read_segmentation()`'s own format -- even after any
 block this script doesn't need has been stripped out of it -- is skipped
 (a message on stderr), rather than aborting the whole run -- every other
 file's sentences still get analyzed and written. The script exits non-zero
-if any file was skipped, or if nothing was written at all.
+if any file was skipped, if any passage failed to analyze (see below), or
+if nothing was written at all.
+
+A SENTENCE'S own analysis can also fail outright, distinct from a whole
+file being unreadable -- its `SentenceAnalysis` call exhausting
+`token_budget.analyze_with_retry()`'s own retries, say. That sentence alone
+is skipped (a message on stderr) rather than aborting the rest of its own
+file, let alone every other file -- the same "one bad unit doesn't stop the
+others" principle this script's own multi-file skip-on-error already
+follows, just one level finer. Every such failure is collected into
+`arsgrammatica.FailedPassage` and, once every file has been processed,
+written to `<output_dir>/warnings.txt` alongside a statement of the whole
+run's total LM cost (`arsgrammatica.write_warnings_report()`) -- see that
+function's own docstring for the exact contents. `warnings.txt` is always
+written, even when nothing failed, and gets its own "Wrote ..." line on
+stdout like every other output file here.
 
 Usage:
     python utilities/analyze_tokendata_to_files.py tokenized.txt --output-dir analyses/
@@ -108,6 +123,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from syntaxer_main import _configure_lm  # noqa: E402
 
 from arsgrammatica import (
+    FailedPassage,
     Sentence,
     analyze_with_retry,
     format_lm_cost,
@@ -115,6 +131,7 @@ from arsgrammatica import (
     summarize_lm_cost,
     validate,
     write_analyses,
+    write_warnings_report,
 )
 # SENTENCES_LABEL/TOKENS_LABEL aren't re-exported at package level (only
 # the functions built on them are) -- imported directly from their own
@@ -204,7 +221,7 @@ def analyze_tokendata_to_files(
     output_dir: str,
     file_stem: str,
     model: Optional[str] = None,
-) -> List[Tuple[Path, List[str]]]:
+) -> Tuple[List[Tuple[Path, List[str]]], List[FailedPassage]]:
     """Run each of `sentences` (already segmented -- e.g.
     `read_segmentation()`'s own output, one input file's worth) through
     full syntax analysis, one sentence at a time, and write each result to
@@ -229,23 +246,31 @@ def analyze_tokendata_to_files(
     convention; omit it (the default) to skip `#!lm` entirely, same as
     `write_analyses()` itself does when `model` isn't given.
 
-    Returns a list of `(path, warnings)` pairs, one per sentence written,
-    in the same order as `sentences` -- `warnings` is whatever
-    `write_analyses()` itself returned for that one file (empty if nothing
-    looks wrong; see `serialize_analyses()`'s docstring for what each
-    warning means). Any validation problem `validate()` finds for a
-    sentence is printed directly to stderr (this function's own behavior,
-    since there is no `analyze_sources()` call here to print it for us)
-    before this function writes that sentence's file.
+    Returns `(written, failed)`: `written` is a list of `(path, warnings)`
+    pairs, one per sentence actually written, in the same order as
+    `sentences` (skipping any sentence that failed) -- `warnings` is
+    whatever `write_analyses()` itself returned for that one file (empty
+    if nothing looks wrong; see `serialize_analyses()`'s docstring for what
+    each warning means). `failed` is a list of `arsgrammatica.FailedPassage`,
+    one per sentence whose own `analyze_with_retry()` call raised (even
+    after its own retries were exhausted), in `sentences`' own order --
+    that sentence gets no output file at all, but every OTHER sentence
+    still does. Any validation problem `validate()` finds for a
+    (successfully analyzed) sentence is printed directly to stderr (this
+    function's own behavior, since there is no `analyze_sources()` call
+    here to print it for us) before this function writes that sentence's
+    file.
 
     Also prints a one-line progress message to stderr before each
-    sentence's own `SentenceAnalysis` call -- see this module's own
-    docstring for why. Never touches stdout.
+    sentence's own `SentenceAnalysis` call, and a failure message for any
+    sentence that raises -- see this module's own docstring for why. Never
+    touches stdout.
     """
     out_dir = Path(output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
     written: List[Tuple[Path, List[str]]] = []
+    failed: List[FailedPassage] = []
     for index, sentence in enumerate(sentences):
         citation = sentence.tokens[0].citation if sentence.tokens else None
         print(
@@ -261,7 +286,13 @@ def analyze_tokendata_to_files(
         # spaces too), but SentenceAnalysis only uses `passage` for
         # readability alongside the authoritative `tokens` list.
         passage_text = " ".join(tok.text for tok in sentence.tokens)
-        result = analyze_with_retry(passage=passage_text, tokens=sentence.tokens)
+        try:
+            result = analyze_with_retry(passage=passage_text, tokens=sentence.tokens)
+        except Exception as exc:
+            description = f"{file_stem!r} sentence starting at {citation or '(no citation)'!r}"
+            print(f"Failed to analyze {description}: {exc}", file=sys.stderr)
+            failed.append(FailedPassage(description, str(exc)))
+            continue
 
         problems = validate(sentence.tokens, result)
         if problems:
@@ -283,7 +314,7 @@ def analyze_tokendata_to_files(
         )
         written.append((out_path, warnings))
 
-    return written
+    return written, failed
 
 
 if __name__ == "__main__":
@@ -344,15 +375,18 @@ if __name__ == "__main__":
     lm = _configure_lm()
 
     written: List[Tuple[Path, List[str]]] = []
+    failed: List[FailedPassage] = []
     for file_num, (file_stem, sentences) in enumerate(file_sentences, start=1):
         print(
             f"[{file_num}/{len(file_sentences)}] Analyzing {file_stem!r}: "
             f"{len(sentences)} sentence(s)...",
             file=sys.stderr,
         )
-        written.extend(
-            analyze_tokendata_to_files(sentences, args.output_dir, file_stem, model=lm.model)
+        file_written, file_failed = analyze_tokendata_to_files(
+            sentences, args.output_dir, file_stem, model=lm.model
         )
+        written.extend(file_written)
+        failed.extend(file_failed)
 
     for out_path, warnings in written:
         for w in warnings:
@@ -373,8 +407,14 @@ if __name__ == "__main__":
     cost_summary = summarize_lm_cost(lm.history)
     print(f"LM cost: {format_lm_cost(cost_summary)}", file=sys.stderr)
 
+    # warnings.txt gets its own "Wrote ..." line on stdout, same as every
+    # other output file above -- see this module's own docstring for what
+    # it contains and why it's always written, even when `failed` is empty.
+    warnings_path = write_warnings_report(Path(args.output_dir) / "warnings.txt", failed, lm.history)
+    print(f"Wrote {warnings_path}")
+
     if not written:
         print("No analyses were written -- every input file was empty.", file=sys.stderr)
         sys.exit(1)
-    if had_failure:
+    if had_failure or failed:
         sys.exit(1)

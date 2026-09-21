@@ -94,11 +94,23 @@ is printed by that function itself, to stderr; any warning
 `tokenize_ctsdata()`'s own clustering step returns (only ever: the
 corpus's last group not ending at a sentence boundary) or
 `write_analyses()`/`tokengraph_to_dot()` themselves return is printed here,
-also to stderr. Nothing is skipped-and-continued the way the other
-scripts' own multi-FILE loops can skip one bad file: since this script
-only ever has one source file and passes already-parsed sentences/rows
-between stages rather than re-reading files off disk between them, a
-failure in any stage aborts the whole run.
+also to stderr. Stage 1 (tokenizing) is still fail-fast, same as
+`tokenize_ctsdata.py`'s own documented, deliberate handling of the exact
+same `segment_sources()` call it makes internally: a failed group there
+would gap the id sequence its own combined `#!sentences`/`#!tokens` output
+requires to be contiguous, so a bad LM response for one group still aborts
+the whole run rather than skipping just that group. Stage 2, however, is
+NOT fail-fast the way it used to be: one SENTENCE's own `SentenceAnalysis`
+call failing outright (`analyze_tokendata_to_files()`'s own per-sentence
+try/except -- exhausting `token_budget.analyze_with_retry()`'s own retries,
+say) no longer aborts the run either -- that one sentence is skipped, every
+other sentence (and stage 3's diagrams for them) still gets produced, and
+the failure is collected into `<output_dir>/warnings.txt` alongside a
+statement of the whole run's total LM cost
+(`arsgrammatica.write_warnings_report()`) -- see that function's own
+docstring for the exact contents. `warnings.txt` is always written, even
+when nothing failed, and gets its own "Wrote ..." line on stdout like
+every other output file here.
 """
 
 import argparse
@@ -114,6 +126,7 @@ from syntaxer_main import _configure_lm  # noqa: E402
 
 from arsgrammatica import (
     CitedText,
+    FailedPassage,
     format_lm_cost,
     read_analyses,
     read_ctsdata,
@@ -121,6 +134,7 @@ from arsgrammatica import (
     split_analysis_by_sentence,
     summarize_lm_cost,
     tokengraph_to_dot,
+    write_warnings_report,
 )
 
 # Sibling scripts, imported by module name -- see this module's own
@@ -209,7 +223,7 @@ def analyze_w_diagrams(
     color_by_verbal_unit: bool = True,
     rank_by_depth: bool = True,
     show_root: bool = True,
-) -> Tuple[Path, List[Tuple[Path, List[str]]], List[Path]]:
+) -> Tuple[Path, List[Tuple[Path, List[str]]], List[Path], List[FailedPassage]]:
     """Run the full pipeline on `rows` (as `read_ctsdata()` returns them),
     writing everything under `output_dir` -- created if it doesn't already
     exist -- via the three stages described in this module's own
@@ -219,11 +233,15 @@ def analyze_w_diagrams(
     every other analysis entry point in this codebase; omit it (the
     default) to skip `#!lm` entirely.
 
-    Returns `(tokenized_path, written_analyses, written_diagrams)`:
-    `tokenized_path` is stage 1's own output file; `written_analyses` is
-    exactly what `analyze_tokendata_to_files()` itself returns (a list of
-    `(path, warnings)` pairs, one per sentence); `written_diagrams` is a
-    list of every PNG path stage 3 wrote.
+    Returns `(tokenized_path, written_analyses, written_diagrams, failed)`:
+    `tokenized_path` is stage 1's own output file; `written_analyses` and
+    `failed` are exactly what `analyze_tokendata_to_files()` itself returns
+    for stage 2 (a list of `(path, warnings)` pairs for every sentence
+    actually analyzed, and a list of `arsgrammatica.FailedPassage` for any
+    that failed outright -- see this module's own docstring for what
+    "failed" means here); `written_diagrams` is a list of every PNG path
+    stage 3 wrote (naturally just the ones stage 2 actually produced a file
+    for -- a failed sentence has nothing for stage 3 to diagram at all).
     """
     out_dir = Path(output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -240,7 +258,7 @@ def analyze_w_diagrams(
     sentences = read_segmentation(str(tokenized_path))
 
     print(f"[2/3] Analyzing {len(sentences)} sentence(s)...", file=sys.stderr)
-    written_analyses = analyze_tokendata_to_files(sentences, output_dir, file_stem, model=model)
+    written_analyses, failed = analyze_tokendata_to_files(sentences, output_dir, file_stem, model=model)
     for out_path, warnings in written_analyses:
         for w in warnings:
             print(f"Warning ({out_path}): {w}", file=sys.stderr)
@@ -259,7 +277,7 @@ def analyze_w_diagrams(
     for png_path in written_diagrams:
         print(f"Wrote {png_path}")
 
-    return tokenized_path, written_analyses, written_diagrams
+    return tokenized_path, written_analyses, written_diagrams, failed
 
 
 if __name__ == "__main__":
@@ -335,7 +353,7 @@ if __name__ == "__main__":
     rows = read_ctsdata(args.ctsdata_path, delimiter=args.delimiter)
 
     lm = _configure_lm()
-    tokenized_path, written_analyses, written_diagrams = analyze_w_diagrams(
+    tokenized_path, written_analyses, written_diagrams, failed = analyze_w_diagrams(
         rows,
         args.output_dir,
         Path(args.ctsdata_path).stem,
@@ -356,6 +374,14 @@ if __name__ == "__main__":
     cost_summary = summarize_lm_cost(lm.history)
     print(f"LM cost: {format_lm_cost(cost_summary)}", file=sys.stderr)
 
+    # warnings.txt gets its own "Wrote ..." line on stdout, same as every
+    # other output file above -- see this module's own docstring for what
+    # it contains and why it's always written, even when `failed` is empty.
+    warnings_path = write_warnings_report(Path(args.output_dir) / "warnings.txt", failed, lm.history)
+    print(f"Wrote {warnings_path}")
+
     if not written_analyses:
         print("No analyses were written -- the corpus had no sentences.", file=sys.stderr)
+        sys.exit(1)
+    if failed:
         sys.exit(1)

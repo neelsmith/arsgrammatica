@@ -78,7 +78,42 @@ this script; any warning
 `write_analyses()` itself returns (e.g. a boundary-token mismatch) is
 printed per file, to stderr, alongside a "Wrote ..." line per file on
 stdout -- same stdout/stderr split `analyses_to_dot_pngs.py` uses. The
-script exits non-zero if nothing was written at all (an empty corpus).
+script exits non-zero if nothing was written at all (an empty corpus), or
+if any passage failed to analyze (see below).
+
+A passage can fail outright rather than merely triggering a validation
+warning -- a sentence's own `SentenceAnalysis` call exhausting
+`token_budget.analyze_with_retry()`'s own retries, say, or a whole group's
+segmentation call itself raising -- and this no longer aborts the entire
+run over it. Two levels of isolation, matching the two levels this script
+already groups work into:
+
+  - One SENTENCE'S own analysis failing (`analyze_sources()`'s own
+    `on_sentence_error` hook) -- every OTHER sentence in that same group,
+    and every other group, still gets analyzed and written normally.
+  - A whole GROUP's `analyze_sources()` call itself raising, e.g. because
+    ITS OWN segmentation call failed before any of its sentences even
+    existed to fail individually -- there's no per-sentence granularity to
+    fall back to there, so every one of that group's own passages (by
+    citation) is recorded as failed, and the run moves on to the next
+    group. This is deliberately DIFFERENT from `tokenize_ctsdata.py`'s own
+    handling of the exact same `segment_sources()` call, which is still
+    fail-fast by design (see that module's own docstring): that script
+    writes ONE combined multi-block stream where dropping a group would
+    gap the id sequence `read_segmentation()` requires to be contiguous;
+    this script writes one independent file per sentence, so dropping a
+    whole group here just means fewer files, not a corrupt one.
+
+Every failed passage this catches (at either level) is printed to stderr
+as it happens, and also collected into `<output_dir>/warnings.txt`
+(`arsgrammatica.FailedPassage`/`write_warnings_report()`) alongside a
+statement of the whole run's total LM cost -- see this module's own
+"warnings.txt" paragraph below for the exact contents.
+
+Because a later group's failure no longer aborts the run, each group's own
+results are written to their files as soon as that group finishes,
+rather than only after every group has -- otherwise an earlier group's
+already-successful work would still be lost the moment a later one failed.
 
 After every file is written, one more line goes to stderr reporting the
 TOTAL LM cost of the whole run -- every call `analyze_sources()` made
@@ -103,6 +138,15 @@ information `written`'s own return value doesn't already have -- and, like
 every other diagnostic here, never touches stdout, so
 `... > out_dir_manifest.txt`-style redirection of just the "Wrote ..."
 lines is unaffected.
+
+After every file is written, `<output_dir>/warnings.txt` is also written
+(`arsgrammatica.write_warnings_report()`) -- one line per passage that
+failed outright (see above; "No passages failed to analyze." if none did),
+followed by the same total-LM-cost statement the stderr line above already
+gives, so a caller who only wants to check whether a run went cleanly can
+look at one file instead of having to have captured stderr. Its own
+"Wrote ..." line joins every other file's on stdout, same as every other
+output file this script writes.
 """
 
 import argparse
@@ -118,6 +162,7 @@ from syntaxer_main import _configure_lm  # noqa: E402
 
 from arsgrammatica import (
     CitedText,
+    FailedPassage,
     Sentence,
     analyze_sources,
     format_lm_cost,
@@ -125,6 +170,7 @@ from arsgrammatica import (
     read_ctsdata,
     summarize_lm_cost,
     write_analyses,
+    write_warnings_report,
 )
 
 
@@ -143,7 +189,7 @@ def analyze_ctsdata_to_files(
     output_dir: str,
     file_stem: str,
     model: Optional[str] = None,
-) -> List[Tuple[Path, List[str]]]:
+) -> Tuple[List[Tuple[Path, List[str]]], List[FailedPassage]]:
     """Cluster `cited_texts` into the smallest possible groups that each
     begin and end at a sentence boundary
     (`group_passages_by_sentence_boundary()`'s fast, LM-free heuristic --
@@ -154,7 +200,8 @@ def analyze_ctsdata_to_files(
     write each resulting sentence's own analysis to its own file under
     `output_dir` -- created if it doesn't already exist -- named via
     `sentence_filename_stem()`. See this module's own docstring for the
-    full rationale and its one accuracy tradeoff.
+    full rationale, its one accuracy tradeoff, and exactly what counts as
+    a "failed" passage versus a mere validation warning.
 
     `model` is recorded on every file's own `#!lm` block (see
     `serialization.py`'s module docstring), alongside that sentence's own
@@ -164,22 +211,28 @@ def analyze_ctsdata_to_files(
     `#!lm` entirely, same as `write_analyses()` itself does when `model`
     isn't given.
 
-    Returns a list of `(path, warnings)` pairs, one per sentence written,
-    in group order and then in each group's own `analyze_sources()` order
-    -- `warnings` is whatever `write_analyses()` itself returned for that
-    one file (empty if nothing looks wrong; see `serialize_analyses()`'s
-    docstring for what each warning means). Any validation problem
-    `analyze_sources()` itself finds for a sentence is printed by
-    `analyze_sources()` directly, to stderr, before this function ever
-    gets to write that sentence's file; any warning
-    `group_passages_by_sentence_boundary()` itself returns (only ever: the
-    corpus's last group not ending at a sentence boundary) is printed to
-    stderr up front, before any LM call is made.
+    Returns `(written, failed)`: `written` is a list of `(path, warnings)`
+    pairs, one per sentence actually written -- in group order, and within
+    a group in `analyze_sources()`'s own order, skipping any sentence
+    whose group failed at either level described in this module's own
+    docstring -- `warnings` is whatever `write_analyses()` itself returned
+    for that one file (empty if nothing looks wrong; see
+    `serialize_analyses()`'s docstring for what each warning means).
+    `failed` is a list of `arsgrammatica.FailedPassage`, one per sentence
+    or whole-group passage that failed outright, in the order encountered.
+    Any validation problem `analyze_sources()` itself finds for a
+    (successfully analyzed) sentence is printed by `analyze_sources()`
+    directly, to stderr, before this function ever gets to write that
+    sentence's file; any warning `group_passages_by_sentence_boundary()`
+    itself returns (only ever: the corpus's last group not ending at a
+    sentence boundary) is printed to stderr up front, before any LM call
+    is made.
 
     Prints a one-line progress message to stderr before each group's own
     `analyze_sources()` call, and again before each sentence's own
     `SentenceAnalysis` call within it (via `analyze_sources()`'s own
     `progress_callback` hook) -- see this module's own docstring for why.
+    A failed sentence or group is also announced to stderr as it happens.
     Never touches stdout.
     """
     groups, group_warnings = group_passages_by_sentence_boundary(cited_texts)
@@ -191,8 +244,12 @@ def analyze_ctsdata_to_files(
     for w in group_warnings:
         print(f"Warning: {w}", file=sys.stderr)
 
-    all_sentences: List[Sentence] = []
-    all_results = []
+    out_dir = Path(output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    written: List[Tuple[Path, List[str]]] = []
+    failed: List[FailedPassage] = []
+    next_index = 0  # running sentence counter across every WRITTEN sentence, for filename numbering
     remaining = iter(cited_texts)
     for group_num, group_ids in enumerate(groups, start=1):
         group_rows = [next(remaining) for _ in group_ids]
@@ -210,30 +267,57 @@ def analyze_ctsdata_to_files(
                 file=sys.stderr,
             )
 
-        group_sentences, group_results = analyze_sources(group_rows, progress_callback=_report_progress)
-        all_sentences.extend(group_sentences)
-        all_results.extend(group_results)
+        def _on_sentence_error(sentence: Sentence, exc: Exception) -> None:
+            citation = sentence.tokens[0].citation if sentence.tokens else None
+            description = f"sentence starting at {citation or '(no citation)'!r}"
+            print(f"Failed to analyze {description}: {exc}", file=sys.stderr)
+            failed.append(FailedPassage(description, str(exc)))
 
-    out_dir = Path(output_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            group_sentences, group_results = analyze_sources(
+                group_rows,
+                progress_callback=_report_progress,
+                on_sentence_error=_on_sentence_error,
+            )
+        except Exception as exc:
+            # The whole group's own analyze_sources() call failed before
+            # segmentation even finished -- there's no per-sentence
+            # granularity to fall back to here (see this module's own
+            # docstring for why that's fine for THIS script specifically,
+            # unlike tokenize_ctsdata.py's own, deliberately fail-fast
+            # handling of the same segment_sources() call). Every passage
+            # in this group is recorded as failed, by citation -- the only
+            # identifying information available before segmentation ever
+            # ran -- and the run moves on to the next group.
+            print(
+                f"Failed to segment/analyze group of {len(group_rows)} "
+                f"passage(s) starting {group_rows[0].citation!r}: {exc}",
+                file=sys.stderr,
+            )
+            for row in group_rows:
+                failed.append(FailedPassage(f"passage {row.citation!r}", str(exc)))
+            continue
 
-    written: List[Tuple[Path, List[str]]] = []
-    for index, (sentence, result) in enumerate(zip(all_sentences, all_results)):
-        citation = sentence.tokens[0].citation if sentence.tokens else None
-        stem = sentence_filename_stem(file_stem, index, citation)
-        out_path = out_dir / f"{stem}.cex"
+        # Written as soon as this group finishes, rather than only after
+        # every group has -- so a LATER group's failure (caught above)
+        # never loses an EARLIER group's already-successful work.
+        for sentence, result in zip(group_sentences, group_results):
+            citation = sentence.tokens[0].citation if sentence.tokens else None
+            stem = sentence_filename_stem(file_stem, next_index, citation)
+            out_path = out_dir / f"{stem}.cex"
 
-        warnings = write_analyses(
-            [sentence],
-            result.verbalunits,
-            result.tokengraph,
-            str(out_path),
-            model=model,
-            reasoning=[result.reasoning],
-        )
-        written.append((out_path, warnings))
+            warnings = write_analyses(
+                [sentence],
+                result.verbalunits,
+                result.tokengraph,
+                str(out_path),
+                model=model,
+                reasoning=[result.reasoning],
+            )
+            written.append((out_path, warnings))
+            next_index += 1
 
-    return written
+    return written, failed
 
 
 if __name__ == "__main__":
@@ -268,7 +352,7 @@ if __name__ == "__main__":
     cited_texts = read_ctsdata(args.ctsdata_path, delimiter=args.delimiter)
 
     lm = _configure_lm()
-    written = analyze_ctsdata_to_files(
+    written, failed = analyze_ctsdata_to_files(
         cited_texts,
         args.output_dir,
         Path(args.ctsdata_path).stem,
@@ -293,6 +377,14 @@ if __name__ == "__main__":
     cost_summary = summarize_lm_cost(lm.history)
     print(f"LM cost: {format_lm_cost(cost_summary)}", file=sys.stderr)
 
+    # warnings.txt gets its own "Wrote ..." line on stdout, same as every
+    # other output file above -- see this module's own docstring for what
+    # it contains and why it's always written, even when `failed` is empty.
+    warnings_path = write_warnings_report(Path(args.output_dir) / "warnings.txt", failed, lm.history)
+    print(f"Wrote {warnings_path}")
+
     if not written:
         print("No analyses were written -- the corpus had no sentences.", file=sys.stderr)
+        sys.exit(1)
+    if failed:
         sys.exit(1)
