@@ -62,6 +62,8 @@ website:
         - concepts/tokens.qmd
         - concepts/verbalunits.qmd
         - concepts/syntactic-analysis.qmd
+        - "---"
+        - concepts/complete_examples.qmd
     - title: "Guides"
       contents: 
         - guides/index.qmd      

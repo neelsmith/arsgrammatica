@@ -363,5 +363,4 @@ A token `arsgrammatica` classifies as `praenomen` is an abbreviation used in con
 
 Conjunction and relation
 
-## Some brief, complete examples
-
+See [complete examples](./complete_examples.qmd).

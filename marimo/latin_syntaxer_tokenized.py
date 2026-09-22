@@ -23,7 +23,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
-    > Read a file with `#!sentences`/`#!tokens` blocks -- the format `utilities/tokenize_ctsdata.py` writes (see USAGE.md's "Tokenizing a source file without full syntax analysis") -- pick one sentence, then click *Analyze* to run it through syntax analysis with a configured LM.
+    > Read a file with `#!sentences`/`#!tokens` blocks -- the format `utilities/tokenize_ctsdata.py` writes (see notes/serialization_formats.md's "Tokenizations without analysis") -- pick one sentence, then click *Analyze* to run it through syntax analysis with a configured LM.
     """)
     return
 
@@ -224,8 +224,9 @@ def _(mo):
 @app.cell
 def _(Path, mo):
     # Browse for a file previously written by write_segmentation() (usually
-    # via utilities/tokenize_ctsdata.py -- see USAGE.md). A file_browser is
-    # used for the same reason every sibling notebook's own file_browser is:
+    # via utilities/tokenize_ctsdata.py -- see notes/serialization_formats.md's
+    # "Tokenizations without analysis"). A file_browser is used for the
+    # same reason every sibling notebook's own file_browser is:
     # selecting a single FILE by clicking it just works, unlike
     # mo.ui.file_browser's "directory" selection mode.
     tokenized_file_browser = mo.ui.file_browser(
@@ -394,7 +395,8 @@ def _(analyze_button, analyze_with_retry, selected_sentence, validate):
     # token_budget.analyze_with_retry() rather than calling analyze()
     # directly -- same calibrated max_tokens budgeting and
     # retry-on-truncation pipeline.analyze_sources() itself uses (see
-    # MANAGING_PROMPT_SIZE.md) -- with the naive space-joined token text
+    # token_budget.py's own module docstring) -- with the naive
+    # space-joined token text
     # (pipeline.py's own _render_sentence_text() approximation) as the
     # `passage` field. validate()'s own problem list is printed the same
     # way pipeline.analyze_sources() prints it -- to the marimo server's

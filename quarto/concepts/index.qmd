@@ -21,3 +21,7 @@ The `arsgrammatica` package is based on three classes, representing the tokeniza
 - [Tokenization of a passage](./tokens.qmd) (the `Token` class)
 - AAT anchor points: [verbal units](./verbalunits.qmd) (the `VerbalExpression` class)
 - [Graph of syntactic relations](./syntactic-analysis.qmd) (the `TokenAnalysis` class)
+
+## Examples of analyses
+
+Four sentences from `arsgrammatica`'s training set illustrate [every recognized syntactic relation](./complete_examples.qmd).

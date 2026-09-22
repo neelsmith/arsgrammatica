@@ -222,10 +222,11 @@ def _(mo):
 @app.cell
 def _(Path, mo):
     # Browse for a previously-written analysis file (write_analyses()'s own
-    # format -- see USAGE.md's "Saving and loading analyses"). A
-    # file_browser is used for the same reason latin_syntaxer_ctsdata.py's
-    # own ctsdata_file_browser is: selecting a single FILE by clicking it just
-    # works, unlike mo.ui.file_browser's "directory" selection mode.
+    # format -- see notes/serialization_formats.md's "Serializing
+    # analyses"). A file_browser is used for the same reason
+    # latin_syntaxer_ctsdata.py's own ctsdata_file_browser is: selecting a
+    # single FILE by clicking it just works, unlike mo.ui.file_browser's
+    # "directory" selection mode.
     analysis_file_browser = mo.ui.file_browser(
         initial_path=Path(__file__).parent.parent,
         selection_mode="file",
@@ -551,8 +552,9 @@ def _(
     # this sentence's own (unfiltered) verbalunits already satisfies --
     # aatgraph() only ever looks up a verbalunits entry for an anchor
     # that's still present in aat_tokengraph, so the extra entries for any
-    # filtered-out anchor are simply never consulted. See USAGE.md's
-    # "Building an AAT (Agent-Action-Target) graph".
+    # filtered-out anchor are simply never consulted. See
+    # notes/install.md's "Dev-only tools" for what installs the separate
+    # `aat` package this depends on.
     aat_diagram = None
     aat_warnings = []
     if aat_available and aat_tokengraph and selected_sentence is not None:
@@ -573,8 +575,9 @@ def _(aat_available, aat_diagram, aat_warnings, mo):
             mo.md(
                 "The `aat` package isn't installed, so the AAT "
                 "(Agent-Action-Target) graph can't be built here -- see "
-                "USAGE.md's \"Building an AAT (Agent-Action-Target) graph\" "
-                "section for how to install it."
+                "notes/install.md's \"Dev-only tools\" section for how to "
+                "install it (a plain `pip install -e \".[dev]\"` from a "
+                "checkout now covers this too)."
             ),
             kind="warn",
         )
@@ -624,8 +627,9 @@ def _():
 
     # aatgraph() (above) is always importable from arsgrammatica -- it
     # only raises when actually CALLED without the separate `aat` package
-    # installed (see USAGE.md's "Building an AAT (Agent-Action-Target)
-    # graph"). graph_to_mermaid() -- aat's own Mermaid renderer for the
+    # installed (see notes/install.md's "Dev-only tools", which now
+    # installs `aat` by default along with this notebook's other
+    # dependencies). graph_to_mermaid() -- aat's own Mermaid renderer for the
     # AATGraph aatgraph() builds -- has no such fallback, so its import is
     # what actually detects whether `aat` is installed at all; the AAT
     # display cells below check aat_available rather than calling either

@@ -4,7 +4,7 @@ Current version: **0.10.0**.
 
 
 
-**0.11.0** *??*: review of docs with Claude's help. Expansion of utilities suite for working with traninig sets systematically.
+**0.11.0** *??*: review of docs with Claude's help. Expansion of utilities suite for working with traninig sets systematically. Improve dep. setup for aat.
 
 **0.10.0** *Sept. 16, 2026*: Adds displacy-style visualization of syntactic relations. Regularizes formatting of analyses in marimo nbs.
 
