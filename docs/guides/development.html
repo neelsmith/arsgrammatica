@@ -259,12 +259,6 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">Estimating and enforcing a <code>max_tokens</code> budget</span></a>
   </div>
 </li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/managing_prompt_size.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Keeping requests to an LM at a manageable size</span></a>
-  </div>
-</li>
     </ul>
     </div>
 </nav>
@@ -306,12 +300,12 @@ ul.task-list li input[type="checkbox"] {
 <p>When <code>arsgrammatica</code> <em>correctly</em> analyzes a passage, that is real evidence that the model is working correctly. We can save manually vetted examples as checks to ensure that future changes to a prompt or model can’t silently break this case, and to extend the evaluation pool for later optimization.</p>
 <section id="an-unusual-or-difficult-construction" class="level4">
 <h4 class="anchored" data-anchor-id="an-unusual-or-difficult-construction">An unusual or difficult construction</h4>
-<p>If the response correctly analyzes an unusual or difficult construction that you think it might not always this is worth reinforcing in the core training set. If you save the analysis to a file, you can use the utility script <code>analysis_to_gold_example</code> to write the necessary Python for you that you can paste in to <code>gold_examples.py</code>.</p>
+<p>If the response correctly analyzes an unusual or difficult construction that you think it might not always get right, this is worth reinforcing in the core training set. If you save the analysis to a file, you can use the script <code>utilities/analysis_to_gold_example.py</code> to write the necessary Python for you that you can paste in to <code>gold_examples.py</code>.</p>
 </section>
 <section id="ordinary-constructions" class="level4">
 <h4 class="anchored" data-anchor-id="ordinary-constructions">Ordinary constructions</h4>
 <p>If the analysis correctly identified something you already expected it to get right, such as a simple independent clause with direct object, this is still real evidence, but of low value as <em>training</em> signal. If we add more examples of easy cases that the model already gets right, it teaches the optimizer nothing new, and dilutes the training set with redundant coverage.</p>
-<p>Instead, serialize and save the analysis in a directory you can later pass to <code>optimize_gepa.py</code> with the <code>--eval-dir</code> parameter as part of the larger training and evaluation set ith the <a href="../guides/optimizing.html">x parameter</a></p>
+<p>Instead, serialize and save the analysis in a directory you can later pass to <code>optimize_gepa.py</code> with the <code>--eval-dir</code> parameter as part of the larger <a href="../guides/optimizing.html">training and evaluation set</a>.</p>
 </section>
 </section>
 <section id="optimization-over-time" class="level2">
@@ -749,7 +743,7 @@ Note
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.10.0</strong></p>
+<p>Documentation for release version <strong>0.11.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

@@ -57,10 +57,50 @@ import warnings
 from pathlib import Path
 from typing import List, Optional
 
-import dspy
-from dspy.utils.exceptions import AdapterParseError
+# dspy is imported here, not at unconditional module scope, because unlike
+# every other name in this module (DEFAULT_CEILING, get_calibration(),
+# estimate_max_tokens(), _looks_truncated(), _missing_token_ids())
+# _finish_reason_was_length() and analyze_with_retry() below are the only
+# two things here that actually need a live dspy -- and importing
+# arsgrammatica pulls this whole module in regardless of whether the
+# caller wants those two. Catching the ImportError here, rather than
+# letting it propagate, keeps this module (and anything in
+# arsgrammatica/__init__.py re-exporting its other names) importable
+# without dspy installed at all -- see notes/wasm_export.md. `analyze` and
+# `AdapterParseError` are kept as real module-level names either way (not
+# deferred into the functions that use them) specifically so
+# tests/test_token_budget.py's own
+# monkeypatch.setattr("arsgrammatica.token_budget.analyze", ...) calls
+# keep working unchanged whenever dspy *is* installed -- which is every
+# test run today, since `dev` still depends on the new `llm` extra.
+try:
+    import dspy
+    from dspy.utils.exceptions import AdapterParseError
 
-from .latin_syntax_dspy import analyze
+    from .latin_syntax_dspy import analyze
+except ImportError as _dspy_exc:
+    # `except ... as name` implicitly deletes `name` once this block ends
+    # (the same Python gotcha aatgraph()'s own fallback in __init__.py
+    # already comments on) -- reassign to a plain variable first so
+    # analyze() below, called later, can still reference it.
+    _dspy_import_error = _dspy_exc
+
+    # `dspy.settings.lm` in _finish_reason_was_length() below then raises
+    # AttributeError on `None`, which that function already catches and
+    # treats as "no" -- no dspy installed means no dspy.LM history to
+    # check, so failing safe here is correct, not just convenient.
+    dspy = None
+
+    class AdapterParseError(Exception):  # pragma: no cover -- only stands in so `except AdapterParseError:` below stays valid; analyze()'s stub (next line) never actually raises it.
+        pass
+
+    def analyze(*_args, **_kwargs):  # pragma: no cover
+        raise ImportError(
+            "analyze_with_retry() needs the optional 'llm' extra (dspy, "
+            "and a configured LM) actually installed to analyze new text "
+            "-- install it with: pip install 'arsgrammatica[llm]'."
+        ) from _dspy_import_error
+
 from .models import Token
 
 # ---------------------------------------------------------------------------

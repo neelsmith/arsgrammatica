@@ -259,12 +259,6 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">Estimating and enforcing a <code>max_tokens</code> budget</span></a>
   </div>
 </li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/managing_prompt_size.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Keeping requests to an LM at a manageable size</span></a>
-  </div>
-</li>
     </ul>
     </div>
 </nav>
@@ -295,10 +289,10 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>To add a new syntacatic relation to <code>arsgrammatica</code>:</p>
+<p>To add a new syntactic relation to <code>arsgrammatica</code>:</p>
 <ol type="1">
 <li>Add the new label to <code>RelationLabel</code> in <code>arsgrammatica/models.py</code>.</li>
-<li>Describe when to use it in <code>SyntaxAnalysis</code>’s docstring in <code>arsgrammatica/latin_syntax_dspy.py</code>, following the pattern of the existing relations (which token gets <code>relatedtoken1</code>/<code>relationship1</code>, which gets the corresponding value on the other end).</li>
+<li>Describe when to use it in <code>SentenceAnalysis</code>’s docstring in <code>arsgrammatica/latin_syntax_dspy.py</code>, following the pattern of the existing relations (which token gets <code>relatedtoken1</code>/<code>relationship1</code>, which gets the corresponding value on the other end).</li>
 <li>Add a gold example exercising it to <code>tests/fixtures/gold_examples.py</code> and re-run <code>pytest</code> to confirm the models still validate before trying it against the real LM.</li>
 </ol>
 
@@ -712,7 +706,7 @@ ul.task-list li input[type="checkbox"] {
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.10.0</strong></p>
+<p>Documentation for release version <strong>0.11.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

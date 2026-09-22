@@ -1,31 +1,60 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "arsgrammatica"
-version = "0.5.0"
+version = "0.11.0"
 description = "A DSPy-based analyzer of Latin syntax, using an alternative scheme to Universal Dependencies designed for research and teaching."
 readme = "README.md"
-license = { file = "LICENSE" }
+# SPDX expression + license-files, replacing the old `license = {file = ...}`
+# table (deprecated by setuptools -- see the "License" section of
+# https://packaging.python.org/en/latest/guides/writing-pyproject-toml/ --
+# and unsupported entirely after 2027-Feb-18). Needs setuptools>=77, hence
+# the bump above from the previous >=68 floor. The old classifier naming
+# the same license is dropped too, per the same deprecation: the SPDX
+# expression is now the single source of truth for it.
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
 requires-python = ">=3.10"
 authors = [
     { name = "Neel Smith", email = "nsmith@holycross.edu" },
 ]
 dependencies = [
-    "dspy>=3.0",
     "pydantic>=2.0",
     "networkx>=3.0",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Programming Language :: Python :: 3",
     "Topic :: Text Processing :: Linguistic",
 ]
 
 [project.optional-dependencies]
+# dspy -- and everything it pulls in for talking to a live LM (litellm,
+# tokenizers, fastuuid, ...) -- used to be listed unconditionally above,
+# which meant `import arsgrammatica` always required it, even for a caller
+# who only wants to read/render/serialize an already-saved analysis
+# (models.py, rendering.py, mermaid.py, dot.py, graphs.py, verbal_units.py,
+# displacy_viz.py, serialization.py, ... -- none of those import dspy at
+# all). That mattered concretely for marimo/latin_syntaxer_review.py, which
+# only ever calls functions from that dspy-free half but couldn't be
+# `marimo export html-wasm`'d because `import arsgrammatica` dragged
+# dspy's litellm dependency in regardless -- current litellm releases ship
+# native cp310-abi3 wheels only (a Rust extension), which Pyodide/WASM
+# can't install at all. See notes/wasm_export.md for the full picture,
+# including why this alone doesn't unblock every notebook (the ones that
+# actually call analyze()/segment_sources() still need a live dspy, in
+# WASM or anywhere else). arsgrammatica/__init__.py's own import of
+# latin_syntax_dspy.py, segmentation_dspy.py, and pipeline.py (the three
+# modules dspy.Signature subclasses live in, so importing them needs dspy
+# regardless of this extra) is guarded the same lazy-stub way aatgraph()
+# already is below, so `import arsgrammatica` itself succeeds either way;
+# only actually *calling* analyze()/segment_sources()/etc. without this
+# extra installed raises, naming this extra in the error.
+llm = ["dspy>=3.0"]
+
 # Needed only for arsgrammatica.aatgraph() (aat_bridge.py), converting an
 # arsgrammatica analysis to an Agent-Action-Target graph. Not on PyPI, so
 # this is a direct-URL dependency -- fine for pip, but means this extra
@@ -48,10 +77,15 @@ aat = ["aat @ git+https://github.com/neelsmith/aat.git"]
 # above) is included here too, for the same reason: latin_syntaxer_review.py
 # is also the one place that calls aatgraph(), so a normal dev setup should
 # just have it, rather than it being something to separately remember (see
-# notes/install.md's "Building an AAT (Agent-Action-Target) graph"). None
-# of this is needed to just use the package (see notes/install.md);
-# `pip install -e ".[dev]"` from a checkout covers all of it in one shot.
+# notes/install.md's "Building an AAT (Agent-Action-Target) graph").
+# `arsgrammatica[llm]` (see that extra above) is included here too, now
+# that it's no longer part of the base install -- every notebook and
+# script under dev tooling still expects a working dspy by default; only
+# the base package itself is dspy-free now. None of this is needed to just
+# use the package (see notes/install.md); `pip install -e ".[dev]"` from a
+# checkout covers all of it in one shot.
 dev = [
+    "arsgrammatica[llm]",
     "pytest>=8.0",
     "python-dotenv>=1.0",
     "pdoc>=15.0",

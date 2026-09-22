@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>managing_prompt_size – arsgrammatica</title>
+<title>Analyze mutiple passages from a command-line script – arsgrammatica</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -22,6 +22,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -101,11 +136,11 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Concepts</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../tutorials/index.html"> 
+    <a class="nav-link active" href="../tutorials/index.html" aria-current="page"> 
 <span class="menu-text">Tutorials</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="../guides/index.html" aria-current="page"> 
+    <a class="nav-link" href="../guides/index.html"> 
 <span class="menu-text">Guides</span></a>
   </li>  
   <li class="nav-item">
@@ -146,7 +181,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../guides/managing_prompt_size.html">Keeping requests to an LM at a manageable size</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../tutorials/corpus.html">Analyze mutiple passages from a command-line script</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -160,109 +195,48 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Recipes</span></a>
+  <a href="../tutorials/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Tutorials</span></a>
   </div>
 </li>
         <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/install.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Installing <code>arsgrammatica</code></span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/analysis.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Analyzing syntax with a language model</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/saving-loading.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Saving and loading analyses</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/batch-texts.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Utilities to simplify analyzing a corpus</span></a>
+  <a href="../tutorials/marimo.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Marimo notebooks for Latin syntactic analysis</span></a>
   </div>
 </li>
         <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/texthiliting.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Highlighting syntactic analysis in HTML</span></a>
+  <a href="../tutorials/cli.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">A command-line script for analyzing Latin syntax</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/mermaid.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Visualizing syntax graphs with Mermaid</span></a>
-  </div>
-</li>
-        <li class="px-0"><hr class="sidebar-divider hi "></li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/graphmetrics.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Characterizing syntax analyses with graph metrics</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/aat.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Building an AAT (Agent-Action-Target) graph</span></a>
+  <a href="../tutorials/corpus.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Analyze mutiple passages from a command-line script</span></a>
   </div>
 </li>
         <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/optimizing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Optimizing with GEPA</span></a>
+  <a href="../tutorials/diagrams.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Diagramming syntactic analyses with <code>graphviz</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/development.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Improving <code>arsgrammatica</code> by reading Latin</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/extendingscheme.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Extending the syntax scheme</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/gold.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">How to add a gold example</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/bakeoff.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Comparing models with <code>model_bakeoff.py</code></span></a>
+  <a href="../tutorials/batch-images.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Generate PNG diagrams for multiple analyses</span></a>
   </div>
 </li>
         <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../guides/tokenizing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Tokenizing a source file without full syntax analysis</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/budgetingtokens.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Estimating and enforcing a <code>max_tokens</code> budget</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/managing_prompt_size.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Keeping requests to an LM at a manageable size</span></a>
+  <a href="../tutorials/quick.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Quick start to write a script querying a language model</span></a>
   </div>
 </li>
     </ul>
@@ -275,48 +249,48 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#keeping-requests-to-an-lm-at-a-manageable-size" id="toc-keeping-requests-to-an-lm-at-a-manageable-size" class="nav-link active" data-scroll-target="#keeping-requests-to-an-lm-at-a-manageable-size">Keeping requests to an LM at a manageable size</a>
-  <ul class="collapse">
-  <li><a href="#work-one-sentence-at-a-time-not-a-whole-passage-at-once" id="toc-work-one-sentence-at-a-time-not-a-whole-passage-at-once" class="nav-link" data-scroll-target="#work-one-sentence-at-a-time-not-a-whole-passage-at-once">Work one sentence at a time, not a whole passage at once</a></li>
-  <li><a href="#make-an-educated-guess-about-how-much-room-the-answer-will-need" id="toc-make-an-educated-guess-about-how-much-room-the-answer-will-need" class="nav-link" data-scroll-target="#make-an-educated-guess-about-how-much-room-the-answer-will-need">Make an educated guess about how much room the answer will need</a></li>
-  <li><a href="#check-the-answer-and-ask-again-if-it-came-back-cut-short" id="toc-check-the-answer-and-ask-again-if-it-came-back-cut-short" class="nav-link" data-scroll-target="#check-the-answer-and-ask-again-if-it-came-back-cut-short">Check the answer, and ask again if it came back cut short</a></li>
-  <li><a href="#reusing-the-instructions-instead-of-resending-them-every-time" id="toc-reusing-the-instructions-instead-of-resending-them-every-time" class="nav-link" data-scroll-target="#reusing-the-instructions-instead-of-resending-them-every-time">Reusing the instructions instead of resending them every time</a></li>
-  </ul></li>
+  <li><a href="#analyze-a-corpus-from-a-single-command" id="toc-analyze-a-corpus-from-a-single-command" class="nav-link active" data-scroll-target="#analyze-a-corpus-from-a-single-command">Analyze a corpus from a single command</a></li>
+  <li><a href="#segment-the-corpus-into-sentences-then-analyze" id="toc-segment-the-corpus-into-sentences-then-analyze" class="nav-link" data-scroll-target="#segment-the-corpus-into-sentences-then-analyze">Segment the corpus into sentences, then analyze</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Analyze mutiple passages from a command-line script</h1>
+</div>
 
 
 
+<div class="quarto-title-meta">
 
-<section id="keeping-requests-to-an-lm-at-a-manageable-size" class="level1">
-<h1>Keeping requests to an LM at a manageable size</h1>
-<p>When <code>arsgrammatica</code> submits a passage to analyze to a configured language model, the prompt it submits includes a lengthy specification of how to analyze Latin syntax in the specific scheme used in this package. The reply from the LM includes a token-by-token analysis that will vary in length depending on the length of the passage submitted. The inevitable result is that each analysis requires a very large context: Latin syntax is complicated. <code>arsgrammatica</code> includes a couple of tricks to help manage that.</p>
-<section id="work-one-sentence-at-a-time-not-a-whole-passage-at-once" class="level2">
-<h2 class="anchored" data-anchor-id="work-one-sentence-at-a-time-not-a-whole-passage-at-once">Work one sentence at a time, not a whole passage at once</h2>
-<p>The most basic way this package keeps requests manageable is by breaking passages into individual sentences, then analyzing each sentence separately, one request at a time.</p>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Three command-line scripts turn a <code>#!ctsdata</code> (CEX) source file into syntax analyses, at different stages and granularities.</p>
+<section id="analyze-a-corpus-from-a-single-command" class="level2">
+<h2 class="anchored" data-anchor-id="analyze-a-corpus-from-a-single-command">Analyze a corpus from a single command</h2>
+<p><code>analyze_ctsdata_to_files.py</code> Use this when there’s no reason to keep the segmentation and analysis steps separate.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> utilities/analyze_ctsdata_to_files.py corpus.cex <span class="at">--output-dir</span> analyses/</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="make-an-educated-guess-about-how-much-room-the-answer-will-need" class="level2">
-<h2 class="anchored" data-anchor-id="make-an-educated-guess-about-how-much-room-the-answer-will-need">Make an educated guess about how much room the answer will need</h2>
-<p>For each analysis request, the package sends a maximum size for the complete context. If the figure is too low, long replies are truncated. If it too is high, and you’re routinely paying for (and waiting on) more headroom than any answer actually uses, and you risk exceeding hardcoded limits to the model you’re using.</p>
-<p>The package includes an optional “calibration” step to estimate how long a give LM’s answers tend to be for sentences of a given length. It estimates a figure for maximum context size tht is roughly in proportion to how long the sentence is, plus fixed overhead for the static instructions, plus some extra padding since a sentence’s syntactic complexity isn’t predictable just from its length; two sentences of the same length can still need noticeably different amounts of explanation. Once you have calibrated a given model, the package can look at a new sentence’s length and make an informed guess about how much room to leave for its answer.</p>
-<p>To take advantage of this feature, run <code>python3 calibrate_max_tokens.py</code>. (This can be slow because it runs through all the examples in the “gold” training set.)</p>
-<p>If nobody has ever run that calibration step yet – say, the first time the package is used against a new model – <code>arsgrammatica</code> falls back to a deliberately generous, cautious estimate that’s designed to err on the side of leaving too much room rather than too little, until a real calibration can replace it with something more precisely tuned.</p>
-</section>
-<section id="check-the-answer-and-ask-again-if-it-came-back-cut-short" class="level2">
-<h2 class="anchored" data-anchor-id="check-the-answer-and-ask-again-if-it-came-back-cut-short">Check the answer, and ask again if it came back cut short</h2>
-<p><code>arsgrammatica</code> checks responses from the LM to see if the reply is complete. The most reliable check is simple: does the returned analysis account for every single word of the original sentence? If a word is unaccounted for, the answer was probably cut off partway through. As a second, corroborating check, the package also looks at whether the LM provider itself flagged the response as having been stopped early for running out of room.</p>
-<p>When either check suggests the answer was cut short, the package resubmits the same sentence, but with meaningfully more writing room allowed this time, and again checks the new response the same way. It’s willing to try this a couple of times, giving the LM progressively more room on each attempt, before it stops.</p>
-<p>If, after those extra attempts, the answer still looks incomplete, <code>arsgrammatica</code> returns the best answer it has, but flags it clearly with a warning naming exactly what appears to be missing.</p>
-</section>
-<section id="reusing-the-instructions-instead-of-resending-them-every-time" class="level2">
-<h2 class="anchored" data-anchor-id="reusing-the-instructions-instead-of-resending-them-every-time">Reusing the instructions instead of resending them every time</h2>
-<p><code>arsgrammatica</code> also takes advantage of a feature some AI providers offer, sometimes called “prompt caching.” This lets the provider remember the lengthy, unchanging block of instructions from one request to the next. Since this is the longest part of a prompt-request exchange, that meaningfully cuts down the real-world cost and time of running multiple sentences through the package.</p>
+<section id="segment-the-corpus-into-sentences-then-analyze" class="level2">
+<h2 class="anchored" data-anchor-id="segment-the-corpus-into-sentences-then-analyze">Segment the corpus into sentences, then analyze</h2>
+<p>Step 1: <code>tokenize_ctsdata.py</code> – segmentation only, no syntax analysis</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> utilities/tokenize_ctsdata.py corpus.cex <span class="op">&gt;</span> tokenized.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Step 2: <code>analyze_tokendata_to_files.py</code> – analysis only, starting from an already-tokenized file</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> utilities/analyze_tokendata_to_files.py tokenized.txt <span class="at">--output-dir</span> analyses/</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> utilities/analyze_tokendata_to_files.py a.txt b.txt <span class="at">--output-dir</span> analyses/</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->
@@ -727,7 +701,7 @@ ul.task-list li input[type="checkbox"] {
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.10.0</strong></p>
+<p>Documentation for release version <strong>0.11.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

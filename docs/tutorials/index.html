@@ -206,12 +206,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Marimo notebooks for Latin syntactic analysis</span></a>
   </div>
 </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../tutorials/cli.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">A command-line script for analyzing Latin syntax</span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../tutorials/corpus.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Analyze mutiple passages from a command-line script</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../tutorials/diagrams.html" class="sidebar-item-text sidebar-link">
@@ -242,8 +250,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#prerequisites" id="toc-prerequisites" class="nav-link active" data-scroll-target="#prerequisites">Prerequisites</a></li>
-  <li><a href="#preassembled-resources" id="toc-preassembled-resources" class="nav-link" data-scroll-target="#preassembled-resources">Preassembled resources</a></li>
-  <li><a href="#using-the-arsgrammatica-package-in-python" id="toc-using-the-arsgrammatica-package-in-python" class="nav-link" data-scroll-target="#using-the-arsgrammatica-package-in-python">Using the <code>arsgrammatica</code> package in python</a></li>
+  <li><a href="#preassembled-resources" id="toc-preassembled-resources" class="nav-link" data-scroll-target="#preassembled-resources">Preassembled resources</a>
+  <ul class="collapse">
+  <li><a href="#interactive-notebooks" id="toc-interactive-notebooks" class="nav-link" data-scroll-target="#interactive-notebooks">Interactive notebooks</a></li>
+  <li><a href="#scripts-to-analyze-texts" id="toc-scripts-to-analyze-texts" class="nav-link" data-scroll-target="#scripts-to-analyze-texts">Scripts to analyze texts</a></li>
+  <li><a href="#scripts-to-diagram-syntax" id="toc-scripts-to-diagram-syntax" class="nav-link" data-scroll-target="#scripts-to-diagram-syntax">Scripts to diagram syntax</a></li>
+  </ul></li>
+  <li><a href="#using-arsgrammatica-in-your-own-python-programs" id="toc-using-arsgrammatica-in-your-own-python-programs" class="nav-link" data-scroll-target="#using-arsgrammatica-in-your-own-python-programs">Using <code>arsgrammatica</code> in your own python programs</a></li>
   </ul>
 </nav>
     </div>
@@ -280,15 +293,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="preassembled-resources" class="level2">
 <h2 class="anchored" data-anchor-id="preassembled-resources">Preassembled resources</h2>
+<section id="interactive-notebooks" class="level3">
+<h3 class="anchored" data-anchor-id="interactive-notebooks">Interactive notebooks</h3>
 <ul>
 <li><a href="../tutorials/marimo.html">marimo notebooks</a> for syntax analysis</li>
-<li>analyze Latin with a <a href="../tutorials/cli.html">command line script</a></li>
-<li><a href="../tutorials/diagrams.html">diagram analyses</a> with graphviz</li>
-<li>generate <a href="../tutorials/batch-images.html">PNG diagrams from saved analyses</a> with graphviz</li>
 </ul>
 </section>
-<section id="using-the-arsgrammatica-package-in-python" class="level2">
-<h2 class="anchored" data-anchor-id="using-the-arsgrammatica-package-in-python">Using the <code>arsgrammatica</code> package in python</h2>
+<section id="scripts-to-analyze-texts" class="level3">
+<h3 class="anchored" data-anchor-id="scripts-to-analyze-texts">Scripts to analyze texts</h3>
+<ul>
+<li>interactively analyze a passage of Latin with a <a href="../tutorials/cli.html">command-line script</a></li>
+<li>analyze <a href="../tutorials/corpus.html">multiple passages of Latin from command-line scripts</a></li>
+</ul>
+</section>
+<section id="scripts-to-diagram-syntax" class="level3">
+<h3 class="anchored" data-anchor-id="scripts-to-diagram-syntax">Scripts to diagram syntax</h3>
+<ul>
+<li><a href="../tutorials/diagrams.html">diagram a save analyses</a> with graphviz</li>
+<li>generate <a href="../tutorials/batch-images.html">PNG diagrams from multiple saved analyses</a> with graphviz</li>
+</ul>
+</section>
+</section>
+<section id="using-arsgrammatica-in-your-own-python-programs" class="level2">
+<h2 class="anchored" data-anchor-id="using-arsgrammatica-in-your-own-python-programs">Using <code>arsgrammatica</code> in your own python programs</h2>
 <ul>
 <li>Quickest possible start to <a href="../tutorials/quick.html">querying a language model</a></li>
 </ul>
@@ -704,7 +731,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.10.0</strong></p>
+<p>Documentation for release version <strong>0.11.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

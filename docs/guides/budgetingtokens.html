@@ -294,12 +294,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Estimating and enforcing a <code>max_tokens</code> budget</span></a>
   </div>
 </li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/managing_prompt_size.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Keeping requests to an LM at a manageable size</span></a>
-  </div>
-</li>
     </ul>
     </div>
 </nav>
@@ -336,10 +330,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p><code>SyntaxAnalysis</code>’s output (a <code>reasoning</code> field plus JSON-serialized <code>verbalunits</code>/<code>tokengraph</code>) grows with how long and how syntactically complex a sentence is, not by a fixed amount, so a single hard-coded <code>max_tokens</code> value is eventually wrong: too small for a long or deeply subordinated sentence (truncation), too large for a short one (wasted budget). <code>arsgrammatica/token_budget.py</code> addresses this with a calibrate-then-retry approach, and <code>pipeline.py</code>’s <code>analyze_sources()</code> already uses it – both <code>analyze_sources()</code> and <code>analyze_passage()</code> get this for free, with nothing to change in your own calling code.</p>
+<p><code>SentenceAnalysis</code>’s output (a <code>reasoning</code> field plus JSON-serialized <code>verbalunits</code>/<code>tokengraph</code>) grows with how long and how syntactically complex a sentence is, not by a fixed amount, so a single hard-coded <code>max_tokens</code> value is eventually wrong: too small for a long or deeply subordinated sentence (truncation), too large for a short one (wasted budget). <code>arsgrammatica/token_budget.py</code> addresses this with a calibrate-then-retry approach, and <code>pipeline.py</code>’s <code>analyze_sources()</code> already uses it – both <code>analyze_sources()</code> and <code>analyze_passage()</code> get this for free, with nothing to change in your own calling code.</p>
 <p>First, calibrate against your own configured model:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> calibrate_max_tokens.py</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>This is a live-LM script (real API cost, one call per <code>GOLD_EXAMPLES</code> entry) that measures how many completion tokens the real model actually uses for each gold example, fits <code>completion_tokens ~= intercept + slope * num_input_tokens</code> by least squares, and writes the result to <code>arsgrammatica/token_budget_calibration.json</code>. Re-run it whenever the configured model, the <code>SyntaxAnalysis</code> prompt, or the <code>TokenAnalysis</code>/<code>VerbalExpression</code> schema changes substantially. Until you’ve run it at least once, <code>estimate_max_tokens()</code> falls back to an untuned, deliberately generous placeholder fit – safe, but not a real measurement of your model.</p>
+<p>This is a live-LM script (real API cost, one call per <code>GOLD_EXAMPLES</code> entry) that measures how many completion tokens the real model actually uses for each gold example, fits <code>completion_tokens ~= intercept + slope * num_input_tokens</code> by least squares, and writes the result to <code>arsgrammatica/token_budget_calibration.json</code>. Re-run it whenever the configured model, the <code>SentenceAnalysis</code> prompt, or the <code>TokenAnalysis</code>/<code>VerbalExpression</code> schema changes substantially. Until you’ve run it at least once, <code>estimate_max_tokens()</code> falls back to an untuned, deliberately generous placeholder fit – safe, but not a real measurement of your model.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> estimate_max_tokens</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>budget <span class="op">=</span> estimate_max_tokens(num_tokens<span class="op">=</span><span class="dv">25</span>)  <span class="co"># -&gt; an int max_tokens value</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -352,7 +346,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><code>get_calibration()</code> reports which fit is currently active (the real one from <code>calibrate_max_tokens.py</code>, or the untuned fallback) if you want to check before relying on an estimate.</p>
 <section id="anthropic-prompt-caching" class="level2">
 <h2 class="anchored" data-anchor-id="anthropic-prompt-caching">Anthropic prompt caching</h2>
-<p><code>SyntaxAnalysis</code>’s system message – its own instructions plus the full <code>TokenAnalysis</code>/<code>VerbalExpression</code> field descriptions – runs to roughly 40,000 characters and is byte-identical on every single call, regardless of passage; only the small per-sentence user message actually varies (typically well under 1,000 characters). Every <code>_configure_lm()</code> in this repo (<code>syntaxer_main.py</code>, <code>calibrate_max_tokens.py</code>, and the <code>marimo</code> notebooks) turns on Anthropic prompt caching automatically when <code>MODEL</code> routes to Anthropic – there’s no <code>.env</code> setting for this, and switching <code>MODEL</code> to a non-Anthropic backend (Ollama, OpenAI, etc.) skips it with nothing to turn off by hand:</p>
+<p><code>SentenceAnalysis</code>’s system message – its own instructions plus the full <code>TokenAnalysis</code>/<code>VerbalExpression</code> field descriptions – runs to roughly 40,000 characters and is byte-identical on every single call, regardless of passage; only the small per-sentence user message actually varies (typically well under 1,000 characters). Every <code>_configure_lm()</code> in this repo (<code>syntaxer_main.py</code>, <code>calibrate_max_tokens.py</code>, and the <code>marimo</code> notebooks) turns on Anthropic prompt caching automatically when <code>MODEL</code> routes to Anthropic – there’s no <code>.env</code> setting for this, and switching <code>MODEL</code> to a non-Anthropic backend (Ollama, OpenAI, etc.) skips it with nothing to turn off by hand:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="st">"anthropic"</span> <span class="kw">in</span> model.lower():</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    lm_kwargs[<span class="st">"cache_control_injection_points"</span>] <span class="op">=</span> [</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        {<span class="st">"location"</span>: <span class="st">"message"</span>, <span class="st">"role"</span>: <span class="st">"system"</span>}</span>
@@ -771,7 +765,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.10.0</strong></p>
+<p>Documentation for release version <strong>0.11.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

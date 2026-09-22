@@ -1,0 +1,88 @@
+# Build arsgrammatica and publish it via PyPI Trusted Publishing (OIDC) --
+# no API tokens stored anywhere. Two separate, deliberately-gated targets:
+#
+#   1. Pushing a tag matching v*.*.* (e.g. v0.11.0) builds and publishes
+#      straight to TestPyPI, so a release can be sanity-checked with a
+#      real `pip install --index-url https://test.pypi.org/simple/ ...`
+#      before it ever reaches the real index.
+#   2. Publishing a GitHub Release (a separate, explicit action on GitHub,
+#      normally done once you're happy with the TestPyPI upload for that
+#      same tag) builds and publishes to the real PyPI.
+#
+# Trusted Publishing has to be registered once, per index, on that
+# index's own website (pypi.org / test.pypi.org -- see notes/pypi_release.md)
+# naming this exact repo, this exact workflow filename, and the matching
+# `environment:` name below, before either job below can succeed.
+name: Publish to PyPI / TestPyPI
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  release:
+    types: [published]
+
+jobs:
+  build:
+    name: Build distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+      - name: Install build
+        run: python3 -m pip install build --user
+      - name: Build sdist and wheel
+        run: python3 -m build
+      - name: Store distribution
+        uses: actions/upload-artifact@v5
+        with:
+          name: dist
+          path: dist/
+
+  publish-to-testpypi:
+    name: Publish to TestPyPI
+    # Tag push only -- not a GitHub Release -- so pushing a tag alone
+    # never touches the real index.
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    needs: [build]
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/arsgrammatica
+    permissions:
+      id-token: write  # mandatory for Trusted Publishing (OIDC)
+    steps:
+      - name: Download distribution
+        uses: actions/download-artifact@v6
+        with:
+          name: dist
+          path: dist/
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  publish-to-pypi:
+    name: Publish to PyPI
+    # Only an explicit GitHub Release publish event -- a tag push alone
+    # (above) never reaches the real index.
+    if: github.event_name == 'release' && github.event.action == 'published'
+    needs: [build]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/arsgrammatica
+    permissions:
+      id-token: write  # mandatory for Trusted Publishing (OIDC)
+    steps:
+      - name: Download distribution
+        uses: actions/download-artifact@v6
+        with:
+          name: dist
+          path: dist/
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

@@ -1,0 +1,23 @@
+# Session log
+
+A running record of what Claude actually did in this repo, session by session, newest first. Each entry is a short summary plus pointers to the fuller write-up (if one exists) -- this file isn't meant to duplicate that detail, just make it findable and give you something to skim before deciding what to commit. Nothing described in any entry here has been committed or pushed unless that entry says so explicitly -- per `CLAUDE.md`, that's always Neel's call.
+
+---
+
+## 2026-09-22
+
+**Branch:** `wip`
+
+Three related pieces of work, all still uncommitted in the working tree:
+
+1. **WASM-export refactor.** Investigated whether `arsgrammatica` could be refactored so `marimo/latin_syntaxer_review.py` (and its two siblings that only read/render saved analyses, `latin_syntaxer_graph_metrics.py` and `lewis_short_lookup.py`) could be `marimo export html-wasm`'d, given three packages (`litellm`, `tokenizers`, `fastuuid`) block Pyodide via native-only wheels. Found the package already splits cleanly into a dspy-free "read/render/serialize" half and a dspy-only "LM pipeline" half; the only actual blocker was `arsgrammatica/__init__.py` unconditionally importing the dspy-only modules. Made dspy optional (new `llm` extra in `pyproject.toml`; lazy-import-with-helpful-stub in `__init__.py` and `token_budget.py`, mirroring the existing `aatgraph()`/`aat` pattern). Verified in two throwaway venvs: full test suite still passes with dspy installed (1826 passed, 2 skipped, 7 deselected, unchanged), and `import arsgrammatica` plus all three notebooks' exact import lines succeed with *no* dspy/litellm/tokenizers/fastuuid installed at all. Caught and fixed a real `except ... as name` scoping bug along the way (see the write-up). Full details, including what this does and doesn't solve for an actual WASM bundle (micropip needs a hosted wheel, not a bare git URL): **`notes/wasm_export.md`**.
+
+2. **PyPI/TestPyPI publishing setup.** Added `.github/workflows/publish.yml` (GitHub Actions, PyPI Trusted Publishing/OIDC, no stored tokens) -- a tag push (`vX.Y.Z`) auto-publishes to TestPyPI only, publishing a GitHub Release is the separate, deliberate step that reaches real PyPI. Along the way, fixed `pyproject.toml`'s `version` field, which had drifted to a stale `"0.5.0"` several releases behind `releases.md`/the git tags -- bumped to `0.11.0` to match the in-progress release. Also modernized the license metadata (SPDX `license` string + `license-files`, dropped the now-deprecated classifier, bumped the `setuptools` floor to `>=77`) since the old style is unsupported after 2027. Verified with a real `python -m build` + `twine check dist/*` (clean pass on both sdist and wheel), and by installing the built wheel into a separate clean venv and importing it from outside the checkout entirely. One-time manual setup still needed on Neel's end (GitHub Environments, registering a Trusted Publisher on both indexes) plus the ongoing release checklist: **`notes/pypi_release.md`**.
+
+3. **This log, plus carrying `CLAUDE.md` onto `wip`.** `CLAUDE.md` turned out to exist only on `main` (added in a single commit, `0e37183`, never merged into `wip`) -- so this branch had no copy of its own working conventions at all until now. Copied it over verbatim (`git show main:CLAUDE.md > CLAUDE.md`), and started this file as the "session log" `CLAUDE.md` itself names but never pointed at a specific file.
+
+4. **Venv setup/sync note.** A short, separate `notes/venv_setup.md` covering the venv lifecycle specifically -- first setup after a fresh clone (`uv venv` + `uv pip install -e ".[dev]"`, with the plain `python3 -m venv`/`pip` equivalent), and what actually needs re-running after a later `git pull` (nothing for code changes; re-run the install command only when `pyproject.toml` itself changed, since there's no lockfile pinning this project). Complements `notes/install.md` rather than replacing it. Also notes the `UV_LINK_MODE=copy` fix for a hardlink permission error hit earlier in this same session.
+
+Neel is adding `CLAUDE.md`'s pointer to this file himself, by hand -- not done here.
+
+**Files touched this session** (none committed): `arsgrammatica/__init__.py`, `arsgrammatica/token_budget.py`, `pyproject.toml`, `.github/workflows/publish.yml` (new), `notes/wasm_export.md` (new), `notes/pypi_release.md` (new), `notes/venv_setup.md` (new), `CLAUDE.md` (new on this branch, copied from `main`), `notes/sessions.md` (new, this file).

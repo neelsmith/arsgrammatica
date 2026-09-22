@@ -23,20 +23,71 @@ from .displacy_viz import (
     tokengraph_to_displacy_svg,
     save_displacy_html,
 )
-from .latin_syntax_dspy import (
-    SentenceAnalysis,
-    analyze,
-    validate,
-    print_analysis,
-)
-from .segmentation_dspy import SegmentPassage, segment_sources
-from .pipeline import (
-    analyze_string,
-    analyze_sources,
-    analyze_selected_passages,
-    analyze_ctsdata,
-    combined_tokengraph,
-)
+# latin_syntax_dspy.py, segmentation_dspy.py, and pipeline.py all touch
+# dspy at *class-definition* time (dspy.Signature subclasses), not just at
+# call time, so -- unlike aatgraph()'s lazy import below -- there's no way
+# to defer dspy out of these three modules' own imports. That makes dspy
+# the one thing standing between "import arsgrammatica" and working in an
+# environment that can't have dspy installed at all: current dspy releases
+# hard-require litellm>=1.65.8, and current litellm releases ship native
+# cp310-abi3 wheels only (a Rust extension), which blocks Pyodide/WASM
+# environments outright -- see notes/wasm_export.md. None of that is
+# specific to *this* package, though: nothing else in arsgrammatica
+# (models.py, rendering.py, mermaid.py, dot.py, graphs.py, verbal_units.py,
+# displacy_viz.py, serialization.py, ctsdata.py, lewis_short.py, ...) ever
+# imports dspy, so a caller who only wants to read/render/serialize
+# already-saved analyses -- exactly what marimo/latin_syntaxer_review.py
+# does -- has no actual need for dspy at all. Following the same
+# lazy-import-with-a-helpful-stub pattern aatgraph() already uses below for
+# the optional `aat` package, this block lets `import arsgrammatica` (and
+# now, per pyproject.toml's new `llm` extra, the base install itself)
+# succeed either way: with dspy installed, every name below is the real
+# thing; without it, calling any of them raises a clear ImportError naming
+# `pip install 'arsgrammatica[llm]'` instead of failing this whole import
+# with dspy's own, less legible ImportError.
+try:
+    from .latin_syntax_dspy import (
+        SentenceAnalysis,
+        analyze,
+        validate,
+        print_analysis,
+    )
+    from .segmentation_dspy import SegmentPassage, segment_sources
+    from .pipeline import (
+        analyze_string,
+        analyze_sources,
+        analyze_selected_passages,
+        analyze_ctsdata,
+        combined_tokengraph,
+    )
+except ImportError as _llm_exc:
+    _llm_import_error = _llm_exc
+
+    def _llm_stub(_name):
+        def _stub(*_args, **_kwargs):
+            raise ImportError(
+                f"{_name}() needs the optional 'llm' extra (dspy, and a "
+                "configured LM) to analyze new Latin text -- install it "
+                "with: pip install 'arsgrammatica[llm]'. Reading, "
+                "rendering, or serializing an already-saved analysis "
+                "(read_analyses(), tokengraph_to_html(), etc.) doesn't "
+                "need dspy at all and works without this extra."
+            ) from _llm_import_error
+
+        _stub.__name__ = _name
+        return _stub
+
+    SentenceAnalysis = _llm_stub("SentenceAnalysis")
+    analyze = _llm_stub("analyze")
+    validate = _llm_stub("validate")
+    print_analysis = _llm_stub("print_analysis")
+    SegmentPassage = _llm_stub("SegmentPassage")
+    segment_sources = _llm_stub("segment_sources")
+    analyze_string = _llm_stub("analyze_string")
+    analyze_sources = _llm_stub("analyze_sources")
+    analyze_selected_passages = _llm_stub("analyze_selected_passages")
+    analyze_ctsdata = _llm_stub("analyze_ctsdata")
+    combined_tokengraph = _llm_stub("combined_tokengraph")
 from .passage_grouping import group_passages_by_sentence_boundary
 from .token_ids import assign_passage_scoped_ids
 from .serialization import (
