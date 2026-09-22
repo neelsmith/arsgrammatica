@@ -4,7 +4,7 @@ Current version: **0.11.0**.
 
 
 
-**0.11.0** *Sept. 22, 2026*: #xtensive review of docs with Claude's help. Expansion of utilities suite for working with tranining sets systematically. Improved setup of dependencies for using `aat`. Refactoring and set up of publication to pypi to support export of Marimo notebooks working with analysis results without using LMs to WASM.
+**0.11.0** *Sept. 22, 2026*: Extensive review of docs with Claude's help. Expansion of utilities suite for working with tranining sets systematically. Improved setup of dependencies for using `aat`. Refactoring and set up of publication to pypi to support export of Marimo notebooks working with analysis results without using LMs to WASM.
 
 **0.10.0** *Sept. 16, 2026*: Adds displacy-style visualization of syntactic relations. Regularizes formatting of analyses in marimo nbs.
 
