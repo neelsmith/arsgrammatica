@@ -2,6 +2,7 @@
 
 Full working conventions for this repo (write restrictions, operating modes, verification steps) live in files in the `notes/` directory, with a session log in [notes/sessions.md](notes/sessions.md)
 
+
 Summary of organization:
 
 - `README.md`, `releases.md`, and `quarto/` are Neel's — read-only for Claude.
