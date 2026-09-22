@@ -181,7 +181,7 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../reference/vuvalues.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Allowed terms to document verbal expressions</span></a>
+ <span class="menu-text">Allowed terms for documenting verbal expressions</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -207,6 +207,13 @@ ul.task-list li input[type="checkbox"] {
   <div class="sidebar-item-container"> 
   <a href="../reference/tokenizationformat.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Serialization format of tokenization without analysis</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/managing_prompt_size.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">How <code>arsgrammatica</code> keeps the token size manageable</span></a>
   </div>
 </li>
     </ul>
@@ -246,14 +253,14 @@ ul.task-list li input[type="checkbox"] {
 
 
 <ol type="1">
-<li><code>unit verb</code> – the finite verb of a clause, linked either to its subordinating word in subordinate epxressions, or to the reserved node value <code>root</code>. for independent clauses.</li>
+<li><code>unit verb</code> – the finite verb of a clause, linked either to its subordinating word in subordinate epxressions, or, for independent clauses, to the reserved node value <code>root</code>.</li>
 <li><code>subordinating conjunction</code> – a subordinating word, linked to the verb of the governing clause.</li>
 <li><code>relative pronoun</code> – a relative pronoun, linked both to its antecedent and to its function in the relative clause.</li>
 <li><code>subject</code> – a substantive linked to the verb of its verbal expression.</li>
 <li><code>direct object</code> – a substantive linked to its transitive-active verbal expression.</li>
 <li><code>predicate</code> – a substantive linked to a linking verb.</li>
 <li><code>agent</code> – the head of a prepositional phrase expressing agent with <em>a</em>/<em>ab</em>, linked to a passive verb.</li>
-<li><code>auxiliary</code> – a participle linked to a form of <em>sum</em> in compound forms of the perfect-passive/future-active systems.</li>
+<li><code>auxiliary</code> – a form of <em>sum</em> linked to a participle in compound forms of the perfect-passive/future-active systems.</li>
 <li><code>object of preposition</code> – a substantive linked to its governing preposition.</li>
 <li><code>adverbial</code> – an adverb, or a prepositional phrase used adverbially, linked to the verb it modifies.</li>
 <li><code>attributive</code> – a prepositional phrase linking to the noun it modifies.</li>
@@ -264,12 +271,12 @@ ul.task-list li input[type="checkbox"] {
 <li><code>accusative</code> – an accusative substantive that is not the special case of a direct object, linked to the verb or noun it relates to.</li>
 <li><code>vocative</code> – a vocative substantive, linked to the verb of the clause it appears in.</li>
 <li><code>direct quote</code> – verbal expression of directly quoted speech, linked to the verb introducing the direct speech.</li>
-<li><code>aside</code> – verb of a a parenthetical aside, linked to the verb of the clause it interrupts.</li>
+<li><code>aside</code> – verb of a parenthetical aside, linked to the verb of the clause it interrupts.</li>
 <li><code>indirect statement</code> – an infinitive in indirect-statement, linked to the governing verb.</li>
 <li><code>circumstantial participle</code> – a participle linked to the substantive it agrees with.</li>
 <li><code>ablative absolute</code> – an ablative substantive syntactically absolute from the verbal expression where it appears, linked to the verb of the verbal expression.</li>
 <li><code>coordinating conjunction</code> – a coordinating conjunction, linked to the two items (nouns, adjectives, prepositional phrases, or verbal expressions) it joins.</li>
-<li><code>apposition</code> – a subtantive in apposition, linked to the subtantive it stands in apposition to.</li>
+<li><code>apposition</code> – a substantive in apposition, linked to the subtantive it stands in apposition to.</li>
 <li><code>complementary infinitive</code> – an infinitive completing a governing verb like <em>volo</em>/<em>incipio</em>/<em>audeo</em>/<em>licet</em>/<em>decet</em>, linked to that verb.</li>
 <li><code>praenomen</code> – an abbreviated Roman first-name token, linked to the associated <code>nomen</code> or <code>cognomen</code>.</li>
 </ol>
@@ -688,7 +695,7 @@ ul.task-list li input[type="checkbox"] {
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.10.0</strong></p>
+<p>Documentation for release version <strong>0.11.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

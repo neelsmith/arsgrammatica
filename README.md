@@ -39,3 +39,9 @@ Packages for working with universal syntax models:
 
 - [udsyntax](https://github.com/neelsmith/udsyntax), a Python package to get dependency data from spaCy into a simple syntax graph format
 - [aat](https://github.com/neelsmith/aat), a Python package implementing a reduced model of natural-language syntax, Agent-Action-Target
+
+Using syntax from `arsgrammatica` for contextual disambiguation of morphological analyses:
+
+- [tabulaedspy](https://github.com/neelsmith/tabulaedspy): a Python package adding disambiguated morphological analyses to `arsgrammatica` tokens.
+
+See [more of my current projects](https://neelsmith.github.io/projects/).

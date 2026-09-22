@@ -8,12 +8,14 @@ to know the other exists -- segmentation_dspy.py doesn't import
 latin_syntax_dspy.py or vice versa. This is the only place that does.
 """
  
-from typing import List, Tuple
- 
+import sys
+from typing import Callable, List, Optional, Tuple
+
 from .models import CitedText, Sentence
 from .segmentation_dspy import segment_sources
 from .latin_syntax_dspy import validate
 from .token_budget import analyze_with_retry
+from .token_ids import assign_passage_scoped_ids
 from .ctsdata import read_ctsdata
  
  
@@ -32,10 +34,15 @@ def _render_sentence_text(sentence: Sentence) -> str:
     return " ".join(tok.text for tok in sentence.tokens)
  
  
-def analyze_sources(sources: List[CitedText]) -> Tuple[List[Sentence], list]:
+def analyze_sources(
+    sources: List[CitedText],
+    *,
+    progress_callback: Optional[Callable[[int, int, Sentence], None]] = None,
+    on_sentence_error: Optional[Callable[[Sentence, Exception], None]] = None,
+) -> Tuple[List[Sentence], list]:
     """Segment `sources` into citation-aware sentences, run each sentence's
     tokens through SentenceAnalysis, and validate each result.
- 
+
     Returns (sentences, results): results[i] is the SentenceAnalysis result
     for sentences[i], same order, one entry per sentence.
 
@@ -46,23 +53,89 @@ def analyze_sources(sources: List[CitedText]) -> Tuple[List[Sentence], list]:
     an estimated, appropriately-sized budget up front, and a retry with a
     larger one if it still comes back truncated -- see token_budget.py's
     module docstring for the full design.
-    """
-    sentences = segment_sources(sources)
 
+    `progress_callback`, if given, is called as `progress_callback(index,
+    total, sentence)` immediately BEFORE each sentence's own
+    SentenceAnalysis call starts -- `index` is that sentence's own 0-based
+    position, `total` is `len(sentences)` (already known at that point,
+    since segmentation has already finished), and `sentence` is that
+    Sentence itself (e.g. for its own first token's citation, to report
+    something more specific than a bare counter). This is purely a
+    reporting hook for a caller that wants to show progress across a
+    potentially long run of per-sentence LM calls -- see
+    `utilities/analyze_ctsdata_to_files.py`'s own use of it -- and never
+    affects this function's own behavior; omitted (the default), this
+    function's return value and every other observable effect are exactly
+    as they were before this parameter existed.
+
+    `on_sentence_error`, if given, is called as `on_sentence_error(sentence,
+    exc)` whenever that one sentence's own `analyze_with_retry()` call
+    raises -- even after that function's own retries are exhausted --
+    instead of letting the exception propagate out of THIS call entirely.
+    That one sentence is then left out of both returned lists (`sentences`
+    and `results` stay parallel and the same length as each other, just
+    possibly shorter than `segment_sources()`'s own output, by however many
+    sentences failed); every OTHER sentence in `sources` -- including ones
+    segmented into the SAME call as the one that failed -- still gets
+    analyzed normally. Omitted (the default, `None`), this function's
+    behavior is exactly what it always was: a failing sentence's exception
+    propagates immediately, and this call returns nothing at all. Existing
+    callers that don't pass it (`analyze_string()`,
+    `analyze_selected_passages()`, `analyze_ctsdata()`, `syntaxer_main.py`,
+    every marimo notebook) are unaffected by this parameter's existence --
+    that's the right default for a single hand-typed passage in an
+    interactive session, where the real exception should surface right
+    away rather than being swallowed into a report nobody's watching yet.
+    Only a script wide enough to want to survive one bad passage out of
+    many should pass this -- see `utilities/analyze_ctsdata_to_files.py`'s
+    own use of it, and `arsgrammatica.FailedPassage`/`write_warnings_report()`
+    for a ready-made way to collect and report what it catches.
+
+    Before any SentenceAnalysis call, every token whose citation is a CTS
+    URN (`token_ids.assign_passage_scoped_ids()`) has its id rewritten to a
+    passage-scoped composite id (e.g. `1.1.t0`) instead of whatever bare id
+    `segment_sources()` gave it. This makes a given passage's own tokens
+    get the SAME ids every time it's analyzed, regardless of what other
+    passages happened to be segmented alongside it in this particular
+    call -- which in turn means the SentenceAnalysis prompt for that
+    passage is identical across runs/callers, so DSPy's own LM response
+    cache can actually be shared between them (see that module's own
+    docstring for the full rationale). A token with no citation, or a
+    citation that isn't a 5-part CTS URN, keeps whatever id
+    `segment_sources()` assigned it.
+    """
+    sentences = assign_passage_scoped_ids(segment_sources(sources))
+
+    kept_sentences = []
     results = []
-    for sentence in sentences:
-        result = analyze_with_retry(passage=_render_sentence_text(sentence), tokens=sentence.tokens)
- 
+    for index, sentence in enumerate(sentences):
+        if progress_callback is not None:
+            progress_callback(index, len(sentences), sentence)
+
+        try:
+            result = analyze_with_retry(passage=_render_sentence_text(sentence), tokens=sentence.tokens)
+        except Exception as exc:
+            if on_sentence_error is None:
+                raise
+            on_sentence_error(sentence, exc)
+            continue
+
         problems = validate(sentence.tokens, result)
         if problems:
             first_id = sentence.tokens[0].id if sentence.tokens else "?"
-            print(f"Validation warnings (sentence starting at {first_id}):")
+            # To stderr, not stdout -- same convention every CLI script
+            # built on this function keeps for its OWN output (e.g.
+            # utilities/analyze_ctsdata_to_files.py's "Wrote ..." lines),
+            # so a problem surfacing here can never corrupt a caller's own
+            # piped/redirected stdout.
+            print(f"Validation warnings (sentence starting at {first_id}):", file=sys.stderr)
             for p in problems:
-                print(f"  - {p}")
- 
+                print(f"  - {p}", file=sys.stderr)
+
+        kept_sentences.append(sentence)
         results.append(result)
- 
-    return sentences, results
+
+    return kept_sentences, results
  
  
 def combined_tokengraph(results) -> list:

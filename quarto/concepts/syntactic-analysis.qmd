@@ -1,0 +1,366 @@
+---
+title: Graph of syntactic relations
+---
+
+
+When `arsgrammatica` analyses a passage of Latin, every non-punctuation token is related to one or two other tokens in a graph structure. This page summarizes all relationship categories that `arsgrammatica` recognizes.
+
+
+## Constructions of verbal expressions
+
+### Independent clause
+
+Verbs of independent (main) clauses are  related to a hypthetical `root` value as `unit verb`. 
+
+
+**Example**: *arma virumque cano*.
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *cano*  | `unit verb` | (`root`) |
+
+
+### Directly quoted speech
+
+Independent verbs in directly quoted speech are related to the verb introducing the quotation as `direct quote`.
+
+**Example**: *'hanc ego aram' inquit 'Pudicitiae plebeiae dedico'*.
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *dedico* | `direct quote` | *inquit* |
+| *inquit* | `unit verb` | (`root`) |
+
+
+### Aside
+
+When the syntax of the sentence is interrupted by an independent verbal expression, the verb of the interrupting expression is related to the verb of the interrupted context as `aside`.
+
+**Example**:  *Sp. Nautius -- Octavium Maecium quidam eum tradunt -- cum auxiliaribus cohortibus erat*.
+
+| Token | relationship | related token |
+| --- | --- | --- |
+|*tradunt* | `aside` | *erat* |
+| *erat* | `unit verb` | (`root`) |
+
+
+
+### Dependent clause
+
+Verbs of dependent clauses are related to a subordinating word (such as a conjunction or relative pronoun) as `unit verb`. 
+
+
+**Example**: *Hercules cum gregem perlustrasset, pergit ad proximam speluncam.*
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *perlustrasset* | `unit verb` | *cum* |
+| *pergit* | `unit verb` | (`root`) |
+
+
+
+### Indirect statement
+
+Infinitive forms in indirect statement relate to the verb of speaking as `indirect statement`.
+
+**Example**: *id philtrum esse dixit*.
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *esse* | `indirect statement` | *dixit* |
+| *dixit* | `unit verb` | (`root`) |
+
+### Circumstantial participle
+
+Circumstantial participles express a verbal idea that is related to an antecedent substantive in the relation `circumstantial participle`.
+
+**Example**: *adveniens vir Tarquiniique excepti benigne.*
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *adveniens* | `circumstantial participle` | *vir* |
+| *excepti* | `unit verb` | (`root`) |
+| (`elided sum`) | *excepti* | `auxiliary` |
+
+
+> See below on the `auxiliary` relation; on elided tokens, see [tokes](./tokens.qmd).
+
+
+
+
+## Other constructions with verbs
+
+
+### Complementary infinitive
+
+When an infinitive is used to complete the semantics of a verbal expression with certain verbs such as *volo*, the infinitive relates to the verbal expression as `complementary infinitive`.
+
+
+**Example**: *ascribi se in eam civitatem voluit*.
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *ascribi* | `complementary infinitive` | *voluit* |
+| *voluit* | `unit verb` | (`root`) |
+
+
+
+
+
+### Compound verb forms
+
+Compound forms using *sum* with a participle treat the participle as the verb of the verbal unit and the form of *sum* as an auxiliary. The participle therefore is related to its context just as any other verbal expression would be. The form of *sum* relates to the participle as `auxiliary`.
+
+**Example**: *urbs condita est*.
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *condita* | `unit verb` | (`root`) |
+| *est* | `auxiliary` | *condita* |
+
+
+
+
+
+
+
+## AAT relations
+
+The Agent-Action-Target model focuses on two special relations to verbal expressions: the agent and the target. In Latin (as in English), these relations are constructed differently depending on the voice of the verbal expression. *Agency* is expressed by the *subject* of transitive active, intransitive, and linking verbs, and by the ablative of *agent* construction with passive verbs. *Target* status is expressed by the *direct object* of transitive active verbs, the *predicate* of linking verbs, and by the *subject* of transitive passive verbs.
+
+### Subject
+
+A substantive functioning as the grammatical subject of a verbal expression is related to it as `subject`.
+
+
+**Example**: *Lucumo Demarati Corinthii filius erat*.
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *Lucumo* | `subject` | *erat* |
+| *erat* | `unit verb` | (`root`) |
+
+
+### Agent
+
+
+The headword of a prepositional phrase expressing agency with passive verbs (that is, `a`/`ab`) relates to the verbal expression as `agent`.
+
+**Example**: *urbs a Romulo condita est*.
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *urbs* | `subject` | *condita* |
+| *a* | `agent` | *condita* |
+| *Romulo* | `object of preposition` | *a* |
+| *condita* | `unit verb` | (`root`) |
+| *est* | `auxiliary` | *condita* |
+
+> See below on objects of prepositions.
+
+### Direct object
+
+
+The direct object of a transitive active verb is related to the verbal expression as `direct object`.
+
+**Example**: *Tarquinium mala libido Lucretiae per vim stuprandae capit*.
+
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *Tarquinium* | `direct object` | *capit* |
+| *libido* | `subject` | *capit* |
+| *capit* | `unit verb` | (`root`)|
+
+
+
+
+### Predicate
+
+
+Substantives or adjectives serving as predicates of linking verbs are related to the verb as `predicate`
+
+**Example**: *Lucumo Demarati Corinthii filius erat*.
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *Lucumo* | `subject` | *erat* |
+| *filius* | `predicate` | *erat* |
+| *erat* | `unit verb` | (`root`) |
+
+
+
+## Case constructions with substantives
+
+Apart from the special AAT relations, `arsgrammatica` does not subdivide syntactic constructions of substantives by their semantics. Instead, it identifies the case that constitutes the syntactic relationship. `arsgrammatica` leaves it to subsequent semantic analysis to decide if, for example, a `genitive` relation between two nouns expresses possession, a partitive idea, material or units of measure, or whether the relationship is a subjective or objective action. 
+
+### Genitive
+
+
+When a substantive in the genitive case modifies another substantive, the relationship is `genitive`.
+
+**Example**: *hic filius erat regis*.
+
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *hic* | `subject` | *erat* | 
+| *filius* | `predicate` | *erat* |
+| *erat* | `unit verb` | (`root`) |
+| *regis* | `genitive` | *filius* |
+
+
+
+### Dative
+
+When a substantive in the dative case is related to a verb or another substantive, the relationship is `dative`.
+
+
+**Example**: *documentum mortalibus dedero*.
+
+14. **dative** -- **mortalibus** in *...documentum mortalibus dedero*.
+
+### Accusative
+
+When an accusative noun is related to a noun, or when it relates to a verb but does *not* express a direct object relationship, the relationship value is `accusative`.
+
+**Example**: *Romam venit*.
+
+The verb *venit* is intransitive, but *Romam* relates to it.
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *Romam* | `accusative` | *venit* |
+| *venit* | `unit verb` | (`root`) |
+
+**Example**: **duo milia passuum iter fecerunt*.
+
+The phrase *duo milia passuum* qualifies the noun *iter* with a length of distance specified in the accusative. 
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *milia* | `accusative` | *iter* | 
+| *passuum* | `genitive` | *milia* |
+| *iter* | `direct object` | *fecerunt* | 
+| *fecerunt* | `unit verb` | (`root`) |
+
+
+### Ablative
+
+When nouns in the ablative case are related to another noun or to a verb, the relationship is `ablative`.
+
+**Example**: *omnia ferro flammaque miscet*
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *ferro* | `ablative` | *miscet* |
+| *flamma* | `ablative` | *miscet* |
+| *miscet* | `unit verb` | (`root`) |
+
+
+**Example**: *Collatinus negat verbis opus esse*.
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *Collatinus* | `subject` | *negat* | 
+| *negat* | `unit verb` | (`root`) | 
+| *verbis* | `ablative` | *opus* |
+| *opus* | `subject` | *esse* |
+| *esse* | `indirect statement` | *negat* |
+
+
+### Vocative 
+
+Nouns in the vocative case are related to a verbal expression as `vocative`.
+
+
+**Example**: *Non est ita, domine*.
+
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *est* | `unit verb` | (`root`) |
+| *domine* | `vocative` | *est* |
+
+
+
+
+
+
+
+## Special substantive relations
+
+
+### Ablative absolute
+
+22. **ablative absolute** -- **Anco** in *Anco regnante Lucumo Romam commigravit*.
+
+
+
+## Coordinating and subordinating words
+
+
+### Coordinating word
+
+Use example like autem...
+Expand on double inks iwth et (aut)
+23. **coordinating conjunction** -- **que** in *arma virumque cano*.
+
+
+### Subordinating word
+
+2. **subordinating conjunction** -- **cum** in *Hercules cum gregem perlustrasset*.
+
+
+### Relative pronoun
+
+3. **relative pronoun** -- **quibus** in *Latini, cum quibus ictum foedus erat*.
+
+
+### Object of preposition
+
+9. **object of preposition** -- **Romulo** in *urbs a Romulo condita est*.
+
+### Apposition
+
+24. **apposition** -- **filius** in *Aegeus Pandionis filius*.
+
+### Praenomen
+
+
+A token `arsgrammatica` classifies as `praenomen` is an abbreviation used in conjunction wth a fully spelled out *nomen* or *cognomen*. The abbreviated *praenomen* relates to the full form clearly showing its case usage as `praenomen`.
+
+**Example**: *Sp. Nautius – Octavium Maecium quidam eum tradunt – cum auxiliaribus cohortibus erat.*
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *Sp.* | `praenomen` | *Nautius* |
+| *Nautius* | `subject` | *erat* |
+| *erat* | `unit verb` | (`root`) |
+
+
+## Adverbial and attributive expressions
+
+
+10. **adverbial** -- **forte** in *ad Ianiculum forte ventum erat*.
+11. **attributive** -- **ad** in *pugna ad Cannas*.
+12. **adjectival** -- **omnium** in *patri bonorum omnium heres*.
+
+
+
+## A note on two-way linking
+
+Conjunction and relation
+
+See [complete examples](./complete_examples.qmd).

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Modelling Latin syntax – arsgrammatica</title>
+<title>Conceptual background – arsgrammatica</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -146,7 +146,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../concepts/index.html">Modelling Latin syntax</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../concepts/index.html">Conceptual background</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -161,7 +161,14 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../concepts/index.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Modelling Latin syntax</span></a>
+ <span class="menu-text">Conceptual background</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../concepts/models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Goals of <code>arsgrammatica</code></span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -176,6 +183,32 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text"><code>arsgrammatica</code> and the AAT model</span></a>
   </div>
 </li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../concepts/tokens.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">How <code>arsgrammatica</code> tokenizes Latin</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../concepts/verbalunits.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Verbal units</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../concepts/syntactic-analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Graph of syntactic relations</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../concepts/complete_examples.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Examples of complete syntactic analyses</span></a>
+  </div>
+</li>
     </ul>
     </div>
 </nav>
@@ -186,9 +219,9 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#goals-of-arsgrammatica" id="toc-goals-of-arsgrammatica" class="nav-link active" data-scroll-target="#goals-of-arsgrammatica">Goals of <code>arsgrammatica</code></a></li>
-  <li><a href="#a-simple-illustration" id="toc-a-simple-illustration" class="nav-link" data-scroll-target="#a-simple-illustration">A simple illustration</a></li>
-  <li><a href="#relation-to-other-models" id="toc-relation-to-other-models" class="nav-link" data-scroll-target="#relation-to-other-models">Relation to other models</a></li>
+  <li><a href="#modelling-syntax" id="toc-modelling-syntax" class="nav-link active" data-scroll-target="#modelling-syntax">Modelling syntax</a></li>
+  <li><a href="#implementation-of-the-arsgrammatica-model" id="toc-implementation-of-the-arsgrammatica-model" class="nav-link" data-scroll-target="#implementation-of-the-arsgrammatica-model">Implementation of the <code>arsgrammatica</code> model</a></li>
+  <li><a href="#examples-of-analyses" id="toc-examples-of-analyses" class="nav-link" data-scroll-target="#examples-of-analyses">Examples of analyses</a></li>
   </ul>
 </nav>
     </div>
@@ -197,7 +230,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Modelling Latin syntax</h1>
+<h1 class="title">Conceptual background</h1>
 </div>
 
 
@@ -214,41 +247,27 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="goals-of-arsgrammatica" class="level2">
-<h2 class="anchored" data-anchor-id="goals-of-arsgrammatica">Goals of <code>arsgrammatica</code></h2>
-<p>Any computational analysis of natural-language syntax must choose a syntactic model suited to its purpose. Some analyses, for example, work with <em>universal syntactic models</em> like Universal Dependencies (UD) or Agent-Action-Target (AAT) to align features across multiple languages.</p>
-<p><code>arsgrammatica</code> addresses a different problem. It defines a syntactic scheme that is <em>unique to Latin</em> in order to support research and teaching focused on <em>Latin</em> texts. Some of its key features include:</p>
+<section id="modelling-syntax" class="level2">
+<h2 class="anchored" data-anchor-id="modelling-syntax">Modelling syntax</h2>
+<p>Any computational analysis of natural-language syntax must choose a syntactic model suited to its purpose. These pages summarize the goals of <code>arsgrammatica</code>, and how its model compares with other models of natural-language syntax.</p>
 <ul>
-<li><code>arsgrammatica</code> respects citation of text passages. Tokens are uniquely citable within uniquely citable passages of text.</li>
-<li>Syntactic categories use terminology already familiar to Latinists.</li>
-<li>Tokenization of Latin strings classifies tokens in terms specific to editions of Latin texts (e.g., it recognizes a <code>praenomen</code> token type written in abbreviated form and associated with a fully supplied Latin <em>nomen</em> or <em>cognomen</em>).</li>
-<li>All lexical tokens are related in a dependency graph.</li>
-<li>The dependency graph is organized in coordinated and subordinated <em>verbal expressions</em>, subject-verb-object expressions generally corresponding to clauses in an English translation. (This structure is easily translated into an AAT model for cross-lingual alignment.)</li>
+<li><a href="../concepts/models.html">Goals of <code>arsgrammatica</code></a></li>
+<li>Comparison with the <a href="../concepts/ud.html">Universal Dependency scheme</a></li>
+<li>Comparison with the <a href="../concepts/aat.html">Agent-Action-Target model</a></li>
 </ul>
 </section>
-<section id="a-simple-illustration" class="level2">
-<h2 class="anchored" data-anchor-id="a-simple-illustration">A simple illustration</h2>
-<p>Consider a very short Latin sentence, and a diagram of the dependency graph that <code>arsgrammatica</code> builds from it.</p>
-<blockquote class="blockquote">
-<p><em>arma virumque cano.</em></p>
-</blockquote>
-<div class="column" style="width:70%;">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="./imgs/armavirumquecano.png" class="img-fluid figure-img"></p>
-<figcaption>Syntactic analysis of a short Latin sentence.</figcaption>
-</figure>
-</div>
-</div>
-<p>This Latin sentence contains a single verbal expression, rooted in the verb <em>cano</em>. <code>arsgrammatica</code> recognizes four lexical tokens in its dependency graph. It ignores the punctuation token (period), and distinguishes an enclitic token <em>-que</em> from the noun it is orthographically attached to (<em>virum</em>). <code>arsgrammatica</code> identifies two different kinds of relationship in this sentence: <code>direct object</code> and <code>coordinating conjunction</code>.</p>
-</section>
-<section id="relation-to-other-models" class="level2">
-<h2 class="anchored" data-anchor-id="relation-to-other-models">Relation to other models</h2>
-<p>How <code>arsgrammatica</code>’s Latin-specific model relates to two universal syntactic models:</p>
+<section id="implementation-of-the-arsgrammatica-model" class="level2">
+<h2 class="anchored" data-anchor-id="implementation-of-the-arsgrammatica-model">Implementation of the <code>arsgrammatica</code> model</h2>
+<p>The <code>arsgrammatica</code> package is based on three classes, representing the tokenization of a Latin passage, the syntactic anchor points of verbal expressions, and the graph of syntactic relations.</p>
 <ul>
-<li>relation to <a href="../concepts/ud.html">Universal Dependencies</a> (UD)</li>
-<li>relation to <a href="../concepts/aat.html">Agent-Action-Target</a> (AAT)</li>
+<li><a href="../concepts/tokens.html">Tokenization of a passage</a> (the <code>Token</code> class)</li>
+<li>AAT anchor points: <a href="../concepts/verbalunits.html">verbal units</a> (the <code>VerbalExpression</code> class)</li>
+<li><a href="../concepts/syntactic-analysis.html">Graph of syntactic relations</a> (the <code>TokenAnalysis</code> class)</li>
 </ul>
+</section>
+<section id="examples-of-analyses" class="level2">
+<h2 class="anchored" data-anchor-id="examples-of-analyses">Examples of analyses</h2>
+<p>Four sentences from <code>arsgrammatica</code>’s training set illustrate <a href="../concepts/complete_examples.html">every recognized syntactic relation</a>.</p>
 
 
 </section>
@@ -661,7 +680,7 @@ ul.task-list li input[type="checkbox"] {
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.10.0</strong></p>
+<p>Documentation for release version <strong>0.11.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

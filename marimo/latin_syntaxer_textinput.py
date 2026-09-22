@@ -536,9 +536,7 @@ def _(mo):
 def _(citation_context, mo, text_area, urnbase):
     # All three inputs as one form -- marimo only updates input_form.value
     # (and so only re-triggers the Analysis cell below) when the whole form
-    # is submitted, never on every keystroke in an individual field. This
-    # is the same batch()/form() shape sketched out (but never wired up) in
-    # syntaxer.py's own commented-out UI cell.
+    # is submitted, never on every keystroke in an individual field.
     input_form = (
         mo.md(
             """

@@ -24,12 +24,24 @@ API_KEY=your_key
 
 ## Preassembled resources
 
+
+### Interactive notebooks
+
 - [marimo notebooks](./marimo.qmd) for syntax analysis
-- analyze Latin with a [command line script](./cli.qmd)
-- [diagram analyses](./diagrams.qmd) with graphviz
-- generate [PNG diagrams from saved analyses](./batch-images.qmd) with graphviz
+
+### Scripts to analyze texts
+
+- interactively analyze a passage of Latin with a [command-line script](./cli.qmd)
+- analyze [multiple passages of Latin from command-line scripts](./corpus.qmd
+)
 
 
-## Using the `arsgrammatica` package in python
+### Scripts to diagram syntax 
+
+- [diagram a save analyses](./diagrams.qmd) with graphviz
+- generate [PNG diagrams from multiple saved analyses](./batch-images.qmd) with graphviz
+
+
+## Using `arsgrammatica` in your own python programs
 
 - Quickest possible start to [querying a language model](./quick.qmd)

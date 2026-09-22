@@ -3,7 +3,7 @@ title: Estimating and enforcing a `max_tokens` budget
 ---
 
 
-`SyntaxAnalysis`'s output (a `reasoning` field plus JSON-serialized `verbalunits`/`tokengraph`) grows with how long and how syntactically complex a sentence is, not by a fixed amount, so a single hard-coded `max_tokens` value is eventually wrong: too small for a long or deeply subordinated sentence (truncation), too large for a short one (wasted budget). `arsgrammatica/token_budget.py` addresses this with a calibrate-then-retry approach, and `pipeline.py`'s `analyze_sources()` already uses it -- both `analyze_sources()` and `analyze_passage()` get this for free, with nothing to change in your own calling code.
+`SentenceAnalysis`'s output (a `reasoning` field plus JSON-serialized `verbalunits`/`tokengraph`) grows with how long and how syntactically complex a sentence is, not by a fixed amount, so a single hard-coded `max_tokens` value is eventually wrong: too small for a long or deeply subordinated sentence (truncation), too large for a short one (wasted budget). `arsgrammatica/token_budget.py` addresses this with a calibrate-then-retry approach, and `pipeline.py`'s `analyze_sources()` already uses it -- both `analyze_sources()` and `analyze_passage()` get this for free, with nothing to change in your own calling code.
 
 First, calibrate against your own configured model:
 
@@ -11,7 +11,7 @@ First, calibrate against your own configured model:
 python3 calibrate_max_tokens.py
 ```
 
-This is a live-LM script (real API cost, one call per `GOLD_EXAMPLES` entry) that measures how many completion tokens the real model actually uses for each gold example, fits `completion_tokens ~= intercept + slope * num_input_tokens` by least squares, and writes the result to `arsgrammatica/token_budget_calibration.json`. Re-run it whenever the configured model, the `SyntaxAnalysis` prompt, or the `TokenAnalysis`/`VerbalExpression` schema changes substantially. Until you've run it at least once, `estimate_max_tokens()` falls back to an untuned, deliberately generous placeholder fit -- safe, but not a real measurement of your model.
+This is a live-LM script (real API cost, one call per `GOLD_EXAMPLES` entry) that measures how many completion tokens the real model actually uses for each gold example, fits `completion_tokens ~= intercept + slope * num_input_tokens` by least squares, and writes the result to `arsgrammatica/token_budget_calibration.json`. Re-run it whenever the configured model, the `SentenceAnalysis` prompt, or the `TokenAnalysis`/`VerbalExpression` schema changes substantially. Until you've run it at least once, `estimate_max_tokens()` falls back to an untuned, deliberately generous placeholder fit -- safe, but not a real measurement of your model.
 
 ```python
 from arsgrammatica import estimate_max_tokens
@@ -36,7 +36,7 @@ It starts from `estimate_max_tokens(len(tokens))` (or `initial_max_tokens`, if y
 
 ## Anthropic prompt caching
 
-`SyntaxAnalysis`'s system message -- its own instructions plus the full `TokenAnalysis`/`VerbalExpression` field descriptions -- runs to roughly 40,000 characters and is byte-identical on every single call, regardless of passage; only the small per-sentence user message actually varies (typically well under 1,000 characters). Every `_configure_lm()` in this repo (`syntaxer_main.py`, `calibrate_max_tokens.py`, and the `marimo` notebooks) turns on Anthropic prompt caching automatically when `MODEL` routes to Anthropic -- there's no `.env` setting for this, and switching `MODEL` to a non-Anthropic backend (Ollama, OpenAI, etc.) skips it with nothing to turn off by hand:
+`SentenceAnalysis`'s system message -- its own instructions plus the full `TokenAnalysis`/`VerbalExpression` field descriptions -- runs to roughly 40,000 characters and is byte-identical on every single call, regardless of passage; only the small per-sentence user message actually varies (typically well under 1,000 characters). Every `_configure_lm()` in this repo (`syntaxer_main.py`, `calibrate_max_tokens.py`, and the `marimo` notebooks) turns on Anthropic prompt caching automatically when `MODEL` routes to Anthropic -- there's no `.env` setting for this, and switching `MODEL` to a non-Anthropic backend (Ollama, OpenAI, etc.) skips it with nothing to turn off by hand:
 
 ```python
 if "anthropic" in model.lower():

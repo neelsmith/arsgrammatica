@@ -86,10 +86,11 @@ def _(mo):
 @app.cell
 def _(Path, mo):
     # Browse for a previously-written analysis file (write_analyses()'s own
-    # format -- see USAGE.md's "Saving and loading analyses"). A
-    # file_browser is used for the same reason latin_syntaxer_review.py's own
-    # analysis_file_browser is: selecting a single FILE by clicking it just
-    # works, unlike mo.ui.file_browser's "directory" selection mode.
+    # format -- see notes/serialization_formats.md's "Serializing
+    # analyses"). A file_browser is used for the same reason
+    # latin_syntaxer_review.py's own analysis_file_browser is: selecting a
+    # single FILE by clicking it just works, unlike mo.ui.file_browser's
+    # "directory" selection mode.
     analysis_file_browser = mo.ui.file_browser(
         initial_path=Path(__file__).parent.parent,
         selection_mode="file",

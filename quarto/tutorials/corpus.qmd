@@ -1,0 +1,35 @@
+---
+title: Analyze mutiple passages from a command-line script
+---
+
+Three command-line scripts turn a `#!ctsdata` (CEX) source file into syntax analyses, at different stages and granularities.
+
+
+## Analyze a corpus from a single command
+
+`analyze_ctsdata_to_files.py`
+Use this when there's no reason to keep the segmentation and analysis steps separate.
+
+```sh
+python utilities/analyze_ctsdata_to_files.py corpus.cex --output-dir analyses/
+```
+
+
+## Segment the corpus into sentences, then analyze
+
+
+Step 1:  `tokenize_ctsdata.py` -- segmentation only, no syntax analysis
+
+
+```sh
+python utilities/tokenize_ctsdata.py corpus.cex > tokenized.txt
+```
+
+
+Step 2: `analyze_tokendata_to_files.py` -- analysis only, starting from an already-tokenized file
+
+
+```sh
+python utilities/analyze_tokendata_to_files.py tokenized.txt --output-dir analyses/
+python utilities/analyze_tokendata_to_files.py a.txt b.txt --output-dir analyses/
+```

@@ -24,3 +24,6 @@ For discussion of of what each controlled vocabulary item means, see the [syntax
 - output format for [syntactic analysis](./analysisformat.qmd)
 - output format for [tokenization without analysis](./tokenizationformat.qmd)
 
+## Design
+
+- [How `arsgrammatica` tries to keep prompt size manageable](./managing_prompt_size.qmd)

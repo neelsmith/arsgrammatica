@@ -294,12 +294,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Estimating and enforcing a <code>max_tokens</code> budget</span></a>
   </div>
 </li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/managing_prompt_size.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Keeping requests to an LM at a manageable size</span></a>
-  </div>
-</li>
     </ul>
     </div>
 </nav>
@@ -328,7 +322,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="optimizing-with-gepa" class="level1">
 <h1>Optimizing with GEPA</h1>
-<p>One of <code>dspy</code>’s strengths is its streamlined path to optimize a program for a specific configured langauge model without you having to change any code.</p>
+<p>One of <code>dspy</code>’s strengths is its streamlined path to optimize a program for a specific configured language model without you having to change any code.</p>
 <section id="configuration" class="level2">
 <h2 class="anchored" data-anchor-id="configuration">Configuration</h2>
 <p><code>dspy</code> allows you to configure <em>two</em> models: the “teacher” and the “student.”</p>
@@ -338,13 +332,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="running-optimize_gepa" class="level2">
 <h2 class="anchored" data-anchor-id="running-optimize_gepa">Running <code>optimize_gepa</code></h2>
-<p>The script <code>optimize_gepa.py</code> runs GEPA to improve <code>SyntaxAnalysis</code>’s instructions against the gold examples in <code>tests/fixtures/gold_examples.py</code>. This requires making the specified request, and then a further request to a reflection model, so it can potentially be expensive. <code>optimize_gepa</code> lets you regulate this stage of work with these parameters:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> optimize_gepa.py                    <span class="co"># --auto light (cheapest; default)</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> optimize_gepa.py <span class="at">--auto</span> medium       <span class="co"># more thorough, more expensive</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> optimize_gepa.py <span class="at">--auto</span> heavy        <span class="co"># most thorough, most expensive</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> optimize_gepa.py <span class="at">--max-metric-calls</span> 40   <span class="co"># exact call budget instead of a preset</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> optimize_gepa.py <span class="at">--skip-baseline</span>     <span class="co"># skip the pre-GEPA scoring pass (saves N calls)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>By default, <code>optimize_gepa</code> trains on all the gold examples in <code>GOLD_EXAMPLES</code> (a small, hand-curated set built to exercise every documented construction at least once) with no separate held-out evaluation set. If you have files of analyses you have verified, you can add those to the testing pool <code>optimize_gepa</code> uses and specify the fraction to be used for an evaluation set:</p>
+<p>The script <code>optimize_gepa.py</code> runs GEPA to improve <code>SentenceAnalysis</code>’s instructions against the gold examples in <code>tests/fixtures/gold_examples.py</code>. This requires making the specified request, and then a further request to a reflection model, so it can potentially be expensive. <code>optimize_gepa</code> lets you regulate this stage of work with these parameters:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> optimize_gepa.py                    <span class="co"># --auto light (cheapest; default)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> optimize_gepa.py <span class="at">--auto</span> medium       <span class="co"># more thorough, more expensive</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> optimize_gepa.py <span class="at">--auto</span> heavy        <span class="co"># most thorough, most expensive</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> optimize_gepa.py <span class="at">--max-metric-calls</span> 40   <span class="co"># exact call budget instead of a preset</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> optimize_gepa.py <span class="at">--skip-baseline</span>     <span class="co"># skip the pre-GEPA scoring pass (saves N calls)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>By default, <code>optimize_gepa</code> trains on all the gold examples in <code>GOLD_EXAMPLES</code> (a small, hand-curated set built to exercise every documented construction at least once) and holds out 20% for an evalution set. The fraction to use as an evaluation set is given in the <code>--val-fraction</code> parameter. You can set it to <code>0</code> to use all examples as a training set with no holdout. If you have files of analyses you have verified, you can add those to the testing pool <code>optimize_gepa</code> uses and specify the fraction to be used for an evaluation set:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Include individual files with analyses:</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/optimize_gepa.py <span class="at">--eval-file</span> urn_cts_compnov_bible_genesis_vulgate_42_1.cex urn_cts_compnov_bible_genesis_vulgate_42_2.cex</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -387,7 +381,7 @@ Tip
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The <code>optimization</code> directory of the <code>arsgrammatica</code> repository includes saved models in JSON format. File names are based on the target model, the version of <code>arsgrammatica</code> that was targeted, and a directory with the supplementary training data used. A file name like <code>optimized_opus_5_ag_0_7_0_vulgate.json</code> means that this output targeted Opus 5, using <code>arsgrammatica</code> release 0.7.0, with training data from the <code>data/vulgate</code> directory of this repository.</p>
+<p>The <code>optimized</code> directory of the <code>arsgrammatica</code> repository includes saved models in JSON format. File names are based on the target model, the version of <code>arsgrammatica</code> that was targeted, and a directory with the supplementary training data used. A file name like <code>optimized_opus_5_ag_0_7_0_vulgate.json</code> means that this output targeted Opus 5, using <code>arsgrammatica</code> release 0.7.0, with training data from the <code>data/vulgate</code> directory of this repository.</p>
 </div>
 </div>
 
@@ -803,7 +797,7 @@ Tip
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.10.0</strong></p>
+<p>Documentation for release version <strong>0.11.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;

@@ -41,5 +41,5 @@ Guides for using `arsgrammatica` for particular tasks.
 
 - [Tokenizing text without analysis](./tokenizing.qmd)
 - [Estimating tokens budget](./budgetingtokens.qmd)
-- [Keeping prompt size manageable](./managing_prompt_size.qmd)
+
 

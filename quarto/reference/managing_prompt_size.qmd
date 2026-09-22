@@ -1,4 +1,6 @@
-# Keeping requests to an LM at a manageable size
+---
+title: How `arsgrammatica` keeps the token size manageable
+---
 
 When `arsgrammatica` submits a passage to analyze to a configured language model, the prompt it submits includes a lengthy specification of how to analyze Latin syntax in the specific scheme used in this package. The reply from the LM includes a token-by-token analysis that will vary in length depending on the length of the passage submitted. The inevitable result is that each analysis requires a very large context: Latin syntax is complicated. `arsgrammatica` includes a couple of tricks to help manage that.
 

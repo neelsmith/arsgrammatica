@@ -294,12 +294,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Estimating and enforcing a <code>max_tokens</code> budget</span></a>
   </div>
 </li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../guides/managing_prompt_size.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Keeping requests to an LM at a manageable size</span></a>
-  </div>
-</li>
     </ul>
     </div>
 </nav>
@@ -369,10 +363,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><strong><code>--provider ollama</code></strong> is for models you pull and run locally with <code>ollama</code>. This needs no special configuration since it talks to ollama’s default port of <code>http://localhost:11434</code>. (Set <code>OLLAMA_API_BASE</code> in <code>.env</code>, or pass <code>--ollama-api-base</code>, if Ollama is running somewhere else on your network.)</p>
 <p>Realistically you can only have one model loaded in Ollama at a time, so this script’s shape is built around that constraint: <code>--provider ollama</code> refuses to run unless exactly one candidate is selected. The resulting workflow will look like this:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ollama</span> pull llama3.1:8b            <span class="co"># or whichever candidate; make sure ollama serve is running</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> model_bakeoff.py <span class="at">--provider</span> ollama <span class="at">--candidates</span> llama-3.1-8b <span class="at">--stages</span> baseline</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/model_bakeoff.py <span class="at">--provider</span> ollama <span class="at">--candidates</span> llama-3.1-8b <span class="at">--stages</span> baseline</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># ...stop that model, pull/load the next one...</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> model_bakeoff.py <span class="at">--provider</span> ollama <span class="at">--candidates</span> gpt-oss-20b <span class="at">--stages</span> baseline</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Every invocation is a normal one-shot run, not a long-lived process . Scores are collected in a cumulative results file (see below), so you can score one model, save the results, swap models, and repeat, without overwriting earlier results.</p>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/model_bakeoff.py <span class="at">--provider</span> ollama <span class="at">--candidates</span> gpt-oss-20b <span class="at">--stages</span> baseline</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Every invocation is a normal one-shot run, not a long-lived process. Scores are collected in a cumulative results file (see below), so you can score one model, save the results, swap models, and repeat, without overwriting earlier results.</p>
 </section>
 <section id="the-held-out-evaluation-set" class="level2">
 <h2 class="anchored" data-anchor-id="the-held-out-evaluation-set">The held-out evaluation set</h2>
@@ -392,32 +386,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="running-it" class="level2">
 <h2 class="anchored" data-anchor-id="running-it">Running it</h2>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cheap first pass across every Hugging Face candidate</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> model_bakeoff.py <span class="at">--stages</span> baseline</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/model_bakeoff.py <span class="at">--stages</span> baseline</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Everything, every candidate (expensive -- gepa + bootstrap make many calls)</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> model_bakeoff.py <span class="at">--stages</span> baseline gepa bootstrap</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/model_bakeoff.py <span class="at">--stages</span> baseline gepa bootstrap</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Just a couple of candidates</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> model_bakeoff.py <span class="at">--candidates</span> llama-3.1-8b gpt-oss-20b</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/model_bakeoff.py <span class="at">--candidates</span> llama-3.1-8b gpt-oss-20b</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Skip gepa/bootstrap for anything that didn't clear a baseline threshold</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> model_bakeoff.py <span class="at">--min-baseline-to-optimize</span> 0.3</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/model_bakeoff.py <span class="at">--min-baseline-to-optimize</span> 0.3</span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Ollama, one candidate at a time (see workflow above)</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> model_bakeoff.py <span class="at">--provider</span> ollama <span class="at">--candidates</span> llama-3.1-8b <span class="at">--stages</span> baseline</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> model_bakeoff.py <span class="at">--provider</span> ollama <span class="at">--candidates</span> llama-3.1-8b <span class="at">--stages</span> gepa bootstrap</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/model_bakeoff.py <span class="at">--provider</span> ollama <span class="at">--candidates</span> llama-3.1-8b <span class="at">--stages</span> baseline</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/model_bakeoff.py <span class="at">--provider</span> ollama <span class="at">--candidates</span> llama-3.1-8b <span class="at">--stages</span> gepa bootstrap</span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co"># A model not in CANDIDATES at all -- either provider</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> model_bakeoff.py <span class="at">--provider</span> ollama <span class="at">--model</span> ollama_chat/llama3.1:8b-instruct-q8_0 <span class="at">--label</span> llama-3.1-8b-q8</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/model_bakeoff.py <span class="at">--provider</span> ollama <span class="at">--model</span> ollama_chat/llama3.1:8b-instruct-q8_0 <span class="at">--label</span> llama-3.1-8b-q8</span>
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Optimizer knobs</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> model_bakeoff.py <span class="at">--auto</span> medium                    <span class="co"># gepa's (and miprov2's) budget preset</span></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> model_bakeoff.py <span class="at">--max-metric-calls</span> 40             <span class="co"># exact gepa budget instead of --auto</span></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> model_bakeoff.py <span class="at">--bootstrap-optimizer</span> miprov2     <span class="co"># heavier alternative to bootstrap-fewshot</span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> model_bakeoff.py <span class="at">--max-bootstrapped-demos</span> 4 <span class="at">--max-labeled-demos</span> 4</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/model_bakeoff.py <span class="at">--auto</span> medium                    <span class="co"># gepa's (and miprov2's) budget preset</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/model_bakeoff.py <span class="at">--max-metric-calls</span> 40             <span class="co"># exact gepa budget instead of --auto</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/model_bakeoff.py <span class="at">--bootstrap-optimizer</span> miprov2     <span class="co"># heavier alternative to bootstrap-fewshot</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/model_bakeoff.py <span class="at">--max-bootstrapped-demos</span> 4 <span class="at">--max-labeled-demos</span> 4</span>
 <span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> model_bakeoff.py <span class="at">--out</span> results.csv                 <span class="co"># merge into a specific file</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The full flag reference is always available with <code>python model_bakeoff.py --help</code>; the ones most worth knowing up front:</p>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/model_bakeoff.py <span class="at">--out</span> results.csv                 <span class="co"># merge into a specific file</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The full flag reference is always available with <code>python3 utilities/model_bakeoff.py --help</code>; the ones most worth knowing up front:</p>
 <ul>
 <li><code>--provider {huggingface,ollama}</code> — where candidates run (default <code>huggingface</code>).</li>
 <li><code>--candidates LABEL [LABEL ...]</code> — restrict to specific labels from <code>CANDIDATES</code> (default: all of them; <code>--provider ollama</code> requires exactly one).</li>
@@ -434,7 +428,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ul>
 <li>Columns: <code>label</code>, <code>provider</code>, <code>model</code> (the resolved model string actually called), <code>family</code>, <code>tier</code>, <code>stage</code>, <code>n</code> (held-out example count), <code>mean</code>/<code>min</code>/<code>max</code> (blended score), <code>field_mean</code>/<code>relation_mean</code>/<code>vu_mean</code>, <code>elapsed_s</code>, <code>n_calls</code>, <code>total_cost</code> (blank when the provider doesn’t report per-call cost — Ollama never will, since it’s local), and <code>error</code> (set instead of scores if the candidate was skipped entirely, e.g.&nbsp;a missing API key).</li>
 </ul>
-<p>Each optimized <code>gepa</code>/<code>bootstrap</code> run is also saved to disk as <code>optimized_&lt;label&gt;_&lt;provider&gt;_&lt;stage&gt;.json</code>, alongside the CSV row — load one of these into a <code>dspy.ChainOfThought(SyntaxAnalysis)</code> instance with <code>.load(...)</code> if you want to inspect or reuse the actual optimized program, not just its score.</p>
+<p>Each optimized <code>gepa</code>/<code>bootstrap</code> run is also saved to disk as <code>optimized_&lt;label&gt;_&lt;provider&gt;_&lt;stage&gt;.json</code>, alongside the CSV row — load one of these into a <code>dspy.ChainOfThought(SentenceAnalysis)</code> instance with <code>.load(...)</code> if you want to inspect or reuse the actual optimized program, not just its score.</p>
 </section>
 <section id="the-candidate-roster" class="level2">
 <h2 class="anchored" data-anchor-id="the-candidate-roster">The candidate roster</h2>
@@ -915,7 +909,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       &nbsp;
     </div>   
     <div class="nav-footer-center">
-<p>Documentation for release version <strong>0.10.0</strong></p>
+<p>Documentation for release version <strong>0.11.0</strong></p>
 </div>
     <div class="nav-footer-right">
       &nbsp;
