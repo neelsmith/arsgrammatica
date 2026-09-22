@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "arsgrammatica"
-version = "0.11.0"
+version = "0.11.1"
 description = "A DSPy-based analyzer of Latin syntax, using an alternative scheme to Universal Dependencies designed for research and teaching."
 readme = "README.md"
 # SPDX expression + license-files, replacing the old `license = {file = ...}`
