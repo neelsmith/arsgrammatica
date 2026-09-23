@@ -3,5 +3,12 @@ title: Allowed terms for classifying tokens
 ---
 
 
+Actual tokens:
+
 `punctuation`,  `enclitic` , `lexical` , `praenomen`, `abbreviation`, 
 `numeral`
+
+Implied tokens:
+
+
+`implied sum`, `continued discourse`, `implied subject` 
