@@ -19,3 +19,5 @@ arsgrammatica/token_budget_calibration.json
 quarto/.quarto/
 quarto/quarto-build/
 **/*.quarto_ipynb
+
+*~

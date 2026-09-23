@@ -2,6 +2,9 @@
 
 Current version: **0.11.1**.
 
+**0.11.2** *??*: Fix dependency on `aat`.
+
+
 **0.11.1** *Sept. 22, 2026*: Corrects configuration of pypi.org.
 
 
