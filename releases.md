@@ -2,6 +2,9 @@
 
 Current version: **0.11.2**.
 
+
+**?** *??*: Updated docs
+
 **0.11.2** *Sept. 22, 2026*: Change dependency on `aat` to use `aatgraph` from pypi.org.
 
 **0.11.1** *Sept. 22, 2026*: Corrects configuration of pypi.org.
