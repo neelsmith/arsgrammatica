@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "arsgrammatica"
-version = "0.11.1"
+version = "0.11.2"
 description = "A DSPy-based analyzer of Latin syntax, using an alternative scheme to Universal Dependencies designed for research and teaching."
 readme = "README.md"
 # SPDX expression + license-files, replacing the old `license = {file = ...}`
@@ -55,26 +55,23 @@ classifiers = [
 # extra installed raises, naming this extra in the error.
 llm = ["dspy>=3.0"]
 
-# There used to be an `aat` extra here (`aat = ["aat @ git+https://
-# github.com/neelsmith/aat.git"]`, for arsgrammatica.aatgraph() /
-# aat_bridge.py), and `dev` below used to list that same git URL directly.
-# Both are gone -- PyPI (and TestPyPI, same Warehouse codebase) flatly
-# rejects a package whose metadata declares ANY direct URL/VCS dependency,
-# including one that only lives inside an optional extra: uploading this
-# package once it had a `pypi.org`-published version failed outright with
-# "400 Can't have direct dependency: aat @ git+https://github.com/
-# neelsmith/aat.git ; extra == \"aat\"." `aat` isn't on PyPI itself, so
-# there's no PyPI-legal way to express "install this too" as a declared
-# dependency of a PyPI-published arsgrammatica -- see notes/pypi_release.md.
-# `aatgraph()` still works exactly as before; installing `aat` is just a
-# separate, manual step now rather than something `pip install
-# arsgrammatica[...]` can pull in on its own:
-#
-#   pip install git+https://github.com/neelsmith/aat.git
-#
-# See notes/install.md's "Building an AAT (Agent-Action-Target) graph" for
-# the full picture (this is the one thing in this repo that actually needs
-# it -- marimo/latin_syntaxer_review.py).
+# Needed only for arsgrammatica.aatgraph() (aat_bridge.py), converting an
+# arsgrammatica analysis to an Agent-Action-Target graph. Used to be a
+# direct git URL dependency here (`aat @ git+https://github.com/neelsmith/
+# aat.git`) -- PyPI rejects any published package whose metadata declares
+# a direct URL/VCS dependency at all, even inside an optional extra, which
+# is exactly what broke the first two publish attempts of this package
+# (see notes/pypi_release.md) -- but the `aat` project is now itself
+# published on PyPI, as `aatgraph` (the PyPI *distribution* name; the
+# *importable* module stays `aat`, via that project's own
+# `packages.find(include=["aat*"])`, so nothing in aat_bridge.py or the
+# marimo notebooks needed to change). `aatgraph`'s own base install needs
+# only `pydantic` -- no dspy, no native extensions -- so this extra is
+# fully WASM-safe too, not just PyPI-legal: a `marimo export html-wasm`'d
+# `latin_syntaxer_review.py` (see notes/wasm_export.md) can now actually
+# get real aatgraph() output via micropip, rather than only degrading
+# gracefully to `aat_available = False`.
+aat = ["aatgraph>=0.3.0"]
 
 # Tooling used to develop arsgrammatica itself -- running the test suite,
 # .env-based live-LM config, regenerating docs/arsgrammatica-api-docs.html,
@@ -86,14 +83,15 @@ llm = ["dspy>=3.0"]
 # that extra above) is included here too, now that it's no longer part of
 # the base install -- every notebook and script under dev tooling still
 # expects a working dspy by default; only the base package itself is
-# dspy-free now. `aat` is deliberately NOT listed here any more (see the
-# comment above) -- install it separately by hand, same as any other dev
-# checkout needing `aatgraph()`. None of this is needed to just use the
-# package (see notes/install.md); `pip install -e ".[dev]"` from a
-# checkout, plus that one extra `pip install git+...aat.git` command,
-# covers all of it.
+# dspy-free now. `arsgrammatica[aat]` (see that extra above) is included
+# here too, for the same reason: latin_syntaxer_review.py is also the one
+# place that calls aatgraph(), so a normal dev setup should just have it,
+# rather than it being something to separately remember. None of this is
+# needed to just use the package (see notes/install.md); `pip install -e
+# ".[dev]"` from a checkout covers all of it in one shot.
 dev = [
     "arsgrammatica[llm]",
+    "arsgrammatica[aat]",
     "pytest>=8.0",
     "python-dotenv>=1.0",
     "pdoc>=15.0",

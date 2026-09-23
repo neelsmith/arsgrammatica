@@ -51,4 +51,27 @@ Once the two trusted publishers above are registered, cutting a release is:
 4. That tag push alone triggers `publish-to-testpypi` -- watch it in the repo's Actions tab. Once it succeeds, sanity-check the real thing: `pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ arsgrammatica==0.11.0` in a scratch venv (the `--extra-index-url` matters: TestPyPI doesn't mirror PyPI, so a real dependency like `pydantic` won't otherwise resolve there).
 5. Happy with that? Go to the repo's Releases page on GitHub and publish a Release for the `v0.11.0` tag (drafting one from the tag, writing release notes -- `releases.md`'s own entry for that version is a natural source). Publishing that Release is what triggers `publish-to-pypi` -- the real, permanent, un-take-backable one.
 
+## Troubleshooting: what actually went wrong on the first real publish attempts
+
+Two separate failures showed up once real tag pushes started hitting the workflow above, in this order:
+
+### 1. `invalid-publisher` on the OIDC token exchange
+
+First attempt failed with `Trusted publishing exchange failure: Token request failed: ... invalid-publisher: valid token, but no corresponding publisher`. The workflow file and the pushed tag were both confirmed correct on the GitHub side (diffed `publish.yml` against what was originally written -- no drift), which narrows this down to the registered publisher on PyPI/TestPyPI itself not matching the token's claims: most commonly the pending publisher was registered against the wrong repo/owner spelling, the Workflow name field didn't match `publish.yml` exactly (bare filename, not a path), the Environment name didn't match `testpypi`/`pypi` exactly (including case), or the project name was already claimed. Resolved directly on pypi.org/test.pypi.org's publishing settings -- no code or workflow change was needed once the registered fields matched.
+
+### 2. PyPI `400 Bad Request`: direct git dependency inside an extra
+
+Second attempt got past the OIDC exchange and reached the actual upload, which PyPI then rejected outright:
+
+```
+400 Bad Request
+Can't have direct dependency: aat @ git+https://github.com/neelsmith/aat.git ; extra == "aat"
+```
+
+This is a hard, unconditional Warehouse (PyPI/TestPyPI) server-side rule: a published package's metadata may not declare *any* direct URL/VCS dependency (a PEP 508 `name @ url` reference), even one that only lives inside an optional extra rather than the base install. There's no packaging-side workaround for this -- the dependency has to be removed from declared metadata entirely if the target isn't itself on PyPI. Fixed at the time by dropping the `aat` extra (and `dev`'s copy of the same URL) from `pyproject.toml` entirely, replacing it with manual-install instructions in `notes/install.md` -- a real capability loss (no more `pip install arsgrammatica[aat]`) accepted as the cost of being publishable at all.
+
+### 3. The real fix: `aat` published to PyPI as `aatgraph`
+
+Once the separate `aat` project was itself published on PyPI (as `aatgraph` -- the PyPI *distribution* name; the *importable* module stayed `aat`), the manual-install workaround above was replaced with the proper fix: `aat = ["aatgraph>=0.3.0"]` in `pyproject.toml`, a plain version-constrained PyPI dependency with no URL, restoring `pip install arsgrammatica[aat]` for real. Verified end-to-end (`0.11.2`): rebuilt the wheel/sdist, `twine check` passed on both with no warnings, and the wheel's `METADATA` shows `Requires-Dist: aatgraph>=0.3.0; extra == "aat"` with zero remaining URL-based dependencies anywhere. Installed `arsgrammatica[aat]` from a fresh venv against real PyPI (not a local build) and confirmed `aatgraph==0.3.0` resolves and installs cleanly, `import aat` / `import aat.core` work, and `arsgrammatica.aatgraph` becomes the real function rather than its ImportError-raising stub -- all with `dspy` entirely absent from the environment, meaning this exact install shape is also what a WASM export gets (see `notes/wasm_export.md`). Also ran the full `dev`-extra test suite in a fresh venv afterward as a regression check: unchanged pass count.
+
 Nothing above pushes, tags, or publishes anything on Neel's behalf -- per `CLAUDE.md`, that's his call at each step.
