@@ -20,9 +20,9 @@ A direct-from-git install works too, if you want an unreleased branch:
 pip install git+https://github.com/neelsmith/arsgrammatica.git@wip
 ```
 
-### Optional: the `aat` extra
+## Optional installations
 
-If yhou want to use the `aatgraph()` function to construct an Agent-Action-Target graph from an analysis:
+If you want to use the `aatgraph()` function to construct an Agent-Action-Target graph from an analysis:
 
 ```sh
 pip install "arsgrammatica[aat]"
@@ -30,3 +30,7 @@ pip install "arsgrammatica[aat]"
 # or, equivalently, install aatgraph yourself alongside the base package
 pip install arsgrammatica aatgraph
 ```
+
+## Install a full development environment
+
+pip install -e ".[dev]"

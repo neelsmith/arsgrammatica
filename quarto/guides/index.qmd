@@ -10,7 +10,7 @@ Guides for using `arsgrammatica` for particular tasks.
 
 ### Analyzing Latin texts
 
-- [Installing `arsgrammatica`](./install.md)
+- [Installing `arsgrammatica`](./install.qmd)
 - [Analyzing Latin syntax with a configured language model](./analysis.qmd)
 - [Saving and loading analyses](./saving-loading.qmd)
 
