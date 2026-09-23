@@ -51,7 +51,15 @@ Splitting the import graph is necessary but not sufficient for "import arsgramma
 
 Two realistic paths once arsgrammatica itself is a pure-Python package (true as of this change, modulo the `llm`/`aat` extras neither of which the review notebooks need): publish it as a normal wheel to PyPI or TestPyPI (the standard, most-assumed-by-tooling path), or build the wheel and serve it through jsDelivr's GitHub-CDN mirror (`cdn.jsdelivr.net/gh/neelsmith/arsgrammatica@<tag-or-commit>/dist/...whl`), which does serve GitHub repo contents with proper CORS headers. Either way, the notebook's own dependency declaration (a PEP 723 `# /// script` header, for `marimo export`) would need to point at that wheel URL rather than the git repo directly.
 
+**Update: the first path is done.** `arsgrammatica` is now published on PyPI (see `notes/pypi_release.md` for the full publishing setup and its own troubleshooting saga) -- a `# /// script` header can now name `arsgrammatica` as a plain PyPI dependency and micropip resolves it normally, no jsDelivr workaround needed.
+
 Separately: `pydantic-core` now ships official Emscripten/Pyodide wheels as of pydantic v2.14 (2026), under the new PEP 783, so pydantic itself is no longer a WASM blocker; `networkx` is pure Python and was never a concern.
+
+## The `aat` extra is now WASM-clean too
+
+`aatgraph()` (`aat_bridge.py`) was already on the dspy-free side of the split above -- the module never imported dspy in the first place. What *did* block it for WASM specifically was the separate `aat` package it depends on: originally only installable via `pip install git+https://github.com/neelsmith/aat.git`, and a bare git URL is exactly what micropip can't resolve (see above), so `aatgraph()` was unreachable from a WASM export regardless of the dspy-splitting work.
+
+That's now fixed the same way as the base package: `aat` is published on PyPI as [`aatgraph`](https://pypi.org/project/aatgraph/) (distribution name `aatgraph`, importable module still `aat`), so `pyproject.toml`'s `aat` extra is now `aat = ["aatgraph>=0.3.0"]` -- a plain version-constrained PyPI dependency, no URL. Verified in a fresh, dspy-free venv (installing only `arsgrammatica[aat]` from real PyPI): `aatgraph==0.3.0` resolves and installs, `import aat`/`import aat.core` work, and `arsgrammatica.aatgraph` is the real function rather than its `ImportError`-raising stub -- with `dspy` entirely absent, i.e. exactly the environment shape a WASM export produces. `aatgraph`'s own dependencies are just `pydantic` -- no native extensions -- so nothing about it reintroduces a WASM blocker. A `latin_syntaxer_review.py` WASM export can now get genuine AAT-graph output via micropip, not just degrade gracefully to `aat_available = False`.
 
 ## Left alone (possible follow-up, not done here)
 
@@ -62,5 +70,7 @@ Separately: `pydantic-core` now ships official Emscripten/Pyodide wheels as of p
 - `arsgrammatica/__init__.py`
 - `arsgrammatica/token_budget.py`
 - `pyproject.toml`
+
+(The later `aat` -> `aatgraph`-on-PyPI fix touched `arsgrammatica/__init__.py` and `pyproject.toml` again -- see "The `aat` extra is now WASM-clean too" above and `notes/pypi_release.md`.)
 
 Not committed -- per `CLAUDE.md`, that's Neel's call.

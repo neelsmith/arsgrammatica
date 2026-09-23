@@ -14,8 +14,8 @@ dspy.configure(lm=dspy.LM(model="litellm_proxy/anthropic/Claude Opus 5",
 Analyze a string:
 
 ```python
-from arsgrammatica import analyze_passage
-sentences, results = analyze_passage("Gallia est omnis divisa in partes tres.")
+from arsgrammatica import analyze_string
+sentences, results = analyze_string("Gallia est omnis divisa in partes tres.")
 ```
 
 

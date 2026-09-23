@@ -1,0 +1,32 @@
+---
+title: Installing `arsgrammatica`
+---
+
+
+
+```sh
+pip install arsgrammatica
+```
+
+or for a specific version
+
+```sh
+pip install arsgrammatica==0.11.2
+```
+
+A direct-from-git install works too, if you want an unreleased branch:
+
+```sh
+pip install git+https://github.com/neelsmith/arsgrammatica.git@wip
+```
+
+### Optional: the `aat` extra
+
+If yhou want to use the `aatgraph()` function to construct an Agent-Action-Target graph from an analysis:
+
+```sh
+pip install "arsgrammatica[aat]"
+
+# or, equivalently, install aatgraph yourself alongside the base package
+pip install arsgrammatica aatgraph
+```

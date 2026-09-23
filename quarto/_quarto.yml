@@ -68,7 +68,7 @@ website:
       contents: 
         - guides/index.qmd      
         - "---"
-        - guides/install.md
+        - guides/install.qmd
         - guides/analysis.qmd
         - guides/saving-loading.qmd
         - guides/batch-texts.qmd

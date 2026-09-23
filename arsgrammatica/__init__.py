@@ -116,21 +116,21 @@ from .lewis_short import (
 )
 
 # aatgraph() depends on the separate `aat` package, which most callers of
-# arsgrammatica have no need to install at all -- not on PyPI, so
-# `pip install git+https://github.com/neelsmith/aat.git` (not a bare
-# `pip install aat`) is what actually installs it; pyproject.toml's own
-# "aat" extra, or its `dev` extra (which includes "aat" too, since
-# marimo/latin_syntaxer_review.py -- itself only reachable via `dev` --
-# is the one thing in this repo that actually calls aatgraph()), are only
-# reachable if arsgrammatica itself is pip-installed (`pip install
-# '.[dev]'` from a checkout, or an editable install) rather than just run
-# from a checkout on sys.path, which is how this project is normally used
-# -- see notes/install.md's "Dev-only tools" for installing `aat` by hand
-# in that case instead. Importing it lazily/defensively here, rather than
-# unconditionally like every other submodule above, means `import
-# arsgrammatica` still succeeds without `aat` installed; only actually
-# calling `arsgrammatica.aatgraph(...)` without it raises, with a message
-# naming the missing package and how to get it.
+# arsgrammatica have no need to install at all. `aat` is published on PyPI
+# under the distribution name `aatgraph` (its own PyPI-legal package name
+# was already taken by an unrelated, inactive project -- the importable
+# module stays plain `aat`, unaffected): `pip install aatgraph` installs
+# it, or pull it in via pyproject.toml's own "aat" extra, or "dev" (which
+# depends on "aat" too, since marimo/latin_syntaxer_review.py -- itself
+# only reachable via `dev` -- is the one thing in this repo that actually
+# calls aatgraph()). Its own base install needs only `pydantic` -- no
+# dspy, no native extensions -- so this extra is WASM-safe too, not just
+# an ordinary optional dependency; see notes/wasm_export.md. Importing it
+# lazily/defensively here, rather than unconditionally like every other
+# submodule above, means `import arsgrammatica` still succeeds without
+# `aat`/`aatgraph` installed; only actually calling
+# `arsgrammatica.aatgraph(...)` without it raises, with a message naming
+# the missing package and how to get it.
 try:
     from .aat_bridge import aatgraph
 except ImportError as _exc:  # pragma: no cover -- exercised only when `aat` isn't installed
@@ -141,14 +141,12 @@ except ImportError as _exc:  # pragma: no cover -- exercised only when `aat` isn
 
     def aatgraph(*args, **kwargs):
         raise ImportError(
-            "aatgraph() needs the separate 'aat' package "
-            "(https://github.com/neelsmith/aat), which isn't installed. "
-            "Install it with: pip install git+https://github.com/"
-            "neelsmith/aat.git -- (if you've also `pip install`ed "
-            "arsgrammatica itself, rather than just running it from a "
-            "checkout, `pip install '.[dev]'` from its own directory "
-            "does the same thing, along with the rest of this repo's dev "
-            "tooling -- see notes/install.md)."
+            "aatgraph() needs the separate 'aat' package, published on "
+            "PyPI as 'aatgraph' (https://pypi.org/project/aatgraph/ -- "
+            "the importable module is still 'aat'), which isn't "
+            "installed. Install it with: pip install aatgraph -- or, "
+            "from an arsgrammatica checkout, pip install -e '.[aat]' (or "
+            "'.[dev]', which includes it -- see notes/install.md)."
         ) from _aat_import_error
 
 __all__ = [
