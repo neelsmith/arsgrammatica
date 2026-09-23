@@ -12,7 +12,7 @@ A `GoldExample` (`tests/fixtures/gold_examples.py`) pairs a Latin `passage` with
 **Harvested from a real analysis** -- faster, and guaranteed self-consistent, once you've run `analyze_string()`/`analyze_sources()` over a passage and confirmed the result is correct:
 
 ```sh
-python utilities/analysis_to_gold_example.py analysis.cex my_new_slug --tags "ablative absolute" > snippet.py
+python3 utilities/analysis_to_gold_example.py analysis.cex my_new_slug --tags "ablative absolute" > snippet.py
 ```
 
 prints a ready-to-paste `_MY_NEW_SLUG_ANSWER = {...}` + `GoldExample(...)` pair -- paste the dict above `GOLD_EXAMPLES = [` and the `GoldExample(...)` entry inside it, same two-part split every hand-written block already uses. (`tests/fixtures/harvest.py`'s `gold_example_from_analysis()`/`format_gold_example_source()` do the same thing if you'd rather call them directly from Python.) Re-read the pasted `reasoning` before keeping it -- it's the file's own recorded reasoning (or a placeholder), not guaranteed to read the way you'd write it by hand.

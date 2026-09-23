@@ -7,8 +7,8 @@ It's essentially `syntaxer_main.py` (which analyzes one hand-typed passage and w
 ## Usage
 
 ```sh
-python utilities/analyze_ctsdata_to_files.py corpus.cex --output-dir analyses/
-python utilities/analyze_ctsdata_to_files.py corpus.cex --output-dir analyses/ --delimiter ';'
+python3 utilities/analyze_ctsdata_to_files.py corpus.cex --output-dir analyses/
+python3 utilities/analyze_ctsdata_to_files.py corpus.cex --output-dir analyses/ --delimiter ';'
 ```
 
 Two required parameters: the input CEX file (positional) and `--output-dir`. Needs the same `.env` as `syntaxer_main.py` (`API_BASE`/`MODEL`/`API_KEY`) -- this makes real LM calls, both for segmentation and for every sentence's own analysis.

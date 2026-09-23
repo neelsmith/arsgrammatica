@@ -5,11 +5,11 @@ A command-line utility: read a `#!ctsdata` (CEX) corpus file, sample `n` passage
 ## Usage
 
 ```sh
-python utilities/estimate_corpus_cost.py corpus.cex
-python utilities/estimate_corpus_cost.py corpus.cex --n 10
-python utilities/estimate_corpus_cost.py corpus.cex --n 10 --output-file sample.cex
-python utilities/estimate_corpus_cost.py corpus.cex --seed 42
-python utilities/estimate_corpus_cost.py corpus.cex --delimiter ';'
+python3 utilities/estimate_corpus_cost.py corpus.cex
+python3 utilities/estimate_corpus_cost.py corpus.cex --n 10
+python3 utilities/estimate_corpus_cost.py corpus.cex --n 10 --output-file sample.cex
+python3 utilities/estimate_corpus_cost.py corpus.cex --seed 42
+python3 utilities/estimate_corpus_cost.py corpus.cex --delimiter ';'
 ```
 
 `--n` (default 5) is how many passages to sample; `--output-file` (default `analyses.cex`) is where the sample's own combined analyses are written; `--delimiter` is the SOURCE file's own column delimiter (passed to `read_ctsdata()`, unrelated to the '|'-delimited output file); `--seed` seeds the random sample for a reproducible selection across runs (omit it for a different sample every run). Needs the same `.env` as `syntaxer_main.py` (`API_BASE`/`MODEL`/`API_KEY`) -- this makes real LM calls.

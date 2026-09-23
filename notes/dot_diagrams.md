@@ -114,13 +114,13 @@ The same slider value also now limits the notebook's AAT (Agent-Action-Target) g
 A command-line counterpart to the notebook above, for scripting/piping instead of interactive use: reads a saved analysis file (`read_analyses()`'s own format) and writes its tokengraph's Graphviz DOT source to standard output, with `--orientation`/`--no-color`/`--no-rank`/`--no-root` flags covering `tokengraph_to_dot()`'s own parameters. Only the DOT source goes to stdout -- warnings go to stderr instead -- so redirection and piping both work cleanly:
 
 ```sh
-python utilities/analysis_to_dot.py analysis.cex > analysis.dot
-python utilities/analysis_to_dot.py analysis.cex --orientation LR > analysis.dot
-python utilities/analysis_to_dot.py analysis.cex --no-color --no-rank > analysis.dot
-python utilities/analysis_to_dot.py analysis.cex --no-root > analysis.dot
+python3 utilities/analysis_to_dot.py analysis.cex > analysis.dot
+python3 utilities/analysis_to_dot.py analysis.cex --orientation LR > analysis.dot
+python3 utilities/analysis_to_dot.py analysis.cex --no-color --no-rank > analysis.dot
+python3 utilities/analysis_to_dot.py analysis.cex --no-root > analysis.dot
 
 # Piped straight into Graphviz, if it's installed:
-python utilities/analysis_to_dot.py analysis.cex | dot -Tsvg > analysis.svg
+python3 utilities/analysis_to_dot.py analysis.cex | dot -Tsvg > analysis.svg
 ```
 
 Unlike the notebook, it operates on the file's whole tokengraph as `read_analyses()` returns it -- one flat list spanning every sentence in the file, not split by sentence -- so use `marimo/latin_syntaxer_review.py` instead if you want to pick a single sentence out of a multi-sentence file. No LM access needed, same as the notebook. No dedicated test file, matching `syntaxer_main.py`'s own precedent of no pytest coverage for CLI entry points -- it's a thin wrapper around `read_analyses()` and `tokengraph_to_dot()`, which are both already covered. It doesn't yet expose `tokengraph_to_dot()`'s `depth` or `aat_depth` parameters as flags -- only the notebook's `depth`/`aat_depth`-driven slider is wired in anywhere, for now.
@@ -130,11 +130,11 @@ Unlike the notebook, it operates on the file's whole tokengraph as `read_analyse
 A batch counterpart to the two above: reads one or more saved analysis files, and writes one PNG per sentence -- across every file -- to an output directory. Unlike `analysis_to_dot.py`, this one DOES split each file by sentence (`split_analysis_by_sentence()`), since a PNG is naturally one-diagram-per-image rather than one combined text stream:
 
 ```sh
-python utilities/analyses_to_dot_pngs.py analysis.cex --output-dir diagrams/
-python utilities/analyses_to_dot_pngs.py a.cex b.cex c.cex --output-dir diagrams/
-python utilities/analyses_to_dot_pngs.py analysis.cex --output-dir diagrams/ --orientation LR
-python utilities/analyses_to_dot_pngs.py analysis.cex --output-dir diagrams/ --no-color --no-rank
-python utilities/analyses_to_dot_pngs.py analysis.cex --output-dir diagrams/ --no-root
+python3 utilities/analyses_to_dot_pngs.py analysis.cex --output-dir diagrams/
+python3 utilities/analyses_to_dot_pngs.py a.cex b.cex c.cex --output-dir diagrams/
+python3 utilities/analyses_to_dot_pngs.py analysis.cex --output-dir diagrams/ --orientation LR
+python3 utilities/analyses_to_dot_pngs.py analysis.cex --output-dir diagrams/ --no-color --no-rank
+python3 utilities/analyses_to_dot_pngs.py analysis.cex --output-dir diagrams/ --no-root
 ```
 
 Each PNG is named `<file_stem>_<sentence_number>_<citation>.png`, alphanumeric-sanitized the same way `marimo/latin_syntaxer_review.py`'s own `diagram_filename_stem` cell names its own download button's file -- prefixed with the source file's own stem so sentences from different input files never collide in one output directory. The output directory is created if it doesn't already exist.

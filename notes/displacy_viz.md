@@ -64,10 +64,10 @@ Each of these three notebooks' own `diagram_tool` radio (see `notes/dot_diagrams
 The command-line counterpart to `analysis_to_dot.py`: reads a saved analysis file (`read_analyses()`'s own format) and writes its tokengraph straight to a browser-ready HTML file via `save_displacy_html()`, with `--no-color`/`--no-root`/`--caption` flags covering the same-named parameters (`-o`/`--output-file` for where the diagram goes, default `displacy.html`).
 
 ```sh
-python utilities/analysis_to_displacy.py analysis.cex -o diagram.html
-python utilities/analysis_to_displacy.py analysis.cex -o diagram.html --no-color
-python utilities/analysis_to_displacy.py analysis.cex -o diagram.html --no-root
-python utilities/analysis_to_displacy.py analysis.cex -o diagram.html --caption "My own title"
+python3 utilities/analysis_to_displacy.py analysis.cex -o diagram.html
+python3 utilities/analysis_to_displacy.py analysis.cex -o diagram.html --no-color
+python3 utilities/analysis_to_displacy.py analysis.cex -o diagram.html --no-root
+python3 utilities/analysis_to_displacy.py analysis.cex -o diagram.html --caption "My own title"
 ```
 
 No LM access needed -- same as `analysis_to_dot.py`, `read_analyses()` reconstructs everything from the file's own text. Operates on the file's whole tokengraph as `read_analyses()` returns it -- one flat list spanning every sentence in the file, not split by sentence -- same caveat as `analysis_to_dot.py`: a long multi-sentence file draws one very wide diagram, since there's no sentence-boundary concept in the word row. Use `marimo/latin_syntaxer_review.py`, or `split_analysis_by_sentence()` directly, for a single sentence out of a larger file.

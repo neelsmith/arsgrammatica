@@ -4,11 +4,11 @@
 call to the configured task model, plus a reflection model GEPA uses to read scoring feedback and propose better instructions. Expect it to use real API usage against the configured proxy.
 
 ```bash
-python optimize_gepa.py                    # --auto light (cheapest; default)
-python optimize_gepa.py --auto medium       # more thorough, more expensive
-python optimize_gepa.py --auto heavy        # most thorough, most expensive
-python optimize_gepa.py --max-metric-calls 40   # exact call budget instead of a preset
-python optimize_gepa.py --skip-baseline     # skip the pre-GEPA scoring pass (saves N calls)
+python3 optimize_gepa.py                    # --auto light (cheapest; default)
+python3 optimize_gepa.py --auto medium       # more thorough, more expensive
+python3 optimize_gepa.py --auto heavy        # most thorough, most expensive
+python3 optimize_gepa.py --max-metric-calls 40   # exact call budget instead of a preset
+python3 optimize_gepa.py --skip-baseline     # skip the pre-GEPA scoring pass (saves N calls)
 ```
 
 Needs the same `.env` as `syntaxer_main.py` (`API_BASE`/`MODEL`/`API_KEY`). Optionally set `REFLECTION_MODEL` (and `REFLECTION_API_BASE`/`REFLECTION_API_KEY`, if they differ) to use a different model specifically for GEPA's reflective step -- GEPA's own docs recommend a strong reasoning model for this. Without `REFLECTION_MODEL` set, the task model doubles as the reflection model, a reasonable default for a first run.

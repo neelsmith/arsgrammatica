@@ -1180,7 +1180,7 @@
     "href": "tutorials/index.html",
     "title": "Tutorials",
     "section": "",
-    "text": "Install arsgrammatica:\npip install git+https://github.com/neelsmith/arsgrammatica.git\nConfigure your language model in a .env file ilke this:\nAPI_BASE=https://serviceprovider\nMODEL=litellm_proxy/Claude Opus 5\nAPI_KEY=your_key",
+    "text": "Install arsgrammatica:\npip install git+https://github.com/neelsmith/arsgrammatica.git\nConfigure your language model in a .env file like this:\nAPI_BASE=https://serviceprovider\nMODEL=litellm_proxy/Claude Opus 5\nAPI_KEY=your_key",
     "crumbs": [
       "Tutorials"
     ]
@@ -1190,7 +1190,7 @@
     "href": "tutorials/index.html#prerequisites",
     "title": "Tutorials",
     "section": "",
-    "text": "Install arsgrammatica:\npip install git+https://github.com/neelsmith/arsgrammatica.git\nConfigure your language model in a .env file ilke this:\nAPI_BASE=https://serviceprovider\nMODEL=litellm_proxy/Claude Opus 5\nAPI_KEY=your_key",
+    "text": "Install arsgrammatica:\npip install git+https://github.com/neelsmith/arsgrammatica.git\nConfigure your language model in a .env file like this:\nAPI_BASE=https://serviceprovider\nMODEL=litellm_proxy/Claude Opus 5\nAPI_KEY=your_key",
     "crumbs": [
       "Tutorials"
     ]

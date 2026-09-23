@@ -8,7 +8,7 @@ title: Utilities to simplify analyzing a corpus
 You can analyze an entire corpus in a CEX-format file with `analyze_ctsdata_to_files.py`. An analysis file is written for each sentence to an output directory you provide.
 
 ```sh
-python utilities/analyze_ctsdata_to_files.py corpus.cex 
+python3 utilities/analyze_ctsdata_to_files.py corpus.cex 
      --output-dir analyses/
 ```
 
@@ -23,7 +23,7 @@ If you want to analyze a subset of a corpus where sentences and citation units d
 If we segemented a text of the *Aeneid* like this:
 
 ```sh
-python utilities/group_ctsdata_by_sentence.py aeneid.cex
+python3 utilities/group_ctsdata_by_sentence.py aeneid.cex
 ```
 
 the first two lines would list passages for a sentence beginning at *Aeneid* 1.1 and a second sentence beginning at *Aeneid* 1.8*, like this:
@@ -36,7 +36,7 @@ urn:cts:latinLit:phi0690.phi003:1.8 urn:cts:latinLit:phi0690.phi003:1.9 urn:cts:
 Use normal IO redirection to save the results in a file:
 
 ```sh
-python utilities/group_ctsdata_by_sentence.py aeneid.cex > aeneid-linegroups.txt
+python3 utilities/group_ctsdata_by_sentence.py aeneid.cex > aeneid-linegroups.txt
 ```
 
 ### Define citable tokens and sentence units
@@ -45,7 +45,7 @@ python utilities/group_ctsdata_by_sentence.py aeneid.cex > aeneid-linegroups.txt
 It can be useful to cite tokens with the same stable identifiers produced by a syntactic analysis with `arsgrammatica`. The script `tokenize_ctsdata.py` reads a text corpus from a CEX-format file, and writes to standard output a delimited-text listing of all the tokens in the corpus, and a list of sentences defined by the starting and ending token of each sentence.
 
 ```sh
-python utilities/tokenize_ctsdata.py corpus.cex > tokens-sentences.cex
+python3 utilities/tokenize_ctsdata.py corpus.cex > tokens-sentences.cex
 ```
 
 For details of the output format, see [the reference documentation](../reference).

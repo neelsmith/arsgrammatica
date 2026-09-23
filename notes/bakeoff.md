@@ -26,9 +26,9 @@ Comparing `baseline` against `gepa`/`bootstrap` separates "does this model alrea
 
 ```bash
 ollama pull llama3.1:8b            # or whichever candidate; make sure ollama serve is running
-python model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages baseline
+python3 model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages baseline
 # ...stop that model, pull/load the next one...
-python model_bakeoff.py --provider ollama --candidates gpt-oss-20b --stages baseline
+python3 model_bakeoff.py --provider ollama --candidates gpt-oss-20b --stages baseline
 ```
 
 Every invocation is a normal one-shot run, not a long-lived process — the results CSV (see below) is what accumulates scores across separate invocations, so you can score one currently-loaded model, save, swap models, and repeat, and nothing you scored earlier gets overwritten.
@@ -73,34 +73,34 @@ The **teacher model** — used as GEPA's `reflection_lm` in the `gepa` stage, an
 
 ```bash
 # Cheap first pass across every Hugging Face candidate
-python model_bakeoff.py --stages baseline
+python3 model_bakeoff.py --stages baseline
 
 # Everything, every candidate (expensive -- gepa + bootstrap make many calls)
-python model_bakeoff.py --stages baseline gepa bootstrap
+python3 model_bakeoff.py --stages baseline gepa bootstrap
 
 # Just a couple of candidates
-python model_bakeoff.py --candidates llama-3.1-8b gpt-oss-20b
+python3 model_bakeoff.py --candidates llama-3.1-8b gpt-oss-20b
 
 # Skip gepa/bootstrap for anything that didn't clear a baseline threshold
-python model_bakeoff.py --min-baseline-to-optimize 0.3
+python3 model_bakeoff.py --min-baseline-to-optimize 0.3
 
 # Ollama, one candidate at a time (see workflow above)
-python model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages baseline
-python model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages gepa bootstrap
+python3 model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages baseline
+python3 model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages gepa bootstrap
 
 # A model not in CANDIDATES at all -- either provider
-python model_bakeoff.py --provider ollama --model ollama_chat/llama3.1:8b-instruct-q8_0 --label llama-3.1-8b-q8
+python3 model_bakeoff.py --provider ollama --model ollama_chat/llama3.1:8b-instruct-q8_0 --label llama-3.1-8b-q8
 
 # Optimizer knobs
-python model_bakeoff.py --auto medium                    # gepa's (and miprov2's) budget preset
-python model_bakeoff.py --max-metric-calls 40             # exact gepa budget instead of --auto
-python model_bakeoff.py --bootstrap-optimizer miprov2     # heavier alternative to bootstrap-fewshot
-python model_bakeoff.py --max-bootstrapped-demos 4 --max-labeled-demos 4
+python3 model_bakeoff.py --auto medium                    # gepa's (and miprov2's) budget preset
+python3 model_bakeoff.py --max-metric-calls 40             # exact gepa budget instead of --auto
+python3 model_bakeoff.py --bootstrap-optimizer miprov2     # heavier alternative to bootstrap-fewshot
+python3 model_bakeoff.py --max-bootstrapped-demos 4 --max-labeled-demos 4
 
-python model_bakeoff.py --out results.csv                 # merge into a specific file
+python3 model_bakeoff.py --out results.csv                 # merge into a specific file
 ```
 
-The full flag reference is always available with `python model_bakeoff.py --help`; the ones most worth knowing up front:
+The full flag reference is always available with `python3 model_bakeoff.py --help`; the ones most worth knowing up front:
 
 - `--provider {huggingface,ollama}` — where candidates run (default `huggingface`).
 - `--candidates LABEL [LABEL ...]` — restrict to specific labels from `CANDIDATES` (default: all of them; `--provider ollama` requires exactly one).

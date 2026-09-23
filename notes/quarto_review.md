@@ -61,7 +61,7 @@ This is one of the more heavily-used pages (linked from `concepts/index.qmd` as 
 
 ## Minor wording issues (not wrong, just rough)
 
-- `quarto/tutorials/index.qmd`: "Configure your language model in a `.env` file **ilke** this" -- typo for "like".
+- `quarto/tutorials/index.qmd`: "Configure your language model in a `.env` file **like** this" -- typo for "like".
 - `quarto/guides/gold.qmd`: "Run `analysis_to_gold_example -h`" -- every other invocation of this script in the same page is `python3 utilities/analysis_to_gold_example.py ...`; this one line drops all three (the `python3`, the `utilities/` path, and the `.py` extension), reading like a installed-console-script name rather than the actual script.
 - Several pages mix `python` and `python3` for otherwise-identical invocations (e.g. `guides/batch-texts.qmd` uses bare `python`, `guides/budgetingtokens.qmd`/`tutorials/*` use `python3`) -- harmless, but inconsistent.
 

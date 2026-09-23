@@ -13,7 +13,7 @@ Install `arsgrammatica`:
 pip install git+https://github.com/neelsmith/arsgrammatica.git
 ```
 
-Configure your language model in a `.env` file  ilke this:
+Configure your language model in a `.env` file  like this:
 
 ```bash
 API_BASE=https://serviceprovider

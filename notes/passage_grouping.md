@@ -35,9 +35,9 @@ A passage is treated as ending at a sentence boundary if its own raw `text`, aft
 A command-line counterpart, for the common case of a `#!ctsdata` (CEX) source file rather than an in-memory `CitedText` list: reads the whole file with `read_ctsdata()`, groups it with `group_passages_by_sentence_boundary()`, and writes the result to stdout -- one line per group, that group's passage ids (each row's own CTS URN) joined by a single space by default, in the source file's own order:
 
 ```sh
-python utilities/group_ctsdata_by_sentence.py source.cex > groups.txt
-python utilities/group_ctsdata_by_sentence.py --delimiter ';' source.cex
-python utilities/group_ctsdata_by_sentence.py source.cex --output-delimiter '|'
+python3 utilities/group_ctsdata_by_sentence.py source.cex > groups.txt
+python3 utilities/group_ctsdata_by_sentence.py --delimiter ';' source.cex
+python3 utilities/group_ctsdata_by_sentence.py source.cex --output-delimiter '|'
 ```
 
 No LM access needed, unlike its sibling `utilities/tokenize_ctsdata.py` (which reads the same kind of source file but calls the real, LM-driven `segment_sources()`) -- this script never configures an LM or touches `.env`. Two independent delimiters: `--delimiter` controls the SOURCE file's own column delimiter (passed through to `read_ctsdata()`); `--output-delimiter` controls what joins a group's ids on this script's own output line, a single space by default -- deliberately NOT `|` like every other serialized format in this codebase, specifically so a line of output can be pasted directly into `marimo/latin_syntaxer_selected_ids.py`'s own passage-id text box, which splits on whitespace (see that notebook's own `parse_passage_ids()`, in `notes/passage_selection.md`). Pass `--output-delimiter '|'` to get the old `|`-joined behavior back. Any warning `group_passages_by_sentence_boundary()` returns goes to stderr, not stdout, so piping/redirecting stdout stays clean -- same convention as `analysis_to_dot.py`. A bad path or malformed `#!ctsdata` file surfaces `read_ctsdata()`'s own exception as-is (no try/except wrapping), matching `tokenize_ctsdata.py`'s own precedent for a single-file, non-batch script. No dedicated test file, same reasoning as `analysis_to_dot.py` and `tokenize_ctsdata.py`: it's a thin wrapper around `read_ctsdata()` and `group_passages_by_sentence_boundary()`, which are both already covered.

@@ -5,9 +5,9 @@
 ## Usage
 
 ```
-python utilities/optimize_gepa.py --eval-file corpus/livy1.cex corpus/livy2.cex
-python utilities/optimize_gepa.py --eval-dir corpus/ --val-fraction 0.25
-python utilities/optimize_gepa.py --eval-dir corpus/ --val-fraction 0   # old behavior: no held-out valset
+python3 utilities/optimize_gepa.py --eval-file corpus/livy1.cex corpus/livy2.cex
+python3 utilities/optimize_gepa.py --eval-dir corpus/ --val-fraction 0.25
+python3 utilities/optimize_gepa.py --eval-dir corpus/ --val-fraction 0   # old behavior: no held-out valset
 ```
 
 `--eval-file` takes one or more paths directly; `--eval-dir` takes a directory and loads every file directly inside it (not recursive) -- combine both if you like, they add to the same pool. Neither is required: with no `--eval-file`/`--eval-dir` at all, the pool is still just `GOLD_EXAMPLES`, exactly as before.
@@ -24,7 +24,7 @@ This does **not** verify a file's analyses are actually correct -- same caveat a
 
 This is a different held-out mechanism from `utilities/model_bakeoff.py`'s `HELD_OUT_SLUGS`: that one is a fixed, hand-picked, stratified slice of `GOLD_EXAMPLES` (by slug) used to keep cross-*model* comparisons apples-to-apples run after run. `split_train_val()` is an ordinary random split of whatever pool one particular `optimize_gepa.py` invocation was given, used only to give that one GEPA run an honest generalization signal while it tunes a single model's prompt. Neither script reads or writes the other's held-out set.
 
-It's also a different tool from `tests/fixtures/harvest.py`'s `gold_example_from_analysis()`/`format_gold_example_source()` (now also reachable from the command line via `utilities/analysis_to_gold_example.py`, rather than only by calling those two functions directly from a Python session), which turns one real analysis into pasteable `GOLD_EXAMPLES` source (with a real slug, tags, and reasoning) for a permanent, documented regression fixture. That's still the right choice for a single example worth keeping forever in the test suite; `--eval-file`/`--eval-dir` is the lower-friction path for folding in dozens or hundreds of sentences at once just to give GEPA more to train/validate against.
+It's also a different tool from `tests/fixtures/harvest.py`'s `gold_example_from_analysis()`/`format_gold_example_source()` (now also reachable from the command line via `utilities/analysis_to_gold_example.py`, rather than only by calling those two functions directly from a python3 session), which turns one real analysis into pasteable `GOLD_EXAMPLES` source (with a real slug, tags, and reasoning) for a permanent, documented regression fixture. That's still the right choice for a single example worth keeping forever in the test suite; `--eval-file`/`--eval-dir` is the lower-friction path for folding in dozens or hundreds of sentences at once just to give GEPA more to train/validate against.
 
 ## "Too many open files" on a big pool
 
