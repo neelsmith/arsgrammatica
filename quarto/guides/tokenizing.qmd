@@ -20,10 +20,11 @@ python3 utilities/tokenize_ctsdata.py passages.cex > tokenized.txt
 ```
 
 
-The marimo notebook `marimo/latin_syntaxer_tokenized.py` reads files with tokenized data in the format written by `tokenize_ctsdata.py`. Users can this choose a tokenized sentence, and analyze it.
+The marimo notebook `marimo/latin_syntaxer_tokenized.py` reads files with tokenized data in the format written by `tokenize_ctsdata.py`. Users can choose a tokenized sentence, and analyze it. To analyze an entire file of tokenized passages, you can use the `utilities/analyze_tokendata_to_files.py` script. (See [this tutorial](../tutorials/corpus.qmd))
 
 ::: {.callout-tip}
 See the reference section for information about the [output format](../reference/tokenizationformat.qmd).
 :::
+
 
 

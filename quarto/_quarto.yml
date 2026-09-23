@@ -19,7 +19,7 @@ website:
         file: concepts/index.qmd           
       - text: "Tutorials"
         file: tutorials/index.qmd          
-      - text: "Guides"
+      - text: "Recipes"
         file: guides/index.qmd           
       - text: "Reference"
         file: reference/index.qmd          
@@ -64,7 +64,7 @@ website:
         - concepts/syntactic-analysis.qmd
         - "---"
         - concepts/complete_examples.qmd
-    - title: "Guides"
+    - title: "Recipes"
       contents: 
         - guides/index.qmd      
         - "---"
