@@ -1,5 +1,5 @@
 ---
-title: Graph of syntactic relations
+title: "`arsgrammatica`'s graph of syntactic relations"
 ---
 
 
@@ -125,7 +125,7 @@ Compound forms using *sum* with a participle treat the participle as the verb of
 
 
 
-## AAT relations
+## A-A-T relations
 
 The Agent-Action-Target model focuses on two special relations to verbal expressions: the agent and the target. In Latin (as in English), these relations are constructed differently depending on the voice of the verbal expression. *Agency* is expressed by the *subject* of transitive active, intransitive, and linking verbs, and by the ablative of *agent* construction with passive verbs. *Target* status is expressed by the *direct object* of transitive active verbs, the *predicate* of linking verbs, and by the *subject* of transitive passive verbs.
 
@@ -196,7 +196,7 @@ Substantives or adjectives serving as predicates of linking verbs are related to
 
 ## Case constructions with substantives
 
-Apart from the special AAT relations, `arsgrammatica` does not subdivide syntactic constructions of substantives by their semantics. Instead, it identifies the case that constitutes the syntactic relationship. `arsgrammatica` leaves it to subsequent semantic analysis to decide if, for example, a `genitive` relation between two nouns expresses possession, a partitive idea, material or units of measure, or whether the relationship is a subjective or objective action. 
+Apart from the special A-A-T relations, `arsgrammatica` does not subdivide syntactic constructions of substantives by their semantics. Instead, it identifies the case that constitutes the syntactic relationship. `arsgrammatica` leaves it to subsequent semantic analysis to decide if, for example, a `genitive` relation between two nouns expresses possession, a partitive idea, material or units of measure, or whether the relationship is a subjective or objective action. 
 
 ### Genitive
 
@@ -221,9 +221,23 @@ When a substantive in the genitive case modifies another substantive, the relati
 When a substantive in the dative case is related to a verb or another substantive, the relationship is `dative`.
 
 
-**Example**: *documentum mortalibus dedero*.
+**Example of relationship to verb**: *documentum mortalibus dedero*.
 
-14. **dative** -- **mortalibus** in *...documentum mortalibus dedero*.
+| Token | relationship
+| --- | --- | --- |
+| *mortalibus* | `dative` | *dedero* |
+| *dedero* | `unit verb` | (`root`) |
+
+**Example of relationship to a substantive**: *te mihi mater aucturum caelestium numerum cecinit*
+
+
+| Token | relationship
+| --- | --- | --- |
+| *mihi* | `dative` |  *mater* | 
+| *mater* | `subject` | *cecinit* |
+| *cecinit* | `unit verb` | (`root`) |
+
+
 
 ### Accusative
 
@@ -298,12 +312,89 @@ Nouns in the vocative case are related to a verbal expression as `vocative`.
 
 
 
+## Adverbial and adjectival expressions
+
+
+10. **adverbial** -- **forte** in *ad Ianiculum forte ventum erat*.
+11. **attributive** -- **ad** in *pugna ad Cannas*.
+12. **adjectival** -- **omnium** in *patri bonorum omnium heres*.
+
+
+
+
+
+
+### Prepositional phrases
+
+
+9. **object of preposition** -- **Romulo** in *urbs a Romulo condita est*.
+
+
+
+
+
 ## Special substantive relations
 
 
 ### Ablative absolute
 
-22. **ablative absolute** -- **Anco** in *Anco regnante Lucumo Romam commigravit*.
+Substantives modified by a participle can be used  in the ablative case without other syntactic connection to the governing verbal expression (that is, they are syntactically *absolute*). In this construction, the noun has the relationship `ablative absolute` to the governing verb. The participle is treated as any other circumstantial participle.
+
+**Example**: *Anco regnante Lucumo Romam commigravit*.
+
+
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *Anco* | `ablative absolute` | *commigravit* |
+| *regnante* | `circumstantial participle` | *Anco* |
+| *Lucumo* | `subject` | *commigravit* |
+| *Romam* | `accusative` | *commigravit* |
+| *commigravit* | `unit verb` | (`root`) |
+
+
+### Apposition
+
+When a substantive stands in apposition to another substantive, it has the relationship `apposition`; the first substantive is constructed normally.
+
+**Example**: *.Neptunus et Aegeus Pandionis filius in fano Mineruae cum Aethra Pitthei filia una nocte concubuerunt.*
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *Neptunus* | `subject` | *concubuerunt* |
+| *Aegeus* | `subject` | *concubuerunt* |
+| *Pandionis* | `genitive` | *filius* |
+| *filius* | `apposition` | *Aegeus* |
+| *cum* | `adverbial` | *concubuerunt* |
+| *Aethra* | `object of preposition` | *cum* |
+| *Pitthei* | `genitive` | *filia* |
+| *filia | `apposition` | *Aethra* |
+| *una* | `adjectival` | *nocte* | 
+| *nocte* | `ablative` | *concubuerunt* | 
+| *concubuerunt* | `unit verb` | (`root`) |
+
+::: {.callout-note}
+See below for construction of prepositional phrases.
+:::
+
+
+### Praenomen
+
+
+A token `arsgrammatica` classifies as `praenomen` is an abbreviation used in conjunction wth a fully spelled out *nomen* or *cognomen*. The abbreviated *praenomen* relates to the full form clearly showing its case usage as `praenomen`.
+
+**Example**: *Sp. Nautius – Octavium Maecium quidam eum tradunt – cum auxiliaribus cohortibus erat.*
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *Sp.* | `praenomen` | *Nautius* |
+| *Nautius* | `subject` | *erat* |
+| *erat* | `unit verb` | (`root`) |
+
+
+
 
 
 
@@ -326,36 +417,6 @@ Expand on double inks iwth et (aut)
 
 3. **relative pronoun** -- **quibus** in *Latini, cum quibus ictum foedus erat*.
 
-
-### Object of preposition
-
-9. **object of preposition** -- **Romulo** in *urbs a Romulo condita est*.
-
-### Apposition
-
-24. **apposition** -- **filius** in *Aegeus Pandionis filius*.
-
-### Praenomen
-
-
-A token `arsgrammatica` classifies as `praenomen` is an abbreviation used in conjunction wth a fully spelled out *nomen* or *cognomen*. The abbreviated *praenomen* relates to the full form clearly showing its case usage as `praenomen`.
-
-**Example**: *Sp. Nautius – Octavium Maecium quidam eum tradunt – cum auxiliaribus cohortibus erat.*
-
-
-| Token | relationship | related token |
-| --- | --- | --- |
-| *Sp.* | `praenomen` | *Nautius* |
-| *Nautius* | `subject` | *erat* |
-| *erat* | `unit verb` | (`root`) |
-
-
-## Adverbial and attributive expressions
-
-
-10. **adverbial** -- **forte** in *ad Ianiculum forte ventum erat*.
-11. **attributive** -- **ad** in *pugna ad Cannas*.
-12. **adjectival** -- **omnium** in *patri bonorum omnium heres*.
 
 
 

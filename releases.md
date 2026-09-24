@@ -3,7 +3,7 @@
 Current version: **0.11.2**.
 
 
-**?** *??*: Updated docs
+**0.12.0** *??*: Updated docs. Extensive revision of basic syntax guide inclucing merging `attributive` with `adjectival`.
 
 **0.11.2** *Sept. 22, 2026*: Change dependency on `aat` to use `aatgraph` from pypi.org.
 
