@@ -83,10 +83,6 @@ Circumstantial participles express a verbal idea that is related to an anteceden
 | (`elided sum`) | *excepti* | `auxiliary` |
 
 
-> See below on the `auxiliary` relation; on elided tokens, see [tokes](./tokens.qmd).
-
-
-
 
 ## Other constructions with verbs
 
@@ -253,7 +249,7 @@ The verb *venit* is intransitive, but *Romam* relates to it.
 | *Romam* | `accusative` | *venit* |
 | *venit* | `unit verb` | (`root`) |
 
-**Example**: **duo milia passuum iter fecerunt*.
+**Example**: *duo milia passuum iter fecerunt*.
 
 The phrase *duo milia passuum* qualifies the noun *iter* with a length of distance specified in the accusative. 
 
@@ -315,10 +311,33 @@ Nouns in the vocative case are related to a verbal expression as `vocative`.
 ## Adverbial and adjectival expressions
 
 
-10. **adverbial** -- **forte** in *ad Ianiculum forte ventum erat*.
-11. **attributive** -- **ad** in *pugna ad Cannas*.
-12. **adjectival** -- **omnium** in *patri bonorum omnium heres*.
+### Adverbs 
 
+Adverbs and other adverbial expressions have relationship of `adverbial` to a verbal expression.
+
+**Example**: *ad Ianiculum forte ventum erat*.
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *forte* | `adverbial` | *ventum* |
+| *ventum* | `unit verb` | (`root`) |
+| *erat* | `auxiliary` | *erat* |
+
+
+### Adjectives
+
+If an adjective is used as a substantive, it is treated just like any other substantive. If it describes a substantive, it has the relationship `adjectival` to that substantive. This example illustrates both an adjective used substantively (*bonorum*) and an adjective used adjectivally (*omnium*)
+
+**Example**: *Lucumo superfuit patri bonorum omnium heres*,
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *Lucumo* | `subject` | *superfuit* |
+| *superfuit* | `unit verb` | (`root`) |
+| *bonorum* | `genitive` | *heres* |
+| *omnium* | `adjectival` | *bonorum* |
+| *heres* | `predicate` | `superfuit` |
 
 
 
@@ -326,10 +345,32 @@ Nouns in the vocative case are related to a verbal expression as `vocative`.
 
 ### Prepositional phrases
 
+Prepositional phrases most frequently functional adverbially. In this construction the preposition is related to a verb or adjective with the `adverbial` relationship. Less frequently, a prepositional phrase serves as an adjectival description of a substantive. In these constructions, the preposition relates to the substantive as `adjectival`. Nouns functioning as objects of prepositions, whatever their case, relate to the preposition as `object of preposition`.
 
-9. **object of preposition** -- **Romulo** in *urbs a Romulo condita est*.
+**Example of an adverbial phrase**: *ad Ianiculum forte ventum erat.*
 
 
+| Token | relationship | related token |
+| --- | --- | --- |
+| *ad* | `adverbial` | *ventum* |
+| *Ianiculum* | `object of preposition` | *ad* |
+| *forte* | `adverbial` | *ventum* |
+| *ventum* | `unit verb` | (`root`) |
+| *erat* | `auxiliary` | *erat* |
+
+
+
+
+**Example of an adjectival phrase**:  *nuntius victoriae ad Cannas Carthaginem venerat*
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *nuntius* | `subject` | *venerat* |
+| *victoriae* | `genitive` | *nuntius* | 
+| *ad* | `adjectival` | *victoriae* |
+| *Cannas* | `object of preposition` | *ad* |
+| *Carthaginem* | `accusative` | *venerat* |
+| *venerate* | `unit verb` | (`root`) |
 
 
 
@@ -374,15 +415,12 @@ When a substantive stands in apposition to another substantive, it has the relat
 | *nocte* | `ablative` | *concubuerunt* | 
 | *concubuerunt* | `unit verb` | (`root`) |
 
-::: {.callout-note}
-See below for construction of prepositional phrases.
-:::
 
 
 ### Praenomen
 
 
-A token `arsgrammatica` classifies as `praenomen` is an abbreviation used in conjunction wth a fully spelled out *nomen* or *cognomen*. The abbreviated *praenomen* relates to the full form clearly showing its case usage as `praenomen`.
+A token that `arsgrammatica` classifies as `praenomen` is an abbreviation used in conjunction wth a fully spelled out *nomen* or *cognomen*. The abbreviated *praenomen* relates to the full form clearly showing its case usage as `praenomen`.
 
 **Example**: *Sp. Nautius – Octavium Maecium quidam eum tradunt – cum auxiliaribus cohortibus erat.*
 

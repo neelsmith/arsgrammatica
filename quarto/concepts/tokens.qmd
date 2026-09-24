@@ -10,3 +10,39 @@ implied/elided
 - elided forms of *sum* in compounds
 - repeated/understood verb
 - implied substantive
+
+
+
+
+
+`arsgrammatica` analyzes strings of Latin text or the textual content of Latin passages with citation references; `arsgrammatica` tracks the citation and ensures that all tokens are uniquely identified wihtin a unique citation context. 
+
+The text of the passage must be tokenized, and each token classified as one of the following values.
+
+
+## `punctuation`
+
+Any Unicode punctuation character, in editions of Latin texts most commonly including period, comma, question mark, semicolon, colon, parentheses and brackets of various kinds, single or double quotation marks, dashes or hyphens.  
+
+**Example**: in *arma virumque cano.*, the period *.* is a token of type `punctuation`.
+
+## `enclitic`
+
+Although enclitics are in fact lexical tokens, we place them in the distinct class of `enclitic` because of their distinctive orthography, written without space between the enclitic and the preceding token.
+
+**Example**: in phrase *arma virumque cano.* the token *que* is `enclitic`.
+
+Tokenization of enclitics must consider the context. 
+
+**Example**: in  *aequa ratione imperat*, the string *ratione* is a single lexical token (noun in the ablative singular); in the phrase *ratione docet?*, the string *ratione* represents the enclitic token *ne* (a question word) with the lexical token *ratio* (noun in the nominative singular). 
+
+Tokenization must also recognize the small number of frequently occurring words that have incorporated an original historic enclitic into a single lexical item such as *quisque* (and its compounds), or *plerusque*. 
+
+**Examples**: forms such as *quisque*, *cuique* and *quemque* must all be treated as a single lexical token.
+
+## `lexical`
+-  a *lexical* token. Example: the tokens *arma*, *virum* and *cano* in the phrase *arma virumque cano.*
+- a *praenomen*, including its punctuating period. Example: *M.* and *L.* in the phrase *M. Agrippa L. f. cos. tertium fecit*
+- other *abbreviation*, including its period. Example: *f.* and *cos.* in the the phrase *M. Agrippa L. f. cos. tertium fecit*
+- a *numeral* if written numerically rather than phonetically. Example: *XXV* in the phrase *hiberna aberant ab eo milia passuum XXV* is a *numeral* token, but in the phrase *fratres Joseph decem*, all three tokens are *lexical* tokens.
+

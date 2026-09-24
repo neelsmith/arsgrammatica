@@ -157,6 +157,7 @@ In the idiomatic expression *opus est* + an ablative, the ablative token relates
 
 
 
+
 - gerunds: gerunds are noun forms, used in the oblique cases (where the infinitive could be used in the nominative). They can be related to the syntax of an expression like any other noun. Example: in the phrase *ars bene disserendi*, the gerund *disserendi* is a gentive noun related to *ars*. It will have the id of *ars* as `relation1` and `genitive` as the value of `relationship1`. As verbal forms, gerunds can have objects or take adverbs. *bene* in the precediong example is an adverb that will stand in relation to *disserendi* in an `adverbial` relationship, so will have the id of `disserendi` for `relation1`, and `adverbial` as the value of `relationship1`.
 
 
