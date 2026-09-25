@@ -14,11 +14,14 @@ import pytest
 from arsgrammatica.models import TokenAnalysis
 from arsgrammatica.rendering import (
     RelationshipEdge,
+    _NEUTRAL_FILL,
+    _NEUTRAL_TEXT,
     relationship_edges,
     tokengraph_relationship_types,
     tokengraph_to_html,
     tokengraph_to_relationship_html,
 )
+from arsgrammatica.verbal_units import _VERBAL_UNIT_PALETTE
 
 
 def _tok(id, token, tokentype, **kw):
@@ -174,11 +177,12 @@ def test_relationship_html_with_no_selection_matches_plain_html_plus_css():
     html_out, warnings = tokengraph_to_relationship_html(_ARMA_VIRUMQUE_CANO, relationship=None)
     assert warnings == []
     assert html_out.startswith("<style>")
-    # Strip the leading CSS block -- everything after it should be
-    # byte-for-byte what tokengraph_to_html() itself produces, since
-    # relationship=None marks nothing.
+    # Strip the leading CSS block and the ag-rel-passage typography
+    # wrapper -- what's left should be byte-for-byte what
+    # tokengraph_to_html() itself produces, since relationship=None marks
+    # nothing.
     plain = tokengraph_to_html(_ARMA_VIRUMQUE_CANO)
-    assert html_out.endswith(plain)
+    assert html_out.endswith(f'<div class="ag-rel-passage">{plain}</div>')
 
 
 def test_relationship_html_unselected_relationship_adds_no_highlight_classes():
@@ -310,6 +314,89 @@ def test_relationship_html_root_edge_has_no_box_but_still_gets_underline_and_tit
     title_start = html_out.index('title="', start) + len('title="')
     title_end = html_out.index('"', title_start)
     assert html_module.unescape(html_out[title_start:title_end]) == "cano - unit verb - root"
+
+
+# --- neutralizing non-participating tokens' colors -------------------------
+#
+# tokengraph_to_relationship_html() flattens a colored token to a neutral
+# gray, instead of showing its ordinary verbal-unit color, once a
+# `relationship` is selected AND that token isn't one of the selected
+# relationship's own edge endpoints -- so the selected edges pop by
+# contrast against a flattened passage. Built for the same notebook's
+# existing relationship dropdown: picking a value re-renders this
+# function with that value, no new UI involved.
+
+_TWO_CLAUSES_WITH_OBJECT = [
+    _tok("t0", "puer", "lexical", relatedtoken1="t1", relationship1="subject"),
+    _tok("t1", "videt", "lexical", verbalunitid="t1"),
+    _tok("t2", "puellam", "lexical", relatedtoken1="t1", relationship1="direct object"),
+    _tok("t3", ",", "punctuation"),
+    _tok("t4", "canis", "lexical", relatedtoken1="t5", relationship1="subject"),
+    _tok("t5", "latrat", "lexical", verbalunitid="t5"),
+    _tok("t6", ".", "punctuation"),
+]
+
+
+def _style_of(html_out, token_id):
+    """Crudely extract one token's <span ...> opening tag (good enough for
+    output generated in these tests) -- same convention as class_of()
+    above."""
+    marker = f'id="tok-{token_id}"'
+    start = html_out.index(marker)
+    span_start = html_out.rindex("<span", 0, start)
+    span_end = html_out.index(">", start)
+    return html_out[span_start:span_end]
+
+
+def test_relationship_html_neutralizes_colored_tokens_outside_the_selection():
+    # Selecting "subject" highlights puer->videt and canis->latrat (both
+    # edges' endpoints keep their own verbal-unit color), but "puellam" --
+    # colored (same verbal unit as puer/videt) as a *direct object*, not a
+    # subject -- gets flattened to the neutral color even though it shares
+    # videt's own clause/color.
+    html_out, warnings = tokengraph_to_relationship_html(
+        _TWO_CLAUSES_WITH_OBJECT, relationship="subject"
+    )
+    assert warnings == []
+
+    fill0, _s0, text0 = _VERBAL_UNIT_PALETTE[0]
+    fill1, _s1, text1 = _VERBAL_UNIT_PALETTE[1]
+
+    assert f"background-color: {fill0}" in _style_of(html_out, "t0")  # puer
+    assert f"background-color: {fill0}" in _style_of(html_out, "t1")  # videt
+    assert f"background-color: {fill1}" in _style_of(html_out, "t4")  # canis
+    assert f"background-color: {fill1}" in _style_of(html_out, "t5")  # latrat
+
+    puellam_style = _style_of(html_out, "t2")
+    assert f"background-color: {_NEUTRAL_FILL}" in puellam_style
+    assert f"color: {_NEUTRAL_TEXT}" in puellam_style
+    assert fill0 not in puellam_style
+    assert text0 not in puellam_style
+
+
+def test_relationship_html_no_selection_keeps_every_token_at_full_color():
+    # Same fixture, nothing selected: "puellam" keeps its ordinary
+    # verbal-unit color -- neutralizing only happens once a relationship is
+    # actually picked.
+    html_out, _w = tokengraph_to_relationship_html(_TWO_CLAUSES_WITH_OBJECT, relationship=None)
+    fill0, _s0, _t0 = _VERBAL_UNIT_PALETTE[0]
+    puellam_style = _style_of(html_out, "t2")
+    assert f"background-color: {fill0}" in puellam_style
+    assert _NEUTRAL_FILL not in puellam_style
+
+
+def test_relationship_html_unattested_relationship_does_not_neutralize_anything():
+    # Selecting a relationship this passage never attests ("genitive") is
+    # documented as a pure no-op -- identical to relationship=None -- so it
+    # must NOT flatten every colored token to neutral gray just because
+    # nothing matched.
+    html_out, warnings = tokengraph_to_relationship_html(
+        _TWO_CLAUSES_WITH_OBJECT, relationship="genitive"
+    )
+    assert warnings == []
+    plain, _w = tokengraph_to_relationship_html(_TWO_CLAUSES_WITH_OBJECT, relationship=None)
+    assert html_out == plain
+    assert _NEUTRAL_FILL not in html_out
 
 
 def test_relationship_html_empty_tokengraph_returns_just_the_css():

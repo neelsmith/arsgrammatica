@@ -1,0 +1,48 @@
+<!doctype html><html><body style='font-family: sans-serif; font-size: 20px; padding: 60px; line-height: 2.6;'>
+<style>
+  /* Both ends of a marked relation get a shared, bold "signal" background —
+     independent of whatever verbal-unit clause color they'd otherwise sit on.
+     The underline (start) vs. boxed border (end) still tells you which is which. */
+  .ag-rel-start, .ag-rel-end {
+    background-color: #d6006c !important;
+    color: #ffffff !important;
+    font-weight: 700;
+  }
+  .ag-rel-start {
+    text-decoration: underline;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 4px;
+    text-decoration-color: #ffffff;
+  }
+  .ag-rel-end {
+    border: 2px solid #ffffff;
+    border-radius: 0.4em;
+    padding: 0 0.2em;
+  }
+  .ag-rel-tip { position: relative; cursor: help; }
+  .ag-rel-tip:hover {
+    box-shadow: 0 0 0 4px #00e5ff;
+    border-radius: 0.3em;
+  }
+  .ag-rel-tip:hover::after {
+    content: attr(data-tooltip);
+    position: absolute; left: 50%; bottom: 100%;
+    transform: translateX(-50%);
+    margin-bottom: 0.4em;
+    background: #222; color: #fff;
+    padding: 0.3em 0.55em; border-radius: 0.35em;
+    font-size: 0.8em; line-height: 1.3; white-space: pre;
+    text-decoration: none; font-weight: normal;
+    z-index: 1000; box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  }
+  .legend { margin-top: 3em; font-size: 0.6em; color: #444; }
+  .legend span.sw { display: inline-block; width: 1.4em; height: 1em; vertical-align: middle; margin-right: 0.4em; border-radius: 0.2em; }
+</style>
+
+<span id="tok-t0" style="background-color: #82bbff; color: #000000;">Audiens</span> <span id="tok-t1" style="background-color: #ffa682; color: #000000;">autem</span> <span id="tok-t2" class="ag-rel-start ag-rel-tip" style="background-color: #ffa682; color: #000000;" data-tooltip="Jacob - subject - dixit" title="Jacob - subject - dixit">Jacob</span> <span id="tok-t3" style="background-color: #70ffcc; color: #000000;">quod</span> <span id="tok-t4" class="ag-rel-start ag-rel-tip" style="background-color: #70ffcc; color: #000000;" data-tooltip="alimenta - subject - venderentur" title="alimenta - subject - venderentur">alimenta</span> <span id="tok-t5" class="ag-rel-end ag-rel-tip" style="background-color: #70ffcc; color: #000000;" data-tooltip="alimenta - subject - venderentur" title="alimenta - subject - venderentur">venderentur</span> <span id="tok-t6" style="background-color: #70ffcc; color: #000000;">in</span> <span id="tok-t7" style="background-color: #70ffcc; color: #000000;">aegypto</span>, <span id="tok-t9" class="ag-rel-end ag-rel-tip" style="background-color: #ffa682; color: #000000;" data-tooltip="Jacob - subject - dixit" title="Jacob - subject - dixit">dixit</span> <span id="tok-t10" style="background-color: #ffa682; color: #000000;">filiis</span> <span id="tok-t11" style="background-color: #ffa682; color: #000000;">suis</span>: <span id="tok-t13" style="background-color: #ffd170; color: #000000;">Quare</span> <span id="tok-t14" style="background-color: #ffd170; color: #000000;">negligitis</span>?
+
+<div class="legend">
+  <span class="sw" style="background:#d6006c;"></span>marked token (start = underlined, end = boxed) &nbsp;&nbsp;
+  <span class="sw" style="background:#00e5ff;"></span>hover glow
+</div>
+</body></html>

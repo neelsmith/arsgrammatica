@@ -636,6 +636,16 @@ def relationship_edges(
     return edges, warnings
 
 
+# Neutral (flattened) color for a token's own verbal-unit background/text
+# when a relationship IS selected but this particular token isn't one of
+# its edges' start/end tokens -- see tokengraph_to_relationship_html()'s
+# own docstring for why. Deliberately outside verbal_units.py's own
+# palette so "this token is de-emphasized right now" can never be mistaken
+# for "this token's own clause genuinely uses this color".
+_NEUTRAL_FILL = "#e2e2e2"
+_NEUTRAL_TEXT = "#8a8a8a"
+
+
 # CSS for tokengraph_to_relationship_html()'s two highlight classes --
 # underline the start/source of a highlighted edge, box (a rounded
 # rectangle, not a literal circle) the end/target -- bundled into every
@@ -645,6 +655,15 @@ def relationship_edges(
 # once on the same page.
 _RELATIONSHIP_HIGHLIGHT_CSS = (
     "<style>"
+    # .ag-rel-passage wraps the whole rendered passage (see
+    # tokengraph_to_relationship_html()'s own docstring): a font size a
+    # bit larger than whatever surrounds it, plus generous line-height,
+    # both make the underline/box markers -- and especially the hover
+    # tooltip -- easier to read once this HTML is embedded in a host page
+    # with denser default type (e.g. a marimo notebook cell). Neel asked
+    # for this after comparing a standalone mockup to the notebook's own,
+    # more cramped default rendering.
+    ".ag-rel-passage { font-size: 1.15em; line-height: 2.4; }"
     ".ag-rel-start { text-decoration: underline; text-decoration-thickness: 2px; "
     "text-underline-offset: 3px; }"
     ".ag-rel-end { border: 2px solid #444; border-radius: 0.4em; padding: 0 0.15em; }"
@@ -658,11 +677,14 @@ _RELATIONSHIP_HIGHLIGHT_CSS = (
     # `position: relative` on the word itself anchors the absolutely-
     # positioned bubble; `white-space: pre` preserves the embedded `\n`
     # between multiple edges on the same node (see tooltip_lines below).
+    # font-size/line-height here are a bit more generous than the original
+    # 0.8em/1.3 too, for the same hover-legibility reason as
+    # .ag-rel-passage above.
     ".ag-rel-tip { position: relative; cursor: help; }"
     ".ag-rel-tip:hover::after { content: attr(data-tooltip); position: absolute; "
-    "left: 50%; bottom: 100%; transform: translateX(-50%); margin-bottom: 0.3em; "
-    "background: #222; color: #fff; padding: 0.3em 0.55em; border-radius: 0.35em; "
-    "font-size: 0.8em; line-height: 1.3; white-space: pre; text-decoration: none; "
+    "left: 50%; bottom: 100%; transform: translateX(-50%); margin-bottom: 0.4em; "
+    "background: #222; color: #fff; padding: 0.35em 0.6em; border-radius: 0.35em; "
+    "font-size: 0.85em; line-height: 1.5; white-space: pre; text-decoration: none; "
     "font-weight: normal; z-index: 1000; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }"
     "</style>"
 )
@@ -699,9 +721,34 @@ def tokengraph_to_relationship_html(
       two edges of the same relationship type when it happens to occur
       twice) gets both classes and every matching line in its tooltip.
 
+    Additionally, when `relationship` selects at least one edge: every
+    OTHER token that would otherwise get a verbal-unit background color
+    (see tokengraph_to_html()'s own docstring for which tokens that is)
+    but is not itself one of the selected relationship's start/end tokens
+    has that color replaced with a flat neutral gray (`_NEUTRAL_FILL`/
+    `_NEUTRAL_TEXT`) instead -- so the selected edges' own tokens read as
+    highlighted by CONTRAST against a flattened passage, rather than by
+    competing with every other clause's own color. A token that already
+    had no color (punctuation, an unassigned token, a non-conjunction
+    enclitic, ...) is unaffected either way -- there is nothing to
+    neutralize. `relationship=None` never neutralizes anything, since with
+    no relationship selected every token keeps its ordinary verbal-unit
+    color -- see the `relationship=None` case below.
+
+    The whole rendered passage (the CSS block aside) is wrapped in a
+    single `<div class="ag-rel-passage">...</div>`, styled by
+    `_RELATIONSHIP_HIGHLIGHT_CSS` with a font size a bit larger than
+    whatever surrounds it and generous line-height -- both make the
+    underline/box markers, and especially the hover tooltip, easier to
+    read once this HTML is embedded inside a host page with denser
+    default type (e.g. a marimo notebook cell). This wrapper is the only
+    structural difference from tokengraph_to_html()'s own output; see the
+    `relationship=None` case just below.
+
     `relationship=None` (the default) marks nothing -- identical output to
     tokengraph_to_html() (no `depth` support here, unlike that function),
-    plus this module's own CSS block prepended. Selecting a relationship
+    just wrapped in the `ag-rel-passage` div described above, plus this
+    module's own CSS block prepended. Selecting a relationship
     with no attested edges at all (not in tokengraph_relationship_types())
     behaves the same way -- no highlighting, no error.
 
@@ -724,6 +771,13 @@ def tokengraph_to_relationship_html(
 
     start_ids = {e.start_id for e in edges}
     end_ids = {e.end_id for e in edges if e.end_id is not None}
+    # Only neutralize non-participating tokens when `relationship` actually
+    # matched at least one edge -- selecting a relationship with no
+    # attested edges at all keeps this exactly the documented "no
+    # highlighting, no error" no-op (full color, same as relationship=None)
+    # rather than flattening the whole passage to gray with nothing to
+    # show for it.
+    neutralize_others = bool(edges)
 
     tooltip_lines: Dict[str, List[str]] = {}
     for e in edges:
@@ -733,7 +787,7 @@ def tokengraph_to_relationship_html(
             tooltip_lines.setdefault(e.end_id, []).append(line)
 
     quote_counts: Dict[str, int] = {}
-    pieces: List[str] = [_RELATIONSHIP_HIGHLIGHT_CSS]
+    pieces: List[str] = []
     previous_class = None
 
     for tok in tokengraph:
@@ -756,11 +810,21 @@ def tokengraph_to_relationship_html(
             unit_id = assignment.get(tok.id)
             color = colors.get(unit_id) if unit_id is not None else None
 
+        is_edge_endpoint = tok.id in start_ids or tok.id in end_ids
+
         style_parts = []
         if color is not None:
-            fill, _stroke, text_color = color
-            style_parts.append(f"background-color: {fill}")
-            style_parts.append(f"color: {text_color}")
+            if neutralize_others and not is_edge_endpoint:
+                # A relationship IS selected and this token isn't one of
+                # its edges' own start/end tokens -- neutralize (see this
+                # function's own docstring) instead of showing its
+                # ordinary verbal-unit color.
+                style_parts.append(f"background-color: {_NEUTRAL_FILL}")
+                style_parts.append(f"color: {_NEUTRAL_TEXT}")
+            else:
+                fill, _stroke, text_color = color
+                style_parts.append(f"background-color: {fill}")
+                style_parts.append(f"color: {text_color}")
 
         classes = []
         if tok.id in start_ids:
@@ -796,7 +860,7 @@ def tokengraph_to_relationship_html(
                 attrs += f' data-tooltip="{tooltip_text}" title="{tooltip_text}"'
             rendered = f"<span{attrs}>{rendered}</span>"
 
-        is_first_token = len(pieces) == 1  # only _RELATIONSHIP_HIGHLIGHT_CSS so far
+        is_first_token = len(pieces) == 0
         if is_first_token:
             pieces.append(rendered)
         elif cls in (_LEFT, _ENCLITIC):
@@ -811,4 +875,8 @@ def tokengraph_to_relationship_html(
 
         previous_class = cls
 
-    return "".join(pieces), color_warnings + edge_warnings
+    body = "".join(pieces)
+    return (
+        _RELATIONSHIP_HIGHLIGHT_CSS + f'<div class="ag-rel-passage">{body}</div>',
+        color_warnings + edge_warnings,
+    )

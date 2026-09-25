@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8">
+<style>body { font-family: sans-serif; padding: 60px; } h3 { font-size: 16px; }</style>
+</head>
+<body>
+<p><b>Genuine output from the patched <code>tokengraph_to_relationship_html()</code></b>
+-- two independent clauses, &ldquo;puer videt puellam, canis latrat.&rdquo;
+Each clause has its own verbal-unit color. Below, the SAME passage is
+rendered twice: once with nothing selected (full color), once with
+&ldquo;subject&rdquo; selected -- watch &ldquo;puellam&rdquo; (a direct
+object, same clause/color as puer/videt) drop to neutral gray even though
+its clause-mate &ldquo;videt&rdquo; stays colored, because only the
+subject edges themselves stay lit.</p>
+<hr/>
+<h3>Nothing selected:</h3>
+<style>.ag-rel-passage { font-size: 1.15em; line-height: 2.4; }.ag-rel-start { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }.ag-rel-end { border: 2px solid #444; border-radius: 0.4em; padding: 0 0.15em; }.ag-rel-tip { position: relative; cursor: help; }.ag-rel-tip:hover::after { content: attr(data-tooltip); position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); margin-bottom: 0.4em; background: #222; color: #fff; padding: 0.35em 0.6em; border-radius: 0.35em; font-size: 0.85em; line-height: 1.5; white-space: pre; text-decoration: none; font-weight: normal; z-index: 1000; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }</style><div class="ag-rel-passage"><span id="tok-t0" style="background-color: #82bbff; color: #000000;">puer</span> <span id="tok-t1" style="background-color: #82bbff; color: #000000;">videt</span> <span id="tok-t2" style="background-color: #82bbff; color: #000000;">puellam</span>, <span id="tok-t4" style="background-color: #ffa682; color: #000000;">canis</span> <span id="tok-t5" style="background-color: #ffa682; color: #000000;">latrat</span>.</div>
+<h3>&ldquo;subject&rdquo; selected:</h3>
+<style>.ag-rel-passage { font-size: 1.15em; line-height: 2.4; }.ag-rel-start { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }.ag-rel-end { border: 2px solid #444; border-radius: 0.4em; padding: 0 0.15em; }.ag-rel-tip { position: relative; cursor: help; }.ag-rel-tip:hover::after { content: attr(data-tooltip); position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); margin-bottom: 0.4em; background: #222; color: #fff; padding: 0.35em 0.6em; border-radius: 0.35em; font-size: 0.85em; line-height: 1.5; white-space: pre; text-decoration: none; font-weight: normal; z-index: 1000; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }</style><div class="ag-rel-passage"><span id="tok-t0" class="ag-rel-start ag-rel-tip" style="background-color: #82bbff; color: #000000;" data-tooltip="puer - subject - videt" title="puer - subject - videt">puer</span> <span id="tok-t1" class="ag-rel-end ag-rel-tip" style="background-color: #82bbff; color: #000000;" data-tooltip="puer - subject - videt" title="puer - subject - videt">videt</span> <span id="tok-t2" style="background-color: #e2e2e2; color: #8a8a8a;">puellam</span>, <span id="tok-t4" class="ag-rel-start ag-rel-tip" style="background-color: #ffa682; color: #000000;" data-tooltip="canis - subject - latrat" title="canis - subject - latrat">canis</span> <span id="tok-t5" class="ag-rel-end ag-rel-tip" style="background-color: #ffa682; color: #000000;" data-tooltip="canis - subject - latrat" title="canis - subject - latrat">latrat</span>.</div>
+</body>
+</html>

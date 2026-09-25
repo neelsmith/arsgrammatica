@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body {
+    font-family: sans-serif;
+    font-size: 20px;
+    padding: 60px;
+    line-height: 2.8;
+  }
+  .controls {
+    margin-bottom: 2.5em;
+    font-size: 0.6em;
+  }
+  .controls button {
+    font-family: inherit;
+    font-size: 1em;
+    padding: 0.5em 1em;
+    margin-right: 0.5em;
+    border: 1px solid #888;
+    border-radius: 0.4em;
+    background: #fff;
+    cursor: pointer;
+  }
+  .controls button.active {
+    background: #222;
+    color: #fff;
+    border-color: #222;
+  }
+
+  .token {
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  /* relation start/end markers — shape only, color comes from the token's own state */
+  .ag-rel-start {
+    text-decoration: underline;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 4px;
+  }
+  .ag-rel-end {
+    border: 2px solid currentColor;
+    border-radius: 0.4em;
+    padding: 0 0.2em;
+  }
+
+  /* neutral = not part of the currently-selected relationship value */
+  .token.neutral {
+    background-color: #e2e2e2 !important;
+    color: #8a8a8a !important;
+  }
+
+  .ag-rel-tip { position: relative; cursor: help; }
+  .ag-rel-tip:hover::after {
+    content: attr(data-tooltip);
+    position: absolute; left: 50%; bottom: 100%;
+    transform: translateX(-50%);
+    margin-bottom: 0.4em;
+    background: #222; color: #fff;
+    padding: 0.3em 0.55em; border-radius: 0.35em;
+    font-size: 0.7em; line-height: 1.3; white-space: pre;
+    text-decoration: none; font-weight: normal;
+    z-index: 1000; box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  }
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <button data-value="" class="active">Show all (no selection)</button>
+  <button data-value="subject">subject</button>
+  <button data-value="object">object</button>
+</div>
+
+<div id="sentence">
+<span class="token" id="tok-t0" style="background-color: #82bbff; color: #000000;">Audiens</span>
+<span class="token" id="tok-t1" style="background-color: #ffa682; color: #000000;">autem</span>
+<span class="token ag-rel-start ag-rel-tip" id="tok-t2" data-rel="subject" style="background-color: #ffa682; color: #000000;" data-tooltip="Jacob - subject - dixit" title="Jacob - subject - dixit">Jacob</span>
+<span class="token" id="tok-t3" style="background-color: #70ffcc; color: #000000;">quod</span>
+<span class="token ag-rel-start ag-rel-tip" id="tok-t4" data-rel="subject" style="background-color: #70ffcc; color: #000000;" data-tooltip="alimenta - subject - venderentur" title="alimenta - subject - venderentur">alimenta</span>
+<span class="token ag-rel-end ag-rel-tip" id="tok-t5" data-rel="subject" style="background-color: #70ffcc; color: #000000;" data-tooltip="alimenta - subject - venderentur" title="alimenta - subject - venderentur">venderentur</span>
+<span class="token" id="tok-t6" style="background-color: #70ffcc; color: #000000;">in</span>
+<span class="token" id="tok-t7" style="background-color: #70ffcc; color: #000000;">aegypto</span>,
+<span class="token ag-rel-end ag-rel-tip" id="tok-t9" data-rel="subject" style="background-color: #ffa682; color: #000000;" data-tooltip="Jacob - subject - dixit" title="Jacob - subject - dixit">dixit</span>
+<span class="token ag-rel-start ag-rel-tip" id="tok-t10" data-rel="object" style="background-color: #ffa682; color: #000000;" data-tooltip="dixit - object - filiis suis" title="dixit - object - filiis suis">filiis</span>
+<span class="token ag-rel-end ag-rel-tip" id="tok-t11" data-rel="object" style="background-color: #ffa682; color: #000000;" data-tooltip="dixit - object - filiis suis" title="dixit - object - filiis suis">suis</span>:
+<span class="token" id="tok-t13" style="background-color: #ffd170; color: #000000;">Quare</span>
+<span class="token" id="tok-t14" style="background-color: #ffd170; color: #000000;">negligitis</span>?
+</div>
+
+<script>
+  var buttons = document.querySelectorAll('.controls button');
+  var tokens = document.querySelectorAll('.token');
+
+  buttons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var value = btn.getAttribute('data-value');
+
+      buttons.forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+
+      tokens.forEach(function (tok) {
+        if (value === '') {
+          tok.classList.remove('neutral');
+        } else if (tok.getAttribute('data-rel') === value) {
+          tok.classList.remove('neutral');
+        } else {
+          tok.classList.add('neutral');
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
