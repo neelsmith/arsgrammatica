@@ -17,7 +17,7 @@ Four passages from `arsgrammatica`'s training set illustrate every category of s
 
 
 ::: {.callout-tip}
-Open the diagrams in a separate window or tab, or download them separately, if they are too small to read easily when included in this page.
+Open the diagrams in a separate window or tab, or download them separately, if they are too small to read easily when included in these pages.
 :::
 
 

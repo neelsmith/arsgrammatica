@@ -57,8 +57,10 @@ its own.
 """
  
 import html
+from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
  
+from .mermaid import token_label
 from .models import IMPLIED_TOKENTYPES, TokenAnalysis
 from .verbal_units import (
     assign_verbal_units,
@@ -487,3 +489,326 @@ def tokengraph_to_depth_html(
         )
 
     return "\n".join(lines), warnings
+
+
+# --- Highlighting one relationship type at a time -------------------------
+#
+# tokengraph_relationship_types()/relationship_edges()/
+# tokengraph_to_relationship_html() below are a separate, independent
+# feature from everything above: given an already-analyzed tokengraph, list
+# every relationship label actually attested in it, then render the same
+# verbal-unit-colored HTML tokengraph_to_html() produces, but with one
+# chosen relationship's own edges visually marked -- the start (source)
+# token of each such edge underlined, the end (target) token boxed, and a
+# hover tooltip on each so hovering shows exactly which edge(s) of *that*
+# relationship touch it (and only those -- an edge of a DIFFERENT
+# relationship touching the same token is never shown, even though
+# assign_verbal_units()/the token's own other relation field would still
+# resolve one). Built for an interactive notebook (see
+# marimo/latin_syntaxer_relationships.py) where a dropdown/menu picks the
+# relationship and everything below just needs to re-render for the new
+# choice -- no JavaScript involved. The tooltip is CSS-only (a
+# `content: attr(data-tooltip)` bubble on `:hover`, see
+# _RELATIONSHIP_HIGHLIGHT_CSS's own comment), not the browser's native
+# `title` attribute -- that's still set too, harmlessly, but turned out
+# not to reliably pop up once this HTML is embedded inside a host page's
+# own DOM (e.g. a marimo cell's output area) rather than opened as a bare
+# page on its own.
+#
+# "Start" and "end" follow the exact same directionality
+# tokengraph_to_mermaid()'s own arrows already use (see that module's edge
+# loop): the token whose OWN relatedtoken1/relationship1 (or .../2) names
+# the edge is the start/source; the id it names is the end/target. This
+# matches "the token graph is directed from subordinate to governing nodes"
+# (quarto/guides/mermaid.qmd) -- e.g. for `unit verb`, the dependent verb is
+# the start and its governing conjunction (or the virtual "root") is the
+# end.
+
+
+@dataclass(frozen=True)
+class RelationshipEdge:
+    """One edge of a specific relationship type in a tokengraph:
+    `start_id`/`start_label` (the token whose own relationship1/
+    relationship2 field named this edge) related to `end_id`/`end_label`
+    (the id and display label of the token it names) via `relationship`.
+
+    `end_id` is `None` in exactly two cases, both of which still get a
+    real `end_label` to display in a tooltip even though there's no token
+    to box: the virtual "root" node every independent verb's own `unit
+    verb` edge points to (mermaid.py's/dot.py's same "root" convention --
+    `end_label` is the literal string "root"), and a `relatedtoken1`/`2`
+    value that doesn't resolve to any id actually in this tokengraph (a
+    broken/incomplete analysis -- `end_label` falls back to the raw,
+    unresolved id string, and this case is also reported as a warning by
+    whichever function produced this edge).
+
+    `start_label`/`end_label` are `token_label()` (mermaid.py) -- a real
+    token's own surface text, or the display placeholder for an
+    implied/elided token (models.py's IMPLIED_TOKENTYPES) that has none."""
+
+    start_id: str
+    start_label: str
+    end_id: Optional[str]
+    end_label: str
+    relationship: str
+
+
+def tokengraph_relationship_types(tokengraph: List[TokenAnalysis]) -> List[str]:
+    """Every distinct relationship label actually attested in `tokengraph`
+    -- drawn from both `relationship1` and `relationship2` across every
+    token, deduplicated, and sorted alphabetically. Meant to populate a
+    menu of relationships worth highlighting (see
+    tokengraph_to_relationship_html()) with only the ones a given passage
+    actually uses, rather than every label `RelationLabel` (models.py)
+    allows in principle -- a short sentence might attest only three or
+    four of the scheme's ~26 relation labels."""
+    values = set()
+    for tok in tokengraph:
+        if tok.relationship1 is not None:
+            values.add(tok.relationship1)
+        if tok.relationship2 is not None:
+            values.add(tok.relationship2)
+    return sorted(values)
+
+
+def relationship_edges(
+    tokengraph: List[TokenAnalysis],
+    relationship: Optional[str] = None,
+) -> Tuple[List[RelationshipEdge], List[str]]:
+    """Every edge in `tokengraph`, as `RelationshipEdge`s -- one per
+    non-empty (relatedtoken, relationship) pair, walking relatedtoken1/
+    relationship1 and relatedtoken2/relationship2 for every token in turn
+    (the same iteration tokengraph_to_mermaid() uses for its own arrows,
+    so the direction of every edge here agrees with that diagram). Pass
+    `relationship` to keep only edges whose own `relationship` field
+    equals it (case-sensitive, exact match against one of `RelationLabel`'s
+    values); leave it `None` (the default) for every edge in the
+    tokengraph regardless of label.
+
+    Returns `(edges, warnings)`. A warning is recorded (and that edge's
+    `end_id` left `None`, `end_label` set to the raw unresolved id) for a
+    `relatedtoken1`/`2` value that is neither "root" nor an id actually
+    present in `tokengraph` -- mirrors tokengraph_to_mermaid()'s own
+    "skipped edge ... target is ... not in tokengraph" warning for the
+    identical situation."""
+    by_id = {tok.id: tok for tok in tokengraph}
+    edges: List[RelationshipEdge] = []
+    warnings: List[str] = []
+
+    for tok in tokengraph:
+        for related_field, label_field in (
+            ("relatedtoken1", "relationship1"),
+            ("relatedtoken2", "relationship2"),
+        ):
+            related_id = getattr(tok, related_field)
+            label = getattr(tok, label_field)
+            if related_id is None or label is None:
+                continue
+            if relationship is not None and label != relationship:
+                continue
+
+            start_label = token_label(tok)
+            if related_id == "root":
+                end_id: Optional[str] = None
+                end_label = "root"
+            elif related_id in by_id:
+                end_id = related_id
+                end_label = token_label(by_id[related_id])
+            else:
+                end_id = None
+                end_label = related_id
+                warnings.append(
+                    f"edge {tok.id} -[{label}]-> {related_id}: target is "
+                    f"not in tokengraph (kept for the tooltip, but nothing "
+                    f"to highlight at the other end)"
+                )
+
+            edges.append(
+                RelationshipEdge(
+                    start_id=tok.id,
+                    start_label=start_label,
+                    end_id=end_id,
+                    end_label=end_label,
+                    relationship=label,
+                )
+            )
+
+    return edges, warnings
+
+
+# CSS for tokengraph_to_relationship_html()'s two highlight classes --
+# underline the start/source of a highlighted edge, box (a rounded
+# rectangle, not a literal circle) the end/target -- bundled into every
+# call's own output (rather than requiring a caller to load a separate
+# stylesheet) so the returned HTML is self-contained and safe to drop into
+# a notebook cell on its own; identical, harmless to include more than
+# once on the same page.
+_RELATIONSHIP_HIGHLIGHT_CSS = (
+    "<style>"
+    ".ag-rel-start { text-decoration: underline; text-decoration-thickness: 2px; "
+    "text-underline-offset: 3px; }"
+    ".ag-rel-end { border: 2px solid #444; border-radius: 0.4em; padding: 0 0.15em; }"
+    # .ag-rel-tip is the hover tooltip itself, drawn with CSS generated
+    # content (`content: attr(data-tooltip)`) rather than relying on the
+    # browser's own native `title`-attribute tooltip (still set as a
+    # fallback -- see tokengraph_to_relationship_html()'s own docstring --
+    # but native tooltips turned out not to fire reliably once this HTML
+    # is embedded inside a host page's own DOM, e.g. a marimo notebook
+    # cell's output area, rather than opened as a bare standalone page).
+    # `position: relative` on the word itself anchors the absolutely-
+    # positioned bubble; `white-space: pre` preserves the embedded `\n`
+    # between multiple edges on the same node (see tooltip_lines below).
+    ".ag-rel-tip { position: relative; cursor: help; }"
+    ".ag-rel-tip:hover::after { content: attr(data-tooltip); position: absolute; "
+    "left: 50%; bottom: 100%; transform: translateX(-50%); margin-bottom: 0.3em; "
+    "background: #222; color: #fff; padding: 0.3em 0.55em; border-radius: 0.35em; "
+    "font-size: 0.8em; line-height: 1.3; white-space: pre; text-decoration: none; "
+    "font-weight: normal; z-index: 1000; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }"
+    "</style>"
+)
+
+
+def tokengraph_to_relationship_html(
+    tokengraph: List[TokenAnalysis],
+    relationship: Optional[str] = None,
+) -> Tuple[str, List[str]]:
+    """Like tokengraph_to_html() (same verbal-unit background coloring, same
+    spacing/escaping/quote-pairing rules, same omission of implied/elided
+    tokens from the visible text) but with one relationship's own edges
+    (see relationship_edges()) additionally marked, when `relationship`
+    names one of tokengraph_relationship_types()'s values:
+
+    - every edge's start/source token gets the `ag-rel-start` CSS class
+      (underlined);
+    - every edge's end/target token (when it resolves to a real token --
+      see RelationshipEdge's own docstring for the two cases it doesn't)
+      gets `ag-rel-end` (boxed in a rounded rectangle -- "circled", per the
+      original request, but drawn as a box rather than a literal circle so
+      it fits words of any length);
+    - both get a hover tooltip (CSS-only -- `ag-rel-tip` plus a
+      `data-tooltip` attribute, see _RELATIONSHIP_HIGHLIGHT_CSS's own
+      comment on why this isn't just the native `title` attribute, which
+      is ALSO set, redundantly, alongside it) listing every edge of just
+      THIS relationship that touches that token, each as "start -
+      relationship - end", one per line -- deliberately NOT every relation
+      touching that token, only ones matching the selected `relationship`,
+      per the original request ("no other edges on that node that don't
+      have that relationship value"). A token that is the start of one
+      such edge AND the end of another (e.g. either half of a
+      `coordinating conjunction` pair, or a token appearing at both ends of
+      two edges of the same relationship type when it happens to occur
+      twice) gets both classes and every matching line in its tooltip.
+
+    `relationship=None` (the default) marks nothing -- identical output to
+    tokengraph_to_html() (no `depth` support here, unlike that function),
+    plus this module's own CSS block prepended. Selecting a relationship
+    with no attested edges at all (not in tokengraph_relationship_types())
+    behaves the same way -- no highlighting, no error.
+
+    A token that ends up with no color, no highlight class, and no tooltip
+    is left as plain escaped text with no wrapping `<span>` at all -- same
+    "don't wrap what nothing distinguishes" convention tokengraph_to_html()
+    already follows for e.g. an unassigned lexical token.
+
+    Returns `(html, warnings)`: warnings from assign_verbal_unit_colors()
+    (see tokengraph_to_html()'s own docstring) plus relationship_edges()'s
+    own (only produced when `relationship` is not None, since with it None
+    no edges are ever looked up)."""
+    assignment = assign_verbal_units(tokengraph)
+    colors, color_warnings = assign_verbal_unit_colors(tokengraph, assignment=assignment)
+
+    edges: List[RelationshipEdge] = []
+    edge_warnings: List[str] = []
+    if relationship is not None:
+        edges, edge_warnings = relationship_edges(tokengraph, relationship=relationship)
+
+    start_ids = {e.start_id for e in edges}
+    end_ids = {e.end_id for e in edges if e.end_id is not None}
+
+    tooltip_lines: Dict[str, List[str]] = {}
+    for e in edges:
+        line = f"{e.start_label} - {e.relationship} - {e.end_label}"
+        tooltip_lines.setdefault(e.start_id, []).append(line)
+        if e.end_id is not None:
+            tooltip_lines.setdefault(e.end_id, []).append(line)
+
+    quote_counts: Dict[str, int] = {}
+    pieces: List[str] = [_RELATIONSHIP_HIGHLIGHT_CSS]
+    previous_class = None
+
+    for tok in tokengraph:
+        if tok.tokentype in IMPLIED_TOKENTYPES:
+            # Same as tokengraph_to_html(): no surface text to render.
+            # (It can still appear as an edge's start/end -- see
+            # RelationshipEdge -- just never as visible, highlightable text
+            # here, same limitation tokengraph_to_html() already has for
+            # coloring these.)
+            continue
+        cls = _classify(tok, quote_counts)
+        rendered = html.escape(tok.token)
+
+        is_coordinating_conjunction = (
+            tok.relationship1 == "coordinating conjunction"
+            or tok.relationship2 == "coordinating conjunction"
+        )
+        color = None
+        if tok.tokentype in ("lexical", "praenomen", "numeral") or is_coordinating_conjunction:
+            unit_id = assignment.get(tok.id)
+            color = colors.get(unit_id) if unit_id is not None else None
+
+        style_parts = []
+        if color is not None:
+            fill, _stroke, text_color = color
+            style_parts.append(f"background-color: {fill}")
+            style_parts.append(f"color: {text_color}")
+
+        classes = []
+        if tok.id in start_ids:
+            classes.append("ag-rel-start")
+        if tok.id in end_ids:
+            classes.append("ag-rel-end")
+
+        tooltip = tooltip_lines.get(tok.id)
+        if tooltip:
+            # "ag-rel-tip" is what actually draws the hover bubble (see
+            # _RELATIONSHIP_HIGHLIGHT_CSS's own comment on why this is CSS
+            # generated content rather than just the native `title`
+            # attribute below) -- added independently of ag-rel-start/
+            # ag-rel-end so a token can have a tooltip even in the (currently
+            # impossible, but not assumed away) case neither applies.
+            classes.append("ag-rel-tip")
+
+        if classes or style_parts or tooltip:
+            attrs = f' id="tok-{html.escape(tok.id, quote=True)}"'
+            if classes:
+                attrs += f' class="{" ".join(classes)}"'
+            if style_parts:
+                attrs += f' style="{"; ".join(style_parts)};"'
+            if tooltip:
+                tooltip_text = html.escape(chr(10).join(tooltip), quote=True)
+                # Both attributes carry the same text: data-tooltip is what
+                # .ag-rel-tip:hover::after actually displays; title is kept
+                # too, harmlessly, as a native fallback/accessibility aid
+                # for anything reading the page's own attributes rather
+                # than its CSS (e.g. a screen reader, or this HTML opened
+                # on its own outside a host page that might suppress hover
+                # states).
+                attrs += f' data-tooltip="{tooltip_text}" title="{tooltip_text}"'
+            rendered = f"<span{attrs}>{rendered}</span>"
+
+        is_first_token = len(pieces) == 1  # only _RELATIONSHIP_HIGHLIGHT_CSS so far
+        if is_first_token:
+            pieces.append(rendered)
+        elif cls in (_LEFT, _ENCLITIC):
+            pieces.append(rendered)
+        elif cls == _RIGHT:
+            pieces.append(" " + rendered)
+        else:  # _NORMAL
+            if previous_class == _RIGHT:
+                pieces.append(rendered)
+            else:
+                pieces.append(" " + rendered)
+
+        previous_class = cls
+
+    return "".join(pieces), color_warnings + edge_warnings

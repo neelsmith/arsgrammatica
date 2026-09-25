@@ -17,7 +17,15 @@ from .verbal_units import (
     max_subordination_depth,
     find_unanchored_coordinated_verbs,
 )
-from .rendering import tokengraph_to_text, tokengraph_to_html, tokengraph_to_depth_html
+from .rendering import (
+    tokengraph_to_text,
+    tokengraph_to_html,
+    tokengraph_to_depth_html,
+    tokengraph_relationship_types,
+    relationship_edges,
+    tokengraph_to_relationship_html,
+    RelationshipEdge,
+)
 from .displacy_viz import (
     tokengraph_to_displacy_data,
     tokengraph_to_displacy_svg,
@@ -178,6 +186,10 @@ __all__ = [
     "tokengraph_to_text",
     "tokengraph_to_html",
     "tokengraph_to_depth_html",
+    "tokengraph_relationship_types",
+    "relationship_edges",
+    "tokengraph_to_relationship_html",
+    "RelationshipEdge",
     "tokengraph_to_displacy_data",
     "tokengraph_to_displacy_svg",
     "save_displacy_html",

@@ -309,8 +309,43 @@ Nouns in the vocative case are related to a verbal expression as `vocative`.
 
 
 
+## Substantives from verbal roots
+
+In addition to the previously discussed constructions, the infinitive may be used as a nominative singular noun naming the action of a verbal idea (e.g., *amare* = "the act of loving"). In the oblique cases, the gerund is used to name the action of a verbal idea. The syntactic relationships of these substantive forms are treated exactly the same way as any other substantives.
+
+**Example**: *dolere malum est.*
+
+The infinitive *dolere* is the subject of the verb *est*. 
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *dolere* | `subject` | *est* |
+| *malum* | `predicate` | *est* |
+| *est* | `unit verb` | (`root`) |
+
+As in all infinitive constructions, the infinitive, like any other verbal form, may have objects; if a subject is explicitly given, it will be in the accusative case.
 
 
+**Example**: *Ingenuas didicisse fideliter artes emollit mores.*
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *didicisse* | `subject` | *emollit* |
+| *artes* | `direct object` | *didicisse* |
+| *emollit* | `unit verb` | (`root`) |
+| *mores* | `direct object` | *emollit* |
+
+
+
+**Example**: *Multo labore constat ars dicendi.*
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *labore* | `ablative` | *constat* |
+| *constat* | `unit verb` | (`root`) |
+| *ars* | `subject` | *constat* |
+| *dicendi* | `genitive` | *ars* |
 
 
 ## Adverbial and adjectival expressions
