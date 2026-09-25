@@ -3,68 +3,60 @@ title: Examples of complete syntactic analyses
 ---
 
 
-The following four passages from `arsgrammatica`'s training set illustrate every category of syntactic relationship defined by `arsgrammatica`.
+Four passages from `arsgrammatica`'s training set illustrate every category of syntactic relationship defined by `arsgrammatica`.
+
+
+
+
+- [Vulgate *Genesis* 42.10](./examplepassages/gen42_10.qmd)
+- [Vulgate *Genesis* 42.22](./examplepassages/gen42_22.qmd)
+- [Cicero, *Pro Archia* 4](./examplepassages/proarch4.qmd)
+- [Cicero, *Pro Archia* 3](./examplepassages/proarch3.qmd)
+
+
+
 
 ::: {.callout-tip}
 Open the diagrams in a separate window or tab, or download them separately, if they are too small to read easily when included in this page.
 :::
 
-## Vulgate *Genesis* 42.10
-
-> Qui dixerunt: Non est ita, domine, sed servi tui venerunt ut emerent cibos.
-
-
-![Syntax graph of Vulgate, *Genesis* 42.10](./imgs/passage1.png)
-
-
-## Vulgate *Genesis* 42.22
-
-> E quibus unus Ruben, ait: Numquid non dixi vobis: Nolite peccare in puerum: et non audistis me?
-
-
-![Syntax graph of Vulgate, *Genesis* 42.22](./imgs/passage2.png)
-
-## Cicero, *Pro Archia* 4
-
-> quod si mihi a vobis tribui concedique sentiam, perficiam profecto ut hunc A. Licinium non modo non segregandum, cum sit civis, a numero civium verum etiam, si non esset, putetis asciscendum fuisse.
-
-![Syntax graph of Cicero, *Pro Archia* 4](./imgs/passage3.png)
-
-## Cicero, *Pro Archia* 3
-
-> sed ne cui vestrum mirum esse videatur, me in quaestione legitima et in iudicio publico, cum res agatur apud praetorem populi Romani, lectissimum virum, et apud severissimos iudices, tanto conventu hominum ac frequentia hoc uti genere dicendi quod non modo a consuetudine iudiciorum verum etiam a forensi sermone abhorreat, quaeso a vobis ut in hac causa mihi detis hanc veniam accommodatam huic reo, vobis, quem ad modum spero, non molestam, ut me pro summo poeta atque eruditissimo homine dicentem hoc concursu hominum litteratissimorum, hac vestra humanitate, hoc denique praetore exercente iudicium, patiamini de studiis humanitatis ac litterarum paulo loqui liberius, et in eius modi persona quae propter otium ac studium minime in iudiciis periculis que tractata est uti prope novo quodam et inusitato genere dicendi.
-
-![Syntax graph of Cicero, *Pro Archia* 3](./imgs/passage4.png)
 
 ## Find examples of a relationship category
 
-This table lists every relationship category alphabetically with a reference to one occurrence in the selected sentences.
+The following table lists every relationship category alphabetically with a reference to one occurrence in the selected sentences.
+
 
 | Relationship | Example (token → related token) | Sentence |
 |---|---|---|
-| ablative | *conventu* → *agatur* | *Pro Archia* 3 |
-| ablative absolute | *praetore* → *patiamini* | *Pro Archia* 3 |
-| accusative | *quod* → *perficiam* | *Pro Archia* 4 |
-| adjectival | *legitima* → *quaestione* | *Pro Archia* 3 |
-| adverbial | *in* → *uti* | *Pro Archia* 3 |
-| agent | *a* → *tribui* | *Pro Archia* 4 |
-| apposition | *virum* → *praetorem* | *Pro Archia* 3 |
-| aside | *spero* → *detis* | *Pro Archia* 3 |
-| attributive | *E* → *unus* | *Genesis* 42.22 |
-| auxiliary | *est* → *tractata* | *Pro Archia* 3 |
-| circumstantial participle | *accommodatam* → *veniam* | *Pro Archia* 3 |
-| complementary infinitive | *esse* → *videatur* | *Pro Archia* 3 |
-| coordinating conjunction | *sed* → *quaeso* | *Pro Archia* 3 |
-| dative | *cui* → *videatur* | *Pro Archia* 3 |
-| direct object | *veniam* → *detis* | *Pro Archia* 3 |
-| direct quote | *est* → *dixerunt* | *Genesis* 42.10 |
-| genitive | *vestrum* → *cui* | *Pro Archia* 3 |
-| indirect statement | *uti* → *videatur* | *Pro Archia* 3 |
-| object of preposition | *quaestione* → *in* | *Pro Archia* 3 |
-| praenomen | *A.* → *Licinium* | *Pro Archia* 4 |
-| predicate | *mirum* → *esse* | *Pro Archia* 3 |
-| relative pronoun | *quod* → *genere* | *Pro Archia* 3 |
-| subject | *me* → *uti* | *Pro Archia* 3 |
-| subordinating conjunction | *ne* → *quaeso* | *Pro Archia* 3 |
-| unit verb | *videatur* → *ne* | *Pro Archia* 3 |
-| vocative | *domine* → *est* | *Genesis* 42.10 |
+| ablative | *conventu* → *agatur* | [*Pro Archia* 3](./examplepassages/proarch3.qmd) |
+| ablative absolute | *praetore* → *patiamini* | [*Pro Archia* 3](./examplepassages/proarch3.qmd) |
+| accusative | *quod* → *perficiam* | [*Pro Archia* 4](./examplepassages/proarch4.qmd) |
+| adjectival | *legitima* → *quaestione* | [*Pro Archia* 3](./examplepassages/proarch3.qmd) |
+| adverbial | *in* → *uti* | [*Pro Archia* 3](./examplepassages/proarch3.qmd) |
+| agent | *a* → *tribui* | [*Pro Archia* 4](./examplepassages/proarch4.qmd) |
+| apposition | *virum* → *praetorem* | [*Pro Archia* 3](./examplepassages/proarch3.qmd) |
+| aside | *spero* → *detis* | [*Pro Archia* 3](./examplepassages/proarch3.qmd) |
+| attributive | *E* → *unus* | [*Genesis* 42.10](./examplepassages/gen42_22.qmd) |
+| auxiliary | *est* → *tractata* | [*Pro Archia* 3](./examplepassages/proarch3.qmd) |
+| circumstantial participle | *accommodatam* → *veniam* | [*Pro Archia* 3](./examplepassages/proarch3.qmd) |
+| complementary infinitive | *esse* → *videatur* | [*Pro Archia* 3](./examplepassages/proarch3.qmd) |
+| coordinating conjunction | *sed* → *quaeso* | [*Pro Archia* 3](./examplepassages/proarch3.qmd) |
+| dative | *cui* → *videatur* | [*Pro Archia* 3](./examplepassages/proarch3.qmd) |
+| direct object | *veniam* → *detis* | [*Pro Archia* 3](./examplepassages/proarch3.qmd) |
+| direct quote | *est* → *dixerunt* | [*Genesis* 42.10](./examplepassages/gen42_10.qmd) |
+| genitive | *vestrum* → *cui* | [*Pro Archia* 3](./examplepassages/proarch3.qmd) |
+| indirect statement | *uti* → *videatur* | [*Pro Archia* 3](./examplepassages/proarch3.qmd) |
+| object of preposition | *quaestione* → *in* | [*Pro Archia* 3](./examplepassages/proarch3.qmd) |
+| praenomen | *A.* → *Licinium* | [*Pro Archia* 4](./examplepassages/proarch4.qmd) |
+| predicate | *mirum* → *esse* | [*Pro Archia* 3](./examplepassages/proarch3.qmd) |
+| relative pronoun | *quod* → *genere* | [*Pro Archia* 3](./examplepassages/proarch3.qmd) |
+| subject | *me* → *uti* | [*Pro Archia* 3](./examplepassages/proarch3.qmd) |
+| subordinating conjunction | *ne* → *quaeso* | [*Pro Archia* 3](./examplepassages/proarch3.qmd) |
+| unit verb | *videatur* → *ne* | [*Pro Archia* 3](./examplepassages/proarch3.qmd) |
+| vocative | *domine* → *est* | [*Genesis* 42.10](./examplepassages/gen42_10.qmd) |
+
+
+
+
+
+

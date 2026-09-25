@@ -3,6 +3,11 @@ title: "`arsgrammatica`'s graph of syntactic relations"
 ---
 
 
+::: {.callout-note}
+In `arsgrammatica` the `TokenAnalysis` class is the primary impementation of these ideas.
+:::
+
+
 When `arsgrammatica` analyses a passage of Latin, every non-punctuation token is related to one or two other tokens in a graph structure. This page summarizes all relationship categories that `arsgrammatica` recognizes.
 
 

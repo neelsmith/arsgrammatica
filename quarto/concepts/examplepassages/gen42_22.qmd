@@ -1,0 +1,15 @@
+---
+title: Vulgate, *Genesis* 42.22
+---
+
+
+
+> E quibus unus Ruben, ait: Numquid non dixi vobis: Nolite peccare in puerum: et non audistis me?
+
+
+![Syntax graph of Vulgate, *Genesis* 42.22](../imgs/passage2.png)
+
+::: {.callout-note collapse="true"}
+### Expland to see table of tokens
+*TBA*
+:::

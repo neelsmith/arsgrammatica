@@ -2,47 +2,114 @@
 title: How `arsgrammatica` tokenizes Latin
 ---
 
-*TBA*
+
+::: {.callout-note}
+In `arsgrammatica` the `Token` class is the primary impementation of these ideas.
+:::
+
+## Identifiers
+
+Although `arsgrammatica` can analyze strings of text in Latin, it is primarily intended to analyze passages of Latin with citation references such as CTS URNs. In tokenizing a passage, `arsgrammatica` tracks the citation and ensures that all tokens are uniquely identified within a given citation context.
+
+::: {.callout-note}
+## Extending CTS URNs to identify tokens
+In practical terms, this means that the token's identifier could be used with a containing URN context to create token-level CTS URNs. If the URN `urn:cts:latinLit:phi0474.phi016.omar:1` identifies passage `1` in Cicero's *Pro Archia*, then we could extend its work component with an exemplar identifier `tokens` and extend the passage component with a token identifier like `t0` to create a new URN `urn:cts:latinLit:phi0474.phi016.omar.tokens:1.t0` to cite the first token in that passage.
+:::
 
 
-implied/elided
+## Token categories
 
-- elided forms of *sum* in compounds
-- repeated/understood verb
-- implied substantive
+Tokenization splits a string into meaningful units that can be analyzed. 
+Based on their orthography and content, tokens are classified with one of the following categories that will inform our subsequent analysis.
+
+### `praenomen`
+
+We take an abbreviated praenomen together with its punctuating period as a single token. 
+
+**Example**:  *M. Agrippa L. f. cos. tertium fecit*
+
+The tokens *M.* and *L.* are classified as `praenomen`.
+
+### `abbreviation`
+
+We take other abbreviations, together with their punctuating periods, as single tokens classified as `abbreviation`.
+
+**Example**: *M. Agrippa L. f. cos. tertium fecit* 
+
+Both *f.* and *cos.* are classified as `abbreviation`.
 
 
+### `punctuation`
 
+Any other Unicode punctuation character, in editions of Latin texts most commonly including period, comma, question mark, semicolon, colon, parentheses and brackets of various kinds, single or double quotation marks, dashes or hyphens, is treated as a distinct token of type `punctuation`
 
+**Example**: *arma virumque cano.*
 
-`arsgrammatica` analyzes strings of Latin text or the textual content of Latin passages with citation references; `arsgrammatica` tracks the citation and ensures that all tokens are uniquely identified wihtin a unique citation context. 
+The period *.* is a token of type `punctuation`.
 
-The text of the passage must be tokenized, and each token classified as one of the following values.
+### `enclitic`
 
+Enclitics belong to a distinct class  because of their orthography, written without space between the enclitic and the preceding token. Tokenization of enclitics must consider the context. 
 
-## `punctuation`
+**Example**: *arma virumque cano.* 
 
-Any Unicode punctuation character, in editions of Latin texts most commonly including period, comma, question mark, semicolon, colon, parentheses and brackets of various kinds, single or double quotation marks, dashes or hyphens.  
+The token *que* is `enclitic`.
 
-**Example**: in *arma virumque cano.*, the period *.* is a token of type `punctuation`.
+**Example**: *ratione docet?*
 
-## `enclitic`
+The string *ratione* represents the enclitic token *ne* (a question word) following the lexical token *ratio* (noun in the nominative singular). 
 
-Although enclitics are in fact lexical tokens, we place them in the distinct class of `enclitic` because of their distinctive orthography, written without space between the enclitic and the preceding token.
+**Example**: *aequa ratione imperat.*
 
-**Example**: in phrase *arma virumque cano.* the token *que* is `enclitic`.
+The string *ratione* is a single lexical token (noun in the ablative singular): there is no enclitic.
 
-Tokenization of enclitics must consider the context. 
-
-**Example**: in  *aequa ratione imperat*, the string *ratione* is a single lexical token (noun in the ablative singular); in the phrase *ratione docet?*, the string *ratione* represents the enclitic token *ne* (a question word) with the lexical token *ratio* (noun in the nominative singular). 
 
 Tokenization must also recognize the small number of frequently occurring words that have incorporated an original historic enclitic into a single lexical item such as *quisque* (and its compounds), or *plerusque*. 
 
-**Examples**: forms such as *quisque*, *cuique* and *quemque* must all be treated as a single lexical token.
+**Examples**: forms such as *quisque*, *cuique* and *quemque* must each be treated as a single lexical token.
 
-## `lexical`
--  a *lexical* token. Example: the tokens *arma*, *virum* and *cano* in the phrase *arma virumque cano.*
-- a *praenomen*, including its punctuating period. Example: *M.* and *L.* in the phrase *M. Agrippa L. f. cos. tertium fecit*
-- other *abbreviation*, including its period. Example: *f.* and *cos.* in the the phrase *M. Agrippa L. f. cos. tertium fecit*
-- a *numeral* if written numerically rather than phonetically. Example: *XXV* in the phrase *hiberna aberant ab eo milia passuum XXV* is a *numeral* token, but in the phrase *fratres Joseph decem*, all three tokens are *lexical* tokens.
+### `numeral`
 
+Any numeral written numerically rather than phonetically. 
+
+**Example**: *hiberna aberant ab eo milia passuum XXV.* 
+
+`XXV` is a *numeral* token.
+
+**Example**: *fratres Joseph decem venerunt*
+
+All four tokens are *lexical* tokens.
+
+
+### `lexical`
+
+Lexical tokens written in standard orthography.
+
+**Example**: *arma virumque cano.*
+
+The tokens *arma*, *virum* and *cano* are all classified as `lexical`. (*que* is `enclitic` and the period `.` is `punctuation`) .
+
+
+
+
+
+
+##  Implied tokens
+
+- elided forms of *sum* in compounds
+- implied verb (repeated/understood )
+
+
+### Elided form of `sum`
+
+elided form of `sum`: the verb `sum` ("to be") is often elided  in the present tense. A new token with unique ID must be added to the token table, and an entry added to the list of verbal expressions. The token will have `None` for its text value.  Example: *omnia praeclara rara* is a complete sentence with subject *omnia praeclara* and predicate *rara*. A new token will be created with `None` as its text value, and its ID will be entered in the list of verbal expressions. This predicate construction is a main sentence, so its syntactic type will be *independent clause* and the semantic type will be *linking verb*. This elision can also occur with multiword compounds such as the perfect passive system, but here the treatment differs from the bare-predicate case above: because the participle itself is a real, already-present token, it -- not a newly created token -- anchors the verbal expression, per the multi-word compound verb form rule above. Example: the sentence *inde P. Valerius iterum T. Lucretius consules facti.* has a single verbal expression with a perfect passive verb, *facti* with *sunt* omitted. *facti* itself is entered in the list of verbal expressions (syntactic type `independent clause`, semantic type `transitive passive`). We still add a new token with unique ID and `None` for its text value to record the elided *sunt*, but this new token is not itself a verbal expression: it relates to *facti* as its `auxiliary`, exactly as a written-out *sunt* would. One important category of elided forms of *sum* is the participle: since there is no present participle of *sum*, its presence is *always* implied only. Example: in the sentence *P. Valerius anno post Agrippa Menenio P. Postumio consulibus moritur*, the phrase *Agrippa Menenio P. Postumio consulibus* is a predicate construction implying a circumstantial participle of "to be". Here there is no already-present participle to anchor the verbal expression (unlike *facti* above), so we must add a new token with unique ID to the token table and use its ID for a new entry in the list of verbal expressions. The syntactic type will be *circumstantial participle* and the semantic type will be *linking verb* since this is a predicate construction ("when Agrippa Menenius and Publius Postumius were consuls...")
+
+
+### Understood repeated verb
+
+Especially common in indirect discourse.
+2. continuation of indirect discourse: in long sections of indirect speech, entire passages may appear without repeating any governing verb of speaking or thinking. In this situation, we must add new token with unique ID to the token table, with `None` for its text value, and use its ID for new entry in the list of verbal expressions. For example, these three verbal expressions are each constructed in indirect statement: *nimium Tarquinios regno adsuesse; initium a Prisco factum; regnasse dein Ser. Tullium*. They imply a verb of speaking governing all three verbal expressions, so we add a new token with unique ID to the list of tokens, and add a verbal expression with its ID to the list of verbal expressions. Here, we assume that the understood verbal expression is of syntatic type *independent clause*; its semantic type is 'transitive active'. 
+
+
+### Implied substantive
+- implied substantive (implied antecedent of relative or participle; not just a substatnival use of an adjective)

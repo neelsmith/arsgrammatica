@@ -1,0 +1,15 @@
+---
+title: Vulgate *Genesis* 42.10
+---
+
+
+
+> Qui dixerunt: Non est ita, domine, sed servi tui venerunt ut emerent cibos.
+
+
+![Syntax graph of Vulgate, *Genesis* 42.10](../imgs/passage1.png)
+
+::: {.callout-note collapse="true"}
+### Expland to see table of tokens
+*TBA*
+:::
