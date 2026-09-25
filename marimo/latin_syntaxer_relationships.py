@@ -50,20 +50,25 @@ def _(mo, read_error, sentence_dropdown, sentences, split_error):
     else:
         analysis_status = mo.md(f"## Sentence selection\n\n*{len(sentences)} sentence(s) loaded from this file.*")
 
-    mo.vstack([analysis_status, sentence_dropdown])
+    #mo.vstack([analysis_status, sentence_dropdown])
+    sentence_dropdown
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    mo.md("""
-    ## Relationship selection
-    """)
+def _(plaintext_html):
+    plaintext_html
     return
 
 
 @app.cell(hide_code=True)
-def _(mo, relationship_dropdown, selected_tokengraph):
+def _(mo, relationship_dropdown, relationship_html_display):
+    mo.hstack([relationship_html_display, relationship_dropdown], widths=[4,1])
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo, selected_tokengraph):
     if not selected_tokengraph:
         relationship_status = mo.md("*Choose a sentence above to list the relationship types it attests.*")
     else:
@@ -74,41 +79,12 @@ def _(mo, relationship_dropdown, selected_tokengraph):
             "of -- other relations on the same word are left out of the tooltip.*"
         )
 
-    mo.vstack([relationship_status, relationship_dropdown])
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md("""
-    ## Highlighted passage
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(relationship_html_display):
-    relationship_html_display
     return
 
 
 @app.cell(hide_code=True)
 def _(relationship_warnings_display):
     relationship_warnings_display
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md("""
-    ## Selected text (plain)
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(plaintext_html):
-    plaintext_html
     return
 
 
@@ -248,7 +224,12 @@ def _(mo, selected_tokengraph, tokengraph_relationship_types):
 
 
 @app.cell
-def _(mo, relationship_dropdown, selected_tokengraph, tokengraph_to_relationship_html):
+def _(
+    mo,
+    relationship_dropdown,
+    selected_tokengraph,
+    tokengraph_to_relationship_html,
+):
     # relationship_dropdown.value is None until the user actually picks
     # one -- tokengraph_to_relationship_html(..., relationship=None) is a
     # well-defined, deliberate no-highlight default (identical output to
@@ -307,6 +288,7 @@ def _():
         tokengraph_to_relationship_html,
         tokengraph_to_text,
     )
+
     return (
         Path,
         read_analyses,
