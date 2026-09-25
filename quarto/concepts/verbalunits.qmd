@@ -62,6 +62,10 @@ for participles: *circumstantial participle*. For example, in the sentence *glor
 
 ## Handling implied verbal expressions
 
+The discussion of [tokenization](./tokens.qmd) introduced the idea of implied verbal expressions. There are two circumstances where we need to create an entry in the list of verbal expressions for an implied verbal expression.
+
+
+### Omitted forms of *sum*
 
 **Example**: *omnia praeclara rara.* 
 
