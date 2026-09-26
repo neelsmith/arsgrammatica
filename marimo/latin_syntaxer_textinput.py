@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.21.1"
+__generated_with = "0.25.0"
 app = marimo.App(width="medium")
 
 
@@ -243,7 +243,6 @@ def _(cost_summary, format_lm_cost, mo, seecost):
     costdisplay = None
     if seecost.value:
         costdisplay = mo.md(f"**Total cost**: {format_lm_cost(cost_summary)}")
-
     return (costdisplay,)
 
 

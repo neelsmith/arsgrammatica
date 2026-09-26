@@ -37,8 +37,8 @@ Parallel python packages for language-specific syntactic analysis:
 Packages for working with universal syntax models:
 
 
-- [udsyntax](https://github.com/neelsmith/udsyntax), a Python package to get dependency data from spaCy into a simple syntax graph format
 - [aat](https://github.com/neelsmith/aat), a Python package implementing a reduced model of natural-language syntax, Agent-Action-Target
+- [udsyntax](https://github.com/neelsmith/udsyntax), a Python package to get dependency data from spaCy into a simple syntax graph format
 
 Using syntax from `arsgrammatica` for contextual disambiguation of morphological analyses:
 

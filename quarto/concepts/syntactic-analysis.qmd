@@ -482,6 +482,7 @@ A token that `arsgrammatica` classifies as `praenomen` is an abbreviation used i
 ### Coordinating word
 
 Use example like autem...
+Train on igitur Gen 42.3
 Expand on double inks iwth et (aut)
 23. **coordinating conjunction** -- **que** in *arma virumque cano*.
 

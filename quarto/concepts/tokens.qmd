@@ -120,30 +120,54 @@ A particularly important category of elided forms of *sum* is the participle: si
 
 **Example**: *P. Valerius anno post Agrippa Menenio P. Postumio consulibus moritur.*
 
-The phrase *Agrippa Menenio P. Postumio consulibus* is an ablative absolute construction implying a circumstantial participle of "to be".  We will need to create a new token with text value `None`, add an entry with its id in the verbal expressions table, and in the syntax graph treat as a participle agreeing with each of the two consuls' names.
+The phrase *Agrippa Menenio P. Postumio consulibus* is an ablative absolute construction implying a circumstantial participle of "to be".  We will need to create a new token with text value `None`, add an entry with its id in the verbal expressions table, and in the syntax graph treat it as a participle agreeing with each of the two consuls' names.
 
 Elision of *sum* can also occur with multiword compounds such as the perfect passive system. 
    
 **Example**: *inde P. Valerius iterum T. Lucretius consules facti.* 
 
-This sentence has a single verbal expression with a perfect passive verb, *facti* with *sunt* omitted. We add a token with text value `None` to the table of tokens. In the syntax graph, it will be related to *facti* as `auxiliary`; no need to add an entry to the verbal units, since the participle (as the main verb of the compound) will already figure there.
+This sentence has a single verbal expression with a perfect passive verb, *facti* with *sunt* omitted. We add a token with text value `None` to the table of tokens. In the syntax graph, it will be related to *facti* as `auxiliary`; there is no need to add an entry to the list of verbal units, since the participle (as the main verb of the compound) will already figure there.
 
 
 
 
 ### Understood repeated verb
 
-Especially common in indirect discourse.
 
-2. continuation of indirect discourse: in long sections of indirect speech, entire passages may appear without repeating any governing verb of speaking or thinking. In this situation, we must add new token with unique ID to the token table, with `None` for its text value, and use its ID for new entry in the list of verbal expressions. For example, these three verbal expressions are each constructed in indirect statement: 
-
-**Example*:  *nimium Tarquinios regno adsuesse; initium a Prisco factum; regnasse dein Ser. Tullium*. 
+When parallel verbal constructions repeat the same verbal idea, the verb can be understood rather than repeated in each expression. We must add a new token with unique ID to the token table, and an entry added to the list of verbal expressions. 
 
 
-They imply a verb of speaking governing all three verbal expressions, so we add a new token with unique ID to the list of tokens, and add a verbal expression with its ID to the list of verbal expressions. Here, we assume that the understood verbal expression is of syntatic type *independent clause*; its semantic type is 'transitive active'. 
+**Example**: *sic eius adventus celebrabantur ut famam ingeni exspectatio hominis, exspectationem ipsius adventus admiratioque superaret.*
+
+
+Here, the conjunction *ut* introduces a parallel result clauses. The first has subject *exspectatio* and direct object *famam*; the second has subjects *adventus* and  *admiratio* and direct object *exspectationem*. The explict verb *superaret* for the first result clause (with singular subject) implies that we would repeat a (plural) form of *supero* for the second result clause.
+
+Understood repetition of a verb is quite common in long sections of indirect speech, where entire passages may appear without repeating any governing verb of speaking or thinking. 
+
+
+**Example**:  *nimium Tarquinios regno adsuesse; initium a Prisco factum; regnasse dein Ser. Tullium*. 
+
+
+Here three verbal expressions are each constructed in indirect statement. 
+They imply a verb of speaking governing all three verbal expressions, so we add a new token with unique ID to the list of tokens, and add a verbal expression with its ID to the list of verbal expressions.
+
 
 
 ### Implied substantive
 
+When a relative pronoun or a participle depends on an implied but unexpressed antecedent, we must add a new token with unique ID to the token table.. 
 
-- implied substantive (implied antecedent of relative or participle; not just a substatnival use of an adjective)
+**Example**: *quem dii amant adolescens moritur.*
+
+The relative pronoun *quem* depends on an unexpressed subject of *moritur*. We add a new token for the antecedent that the syntax graph will use both as the antecedent of *quem* and as an implied subject of *moritur*. 
+
+**Example**: *quasi ad alienos durius loquebatur, interrogans eos: Unde venistis?*
+
+
+The participle *interrogans* depends on an unexpressed antecedent. We add a new token for it. In the syntax graph this token will be both the antecedent of *interrogans* and the subject of *loquebatur*.
+
+This distinguish this from substantive uses of the participle. When the participle can be construed as a direct substantive function, we take it as a single token that the syntax graph can treat like any other substantive.
+
+**Example**: *sapientī sat est.*
+
+We recognize that the participle *sapienti* here is not a circumstantial participle requiring an entry in the verbal expressions table, but can be taken as a substantive "the wise person." There is no need to add any implied antecedent to the list of tokens.
