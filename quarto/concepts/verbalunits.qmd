@@ -15,36 +15,67 @@ Although `arsgrammatica` tries to account for *all* syntactic features of a Lati
 
 1. *Every finite verb* constitutes a verbal expression. Latin finite verbs include the compound forms of the perfect and pluperfect tenses (composed of a past participle plus a form of *sum*) as well as conjugated verbs forms identifiable by tense-mood-voice-person-number. 
 2. *Infinitives* constitute a verbal expression when they are constructed as a verbal expression in indirect speech.
-3. *Participles* constitute a verbal expression when they have a *predicate* sense rather than purely *attributive* sense. 
+3. *Participles* constitute a verbal expression when they have a *circumstantial* sense rather than purely *attributive* sense. 
 
 `arsgrammatica` classifies verbal expressions according to *syntactic type* and *semantic type*.
 
 
 ## Syntactic type
 
-Possibilities for finite verbs are:
-
 ### `independent`
 
-- *independent* (also called "main" or "principal") verbs. These are syntactically independent finite verbs: their clause is syntacitcally coherent by itself.
+Also called "main" or "principal" verbs, these are syntactically independent finite verbs: their clause is syntactically coherent by itself.
+
+**Example**: *Quo usque tandem abutere, Catilina, patientia nostra?*
+
+*abutere* is an `independent` verbal expresion.
 
 ### `dependent`
 
-- *dependent* ("subordinate" or "secondary") verbs. These are finite verbs that are introduced by a subordinating word (such as subordinating conjunction or relative pronoun). They cannot appear without an explicit or implicit governing (superior) clause. Examples: in the sentence *principes Albanorum in patres, ut ea quoque pars rei publicae cresceret, legit* the verb *legit* is classified as an `independent` verbal expression, and *cresceret* is classified as `dependent` (introduced by the subordinating conjunction *ut*).
+Finite verbs introduced by a subordinating word (such as a subordinating conjunction or relative pronoun). They cannot appear without an explicit or implicit governing (superior) clause. 
+
+**Example**: *principes Albanorum in patres, ut ea quoque pars rei publicae cresceret, legit.* 
+
+The verb *legit* is an `independent` verbal expression; *cresceret* is `dependent` (introduced by the subordinating conjunction *ut*).
 
 ### `direct quote`
-- *direct quote*: used for verbal expressions in directly quoted speech. For example, in the sentence *Tuum est' inquit, 'Servi regnum'*, the token *inquit* is a verbal unit classified syntactically as an `independent` clause, while the verb *est* occurs in directly quoted speech and is classifed as `direct quote`.
+
+Finite verbs in directly quoted speech. 
+
+**Example**:  *Tuum est' inquit, 'Servi regnum.'*
+
+*inquit* is an `independent` verbal unit, while *est* occurs in directly quoted speech and is classifed as `direct quote`.
 
 ### `aside`
-- *aside*: classification for a verbal unit that injects a statement by interrupting the syntactic flow of the surrounding text. Example: in the sentence *equidem — pace dixerim deum—eos nos iam populi Romani beneficio esse spero*, the verb *spero* is classified as `independent`, the infinitive *esse* is part of an indirect statement, and the entire phrase *pace dixerim deum* is an aside, anchored by the finite verbal expression *dixerim* of type `aside`.
 
-For infinitives: 
+A finite verb that interrupts the syntactic flow of the surrounding text. 
+
+**Example**: *equidem — pace dixerim deum — eos nos iam populi Romani beneficio esse spero.*
+
+
+*spero* is `independent`, the infinitive *esse* is part of an indirect statement (below). *dixerim* is an `aside`, as the entire phrase *pace dixerim deum* interrupts the sentence with a syntactically unconneccted verbal expression.
+
+
+
 ### `indirect statement`
 
-*indirect statement* when they are part of an expression in indirect speech. Example: in the sentence *facturum enim se fuisse dixit*, the verb *dixit* is an independent verbal expression, and *facturum fuisse* is the compound verb form for the future infinitive. The verbal unit wil be anchored to the infinitive *fuisse* of syntactic type `indirect statement`.
+An infinitive construction in indirect speech.
+
+**Example**: *Collatinus negat verbis opus esse.*
+
+*negat* is `indepedendent`; the infinitive *esse* is `indirect speech`.
+
+Note that as with finite verbs, compound verbs constructed from participles plus "to be" use the participle as the verbal expression. (In [the token graph](./syntactic-analysis.qmd), the form of "to be" will related to it as an `auxiliary`.)
+
+**Example**: *facturum enim se fuisse dixit*.
+
+*dixit* is an independent verbal expression, and *facturum fuisse* is the compound form of the future infinitive. The verbal unit wil be anchored to the token *facturum* as `indirect statement`. In the token graph, *esse* will be related to it as `auxiliary`.
 
 
 ### `circumstantial participle`
+
+
+
 
 for participles: *circumstantial participle*. For example, in the sentence *gloria est consentiens laus bonorum*, the participle *consentiens* has an attributive sense with *laus*, "universal praise": this is *not* a verbal expression. But in the sentence *Anco regnante Lucumo, vir inpiger ac divitiis potens, Romam commigravit* the participle *regnante* has a predicate sense with *Anco* "while Ancus was reigning..."  When it is uncertain whether to take the relation of a participle either as attribute or a circumstantial participle **prefer the treatment as circumstantial participle**. For example, in the sentence *ille moriens, cum sciret sagittas hydrae Lernaeae felle tinctas quantam uim haberent ueneni, sanguinem suum exceptum Deianirae dedit*, the participle *moriens* agrees with *ille* and the participle *tinctas* agrees with *sagittas*. Treat both as circumstantial participles definiing a verbal expression.
 

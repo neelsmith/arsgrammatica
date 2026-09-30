@@ -140,7 +140,7 @@ When parallel verbal constructions repeat the same verbal idea, the verb can be 
 **Example**: *sic eius adventus celebrabantur ut famam ingeni exspectatio hominis, exspectationem ipsius adventus admiratioque superaret.*
 
 
-Here, the conjunction *ut* introduces a parallel result clauses. The first has subject *exspectatio* and direct object *famam*; the second has subjects *adventus* and  *admiratio* and direct object *exspectationem*. The explict verb *superaret* for the first result clause (with singular subject) implies that we would repeat a (plural) form of *supero* for the second result clause.
+Here, the conjunction *ut* introduces two parallel result clauses. The first has subject *exspectatio* and direct object *famam*; the second has subjects *adventus* and  *admiratio* and direct object *exspectationem*. The explict verb *superaret* for the first result clause (with singular subject) implies that we would repeat a (plural) form of *supero* for the second result clause.
 
 Understood repetition of a verb is quite common in long sections of indirect speech, where entire passages may appear without repeating any governing verb of speaking or thinking. 
 
