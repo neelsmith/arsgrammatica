@@ -75,9 +75,21 @@ Note that as with finite verbs, compound verbs constructed from participles plus
 ### `circumstantial participle`
 
 
+Participles in a circumstantial sense rather than purely attributive sense.
+
+**Example**: *Anco regnante Lucumo, vir inpiger ac divitiis potens, Romam commigravit*.
+
+*commigravit* is an `independent` verb.
 
 
-for participles: *circumstantial participle*. For example, in the sentence *gloria est consentiens laus bonorum*, the participle *consentiens* has an attributive sense with *laus*, "universal praise": this is *not* a verbal expression. But in the sentence *Anco regnante Lucumo, vir inpiger ac divitiis potens, Romam commigravit* the participle *regnante* has a predicate sense with *Anco* "while Ancus was reigning..."  When it is uncertain whether to take the relation of a participle either as attribute or a circumstantial participle **prefer the treatment as circumstantial participle**. For example, in the sentence *ille moriens, cum sciret sagittas hydrae Lernaeae felle tinctas quantam uim haberent ueneni, sanguinem suum exceptum Deianirae dedit*, the participle *moriens* agrees with *ille* and the participle *tinctas* agrees with *sagittas*. Treat both as circumstantial participles definiing a verbal expression.
+But in the sentence  the participle *regnante* has a predicate sense with *Anco* "while Ancus was reigning..."  When it is uncertain whether to take the relation of a participle either as attribute or a circumstantial participle **prefer the treatment as circumstantial participle**. For example, in the sentence *ille moriens, cum sciret sagittas hydrae Lernaeae felle tinctas quantam uim haberent ueneni, sanguinem suum exceptum Deianirae dedit*, the participle *moriens* agrees with *ille* and the participle *tinctas* agrees with *sagittas*. Treat both as circumstantial participles definiing a verbal expression.
+
+
+
+**Exmaple**: *gloria est consentiens laus bonorum*, the participle *consentiens* has an attributive sense with *laus*, "universal praise": this is *not* a verbal expression. 
+
+
+
 
 ## Semantic type    
 
