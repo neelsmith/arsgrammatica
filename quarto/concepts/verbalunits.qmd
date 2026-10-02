@@ -3,7 +3,7 @@ title: Verbal units
 ---
 
 ::: {.callout-note}
-In `arsgrammatica` the `VerbalExpression` class is the primary impementation of these ideas.
+In `arsgrammatica` the `VerbalExpression` class is the primary implementation of these ideas.
 :::
 
 Although `arsgrammatica` tries to account for *all* syntactic features of a Latin text, its analytical scheme is anchored in the reduced Agent-Action-Target model (AAT): all syntactic features are organized around explicit or implicit verbal ideas, that may optionally include agent/target elements (e.g., for transitive active verbs, subject/direct object elements). These verbal expressions (subject-verb ideas) most frequently correspond to clauses in an English translation. (Of course in Latin the subject may be implicit where that is not possible in English.) 
@@ -82,7 +82,6 @@ Participles in a circumstantial sense rather than purely attributive sense.
 *commigravit* is an `independent` verb. The participle *regnante* (agreeing with *Anco*) is circumsstantial ("while Ancus was reigning...")
 
 
-
 **Counter example**: *gloria est consentiens laus bonorum*. 
 The verb *est* is `independent` with subject *gloria* and predicate *laus*. Here, the participle *consentiens* has an attributive sense with *laus*, "universal praise". This does *not* constitute a verbal expression. (In  [the syntax graph](./syntactic-analysis.qmd), this will be treated like any other attributive or adjectival expression, and will be related to *laus* as `adjectival`.)
 
@@ -101,12 +100,51 @@ The participle *moriens* agrees with *ille*, and the participle *tinctas* agrees
 
 ## Semantic type    
 
-### `transitive active`
-### `transitive passive`
-### `linking verb`
-(copula)
+`arsgrammatica` recognizes four semantic types for verbal expressions. 
 
-2. by their *semantic type*, as *transitive active*, *transitive passive*, *intransitive* or a *linking verb*. In the sentence *principes Albanorum in patres, ut ea quoque pars rei publicae cresceret, legit*, the verb *legit* is *transitive active*; and *cresceret* is *intransitive*. In *urbs a Romulo condita est*, the compound verb *condita est* is *transitive passive*.  In the sentence *Etruria erat vicina*, the verb *erat* is a *linking verb*.
+`linking verb` applies to verbs joining a subject and predicate nominative expression (a substantive or adjectival expression).  `intransitive` is for verbs that cannot take a direct object. `transitive active` and `transitive passive` apply to verbs that, in the active voice,  are capable of construction with a direct object. 
+
+Note that in Latin, `transitive active` expressions can be converted to equivalent `transitive passive` expressions under the A-A-T model (and vice versa) by changing the voice of the verb, and the construction of any explicit agent and target as follows:
+
+|Semantic type | Agent | Action | Target|
+| --- | ---  | --- | --- |
+| `transitive active` | subject | active voice | direct object |
+| `transitive passive` | ablative of agent  | passive voice | subject |
+
+### `linking verb`
+
+
+The most common verb linking a nominative subject with a nominative predicate is *sum*.
+
+**Example**: *Etruria erat vicina*.
+
+
+The verb *erat* is a `linking verb` with subject *Etruria* and predicate *vicina*.
+
+### `intransitive`
+
+Active- or passive-voice verbal  expressions that are intransitive in sense (i.e., that cannot take a direct object).
+
+**Example**: *principes Albanorum in patres, ut ea quoque pars rei publicae cresceret, legit*.
+
+The verb *cresceret* is an active-voice form that cannot take a direct object. It is `intransitive`.
+
+
+### `transitive active`
+
+Any active-voice verbal expression with a transitive sense, so is capable of taking a direct object.
+
+**Example**: *principes Albanorum in patres, ut ea quoque pars rei publicae cresceret, legit*.
+
+The verb *legit* is *transitive active* with an explicit direct object *principes*.
+
+### `transitive passive`
+
+Any passive-voice verbal expression with a transitive sense, so is capable of taking a construction with the ablative of agent. 
+
+*urbs a Romulo condita est*
+
+The compound verb form *condita est* is `transitive passive` with grammatical subject `urbs` and agent expressed by the prepositional phrase `a Romulo`. 
 
 
 
