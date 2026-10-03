@@ -2,7 +2,7 @@
 title: Highlighting syntactic analysis in HTML
 format:
   html:
-    code-fold: true
+    code-fold: false
 
 jupyter: arsgrammatica
 ---
@@ -11,84 +11,78 @@ jupyter: arsgrammatica
 
 `arsgrammatica` includes utility functions to display a text in HTML with highlighting of its syntactic structure. First [analyze a string or a passage](./analysis.qmd). 
 
-## Coloring by verbal expression
+
+
+## Readιν a saved analysis
+
+```{python}
+#| echo: false
+
+analysis_file = "../scratch/for-blogposts/pssv-analysis.cex"
+```
+
+In this example, let's assume we have saved an analysis in a file referred to by `analysis_file`. We can read the file with the `read_analyses` function, and split the results into individual sentences with the `split_analysis_by_sentence` function. We can index into the resulting list of sentences to get pairs of token graphs and verbal units for each sentence. See the code:
+
+
+```{python}
+#| echo: true
+from arsgrammatica import (
+  read_analyses,
+  split_analysis_by_sentence
+)
+tokengraph, verbalunits, sentences, lm_infos = read_analyses(analysis_file)
+sentence_slices = split_analysis_by_sentence(tokengraph, verbalunits, sentences)
+sentence_tokengraph, sentence_verbalunits = sentence_slices[0]
+```
+
+
+## Color by verbal expression
 
 Once you have an analysis result, you can compose an HTML string that colors tokens by the verbal expression they belong to, using the same colors as `arsgramamtica`'s [Mermaid diagrams](./mermaid.qmd).
 
-```python
+```{python}
 from arsgrammatica import tokengraph_to_html
-html = tokengraph_to_html(result.tokengraph)
+html = tokengraph_to_html(sentence_tokengraph)
 ```
 
-(Use this in a web environment (like a Marimo notebook) to see the real results.)
+The resulting `html` object looks like this:
 
+```{python}
+#| echo: false
+
+
+from IPython.display import HTML, display
+display(HTML(html))
+```
 
 
 ##  Add indentation by depth of subordination
 
 The `tokengraph_to_depth_html` function uses the same color highlighting as tokengraph_to_html, but instead of laying out the text in a single paragaph, it indents sequences of tokens by their level of subordination.
 
-```python
+```{python}
 from arsgrammatica import tokengraph_to_depth_html
-html, warnings = tokengraph_to_depth_html(result.tokengraph)
+htmldepth, warnings = tokengraph_to_depth_html(sentence_tokengraph)
 ```
 
+```{python}
+#| echo: false
+display(HTML(htmldepth))
+```
 
 
 ## Limiting display by syntactic depth
 
 Both `tokengraph_to_html` and `tokengraph_to_depth_html` accept an optional `depth` parameter. `tokengraph_to_html` will highlight only tokens at or below the specified syntactic depth; `tokengraph_to_depth_html` entirely omits tokens above the cutoff depth. (These features are used interactively in the [marimo notebooks](../tutorials/marimo.qmd) to analyze passages and review analyses.)
 
-```python
+```{python}
 # depth=0 limits the display to root/independent clauses only:
-html, warnings = tokengraph_to_depth_html(result.tokengraph, depth=0)
-```
-```{python}
-from arsgrammatica import (
-  read_analyses,
-  split_analysis_by_sentence,
-  tokengraph_to_html,
-)
+html_filtered, warnings = tokengraph_to_depth_html(sentence_tokengraph, depth=0)
 ```
 
-# 1) Read a saved analysis file (the format write_analyses() produces)
-tokengraph, verbalunits, sentences, lm_infos = read_analyses("path/to/analysis.txt")
 
-# Slice the flat, whole-file lists into one (tokengraph, verbalunits) pair
-# per sentence
-sentence_slices = split_analysis_by_sentence(tokengraph, verbalunits, sentences)
-
-# Pick a single sentence -- by index here; swap in whatever selection logic
-# you need (citation match, etc.)
-sentence_tokengraph, sentence_verbalunits = sentence_slices[0]
-
-# 2) Render that one sentence as verbal-unit-colored HTML
-html = tokengraph_to_html(sentence_tokengraph)
 
 ```{python}
 #| echo: false
-
-from IPython.display import HTML, display
-```
-```{python}
-#| echo: true
-
-from arsgrammatica import (
-    read_analyses,
-    split_analysis_by_sentence,
-    tokengraph_to_html,
-)
-
-tokengraph, verbalunits, sentences, lm_infos = read_analyses("../scratch/for-blogposts/pssv-analysis.cex")
-sentence_slices = split_analysis_by_sentence(tokengraph, verbalunits, sentences)
-sentence_tokengraph, sentence_verbalunits = sentence_slices[0]
-
-html = tokengraph_to_html(sentence_tokengraph)
-
-```
-
-```{python}
-#| echo: false
-
-display(HTML(html))
+display(HTML(html_filtered))
 ```
