@@ -4,6 +4,20 @@ A running record of what Claude actually did in this repo, session by session, n
 
 ---
 
+## 2026-10-03
+
+**Branch:** `wip`
+
+Conversational follow-up (no repo changes requested directly, but two small ones made along the way): Neel wanted a code snippet for reading one sentence's saved analysis and rendering it as HTML (plain `read_analyses()` -> `split_analysis_by_sentence()` -> `tokengraph_to_html()`, matching the pattern the marimo notebooks already use), then asked how to show both that source AND its live rendered output on a Quarto page. Walked through the `jupyter: <kernel>` + `echo: true` + `display(HTML(...))` pattern -- pointed out that `quarto/guides/texthiliting.qmd` (Neel's own file, read-only for Claude per `CLAUDE.md`) already had a half-finished attempt at exactly this (a prematurely-closed code fence, missing the `display(HTML(...))` call) -- explained the fix in conversation rather than editing the file myself.
+
+That led to two follow-up setup questions, answered conversationally (again, nothing in `quarto/` touched): how Quarto's Jupyter engine resolves a kernel named `python3`/`arsgrammatica` (a global per-user kernelspec registry, independent of this project -- recommended registering a distinctively-named kernel via `ipykernel` rather than reusing the generic `python3` name, to avoid silently colliding with some other Python's kernel of the same name), and what working directory a `.qmd` page executes with (file's own directory by default; `execute-dir: project` moves that to the Quarto project root -- which here is `quarto/` itself, NOT the git repo root, so even with that setting a reference to `data/vulgate/...` still needs a `../` prefix to reach the real `data/` directory one level up).
+
+Then Neel hit a real error trying this: `quarto render` started the `arsgrammatica` kernel fine but then failed with `ModuleNotFoundError: No module named 'nbformat'` inside Quarto's own bundled `/Applications/quarto/share/jupyter/jupyter.py` driver script. Root cause: that traceback is a SEPARATE Python from the named kernel -- Quarto's own driver script (which orchestrates feeding cells to the kernel and collecting output) needs `nbformat`/`nbclient` (from the plain `jupyter` package) importable in whatever Python Quarto resolves for itself (`QUARTO_PYTHON` env var, else the active venv, else `python3` on `PATH`), independent of which kernel the page names. Fixed by adding `jupyter>=1.0` and `ipykernel>=6.0` to `pyproject.toml`'s `dev` extra (previously `ipykernel` wasn't there at all, and `marimo`'s own kernel mechanism is unrelated to Jupyter's), and documented both the two-Pythons distinction and the `QUARTO_PYTHON` pinning fix in `notes/venv_setup.md` (new "third gotcha" section) and a short pointer in `notes/quarto.md`. Not verified by actually running `quarto render` -- my device tooling runs in a sandboxed VM on Neel's machine separate from his real Terminal/PATH (same gotcha `notes/venv_setup.md` already documented), so `quarto`/`jupyter` aren't reachable from here at all; Neel needs to re-run `uv pip install -e ".[dev]"` himself and confirm.
+
+**Files touched this session** (none committed): `pyproject.toml` (`jupyter`/`ipykernel` added to the `dev` extra, comment updated), `notes/venv_setup.md` (new gotcha section), `notes/quarto.md` (short pointer addendum).
+
+---
+
 ## 2026-09-25
 
 **Branch:** `wip`

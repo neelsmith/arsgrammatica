@@ -1,6 +1,7 @@
 project:
   type: website
   output-dir: quarto-build
+  execute-dir: project
 
 version: "0.11.0"  
   

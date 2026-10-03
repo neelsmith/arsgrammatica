@@ -1,5 +1,10 @@
 ---
 title: Highlighting syntactic analysis in HTML
+format:
+  html:
+    code-fold: true
+
+jupyter: arsgrammatica
 ---
 
 
@@ -38,5 +43,52 @@ Both `tokengraph_to_html` and `tokengraph_to_depth_html` accept an optional `dep
 # depth=0 limits the display to root/independent clauses only:
 html, warnings = tokengraph_to_depth_html(result.tokengraph, depth=0)
 ```
+```{python}
+from arsgrammatica import (
+  read_analyses,
+  split_analysis_by_sentence,
+  tokengraph_to_html,
+)
+```
 
- 
+# 1) Read a saved analysis file (the format write_analyses() produces)
+tokengraph, verbalunits, sentences, lm_infos = read_analyses("path/to/analysis.txt")
+
+# Slice the flat, whole-file lists into one (tokengraph, verbalunits) pair
+# per sentence
+sentence_slices = split_analysis_by_sentence(tokengraph, verbalunits, sentences)
+
+# Pick a single sentence -- by index here; swap in whatever selection logic
+# you need (citation match, etc.)
+sentence_tokengraph, sentence_verbalunits = sentence_slices[0]
+
+# 2) Render that one sentence as verbal-unit-colored HTML
+html = tokengraph_to_html(sentence_tokengraph)
+
+```{python}
+#| echo: false
+
+from IPython.display import HTML, display
+```
+```{python}
+#| echo: true
+
+from arsgrammatica import (
+    read_analyses,
+    split_analysis_by_sentence,
+    tokengraph_to_html,
+)
+
+tokengraph, verbalunits, sentences, lm_infos = read_analyses("../scratch/for-blogposts/pssv-analysis.cex")
+sentence_slices = split_analysis_by_sentence(tokengraph, verbalunits, sentences)
+sentence_tokengraph, sentence_verbalunits = sentence_slices[0]
+
+html = tokengraph_to_html(sentence_tokengraph)
+
+```
+
+```{python}
+#| echo: false
+
+display(HTML(html))
+```

@@ -123,6 +123,18 @@ def _(mo):
     return
 
 
+@app.cell
+def _(mo):
+    rooted = mo.ui.checkbox(label="*Rooted*")
+    rooted
+    return (rooted,)
+
+
+@app.cell
+def _():
+    return
+
+
 @app.cell(hide_code=True)
 def _(diagram_tool):
     diagram_tool
@@ -372,13 +384,13 @@ def _(depth, finaltokens, tokengraph_to_mermaid):
 
 
 @app.cell
-def _(depth, finaltokens, tokengraph_to_dot):
+def _(depth, finaltokens, rooted, tokengraph_to_dot):
     # Compose Graphviz diagram: cheap to always compute regardless of which
     # tool is currently selected -- tokengraph_to_dot() is pure string
     # building with no dependency of its own (see notes/dot_diagrams.md),
     # unlike actually rendering it, which needs the graphviz package and
     # the `dot` executable (handled in diagram_display below).
-    dot_source, dot_warnings = tokengraph_to_dot(finaltokens, aat_depth=depth)
+    dot_source, dot_warnings = tokengraph_to_dot(finaltokens, aat_depth=depth, show_root=rooted.value)
     return dot_source, dot_warnings
 
 

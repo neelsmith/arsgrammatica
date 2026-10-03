@@ -86,9 +86,20 @@ aat = ["aatgraph>=0.3.0"]
 # dspy-free now. `arsgrammatica[aat]` (see that extra above) is included
 # here too, for the same reason: latin_syntaxer_review.py is also the one
 # place that calls aatgraph(), so a normal dev setup should just have it,
-# rather than it being something to separately remember. None of this is
-# needed to just use the package (see notes/install.md); `pip install -e
-# ".[dev]"` from a checkout covers all of it in one shot.
+# rather than it being something to separately remember. `jupyter` and
+# `ipykernel` are here for a different consumer entirely: Quarto's Jupyter
+# engine, used to execute the live code cells in quarto/guides/
+# texthiliting.qmd (and any other .qmd page with `jupyter: <kernel-name>`
+# in its front matter) -- `ipykernel` is what lets this venv register
+# itself as a named kernel at all, and `jupyter` (which pulls in
+# `nbformat`/`nbclient`) is what Quarto's own driver script needs just to
+# orchestrate feeding cells to that kernel and collecting results, even
+# though neither package is used by arsgrammatica itself. See
+# notes/venv_setup.md's own section on this for the setup steps and a
+# `ModuleNotFoundError: No module named 'nbformat'` gotcha it's there to
+# prevent. None of this is needed to just use the package (see
+# notes/install.md); `pip install -e ".[dev]"` from a checkout covers all
+# of it in one shot.
 dev = [
     "arsgrammatica[llm]",
     "arsgrammatica[aat]",
@@ -97,6 +108,8 @@ dev = [
     "pdoc>=15.0",
     "marimo>=0.20",
     "graphviz>=0.20",
+    "jupyter>=1.0",
+    "ipykernel>=6.0",
 ]
 
 [project.urls]
