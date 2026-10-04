@@ -151,8 +151,9 @@ def tokengraph_to_text(tokengraph: List[TokenAnalysis]) -> str:
 def tokengraph_to_html(
     tokengraph: List[TokenAnalysis],
     depth: Optional[int] = None,
-) -> str:
-    """Render `tokengraph` as an HTML string: the same continuous text
+) -> Tuple[str, List[str]]:
+    """Render `tokengraph` as `(html, warnings)` -- `html` being an HTML
+    string with the same continuous text
     `tokengraph_to_text()` produces -- identical spacing rules, and the same
     punctuation/enclitic/quote-pair handling -- except every **lexical**
     token, every **praenomen** token, every **numeral** token, and every
@@ -268,12 +269,25 @@ def tokengraph_to_html(
     the latter so the token reads correctly regardless of whatever text
     color the surrounding page has set, matching the explicit black
     `color:` every Mermaid node in that unit also gets.
+
+    **Returns `(html, warnings)`**, the same shape as every other renderer
+    here (`tokengraph_to_depth_html()`, `tokengraph_to_relationship_html()`,
+    `tokengraph_to_mermaid()`, `tokengraph_to_dot()`) -- before 0.12.0
+    this returned the bare HTML string, silently discarding the warnings
+    computed along the way. `warnings` combines
+    `assign_verbal_unit_colors()`'s (colors repeating past 8 verbal units)
+    with, only when `depth` is given, `compute_subordination_depths()`'s
+    (an unresolved governing verbal expression) -- depths are never
+    computed when `depth` is `None`, so there's nothing to warn about
+    then. `warnings` is `[]` for a clean analysis. Callers that don't
+    care can unpack to `_`: `html, _ = tokengraph_to_html(tokengraph)`.
     """
     if depth is not None and depth < 0:
         raise ValueError(f"depth must be >= 0 (root clauses only), got {depth!r}")
 
     assignment = assign_verbal_units(tokengraph)
-    colors, _warnings = assign_verbal_unit_colors(tokengraph, assignment=assignment)
+    colors, color_warnings = assign_verbal_unit_colors(tokengraph, assignment=assignment)
+    warnings: List[str] = list(color_warnings)
 
     if depth is not None:
         # Limit highlighting, not content: drop the out-of-depth units from
@@ -283,14 +297,15 @@ def tokengraph_to_html(
         # `colors.get(unit_id) is None` fallback to plain text that an
         # unassigned token already takes -- no change needed to
         # _tokens_to_html() itself.
-        depths, _depth_warnings = compute_subordination_depths(tokengraph)
+        depths, depth_warnings = compute_subordination_depths(tokengraph)
+        warnings.extend(depth_warnings)
         colors = {
             unit_id: color
             for unit_id, color in colors.items()
             if (depths.get(unit_id) or 0) <= depth
         }
 
-    return _tokens_to_html(tokengraph, assignment, colors)
+    return _tokens_to_html(tokengraph, assignment, colors), warnings
 
 
 def _tokens_to_html(

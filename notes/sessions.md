@@ -4,6 +4,16 @@ A running record of what Claude actually did in this repo, session by session, n
 
 ---
 
+## 2026-10-04
+
+**Branch:** `wip`
+
+**`tokengraph_to_html()` now returns `(html, warnings)`.** Neel hit `ValueError: too many values to unpack` on `depth_hilited, warnings = tokengraph_to_html(..., depth=0)` while writing live code chunks in `quarto/guides/texthiliting.qmd`: `tokengraph_to_html()` returned a bare `str` while every sibling renderer (`tokengraph_to_depth_html()`, `tokengraph_to_relationship_html()`, `tokengraph_to_mermaid()`, `tokengraph_to_dot()`) returns `(output, warnings)`. Beyond the trap, the asymmetry meant `tokengraph_to_html()` computed the palette-overflow (and, with `depth`, unresolved-depth) warnings and discarded them. Neel chose the breaking fix over a deprecation path. Changed `rendering.py` (warnings = color warnings, plus depth warnings only when `depth` is given, since depths aren't computed otherwise; docstring documents the change), updated all callers -- 23 call sites in `tests/test_rendering.py`, one in `test_relationship_highlight.py`, and five marimo notebooks (`review`, `textinput`, `tokenized`, `selected_ids`, `ctsdata`; each unpacks to cell-local `_vu_html, _vu_warnings`, same don't-surface-it convention their sibling `tokengraph_to_depth_html()` cells already follow) -- and added 3 tests (tuple shape/clean `[]`; 9 verbal units surface the color-overflow warning exactly as `assign_verbal_unit_colors()` reports it; with `depth` given, warnings match `tokengraph_to_depth_html()`'s for every gold example). Full suite 1854 passed (1851 + 3), 2 skipped, 7 deselected, from a scratch venv outside the repo; all five touched notebooks `marimo export html` cleanly. `notes/visualization.md`'s example updated. NOT touched (Neel's, read-only): `quarto/guides/texthiliting.qmd` line 47 still does `colored_by_vu = tokengraph_to_html(...)` and needs `colored_by_vu, _ = ...` (and its `display(HTML(colored_by_vu))` then works as-is); `releases.md`/`pyproject.toml` version -- this is a breaking API change on a PyPI-published function, so worth a release note and a minor bump (0.11.2 -> 0.12.0; the new docstring already says "before 0.12.0"). Generated `docs/` not regenerated.
+
+**Files touched** (none committed): `arsgrammatica/rendering.py`, `tests/test_rendering.py`, `tests/test_relationship_highlight.py`, `marimo/latin_syntaxer_{review,textinput,tokenized,selected_ids,ctsdata}.py`, `notes/visualization.md`, `notes/sessions.md`.
+
+---
+
 ## 2026-10-03
 
 **Branch:** `wip`

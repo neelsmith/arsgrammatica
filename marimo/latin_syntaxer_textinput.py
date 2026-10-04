@@ -462,9 +462,8 @@ def _(finaltokens, input_form, mo, tokengraph_to_text):
 
 @app.cell
 def _(depth, finaltokens, mo, tokengraph_to_html):
-    vuhtml = mo.Html(
-        "<b><i>Highlighted by verbal unit</i></b>: " + tokengraph_to_html(finaltokens, depth=depth)
-    )
+    _vu_html, _vu_warnings = tokengraph_to_html(finaltokens, depth=depth)
+    vuhtml = mo.Html("<b><i>Highlighted by verbal unit</i></b>: " + _vu_html)
     return (vuhtml,)
 
 

@@ -481,7 +481,8 @@ def _(depth, finaltokens, mo, tokengraph_to_html):
     # subordination-depth notion tokengraph_to_depth_html() already uses
     # for indentpsg below, via the same `depth` value from maxdepth's own
     # slider, so both displays' idea of "how deep" always agree.
-    vuhtml = mo.Html("<b><i>Highlighted by verbal unit</i></b>: " + tokengraph_to_html(finaltokens, depth=depth))
+    _vu_html, _vu_warnings = tokengraph_to_html(finaltokens, depth=depth)
+    vuhtml = mo.Html("<b><i>Highlighted by verbal unit</i></b>: " + _vu_html)
     return (vuhtml,)
 
 

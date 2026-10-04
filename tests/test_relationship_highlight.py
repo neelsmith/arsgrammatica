@@ -181,7 +181,7 @@ def test_relationship_html_with_no_selection_matches_plain_html_plus_css():
     # wrapper -- what's left should be byte-for-byte what
     # tokengraph_to_html() itself produces, since relationship=None marks
     # nothing.
-    plain = tokengraph_to_html(_ARMA_VIRUMQUE_CANO)
+    plain, _plain_warnings = tokengraph_to_html(_ARMA_VIRUMQUE_CANO)
     assert html_out.endswith(f'<div class="ag-rel-passage">{plain}</div>')
 
 

@@ -9,8 +9,10 @@
 ```python
 from arsgrammatica import tokengraph_to_html
 
-html = tokengraph_to_html(result.tokengraph)
+html, warnings = tokengraph_to_html(result.tokengraph)
 ```
+
+`tokengraph_to_html()` returns `(html, warnings)`, like every other renderer here -- `warnings` is `[]` for a clean analysis, and otherwise reports things like verbal-unit colors repeating past the palette's 8 slots (plus unresolved subordination depths, when `depth` is given). Before the 2026-10-04 change it returned just the HTML string and silently discarded these.
 
 The colors are the *same* colors `tokengraph_to_mermaid()` assigns to that verbal unit's nodes -- same palette, same first-appearance ordering -- so a passage rendered this way and that passage's Mermaid diagram always agree on which clause is which color. (Both draw on `arsgrammatica.assign_verbal_unit_colors()`, so there's one shared definition to keep them in sync rather than two that could drift apart.) `tokentype == "lexical"`, `tokentype == "praenomen"`, and `tokentype == "numeral"` tokens get a span, as does any coordinating conjunction (e.g. an enclitic "-que") regardless of its own tokentype -- a praenomen (e.g. "Sex.") always has a real `assign_verbal_units()`-resolvable relation per `syntax_model.md`'s "Praenomina" section, same as a coordinating conjunction does, so it's colored the same way; a numeral (e.g. "XII") is likewise an ordinary participant in the clause able to carry a real relation (e.g. "adjectival", the same relation a spelled-out number like "decem" would use), per `syntax_model.md`'s numeral-vs-lexical clarification, so it's colored the same way too. Punctuation, non-conjunction enclitics, and abbreviations are emitted as plain (escaped) text even when they resolve to a verbal unit. A lexical, praenomen, or numeral token with no verbal unit at all (an unrelated bare accusative, an interjection, or a praenomen like "L." in "L. f." with no lexical name to relate to) is left unwrapped too.
 

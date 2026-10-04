@@ -44,7 +44,7 @@ sentence_tokengraph, sentence_verbalunits = sentence_slices[0]
 
 ```{python}
 from arsgrammatica import tokengraph_to_html
-colored_by_vu = tokengraph_to_html(sentence_tokengraph)
+colored_by_vu, warnings = tokengraph_to_html(sentence_tokengraph)
 ```
 
 The resulting `colored_by_vu` object looks like this:
@@ -76,10 +76,18 @@ display(HTML(indented_by_subordination))
 
 Both `tokengraph_to_html` and `tokengraph_to_depth_html` accept an optional `depth` parameter. `tokengraph_to_html` will highlight only tokens at or below the specified syntactic depth.
 
+
 ```{python}
 # depth=0 highlights root/independent clauses only:
 depth_hilited, warnings = tokengraph_to_html(sentence_tokengraph, depth=0)
 ```
+```{python}
+#| echo: false
+display(HTML(depth_hilited))
+```
+
+
+
 
 
 
@@ -92,17 +100,8 @@ depth_hilited, warnings = tokengraph_to_html(sentence_tokengraph, depth=0)
 depth_filtered, warnings = tokengraph_to_depth_html(sentence_tokengraph, depth=0)
 ```
 
-
-
 ```{python}
 #| echo: false
 display(HTML(depth_filtered))
 ```
 
-
-
-
-```{python}
-#| echo: false
-#display(HTML(depth_hilited))
-```

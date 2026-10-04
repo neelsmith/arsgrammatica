@@ -25,7 +25,11 @@ from arsgrammatica.rendering import (
     tokengraph_to_html,
     tokengraph_to_depth_html,
 )
-from arsgrammatica.verbal_units import _VERBAL_UNIT_PALETTE, max_subordination_depth
+from arsgrammatica.verbal_units import (
+    _VERBAL_UNIT_PALETTE,
+    assign_verbal_unit_colors,
+    max_subordination_depth,
+)
 from conftest import run_gold_example
 from fixtures.gold_examples import GOLD_EXAMPLES
  
@@ -199,8 +203,8 @@ def test_no_verbal_units_leaves_plain_spacing_and_no_spans():
     string as tokengraph_to_text() (escaped, but nothing here needs
     escaping), with no <span> tags at all."""
     tg = [_tok("t0", "arma", "lexical"), _tok("t1", "virum", "lexical")]
-    assert tokengraph_to_html(tg) == "arma virum"
-    assert "<span" not in tokengraph_to_html(tg)
+    assert tokengraph_to_html(tg)[0] == "arma virum"
+    assert "<span" not in tokengraph_to_html(tg)[0]
  
  
 def test_single_verbal_unit_wraps_its_lexical_tokens():
@@ -214,7 +218,7 @@ def test_single_verbal_unit_wraps_its_lexical_tokens():
     span = lambda word: (
         f'<span style="background-color: {fill}; color: {text_color};">{word}</span>'
     )
-    assert tokengraph_to_html(tg) == f"{span('arma')} {span('virum')} {span('cano')}."
+    assert tokengraph_to_html(tg)[0] == f"{span('arma')} {span('virum')} {span('cano')}."
  
  
 def test_multiple_verbal_units_get_distinct_first_appearance_colors():
@@ -238,7 +242,7 @@ def test_multiple_verbal_units_get_distinct_first_appearance_colors():
     expected = (
         f"{span0('puer')} {span0('videt')}, {span1('puella')} {span1('venit')}."
     )
-    assert tokengraph_to_html(tg) == expected
+    assert tokengraph_to_html(tg)[0] == expected
  
  
 def test_only_lexical_praenomen_and_numeral_tokens_get_wrapped_even_when_others_are_assigned():
@@ -264,7 +268,7 @@ def test_only_lexical_praenomen_and_numeral_tokens_get_wrapped_even_when_others_
         _tok("t4", "f.", "abbreviation", relatedtoken1="t2", relationship1="adverbial"),
         _tok("t5", ".", "punctuation", relatedtoken1="t2", relationship1="adverbial"),
     ]
-    html_out = tokengraph_to_html(tg)
+    html_out = tokengraph_to_html(tg)[0]
     matches = _SPAN_RE.findall(html_out)
     assert len(matches) == 3
     assert matches[0][2] == "M."
@@ -292,7 +296,7 @@ def test_praenomen_token_gets_wrapped_too():
     span = lambda word: (
         f'<span style="background-color: {fill}; color: {text_color};">{word}</span>'
     )
-    assert tokengraph_to_html(tg) == f"{span('M.')} {span('Agrippa')} {span('venit')}."
+    assert tokengraph_to_html(tg)[0] == f"{span('M.')} {span('Agrippa')} {span('venit')}."
 
 
 def test_numeral_token_gets_wrapped_too():
@@ -316,7 +320,7 @@ def test_numeral_token_gets_wrapped_too():
     span = lambda word: (
         f'<span style="background-color: {fill}; color: {text_color};">{word}</span>'
     )
-    assert tokengraph_to_html(tg) == (
+    assert tokengraph_to_html(tg)[0] == (
         f"{span('Fratres')} {span('Joseph')} {span('XII')} {span('venerunt')}."
     )
 
@@ -342,7 +346,7 @@ def test_enclitic_coordinating_conjunction_gets_wrapped_too():
     span = lambda word: (
         f'<span style="background-color: {fill}; color: {text_color};">{word}</span>'
     )
-    assert tokengraph_to_html(tg) == f"{span('arma')} {span('virum')}{span('que')} {span('cano')}."
+    assert tokengraph_to_html(tg)[0] == f"{span('arma')} {span('virum')}{span('que')} {span('cano')}."
 
 
 def test_series_coordinating_conjunctions_all_get_wrapped():
@@ -376,7 +380,7 @@ def test_series_coordinating_conjunctions_all_get_wrapped():
     span = lambda word: (
         f'<span style="background-color: {fill}; color: {text_color};">{word}</span>'
     )
-    assert tokengraph_to_html(tg) == (
+    assert tokengraph_to_html(tg)[0] == (
         f"{span('et')} {span('assiduitate')} {span('et')} {span('varietate')} "
         f"{span('et')} {span('magnificentia')} {span('antecessit')}."
     )
@@ -401,7 +405,7 @@ def test_implied_tokens_are_omitted_from_html_entirely():
     ]
     fill, _stroke, text_color = _VERBAL_UNIT_PALETTE[0]
     span = lambda word: f'<span style="background-color: {fill}; color: {text_color};">{word}</span>'
-    html_out = tokengraph_to_html(tg)
+    html_out = tokengraph_to_html(tg)[0]
     assert html_out == f"{span('Omnia')} {span('rara')}."
     assert "implied" not in html_out
 
@@ -432,7 +436,7 @@ def test_implied_subject_token_is_also_omitted_from_html():
              relatedtoken1="t0_implied", relationship1="circumstantial participle"),
         _tok("t1", "venit", "lexical", verbalunitid="t1", relatedtoken1="root", relationship1="unit verb"),
     ]
-    html_out = tokengraph_to_html(tg)
+    html_out = tokengraph_to_html(tg)[0]
     fill1, _stroke1, text1 = _VERBAL_UNIT_PALETTE[1]  # Recordatus's own unit
     fill0, _stroke0, text0 = _VERBAL_UNIT_PALETTE[0]  # venit's unit (claimed first, via t0_implied)
     span_recordatus = f'<span style="background-color: {fill1}; color: {text1};">Recordatus</span>'
@@ -446,7 +450,7 @@ def test_lexical_token_with_no_verbal_unit_is_unwrapped():
         _tok("t0", "cano", "lexical", verbalunitid="t0"),
         _tok("t1", "heus", "lexical"),  # unrelated interjection, no relation at all
     ]
-    html_out = tokengraph_to_html(tg)
+    html_out = tokengraph_to_html(tg)[0]
     matches = _SPAN_RE.findall(html_out)
     assert len(matches) == 1
     assert matches[0][2] == "cano"
@@ -460,7 +464,7 @@ def test_html_special_characters_are_escaped():
         _tok("t1", "<3", "lexical"),
         _tok("t2", "&", "punctuation"),
     ]
-    html_out = tokengraph_to_html(tg)
+    html_out = tokengraph_to_html(tg)[0]
     assert "<3" not in html_out
     assert "&lt;3" in html_out
     assert "&amp;" in html_out
@@ -479,7 +483,7 @@ def test_quote_pair_tokens_still_join_correctly_around_spans():
     span = lambda word: (
         f'<span style="background-color: {fill}; color: {text_color};">{word}</span>'
     )
-    assert tokengraph_to_html(tg) == f'&quot;{span("Tuum")} {span("est")}&quot; inquit.'
+    assert tokengraph_to_html(tg)[0] == f'&quot;{span("Tuum")} {span("est")}&quot; inquit.'
  
  
 @pytest.mark.parametrize("example", GOLD_EXAMPLES, ids=lambda e: e.slug)
@@ -525,7 +529,7 @@ def test_html_colors_match_mermaid_colors_for_every_gold_example(example):
         and tok.id in class_of_id
     ]
 
-    html_out = tokengraph_to_html(tokengraph)
+    html_out = tokengraph_to_html(tokengraph)[0]
     actual_fills = [m[0] for m in _SPAN_RE.findall(html_out)]
 
     assert actual_fills == expected_fills, example.slug
@@ -544,7 +548,7 @@ def test_html_depth_cap_keeps_full_text_but_drops_out_of_depth_spans():
     tokengraph = _tokengraph("depth_taurum_cum_quo_concubuit")
     full_text = tokengraph_to_text(tokengraph)
 
-    html_out = tokengraph_to_html(tokengraph, depth=0)
+    html_out = tokengraph_to_html(tokengraph, depth=0)[0]
     stripped = re.sub(r"</?span[^>]*>", "", html_out)
     assert html.unescape(stripped) == full_text
 
@@ -564,14 +568,52 @@ def test_html_depth_at_or_above_max_matches_unlimited_depth():
     "depth big enough to show everything" convention
     tokengraph_to_depth_html() documents for its own depth parameter."""
     tokengraph = _tokengraph("depth_taurum_cum_quo_concubuit")
-    assert tokengraph_to_html(tokengraph, depth=1) == tokengraph_to_html(tokengraph)
-    assert tokengraph_to_html(tokengraph, depth=1) == tokengraph_to_html(tokengraph, depth=None)
+    assert tokengraph_to_html(tokengraph, depth=1)[0] == tokengraph_to_html(tokengraph)[0]
+    assert tokengraph_to_html(tokengraph, depth=1)[0] == tokengraph_to_html(tokengraph, depth=None)[0]
 
 
 def test_html_depth_negative_raises():
     tokengraph = _tokengraph("depth_taurum_cum_quo_concubuit")
     with pytest.raises(ValueError, match="depth must be >= 0"):
         tokengraph_to_html(tokengraph, depth=-1)
+
+
+# --- tokengraph_to_html() returns (html, warnings) ---------------------------
+
+
+def test_html_returns_html_and_warnings_tuple_with_no_warnings_when_clean():
+    tg = [_tok("t0", "arma", "lexical"), _tok("t1", "virum", "lexical")]
+    result = tokengraph_to_html(tg)
+    assert isinstance(result, tuple) and len(result) == 2
+    html_out, warnings = result
+    assert html_out == "arma virum"
+    assert warnings == []
+
+
+def test_html_surfaces_color_warning_past_eight_verbal_units():
+    """Nine independent one-word verbal units: the palette only has 8
+    slots, so assign_verbal_unit_colors() warns that colors repeat.
+    tokengraph_to_html() used to silently discard that warning -- it must
+    now come back, exactly as assign_verbal_unit_colors() reports them."""
+    tg = [_tok(f"t{i}", f"verb{i}", "lexical", verbalunitid=f"t{i}") for i in range(9)]
+    html_out, warnings = tokengraph_to_html(tg)
+    assert warnings, "expected a palette-overflow warning for 9 verbal units"
+    assert warnings == assign_verbal_unit_colors(tg)[1]
+    # Still renders every token, warning or not.
+    assert all(f"verb{i}" in html_out for i in range(9))
+
+
+def test_html_warnings_match_depth_html_warnings_for_the_same_depth():
+    """With `depth` given, tokengraph_to_html() computes subordination
+    depths too, so its warnings (color + depth) agree with
+    tokengraph_to_depth_html()'s own for every gold example."""
+    for example in GOLD_EXAMPLES:
+        _tokens, result = run_gold_example(example)
+        tokengraph = result.tokengraph
+        assert (
+            tokengraph_to_html(tokengraph, depth=0)[1]
+            == tokengraph_to_depth_html(tokengraph, depth=0)[1]
+        ), example.slug
 
 
 def test_html_depth_colors_for_in_depth_tokens_match_tokengraph_to_depth_html():
@@ -583,8 +625,8 @@ def test_html_depth_colors_for_in_depth_tokens_match_tokengraph_to_depth_html():
     tokengraph = _tokengraph("aside_equidem_pace_dixerim")
     max_depth = max_subordination_depth(tokengraph) or 0
 
-    capped_html = tokengraph_to_html(tokengraph, depth=max_depth)
-    whole_html = tokengraph_to_html(tokengraph)
+    capped_html = tokengraph_to_html(tokengraph, depth=max_depth)[0]
+    whole_html = tokengraph_to_html(tokengraph)[0]
     assert capped_html == whole_html  # nothing exceeds max_depth, so nothing is dropped
 
     depth_html, _warnings = tokengraph_to_depth_html(tokengraph, depth=max_depth)
@@ -601,8 +643,8 @@ def test_html_depth_zero_never_drops_text_for_any_gold_example(example):
     tokengraph_to_html() with no depth limit at all -- confirming the
     depth cap never removes a token, only a token's highlighting."""
     tokengraph = [TokenAnalysis(**tok) for tok in example.canned_answer["tokengraph"]]
-    unlimited = tokengraph_to_html(tokengraph)
-    capped = tokengraph_to_html(tokengraph, depth=0)
+    unlimited = tokengraph_to_html(tokengraph)[0]
+    capped = tokengraph_to_html(tokengraph, depth=0)[0]
 
     strip = lambda s: re.sub(r"</?span[^>]*>", "", s)
     assert strip(capped) == strip(unlimited), example.slug
@@ -742,7 +784,7 @@ def test_depth_html_colors_match_tokengraph_to_html_for_the_same_passage():
     assignment/colors mapping (via _tokens_to_html()) between this function
     and tokengraph_to_html()."""
     tokengraph = _tokengraph("aside_equidem_pace_dixerim")
-    whole_html = tokengraph_to_html(tokengraph)
+    whole_html = tokengraph_to_html(tokengraph)[0]
     depth_html, _warnings = tokengraph_to_depth_html(tokengraph)
 
     whole_fills = [m[0] for m in _SPAN_RE.findall(whole_html)]

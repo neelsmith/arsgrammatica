@@ -742,7 +742,8 @@ def _(finaltokens, mo, selected_rows, tokengraph_to_text):
 
 @app.cell
 def _(finaltokens, mo, tokengraph_to_html):
-    vuhtml = mo.Html("<b><i>Highlighted by verbal unit</i></b>: " + tokengraph_to_html(finaltokens))
+    _vu_html, _vu_warnings = tokengraph_to_html(finaltokens)
+    vuhtml = mo.Html("<b><i>Highlighted by verbal unit</i></b>: " + _vu_html)
     return (vuhtml,)
 
 
