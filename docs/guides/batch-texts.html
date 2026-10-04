@@ -141,7 +141,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
   <li class="nav-item">
     <a class="nav-link active" href="../guides/index.html" aria-current="page"> 
-<span class="menu-text">Guides</span></a>
+<span class="menu-text">Recipes</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../reference/index.html"> 
@@ -338,7 +338,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="analyzing-a-corpus" class="level2">
 <h2 class="anchored" data-anchor-id="analyzing-a-corpus">Analyzing a corpus</h2>
 <p>You can analyze an entire corpus in a CEX-format file with <code>analyze_ctsdata_to_files.py</code>. An analysis file is written for each sentence to an output directory you provide.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> utilities/analyze_ctsdata_to_files.py corpus.cex </span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/analyze_ctsdata_to_files.py corpus.cex </span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>     <span class="ex">--output-dir</span> analyses/</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="working-with-part-of-a-corpus" class="level2">
@@ -348,17 +348,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="group-cited-passages-by-sentence-boundaries">Group cited passages by sentence boundaries</h3>
 <p>If you want to analyze a subset of a corpus where sentences and citation units do not always coincide (typical for Latin poetry cited by verse line), you can group passages into sequences that begin and end on sentence boundaries with <code>group_ctsdata_by_sentence.py</code>. This script writes to standard output a list of URNs for each group on a single line.</p>
 <p>If we segemented a text of the <em>Aeneid</em> like this:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> utilities/group_ctsdata_by_sentence.py aeneid.cex</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/group_ctsdata_by_sentence.py aeneid.cex</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>the first two lines would list passages for a sentence beginning at <em>Aeneid</em> 1.1 and a second sentence beginning at <em>Aeneid</em> 1.8*, like this:</p>
 <pre><code>urn:cts:latinLit:phi0690.phi003:1.1 urn:cts:latinLit:phi0690.phi003:1.2 urn:cts:latinLit:phi0690.phi003:1.3 urn:cts:latinLit:phi0690.phi003:1.4 urn:cts:latinLit:phi0690.phi003:1.5 urn:cts:latinLit:phi0690.phi003:1.6 urn:cts:latinLit:phi0690.phi003:1.7
 urn:cts:latinLit:phi0690.phi003:1.8 urn:cts:latinLit:phi0690.phi003:1.9 urn:cts:latinLit:phi0690.phi003:1.10 urn:cts:latinLit:phi0690.phi003:1.11</code></pre>
 <p>Use normal IO redirection to save the results in a file:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> utilities/group_ctsdata_by_sentence.py aeneid.cex <span class="op">&gt;</span> aeneid-linegroups.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/group_ctsdata_by_sentence.py aeneid.cex <span class="op">&gt;</span> aeneid-linegroups.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="define-citable-tokens-and-sentence-units" class="level3">
 <h3 class="anchored" data-anchor-id="define-citable-tokens-and-sentence-units">Define citable tokens and sentence units</h3>
 <p>It can be useful to cite tokens with the same stable identifiers produced by a syntactic analysis with <code>arsgrammatica</code>. The script <code>tokenize_ctsdata.py</code> reads a text corpus from a CEX-format file, and writes to standard output a delimited-text listing of all the tokens in the corpus, and a list of sentences defined by the starting and ending token of each sentence.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> utilities/tokenize_ctsdata.py corpus.cex <span class="op">&gt;</span> tokens-sentences.cex</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/tokenize_ctsdata.py corpus.cex <span class="op">&gt;</span> tokens-sentences.cex</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>For details of the output format, see <a href="../reference">the reference documentation</a>.</p>
 
 

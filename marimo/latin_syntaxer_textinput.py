@@ -377,9 +377,13 @@ def _(graphviz_available, mo):
 
 
 @app.cell
-def _(depth, finaltokens, tokengraph_to_mermaid):
-    # Compose Mermaid diagram:
-    diagram, mermaid_warnings = tokengraph_to_mermaid(finaltokens, aat_depth=depth)
+def _(depth, finaltokens, rooted, tokengraph_to_mermaid):
+    # Compose Mermaid diagram: same `rooted` checkbox as the Graphviz
+    # diagram below, so both tools always agree on whether the (hypothesized)
+    # 'root' node is drawn.
+    diagram, mermaid_warnings = tokengraph_to_mermaid(
+        finaltokens, aat_depth=depth, show_root=rooted.value
+    )
     return (diagram,)
 
 

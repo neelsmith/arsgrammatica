@@ -2,14 +2,67 @@
 title: Visualizing syntax graphs with Mermaid
 ---
 
-[Mermaid](https://mermaid.ai) is a lightweight diagramming language that is easily used in many Markdown viewers and editors, web environments, the [https://mermaid.live](https://mermaid.live) mermaid editor, and others. To compose a Mermaid diagram for a token graph:
+[Mermaid](https://mermaid.ai) is a lightweight diagramming language that is easily used in many Markdown viewers and editors, web environments, the [https://mermaid.live](https://mermaid.live) mermaid editor, and others. 
 
-```python
-from arsgrammatica import tokengraph_to_mermaid
-diagram, warnings = tokengraph_to_mermaid(result.tokengraph)
+
+```{python}
+#| echo: false
+from IPython.display import Markdown, HTML, display
 ```
 
-`warnings` lists any edge that got skipped because it pointed at a punctuation token or an id missing from `tokengraph`.
+## Start from the token graph
+
+To compose a Mermaid diagram for a token graph, first [analyze a string or a passage](./analysis.qmd), or read in a [previously saved analysis](./saving-loading.qmd). In this example, let's assume we have read in a saved analysis and used `split_analysis_by_sentence` to get a list of sentences called `sentence_slices`. Each sentence pairs a list of verbal units with the syntactic graph of tokens, but to create the HTML views, we only need the graph.
+
+
+```{python}
+#| echo: false
+analysis_file = "../quarto/sample_data/vulgate_genesis_tokenized_42_27.cex"
+
+from arsgrammatica import (
+  read_analyses,
+  split_analysis_by_sentence
+)
+tokengraph, verbalunits, sentences, lm_infos = read_analyses(analysis_file)
+sentence_slices = split_analysis_by_sentence(tokengraph, verbalunits, sentences)
+```
+
+
+```{python}
+sentence_tokengraph, sentence_verbalunits = sentence_slices[0]
+```
+
+
+## Collect a plain-text view of the passage
+
+```{python}
+from arsgrammatica import tokengraph_to_text
+plain_text = tokengraph_to_text(sentence_tokengraph)
+```
+```{python}
+#| echo: false
+display(HTML("<blockquote>" + plain_text + "</blockquote>"))
+```
+
+
+
+## Compose a mermaid diagram
+
+Use `tokengraph_to_mermaid` to create a diagram of the syntax graph. It returns two values: a Mermaid diagram string, and a list of any warnings (e.g., an edge that got skipped).
+
+```{python}
+#| echo: true
+from arsgrammatica import tokengraph_to_mermaid
+diagram, warnings = tokengraph_to_mermaid(sentence_tokengraph)
+```
+
+
+```{python}
+#| echo: false
+display(Markdown(f"```{{mermaid}}\n{diagram}\n```"))
+```
+
+## Save a diagram
 
 You can save the diagram to a file with `save_mermaid`.
 
@@ -18,16 +71,22 @@ from arsgrammatica import save_mermaid
 save_mermaid(diagram,"diagram.mmd")
 ```
 
+## Options
 
-Both `tokengraph_to_mermaid` and `save_mermaid` accept one of Mermaid's orientation codes (`BT`, `TB`, `LR`, `RL`) in an optional `orientation` argument, with default value `BT` (bottom-to-top). Remember that the token graph is directed from subordinate to governing nodes. `BT` will result in root elements at the top, and `RL` will place root elements at the left of the diagram.
+- Both `tokengraph_to_mermaid` and `save_mermaid` accept one of Mermaid's orientation codes (`BT`, `TB`, `LR`, `RL`) in an optional `orientation` argument, with default value `BT` (bottom-to-top). Since the token graph is directed from subordinate to governing nodes, `BT` will result in root elements at the top, and `RL` will place root elements at the left of the diagram. 
+- Set the `show_root` parameter to `False` to omit the hypothetical `root` node of a sentence.
 
-```python
-diagram, warnings = tokengraph_to_mermaid(
-    result.tokengraph, 
-    orientation="RL")
+```{python}
+diagram_rl, warnings = tokengraph_to_mermaid(
+    sentence_tokengraph, 
+    orientation="RL",
+    show_root=False)
 ```
 
-
+```{python}
+#| echo: false
+display(Markdown(f"```{{mermaid}}\n{diagram_rl}\n```"))
+```
 
 ## Limitations
 

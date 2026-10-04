@@ -141,7 +141,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../guides/index.html"> 
-<span class="menu-text">Guides</span></a>
+<span class="menu-text">Recipes</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../reference/index.html"> 
@@ -280,15 +280,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="analyze-a-corpus-from-a-single-command" class="level2">
 <h2 class="anchored" data-anchor-id="analyze-a-corpus-from-a-single-command">Analyze a corpus from a single command</h2>
 <p><code>analyze_ctsdata_to_files.py</code> Use this when there’s no reason to keep the segmentation and analysis steps separate.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> utilities/analyze_ctsdata_to_files.py corpus.cex <span class="at">--output-dir</span> analyses/</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/analyze_ctsdata_to_files.py corpus.cex <span class="at">--output-dir</span> analyses/</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="segment-the-corpus-into-sentences-then-analyze" class="level2">
 <h2 class="anchored" data-anchor-id="segment-the-corpus-into-sentences-then-analyze">Segment the corpus into sentences, then analyze</h2>
 <p>Step 1: <code>tokenize_ctsdata.py</code> – segmentation only, no syntax analysis</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> utilities/tokenize_ctsdata.py corpus.cex <span class="op">&gt;</span> tokenized.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/tokenize_ctsdata.py corpus.cex <span class="op">&gt;</span> tokenized.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Step 2: <code>analyze_tokendata_to_files.py</code> – analysis only, starting from an already-tokenized file</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> utilities/analyze_tokendata_to_files.py tokenized.txt <span class="at">--output-dir</span> analyses/</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> utilities/analyze_tokendata_to_files.py a.txt b.txt <span class="at">--output-dir</span> analyses/</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode sh code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/analyze_tokendata_to_files.py tokenized.txt <span class="at">--output-dir</span> analyses/</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/analyze_tokendata_to_files.py a.txt b.txt <span class="at">--output-dir</span> analyses/</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
 </section>

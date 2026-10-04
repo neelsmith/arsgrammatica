@@ -106,7 +106,7 @@ ul.task-list li input[type="checkbox"] {
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../guides/index.html"> 
-<span class="menu-text">Guides</span></a>
+<span class="menu-text">Recipes</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../reference/index.html"> 
@@ -199,7 +199,7 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../concepts/syntactic-analysis.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Graph of syntactic relations</span></a>
+ <span class="menu-text"><code>arsgrammatica</code>’s graph of syntactic relations</span></a>
   </div>
 </li>
         <li class="px-0"><hr class="sidebar-divider hi "></li>
@@ -214,8 +214,35 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#verbal-constructions" id="toc-verbal-constructions" class="nav-link active" data-scroll-target="#verbal-constructions">Verbal constructions</a></li>
+  <li><a href="#syntactic-type" id="toc-syntactic-type" class="nav-link" data-scroll-target="#syntactic-type">Syntactic type</a>
+  <ul class="collapse">
+  <li><a href="#independent" id="toc-independent" class="nav-link" data-scroll-target="#independent"><code>independent</code></a></li>
+  <li><a href="#dependent" id="toc-dependent" class="nav-link" data-scroll-target="#dependent"><code>dependent</code></a></li>
+  <li><a href="#direct-quote" id="toc-direct-quote" class="nav-link" data-scroll-target="#direct-quote"><code>direct quote</code></a></li>
+  <li><a href="#aside" id="toc-aside" class="nav-link" data-scroll-target="#aside"><code>aside</code></a></li>
+  <li><a href="#indirect-statement" id="toc-indirect-statement" class="nav-link" data-scroll-target="#indirect-statement"><code>indirect statement</code></a></li>
+  <li><a href="#circumstantial-participle" id="toc-circumstantial-participle" class="nav-link" data-scroll-target="#circumstantial-participle"><code>circumstantial participle</code></a></li>
+  </ul></li>
+  <li><a href="#semantic-type" id="toc-semantic-type" class="nav-link" data-scroll-target="#semantic-type">Semantic type</a>
+  <ul class="collapse">
+  <li><a href="#linking-verb" id="toc-linking-verb" class="nav-link" data-scroll-target="#linking-verb"><code>linking verb</code></a></li>
+  <li><a href="#intransitive" id="toc-intransitive" class="nav-link" data-scroll-target="#intransitive"><code>intransitive</code></a></li>
+  <li><a href="#transitive-active" id="toc-transitive-active" class="nav-link" data-scroll-target="#transitive-active"><code>transitive active</code></a></li>
+  <li><a href="#transitive-passive" id="toc-transitive-passive" class="nav-link" data-scroll-target="#transitive-passive"><code>transitive passive</code></a></li>
+  </ul></li>
+  <li><a href="#handling-implied-verbal-expressions" id="toc-handling-implied-verbal-expressions" class="nav-link" data-scroll-target="#handling-implied-verbal-expressions">Handling implied verbal expressions</a>
+  <ul class="collapse">
+  <li><a href="#omitted-forms-of-sum" id="toc-omitted-forms-of-sum" class="nav-link" data-scroll-target="#omitted-forms-of-sum">Omitted forms of <em>sum</em></a></li>
+  <li><a href="#understood-repeated-verb" id="toc-understood-repeated-verb" class="nav-link" data-scroll-target="#understood-repeated-verb">Understood repeated verb</a></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -239,10 +266,147 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Although <code>arsgrammatica</code> tries to account for <em>all</em> syntactic features of a Latin text, its analytical scheme is anchored in the reduced Agent-Action-Target model (AAT): all syntactic features are organized around explicit or implicit verbal ideas, that may optionally include agent/target elements (e.g., for transitive active verbs, subject/direct object elements).</p>
-<p><em>TBA</em></p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In <code>arsgrammatica</code> the <code>VerbalExpression</code> class is the primary implementation of these ideas.</p>
+</div>
+</div>
+<p>Although <code>arsgrammatica</code> tries to account for <em>all</em> syntactic features of a Latin text, its analytical scheme is anchored in the reduced Agent-Action-Target model (AAT): all syntactic features are organized around explicit or implicit verbal ideas, that may optionally include agent/target elements (e.g., for transitive active verbs, subject/direct object elements). These verbal expressions (subject-verb ideas) most frequently correspond to clauses in an English translation. (Of course in Latin the subject may be implicit where that is not possible in English.)</p>
+<section id="verbal-constructions" class="level2">
+<h2 class="anchored" data-anchor-id="verbal-constructions">Verbal constructions</h2>
+<p><code>arsgrammatica</code> identifies three possible constructions as verbal expressions: finite verbs, infinitives and participles.</p>
+<ol type="1">
+<li><em>Every finite verb</em> constitutes a verbal expression. Latin finite verbs include the compound forms of the perfect and pluperfect tenses (composed of a past participle plus a form of <em>sum</em>) as well as conjugated verbs forms identifiable by tense-mood-voice-person-number.</li>
+<li><em>Infinitives</em> constitute a verbal expression when they are constructed as a verbal expression in indirect speech.</li>
+<li><em>Participles</em> constitute a verbal expression when they have a <em>circumstantial</em> sense rather than purely <em>attributive</em> sense.</li>
+</ol>
+<p><code>arsgrammatica</code> classifies verbal expressions according to <em>syntactic type</em> and <em>semantic type</em>.</p>
+</section>
+<section id="syntactic-type" class="level2">
+<h2 class="anchored" data-anchor-id="syntactic-type">Syntactic type</h2>
+<section id="independent" class="level3">
+<h3 class="anchored" data-anchor-id="independent"><code>independent</code></h3>
+<p>Also called “main” or “principal” verbs, these are syntactically independent finite verbs: their clause is syntactically coherent by itself.</p>
+<p><strong>Example</strong>: <em>Quo usque tandem abutere, Catilina, patientia nostra?</em></p>
+<p><em>abutere</em> is an <code>independent</code> verbal expresion.</p>
+</section>
+<section id="dependent" class="level3">
+<h3 class="anchored" data-anchor-id="dependent"><code>dependent</code></h3>
+<p>Finite verbs introduced by a subordinating word (such as a subordinating conjunction or relative pronoun). They cannot appear without an explicit or implicit governing (superior) clause.</p>
+<p><strong>Example</strong>: <em>principes Albanorum in patres, ut ea quoque pars rei publicae cresceret, legit.</em></p>
+<p>The verb <em>legit</em> is an <code>independent</code> verbal expression; <em>cresceret</em> is <code>dependent</code> (introduced by the subordinating conjunction <em>ut</em>).</p>
+</section>
+<section id="direct-quote" class="level3">
+<h3 class="anchored" data-anchor-id="direct-quote"><code>direct quote</code></h3>
+<p>Finite verbs in directly quoted speech.</p>
+<p><strong>Example</strong>: <em>Tuum est’ inquit, ‘Servi regnum.’</em></p>
+<p><em>inquit</em> is an <code>independent</code> verbal unit, while <em>est</em> occurs in directly quoted speech and is classifed as <code>direct quote</code>.</p>
+</section>
+<section id="aside" class="level3">
+<h3 class="anchored" data-anchor-id="aside"><code>aside</code></h3>
+<p>A finite verb that interrupts the syntactic flow of the surrounding text.</p>
+<p><strong>Example</strong>: <em>equidem — pace dixerim deum — eos nos iam populi Romani beneficio esse spero.</em></p>
+<p><em>spero</em> is <code>independent</code>, the infinitive <em>esse</em> is part of an indirect statement (below). <em>dixerim</em> is an <code>aside</code>, as the entire phrase <em>pace dixerim deum</em> interrupts the sentence with a syntactically unconneccted verbal expression.</p>
+</section>
+<section id="indirect-statement" class="level3">
+<h3 class="anchored" data-anchor-id="indirect-statement"><code>indirect statement</code></h3>
+<p>An infinitive construction in indirect speech.</p>
+<p><strong>Example</strong>: <em>Collatinus negat verbis opus esse.</em></p>
+<p><em>negat</em> is <code>indepedendent</code>; the infinitive <em>esse</em> is <code>indirect speech</code>.</p>
+<p>Note that as with finite verbs, compound verbs constructed from participles plus “to be” use the participle as the verbal expression. (In <a href="../concepts/syntactic-analysis.html">the token graph</a>, the form of “to be” will related to it as an <code>auxiliary</code>.)</p>
+<p><strong>Example</strong>: <em>facturum enim se fuisse dixit</em>.</p>
+<p><em>dixit</em> is an independent verbal expression, and <em>facturum fuisse</em> is the compound form of the future infinitive. The verbal unit wil be anchored to the token <em>facturum</em> as <code>indirect statement</code>. In the token graph, <em>esse</em> will be related to it as <code>auxiliary</code>.</p>
+</section>
+<section id="circumstantial-participle" class="level3">
+<h3 class="anchored" data-anchor-id="circumstantial-participle"><code>circumstantial participle</code></h3>
+<p>Participles in a circumstantial sense rather than purely attributive sense.</p>
+<p><strong>Example</strong>: <em>Anco regnante Lucumo, vir inpiger ac divitiis potens, Romam commigravit</em>.</p>
+<p><em>commigravit</em> is an <code>independent</code> verb. The participle <em>regnante</em> (agreeing with <em>Anco</em>) is circumsstantial (“while Ancus was reigning…”)</p>
+<p><strong>Counter example</strong>: <em>gloria est consentiens laus bonorum</em>. The verb <em>est</em> is <code>independent</code> with subject <em>gloria</em> and predicate <em>laus</em>. Here, the participle <em>consentiens</em> has an attributive sense with <em>laus</em>, “universal praise”. This does <em>not</em> constitute a verbal expression. (In <a href="../concepts/syntactic-analysis.html">the syntax graph</a>, this will be treated like any other attributive or adjectival expression, and will be related to <em>laus</em> as <code>adjectival</code>.)</p>
+<p>When it is unclear whether to take the relation of a participle as attributive or circumstantial, <strong>prefer the treatment as circumstantial participle</strong>.</p>
+<p><strong>Example</strong> <em>ille moriens, cum sciret sagittas hydrae Lernaeae felle tinctas quantam uim haberent ueneni, sanguinem suum exceptum Deianirae dedit</em>.</p>
+<p>The participle <em>moriens</em> agrees with <em>ille</em>, and the participle <em>tinctas</em> agrees with <em>sagittas</em>. Treat both as circumstantial participles definiing a verbal expression.</p>
+</section>
+</section>
+<section id="semantic-type" class="level2">
+<h2 class="anchored" data-anchor-id="semantic-type">Semantic type</h2>
+<p><code>arsgrammatica</code> recognizes four semantic types for verbal expressions.</p>
+<p><code>linking verb</code> applies to verbs joining a subject and predicate nominative expression (a substantive or adjectival expression). <code>intransitive</code> is for verbs that cannot take a direct object. <code>transitive active</code> and <code>transitive passive</code> apply to verbs that, in the active voice, are capable of construction with a direct object.</p>
+<p>Note that in Latin, <code>transitive active</code> expressions can be converted to equivalent <code>transitive passive</code> expressions under the A-A-T model (and vice versa) by changing the voice of the verb, and the construction of any explicit agent and target as follows:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Semantic type</th>
+<th>Agent</th>
+<th>Action</th>
+<th>Target</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>transitive active</code></td>
+<td>subject</td>
+<td>active voice</td>
+<td>direct object</td>
+</tr>
+<tr class="even">
+<td><code>transitive passive</code></td>
+<td>ablative of agent</td>
+<td>passive voice</td>
+<td>subject</td>
+</tr>
+</tbody>
+</table>
+<section id="linking-verb" class="level3">
+<h3 class="anchored" data-anchor-id="linking-verb"><code>linking verb</code></h3>
+<p>The most common verb linking a nominative subject with a nominative predicate is <em>sum</em>.</p>
+<p><strong>Example</strong>: <em>Etruria erat vicina</em>.</p>
+<p>The verb <em>erat</em> is a <code>linking verb</code> with subject <em>Etruria</em> and predicate <em>vicina</em>.</p>
+</section>
+<section id="intransitive" class="level3">
+<h3 class="anchored" data-anchor-id="intransitive"><code>intransitive</code></h3>
+<p>Active- or passive-voice verbal expressions that are intransitive in sense (i.e., that cannot take a direct object).</p>
+<p><strong>Example</strong>: <em>principes Albanorum in patres, ut ea quoque pars rei publicae cresceret, legit</em>.</p>
+<p>The verb <em>cresceret</em> is an active-voice form that cannot take a direct object. It is <code>intransitive</code>.</p>
+</section>
+<section id="transitive-active" class="level3">
+<h3 class="anchored" data-anchor-id="transitive-active"><code>transitive active</code></h3>
+<p>Any active-voice verbal expression with a transitive sense, so is capable of taking a direct object.</p>
+<p><strong>Example</strong>: <em>principes Albanorum in patres, ut ea quoque pars rei publicae cresceret, legit</em>.</p>
+<p>The verb <em>legit</em> is <em>transitive active</em> with an explicit direct object <em>principes</em>.</p>
+</section>
+<section id="transitive-passive" class="level3">
+<h3 class="anchored" data-anchor-id="transitive-passive"><code>transitive passive</code></h3>
+<p>Any passive-voice verbal expression with a transitive sense, so is capable of taking a construction with the ablative of agent.</p>
+<p><em>urbs a Romulo condita est</em></p>
+<p>The compound verb form <em>condita est</em> is <code>transitive passive</code> with grammatical subject <code>urbs</code> and agent expressed by the prepositional phrase <code>a Romulo</code>.</p>
+</section>
+</section>
+<section id="handling-implied-verbal-expressions" class="level2">
+<h2 class="anchored" data-anchor-id="handling-implied-verbal-expressions">Handling implied verbal expressions</h2>
+<p>The discussion of <a href="../concepts/tokens.html">tokenization</a> introduced the idea of implied verbal expressions. There are two circumstances where we need to create an entry in the list of verbal expressions for an implied verbal expression.</p>
+<section id="omitted-forms-of-sum" class="level3">
+<h3 class="anchored" data-anchor-id="omitted-forms-of-sum">Omitted forms of <em>sum</em></h3>
+<p><strong>Example</strong>: <em>omnia praeclara rara.</em></p>
+<p>This is a complete sentence, with a subject phrase <em>omnia praeclara</em> and a predicate <em>rara</em>. We record the implied form of “to be” with a new token entry, and enter its ID into the list of verbal expressions.</p>
+<p>and its ID will be entered in the list of verbal expressions.</p>
+<p>This predicate construction is a main sentence, so its syntactic type will be <em>independent clause</em> and the semantic type will be <em>linking verb</em>. This elision can also occur with multiword compounds such as the perfect passive system, but here the treatment differs from the bare-predicate case above: because the participle itself is a real, already-present token, it – not a newly created token – anchors the verbal expression, per the multi-word compound verb form rule above. Example: the sentence <em>inde P. Valerius iterum T. Lucretius consules facti.</em> has a single verbal expression with a perfect passive verb, <em>facti</em> with <em>sunt</em> omitted. <em>facti</em> itself is entered in the list of verbal expressions (syntactic type <code>independent clause</code>, semantic type <code>transitive passive</code>). We still add a new token with unique ID and <code>None</code> for its text value to record the elided <em>sunt</em>, but this new token is not itself a verbal expression: it relates to <em>facti</em> as its <code>auxiliary</code>, exactly as a written-out <em>sunt</em> would. One important category of elided forms of <em>sum</em> is the participle: since there is no present participle of <em>sum</em>, its presence is <em>always</em> implied only. Example: in the sentence <em>P. Valerius anno post Agrippa Menenio P. Postumio consulibus moritur</em>, the phrase <em>Agrippa Menenio P. Postumio consulibus</em> is a predicate construction implying a circumstantial participle of “to be”. Here there is no already-present participle to anchor the verbal expression (unlike <em>facti</em> above), so we must add a new token with unique ID to the token table and use its ID for a new entry in the list of verbal expressions. The syntactic type will be <em>circumstantial participle</em> and the semantic type will be <em>linking verb</em> since this is a predicate construction (“when Agrippa Menenius and Publius Postumius were consuls…”)</p>
+</section>
+<section id="understood-repeated-verb" class="level3">
+<h3 class="anchored" data-anchor-id="understood-repeated-verb">Understood repeated verb</h3>
+<p>Especially common in indirect discourse. 2. continuation of indirect discourse: in long sections of indirect speech, entire passages may appear without repeating any governing verb of speaking or thinking. In this situation, we must add new token with unique ID to the token table, with <code>None</code> for its text value, and use its ID for new entry in the list of verbal expressions. For example, these three verbal expressions are each constructed in indirect statement: <em>nimium Tarquinios regno adsuesse; initium a Prisco factum; regnasse dein Ser. Tullium</em>. They imply a verb of speaking governing all three verbal expressions, so we add a new token with unique ID to the list of tokens, and add a verbal expression with its ID to the list of verbal expressions. Here, we assume that the understood verbal expression is of syntatic type <em>independent clause</em>; its semantic type is ‘transitive active’.</p>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

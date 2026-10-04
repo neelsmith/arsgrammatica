@@ -209,7 +209,7 @@
     "href": "tutorials/corpus.html#analyze-a-corpus-from-a-single-command",
     "title": "Analyze mutiple passages from a command-line script",
     "section": "Analyze a corpus from a single command",
-    "text": "Analyze a corpus from a single command\nanalyze_ctsdata_to_files.py Use this when there’s no reason to keep the segmentation and analysis steps separate.\npython utilities/analyze_ctsdata_to_files.py corpus.cex --output-dir analyses/",
+    "text": "Analyze a corpus from a single command\nanalyze_ctsdata_to_files.py Use this when there’s no reason to keep the segmentation and analysis steps separate.\npython3 utilities/analyze_ctsdata_to_files.py corpus.cex --output-dir analyses/",
     "crumbs": [
       "Tutorials",
       "Analyze mutiple passages from a command-line script"
@@ -220,7 +220,7 @@
     "href": "tutorials/corpus.html#segment-the-corpus-into-sentences-then-analyze",
     "title": "Analyze mutiple passages from a command-line script",
     "section": "Segment the corpus into sentences, then analyze",
-    "text": "Segment the corpus into sentences, then analyze\nStep 1: tokenize_ctsdata.py – segmentation only, no syntax analysis\npython utilities/tokenize_ctsdata.py corpus.cex &gt; tokenized.txt\nStep 2: analyze_tokendata_to_files.py – analysis only, starting from an already-tokenized file\npython utilities/analyze_tokendata_to_files.py tokenized.txt --output-dir analyses/\npython utilities/analyze_tokendata_to_files.py a.txt b.txt --output-dir analyses/",
+    "text": "Segment the corpus into sentences, then analyze\nStep 1: tokenize_ctsdata.py – segmentation only, no syntax analysis\npython3 utilities/tokenize_ctsdata.py corpus.cex &gt; tokenized.txt\nStep 2: analyze_tokendata_to_files.py – analysis only, starting from an already-tokenized file\npython3 utilities/analyze_tokendata_to_files.py tokenized.txt --output-dir analyses/\npython3 utilities/analyze_tokendata_to_files.py a.txt b.txt --output-dir analyses/",
     "crumbs": [
       "Tutorials",
       "Analyze mutiple passages from a command-line script"
@@ -264,51 +264,7 @@
     "href": "concepts/complete_examples.html",
     "title": "Examples of complete syntactic analyses",
     "section": "",
-    "text": "The following four passages from arsgrammatica’s training set illustrate every category of syntactic relationship defined by arsgrammatica.",
-    "crumbs": [
-      "Concepts",
-      "Examples of complete syntactic analyses"
-    ]
-  },
-  {
-    "objectID": "concepts/complete_examples.html#vulgate-genesis-42.10",
-    "href": "concepts/complete_examples.html#vulgate-genesis-42.10",
-    "title": "Examples of complete syntactic analyses",
-    "section": "Vulgate Genesis 42.10",
-    "text": "Vulgate Genesis 42.10\n\nQui dixerunt: Non est ita, domine, sed servi tui venerunt ut emerent cibos.\n\n\n\n\nSyntax graph of Vulgate, Genesis 42.10",
-    "crumbs": [
-      "Concepts",
-      "Examples of complete syntactic analyses"
-    ]
-  },
-  {
-    "objectID": "concepts/complete_examples.html#vulgate-genesis-42.22",
-    "href": "concepts/complete_examples.html#vulgate-genesis-42.22",
-    "title": "Examples of complete syntactic analyses",
-    "section": "Vulgate Genesis 42.22",
-    "text": "Vulgate Genesis 42.22\n\nE quibus unus Ruben, ait: Numquid non dixi vobis: Nolite peccare in puerum: et non audistis me?\n\n\n\n\nSyntax graph of Vulgate, Genesis 42.22",
-    "crumbs": [
-      "Concepts",
-      "Examples of complete syntactic analyses"
-    ]
-  },
-  {
-    "objectID": "concepts/complete_examples.html#cicero-pro-archia-4",
-    "href": "concepts/complete_examples.html#cicero-pro-archia-4",
-    "title": "Examples of complete syntactic analyses",
-    "section": "Cicero, Pro Archia 4",
-    "text": "Cicero, Pro Archia 4\n\nquod si mihi a vobis tribui concedique sentiam, perficiam profecto ut hunc A. Licinium non modo non segregandum, cum sit civis, a numero civium verum etiam, si non esset, putetis asciscendum fuisse.\n\n\n\n\nSyntax graph of Cicero, Pro Archia 4",
-    "crumbs": [
-      "Concepts",
-      "Examples of complete syntactic analyses"
-    ]
-  },
-  {
-    "objectID": "concepts/complete_examples.html#cicero-pro-archia-3",
-    "href": "concepts/complete_examples.html#cicero-pro-archia-3",
-    "title": "Examples of complete syntactic analyses",
-    "section": "Cicero, Pro Archia 3",
-    "text": "Cicero, Pro Archia 3\n\nsed ne cui vestrum mirum esse videatur, me in quaestione legitima et in iudicio publico, cum res agatur apud praetorem populi Romani, lectissimum virum, et apud severissimos iudices, tanto conventu hominum ac frequentia hoc uti genere dicendi quod non modo a consuetudine iudiciorum verum etiam a forensi sermone abhorreat, quaeso a vobis ut in hac causa mihi detis hanc veniam accommodatam huic reo, vobis, quem ad modum spero, non molestam, ut me pro summo poeta atque eruditissimo homine dicentem hoc concursu hominum litteratissimorum, hac vestra humanitate, hoc denique praetore exercente iudicium, patiamini de studiis humanitatis ac litterarum paulo loqui liberius, et in eius modi persona quae propter otium ac studium minime in iudiciis periculis que tractata est uti prope novo quodam et inusitato genere dicendi.\n\n\n\n\nSyntax graph of Cicero, Pro Archia 3",
+    "text": "Four passages from arsgrammatica’s training set illustrate every category of syntactic relationship defined by arsgrammatica.",
     "crumbs": [
       "Concepts",
       "Examples of complete syntactic analyses"
@@ -319,7 +275,7 @@
     "href": "concepts/complete_examples.html#find-examples-of-a-relationship-category",
     "title": "Examples of complete syntactic analyses",
     "section": "Find examples of a relationship category",
-    "text": "Find examples of a relationship category\nThis table lists every relationship category alphabetically with a reference to one occurrence in the selected sentences.\n\n\n\n\n\n\n\n\nRelationship\nExample (token → related token)\nSentence\n\n\n\n\nablative\nconventu → agatur\nPro Archia 3\n\n\nablative absolute\npraetore → patiamini\nPro Archia 3\n\n\naccusative\nquod → perficiam\nPro Archia 4\n\n\nadjectival\nlegitima → quaestione\nPro Archia 3\n\n\nadverbial\nin → uti\nPro Archia 3\n\n\nagent\na → tribui\nPro Archia 4\n\n\napposition\nvirum → praetorem\nPro Archia 3\n\n\naside\nspero → detis\nPro Archia 3\n\n\nattributive\nE → unus\nGenesis 42.22\n\n\nauxiliary\nest → tractata\nPro Archia 3\n\n\ncircumstantial participle\naccommodatam → veniam\nPro Archia 3\n\n\ncomplementary infinitive\nesse → videatur\nPro Archia 3\n\n\ncoordinating conjunction\nsed → quaeso\nPro Archia 3\n\n\ndative\ncui → videatur\nPro Archia 3\n\n\ndirect object\nveniam → detis\nPro Archia 3\n\n\ndirect quote\nest → dixerunt\nGenesis 42.10\n\n\ngenitive\nvestrum → cui\nPro Archia 3\n\n\nindirect statement\nuti → videatur\nPro Archia 3\n\n\nobject of preposition\nquaestione → in\nPro Archia 3\n\n\npraenomen\nA. → Licinium\nPro Archia 4\n\n\npredicate\nmirum → esse\nPro Archia 3\n\n\nrelative pronoun\nquod → genere\nPro Archia 3\n\n\nsubject\nme → uti\nPro Archia 3\n\n\nsubordinating conjunction\nne → quaeso\nPro Archia 3\n\n\nunit verb\nvideatur → ne\nPro Archia 3\n\n\nvocative\ndomine → est\nGenesis 42.10",
+    "text": "Find examples of a relationship category\nThe following table lists every relationship category alphabetically with a reference to one occurrence in the selected sentences.\n\n\n\nRelationship\nExample (token → related token)\nSentence\n\n\n\n\nablative\nconventu → agatur\nPro Archia 3\n\n\nablative absolute\npraetore → patiamini\nPro Archia 3\n\n\naccusative\nquod → perficiam\nPro Archia 4\n\n\nadjectival\nlegitima → quaestione\nPro Archia 3\n\n\nadverbial\nin → uti\nPro Archia 3\n\n\nagent\na → tribui\nPro Archia 4\n\n\napposition\nvirum → praetorem\nPro Archia 3\n\n\naside\nspero → detis\nPro Archia 3\n\n\nattributive\nE → unus\nGenesis 42.10\n\n\nauxiliary\nest → tractata\nPro Archia 3\n\n\ncircumstantial participle\naccommodatam → veniam\nPro Archia 3\n\n\ncomplementary infinitive\nesse → videatur\nPro Archia 3\n\n\ncoordinating conjunction\nsed → quaeso\nPro Archia 3\n\n\ndative\ncui → videatur\nPro Archia 3\n\n\ndirect object\nveniam → detis\nPro Archia 3\n\n\ndirect quote\nest → dixerunt\nGenesis 42.10\n\n\ngenitive\nvestrum → cui\nPro Archia 3\n\n\nindirect statement\nuti → videatur\nPro Archia 3\n\n\nobject of preposition\nquaestione → in\nPro Archia 3\n\n\npraenomen\nA. → Licinium\nPro Archia 4\n\n\npredicate\nmirum → esse\nPro Archia 3\n\n\nrelative pronoun\nquod → genere\nPro Archia 3\n\n\nsubject\nme → uti\nPro Archia 3\n\n\nsubordinating conjunction\nne → quaeso\nPro Archia 3\n\n\nunit verb\nvideatur → ne\nPro Archia 3\n\n\nvocative\ndomine → est\nGenesis 42.10",
     "crumbs": [
       "Concepts",
       "Examples of complete syntactic analyses"
@@ -370,6 +326,20 @@
     ]
   },
   {
+    "objectID": "concepts/examplepassages/gen42_22.html",
+    "href": "concepts/examplepassages/gen42_22.html",
+    "title": "Vulgate, Genesis 42.22",
+    "section": "",
+    "text": "E quibus unus Ruben, ait: Numquid non dixi vobis: Nolite peccare in puerum: et non audistis me?\n\n\n\n\nSyntax graph of Vulgate, Genesis 42.22\n\n\n\n\n\n\n\n\nNoteExpland to see table of tokens\n\n\n\n\n\nTBA"
+  },
+  {
+    "objectID": "concepts/examplepassages/proarch3.html",
+    "href": "concepts/examplepassages/proarch3.html",
+    "title": "Cicero, Pro Archia 3",
+    "section": "",
+    "text": "sed ne cui vestrum mirum esse videatur, me in quaestione legitima et in iudicio publico, cum res agatur apud praetorem populi Romani, lectissimum virum, et apud severissimos iudices, tanto conventu hominum ac frequentia hoc uti genere dicendi quod non modo a consuetudine iudiciorum verum etiam a forensi sermone abhorreat, quaeso a vobis ut in hac causa mihi detis hanc veniam accommodatam huic reo, vobis, quem ad modum spero, non molestam, ut me pro summo poeta atque eruditissimo homine dicentem hoc concursu hominum litteratissimorum, hac vestra humanitate, hoc denique praetore exercente iudicium, patiamini de studiis humanitatis ac litterarum paulo loqui liberius, et in eius modi persona quae propter otium ac studium minime in iudiciis periculis que tractata est uti prope novo quodam et inusitato genere dicendi.\n\n\n\n\nSyntax graph of Cicero, Pro Archia 3\n\n\n\n\n\n\n\n\nNoteExpland to see table of tokens\n\n\n\n\n\nTBA"
+  },
+  {
     "objectID": "concepts/models.html",
     "href": "concepts/models.html",
     "title": "Goals of arsgrammatica",
@@ -398,7 +368,7 @@
     "section": "",
     "text": "One of dspy’s strengths is its streamlined path to optimize a program for a specific configured language model without you having to change any code.\n\n\ndspy allows you to configure two models: the “teacher” and the “student.”\narsgrammatica configures the target (“student”) model from the same .env file as the rest of arsgrammatica’s programs, with values for API_BASE, MODEL, and API_KEY.\nYou can configure a more powerful reasoning model to use as the “teacher” by adding a parallel trio of values for REFLECTION_API_BASE, REFLECTION_MODEL, and REFLECTION_API_KEY. GEPA will reason with the “teacher” model while optimizing for the “student” model.\nIf you do not configure a second reflection model, GEPA will use the same model for both “teacher” and “student.”\n\n\n\nThe script optimize_gepa.py runs GEPA to improve SentenceAnalysis’s instructions against the gold examples in tests/fixtures/gold_examples.py. This requires making the specified request, and then a further request to a reflection model, so it can potentially be expensive. optimize_gepa lets you regulate this stage of work with these parameters:\npython3 optimize_gepa.py                    # --auto light (cheapest; default)\npython3 optimize_gepa.py --auto medium       # more thorough, more expensive\npython3 optimize_gepa.py --auto heavy        # most thorough, most expensive\npython3 optimize_gepa.py --max-metric-calls 40   # exact call budget instead of a preset\npython3 optimize_gepa.py --skip-baseline     # skip the pre-GEPA scoring pass (saves N calls)\nBy default, optimize_gepa trains on all the gold examples in GOLD_EXAMPLES (a small, hand-curated set built to exercise every documented construction at least once) and holds out 20% for an evalution set. The fraction to use as an evaluation set is given in the --val-fraction parameter. You can set it to 0 to use all examples as a training set with no holdout. If you have files of analyses you have verified, you can add those to the testing pool optimize_gepa uses and specify the fraction to be used for an evaluation set:\n# Include individual files with analyses:\npython3 utilities/optimize_gepa.py --eval-file urn_cts_compnov_bible_genesis_vulgate_42_1.cex urn_cts_compnov_bible_genesis_vulgate_42_2.cex\n\n# Include all files in a directory, and hold out 25% for evaluation set:\npython3 utilities/optimize_gepa.py --eval-dir data/vulgate/ --val-fraction 0.25\n\n# Include all files in a directory with no separate evaluation set:\npython3 utilities/optimize_gepa.py --eval-dir data/vulgate/ --val-fraction 0 \n\n\n\n\n\n\nTip\n\n\n\nThe data directory of the arsgrammatica repository includes hand-vetted analyses you can use in optimizing the package for a new model.\n\n\n\n\n\narsgrammatica defines a syntax_metric that compares the responses values for verbalunits and tokengraph against the gold answer, and returns a score from 0 to 1. The final metric is computed by weighing a score for correct relations at 50%, a score for classifying verbal expressions at 30%, and scoring for basic fields for each token at 20%. syntax_metric includes specific, human-readable feedback naming every mismatched token/relation/classification, which GEPA’s reflection model can read and take advantage of.\n\n\n\noptimize_gepa.py saves the optimized program’s instructions to a JSON file named in the --out parameter or defaulting to optimized_syntax_analysis.json.\nTo use the saved model, load it right after importing analyze and before calling any analysis functions:\nfrom arsgrammatica.latin_syntax_dspy import analyze\nanalyze.load(\"optimized_syntax_analysis.json\")\n\n\n\n\n\n\nTip\n\n\n\nThe optimized directory of the arsgrammatica repository includes saved models in JSON format. File names are based on the target model, the version of arsgrammatica that was targeted, and a directory with the supplementary training data used. A file name like optimized_opus_5_ag_0_7_0_vulgate.json means that this output targeted Opus 5, using arsgrammatica release 0.7.0, with training data from the data/vulgate directory of this repository.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Optimizing with GEPA"
     ]
   },
@@ -409,7 +379,7 @@
     "section": "",
     "text": "dspy allows you to configure two models: the “teacher” and the “student.”\narsgrammatica configures the target (“student”) model from the same .env file as the rest of arsgrammatica’s programs, with values for API_BASE, MODEL, and API_KEY.\nYou can configure a more powerful reasoning model to use as the “teacher” by adding a parallel trio of values for REFLECTION_API_BASE, REFLECTION_MODEL, and REFLECTION_API_KEY. GEPA will reason with the “teacher” model while optimizing for the “student” model.\nIf you do not configure a second reflection model, GEPA will use the same model for both “teacher” and “student.”",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Optimizing with GEPA"
     ]
   },
@@ -420,7 +390,7 @@
     "section": "",
     "text": "The script optimize_gepa.py runs GEPA to improve SentenceAnalysis’s instructions against the gold examples in tests/fixtures/gold_examples.py. This requires making the specified request, and then a further request to a reflection model, so it can potentially be expensive. optimize_gepa lets you regulate this stage of work with these parameters:\npython3 optimize_gepa.py                    # --auto light (cheapest; default)\npython3 optimize_gepa.py --auto medium       # more thorough, more expensive\npython3 optimize_gepa.py --auto heavy        # most thorough, most expensive\npython3 optimize_gepa.py --max-metric-calls 40   # exact call budget instead of a preset\npython3 optimize_gepa.py --skip-baseline     # skip the pre-GEPA scoring pass (saves N calls)\nBy default, optimize_gepa trains on all the gold examples in GOLD_EXAMPLES (a small, hand-curated set built to exercise every documented construction at least once) and holds out 20% for an evalution set. The fraction to use as an evaluation set is given in the --val-fraction parameter. You can set it to 0 to use all examples as a training set with no holdout. If you have files of analyses you have verified, you can add those to the testing pool optimize_gepa uses and specify the fraction to be used for an evaluation set:\n# Include individual files with analyses:\npython3 utilities/optimize_gepa.py --eval-file urn_cts_compnov_bible_genesis_vulgate_42_1.cex urn_cts_compnov_bible_genesis_vulgate_42_2.cex\n\n# Include all files in a directory, and hold out 25% for evaluation set:\npython3 utilities/optimize_gepa.py --eval-dir data/vulgate/ --val-fraction 0.25\n\n# Include all files in a directory with no separate evaluation set:\npython3 utilities/optimize_gepa.py --eval-dir data/vulgate/ --val-fraction 0 \n\n\n\n\n\n\nTip\n\n\n\nThe data directory of the arsgrammatica repository includes hand-vetted analyses you can use in optimizing the package for a new model.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Optimizing with GEPA"
     ]
   },
@@ -431,7 +401,7 @@
     "section": "",
     "text": "arsgrammatica defines a syntax_metric that compares the responses values for verbalunits and tokengraph against the gold answer, and returns a score from 0 to 1. The final metric is computed by weighing a score for correct relations at 50%, a score for classifying verbal expressions at 30%, and scoring for basic fields for each token at 20%. syntax_metric includes specific, human-readable feedback naming every mismatched token/relation/classification, which GEPA’s reflection model can read and take advantage of.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Optimizing with GEPA"
     ]
   },
@@ -442,7 +412,7 @@
     "section": "",
     "text": "optimize_gepa.py saves the optimized program’s instructions to a JSON file named in the --out parameter or defaulting to optimized_syntax_analysis.json.\nTo use the saved model, load it right after importing analyze and before calling any analysis functions:\nfrom arsgrammatica.latin_syntax_dspy import analyze\nanalyze.load(\"optimized_syntax_analysis.json\")\n\n\n\n\n\n\nTip\n\n\n\nThe optimized directory of the arsgrammatica repository includes saved models in JSON format. File names are based on the target model, the version of arsgrammatica that was targeted, and a directory with the supplementary training data used. A file name like optimized_opus_5_ag_0_7_0_vulgate.json means that this output targeted Opus 5, using arsgrammatica release 0.7.0, with training data from the data/vulgate directory of this repository.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Optimizing with GEPA"
     ]
   },
@@ -451,9 +421,9 @@
     "href": "guides/aat.html",
     "title": "Building an AAT (Agent-Action-Target) graph",
     "section": "",
-    "text": "The aat package defines a reductive model of natural language syntax focusing only on Agent-Action-Target relations, instantiated in an AATGraph. You can construct an AATGraph from an arsgrammatica analysis with the attgraph function.\nLoad a saved analysis, or analyze some Latin text:\nYou can then construct an AATGraph from the resulting sentences and analyses.\nFor more information about AAT graphs, see the aat github repository.",
+    "text": "The aat package defines a reductive model of natural language syntax focusing only on Agent-Action-Target relations, instantiated in an AATGraph. You can construct an AATGraph from an arsgrammatica analysis with the aatgraph function.\nLoad a saved analysis, or analyze some Latin text:\nYou can then construct an AATGraph from the resulting sentences and analyses.\nFor more information about AAT graphs, see the aat github repository.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Building an AAT (Agent-Action-Target) graph"
     ]
   },
@@ -464,7 +434,7 @@
     "section": "A graph-theoretic note",
     "text": "A graph-theoretic note\nAAT graphs (like UD graphs) are guaranteed to be trees. While arsgrammatica’s syntax graphs tend to approximate a tree structure, they may include doubly linked nodes (like que in this example), and are not guaranteed to be acyclic.\nAAT graphs, like arsgrammatica’s graphs, are directed towards root-level verbal elements.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Building an AAT (Agent-Action-Target) graph"
     ]
   },
@@ -475,7 +445,7 @@
     "section": "",
     "text": "To add a new syntactic relation to arsgrammatica:\n\nAdd the new label to RelationLabel in arsgrammatica/models.py.\nDescribe when to use it in SentenceAnalysis’s docstring in arsgrammatica/latin_syntax_dspy.py, following the pattern of the existing relations (which token gets relatedtoken1/relationship1, which gets the corresponding value on the other end).\nAdd a gold example exercising it to tests/fixtures/gold_examples.py and re-run pytest to confirm the models still validate before trying it against the real LM.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Extending the syntax scheme"
     ]
   },
@@ -486,7 +456,7 @@
     "section": "",
     "text": "Configure dspy for your LM:",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Analyzing syntax with a language model"
     ]
   },
@@ -497,52 +467,8 @@
     "section": "Analyze a corpus",
     "text": "Analyze a corpus\nfrom arsgrammatica import analyze_ctsdata\nsentences, results = analyze_ctsdata(\"path/to/cexfile\")\n\nWorking with results of an analysis\nanalyze_string() and analyze_sources() return a pair of lists:\n\na list of Sentence objects\na corresponding list of SentenceAnalysis objects, one for each sentence.\n\nA SentenceAnalysis has a list of VerbalExpression objects in its verbalunits property, and an ordered list of TokenAnalysis objects in its tokengraph property.\nFor examples of things you can do with lists of VerbalExpression and TokenAnalysis objects, such as visualizing and analyzing syntax graphs, see further recipes",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Analyzing syntax with a language model"
-    ]
-  },
-  {
-    "objectID": "guides/index.html",
-    "href": "guides/index.html",
-    "title": "Recipes",
-    "section": "",
-    "text": "Guides for using arsgrammatica for particular tasks.",
-    "crumbs": [
-      "Guides",
-      "Recipes"
-    ]
-  },
-  {
-    "objectID": "guides/index.html#analyzing-and-visualizing-syntax",
-    "href": "guides/index.html#analyzing-and-visualizing-syntax",
-    "title": "Recipes",
-    "section": "Analyzing and visualizing syntax",
-    "text": "Analyzing and visualizing syntax\n\nAnalyzing Latin texts\n\nInstalling arsgrammatica\nAnalyzing Latin syntax with a configured language model\nSaving and loading analyses\n\n\n\nVisualizing analyses\n\nHighlighting text syntactically in HTML\nVisualizing syntax graphs with Mermaid\n\n\n\nAnalyzing analyses as graph structures\n\nCharacterizing syntactic analyses with graph metrics\nBuilding an Agent-Action-Target (AAT) graph",
-    "crumbs": [
-      "Guides",
-      "Recipes"
-    ]
-  },
-  {
-    "objectID": "guides/index.html#training-a-language-model",
-    "href": "guides/index.html#training-a-language-model",
-    "title": "Recipes",
-    "section": "Training a language model",
-    "text": "Training a language model\n\nOptimizing\nA development work flow\nExtending the syntax scheme\nHow to write a gold example\nComparing models",
-    "crumbs": [
-      "Guides",
-      "Recipes"
-    ]
-  },
-  {
-    "objectID": "guides/index.html#managing-a-language-model",
-    "href": "guides/index.html#managing-a-language-model",
-    "title": "Recipes",
-    "section": "Managing a language model",
-    "text": "Managing a language model\n\nTokenizing text without analysis\nEstimating tokens budget",
-    "crumbs": [
-      "Guides",
-      "Recipes"
     ]
   },
   {
@@ -550,10 +476,87 @@
     "href": "guides/install.html",
     "title": "Installing arsgrammatica",
     "section": "",
-    "text": "Install directly from its github repository:\npip install git+https://github.com/neelsmith/arsgrammatica.git\nPin to a specific branch, e.g. for the wip branch:\npip install git+https://github.com/neelsmith/arsgrammatica.git@wip\nPin to a tagged version, e.g., v0.5.0:\npip install git+https://github.com/neelsmith/arsgrammatica.git@v0.5.0",
+    "text": "pip install arsgrammatica\nor for a specific version\nA direct-from-git install works too, if you want an unreleased branch:",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Installing `arsgrammatica`"
+    ]
+  },
+  {
+    "objectID": "guides/install.html#optional-installations",
+    "href": "guides/install.html#optional-installations",
+    "title": "Installing arsgrammatica",
+    "section": "Optional installations",
+    "text": "Optional installations\nIf you want to use the aatgraph() function to construct an Agent-Action-Target graph from an analysis:\npip install \"arsgrammatica[aat]\"\n\n# or, equivalently, install aatgraph yourself alongside the base package\npip install arsgrammatica aatgraph",
+    "crumbs": [
+      "Recipes",
+      "Installing `arsgrammatica`"
+    ]
+  },
+  {
+    "objectID": "guides/install.html#install-a-full-development-environment",
+    "href": "guides/install.html#install-a-full-development-environment",
+    "title": "Installing arsgrammatica",
+    "section": "Install a full development environment",
+    "text": "Install a full development environment\npip install -e “.[dev]”",
+    "crumbs": [
+      "Recipes",
+      "Installing `arsgrammatica`"
+    ]
+  },
+  {
+    "objectID": "guides/texthiliting.html",
+    "href": "guides/texthiliting.html",
+    "title": "Highlighting syntactic analysis in HTML",
+    "section": "",
+    "text": "arsgrammatica includes utility functions to display a text in HTML with highlighting of its syntactic structure.",
+    "crumbs": [
+      "Recipes",
+      "Highlighting syntactic analysis in HTML"
+    ]
+  },
+  {
+    "objectID": "guides/texthiliting.html#start-from-the-token-graph",
+    "href": "guides/texthiliting.html#start-from-the-token-graph",
+    "title": "Highlighting syntactic analysis in HTML",
+    "section": "Start from the token graph",
+    "text": "Start from the token graph\nFirst analyze a string or a passage, or read in a previously saved analysis. In this example, let’s assume we have read in a saved analysis and used split_analysis_by_sentence to get a list of sentences called sentence_slices. Each sentence pairs a list of verbal units with the syntactic graph of tokens, but to create the HTML views, we only need the graph.\n\nsentence_tokengraph, sentence_verbalunits = sentence_slices[0]",
+    "crumbs": [
+      "Recipes",
+      "Highlighting syntactic analysis in HTML"
+    ]
+  },
+  {
+    "objectID": "guides/texthiliting.html#color-by-verbal-expression-tokengraph_to_html",
+    "href": "guides/texthiliting.html#color-by-verbal-expression-tokengraph_to_html",
+    "title": "Highlighting syntactic analysis in HTML",
+    "section": "Color by verbal expression: tokengraph_to_html",
+    "text": "Color by verbal expression: tokengraph_to_html\ntokengraph_to_html will create an HTML view of the sentence with words colored by the verbal unit they belong to.\n\nfrom arsgrammatica import tokengraph_to_html\ncolored_by_vu, warnings = tokengraph_to_html(sentence_tokengraph)\n\nThe resulting colored_by_vu object looks like this:\n\n\nApertoque unus sacco, ut daret jumento pabulum in diversorio, contemplatus pecuniam in ore sacculi, dixit fratribus suis: Reddita est mihi pecunia, en habetur in sacco.",
+    "crumbs": [
+      "Recipes",
+      "Highlighting syntactic analysis in HTML"
+    ]
+  },
+  {
+    "objectID": "guides/texthiliting.html#add-indentation-by-depth-of-subordination-tokengraph_to_depth_html",
+    "href": "guides/texthiliting.html#add-indentation-by-depth-of-subordination-tokengraph_to_depth_html",
+    "title": "Highlighting syntactic analysis in HTML",
+    "section": "Add indentation by depth of subordination: tokengraph_to_depth_html",
+    "text": "Add indentation by depth of subordination: tokengraph_to_depth_html\nThe tokengraph_to_depth_html function uses the same color highlighting as tokengraph_to_html, but instead of laying out the text in a single paragraph, it indents sequences of tokens by their level of subordination.\n\nfrom arsgrammatica import tokengraph_to_depth_html\nindented_by_subordination, warnings = tokengraph_to_depth_html(sentence_tokengraph)\n\n\n\nApertoque\nunus\nsacco,\nut daret jumento pabulum in diversorio,\ncontemplatus pecuniam in ore sacculi,\ndixit fratribus suis:\nReddita est mihi pecunia,\nen habetur in sacco.",
+    "crumbs": [
+      "Recipes",
+      "Highlighting syntactic analysis in HTML"
+    ]
+  },
+  {
+    "objectID": "guides/texthiliting.html#limiting-display-by-syntactic-depth",
+    "href": "guides/texthiliting.html#limiting-display-by-syntactic-depth",
+    "title": "Highlighting syntactic analysis in HTML",
+    "section": "Limiting display by syntactic depth",
+    "text": "Limiting display by syntactic depth\nBoth tokengraph_to_html and tokengraph_to_depth_html accept an optional depth parameter. tokengraph_to_html will highlight only tokens at or below the specified syntactic depth.\n\n# depth=0 highlights root/independent clauses only:\ndepth_hilited, warnings = tokengraph_to_html(sentence_tokengraph, depth=0)\n\n\n\nApertoque unus sacco, ut daret jumento pabulum in diversorio, contemplatus pecuniam in ore sacculi, dixit fratribus suis: Reddita est mihi pecunia, en habetur in sacco.\n\n\ntokengraph_to_depth_html entirely omits tokens above the cutoff depth.\n\n# depth=0 limits the display to root/independent clauses only:\ndepth_filtered, warnings = tokengraph_to_depth_html(sentence_tokengraph, depth=0)\n\n\n\nunus\ndixit fratribus suis:",
+    "crumbs": [
+      "Recipes",
+      "Highlighting syntactic analysis in HTML"
     ]
   },
   {
@@ -563,7 +566,7 @@
     "section": "",
     "text": "SentenceAnalysis’s output (a reasoning field plus JSON-serialized verbalunits/tokengraph) grows with how long and how syntactically complex a sentence is, not by a fixed amount, so a single hard-coded max_tokens value is eventually wrong: too small for a long or deeply subordinated sentence (truncation), too large for a short one (wasted budget). arsgrammatica/token_budget.py addresses this with a calibrate-then-retry approach, and pipeline.py’s analyze_sources() already uses it – both analyze_sources() and analyze_passage() get this for free, with nothing to change in your own calling code.\nFirst, calibrate against your own configured model:\nThis is a live-LM script (real API cost, one call per GOLD_EXAMPLES entry) that measures how many completion tokens the real model actually uses for each gold example, fits completion_tokens ~= intercept + slope * num_input_tokens by least squares, and writes the result to arsgrammatica/token_budget_calibration.json. Re-run it whenever the configured model, the SentenceAnalysis prompt, or the TokenAnalysis/VerbalExpression schema changes substantially. Until you’ve run it at least once, estimate_max_tokens() falls back to an untuned, deliberately generous placeholder fit – safe, but not a real measurement of your model.\nestimate_max_tokens() takes the calibrated (or fallback) fit, multiplies it by a safety_margin (default 1.4, covering reasoning-length variance the fit alone doesn’t), and clamps the result to [floor, ceiling]. Set ceiling to your actual model’s real max-output-tokens limit – the module’s own DEFAULT_CEILING is only a placeholder stand-in, since that limit varies by provider/model and there’s no single correct default.\nFor the retry half, analyze_with_retry() wraps analyze():\nIt starts from estimate_max_tokens(len(tokens)) (or initial_max_tokens, if you pass one), and checks the result two ways: whether the returned tokengraph is missing any of tokens’ own ids (the primary, provider-independent signal – a real truncation, LM-JSON getting cut off mid-list, always shows up here), and, as a corroborating check, whether the LM’s own finish_reason was \"length\". If either signals truncation and a retry is still available (max_retries, default 1) with budget left before ceiling, it multiplies the budget by growth_factor (default 2.0) and calls again – max_tokens is part of DSPy’s own LM cache key, so the retry always reaches the LM again rather than replaying the same truncated cached response. If retries run out: a call that raised re-raises (nothing to fall back to); a call that returned an incomplete result is returned anyway, with a UserWarning naming the missing ids, rather than treated as fatal – consistent with validate()’s own warn-don’t-raise convention for imperfect LM output.\nget_calibration() reports which fit is currently active (the real one from calibrate_max_tokens.py, or the untuned fallback) if you want to check before relying on an estimate.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Estimating and enforcing a `max_tokens` budget"
     ]
   },
@@ -574,7 +577,7 @@
     "section": "Anthropic prompt caching",
     "text": "Anthropic prompt caching\nSentenceAnalysis’s system message – its own instructions plus the full TokenAnalysis/VerbalExpression field descriptions – runs to roughly 40,000 characters and is byte-identical on every single call, regardless of passage; only the small per-sentence user message actually varies (typically well under 1,000 characters). Every _configure_lm() in this repo (syntaxer_main.py, calibrate_max_tokens.py, and the marimo notebooks) turns on Anthropic prompt caching automatically when MODEL routes to Anthropic – there’s no .env setting for this, and switching MODEL to a non-Anthropic backend (Ollama, OpenAI, etc.) skips it with nothing to turn off by hand:\nif \"anthropic\" in model.lower():\n    lm_kwargs[\"cache_control_injection_points\"] = [\n        {\"location\": \"message\", \"role\": \"system\"}\n    ]\ncache_control_injection_points is a litellm parameter (which dspy.LM forwards straight through, along with any other kwarg) that marks a message with Anthropic’s ephemeral cache_control breakpoint – everything up to and including that message can be reused by a later call within Anthropic’s cache TTL (5 minutes by default) at roughly a tenth of its normal input-token price, instead of paying full price every time. Since there are no few-shot demos attached to analyze today, one breakpoint on the system message covers the whole static prefix; if a compiled/optimized program with demos is ever loaded, add a second point, {\"location\": \"message\", \"index\": -2}, to fold the demo turns into the same cached prefix (the real, always-different input is always the last message, so -2 is “whatever precedes it,” demos or not).\nThis is a net win specifically for anything that fires several calls close together against the same system message – analyze_sources() walking a multi-sentence passage, calibrate_max_tokens.py’s run over the whole GOLD_EXAMPLES corpus (one call per entry, 43 as of this writing), or an interactive marimo session. A single, isolated call costs a little more than before (a modest write premium with no offsetting read), so this only pays off because these scripts are rarely run for just one call.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Estimating and enforcing a `max_tokens` budget"
     ]
   },
@@ -583,9 +586,53 @@
     "href": "guides/mermaid.html",
     "title": "Visualizing syntax graphs with Mermaid",
     "section": "",
-    "text": "Mermaid is a lightweight diagramming language that is easily used in many Markdown viewers and editors, web environments, the https://mermaid.live mermaid editor, and others. To compose a Mermaid diagram for a token graph:\nwarnings lists any edge that got skipped because it pointed at a punctuation token or an id missing from tokengraph.\nYou can save the diagram to a file with save_mermaid.\nBoth tokengraph_to_mermaid and save_mermaid accept one of Mermaid’s orientation codes (BT, TB, LR, RL) in an optional orientation argument, with default value BT (bottom-to-top). Remember that the token graph is directed from subordinate to governing nodes. BT will result in root elements at the top, and RL will place root elements at the left of the diagram.",
+    "text": "Mermaid is a lightweight diagramming language that is easily used in many Markdown viewers and editors, web environments, the https://mermaid.live mermaid editor, and others.",
     "crumbs": [
-      "Guides",
+      "Recipes",
+      "Visualizing syntax graphs with Mermaid"
+    ]
+  },
+  {
+    "objectID": "guides/mermaid.html#start-from-the-token-graph",
+    "href": "guides/mermaid.html#start-from-the-token-graph",
+    "title": "Visualizing syntax graphs with Mermaid",
+    "section": "Start from the token graph",
+    "text": "Start from the token graph\nTo compose a Mermaid diagram for a token graph, first analyze a string or a passage, or read in a previously saved analysis. In this example, let’s assume we have read in a saved analysis and used split_analysis_by_sentence to get a list of sentences called sentence_slices. Each sentence pairs a list of verbal units with the syntactic graph of tokens, but to create the HTML views, we only need the graph.\n\nsentence_tokengraph, sentence_verbalunits = sentence_slices[0]",
+    "crumbs": [
+      "Recipes",
+      "Visualizing syntax graphs with Mermaid"
+    ]
+  },
+  {
+    "objectID": "guides/mermaid.html#compose-a-mermaid-diagram",
+    "href": "guides/mermaid.html#compose-a-mermaid-diagram",
+    "title": "Visualizing syntax graphs with Mermaid",
+    "section": "Compose a mermaid diagram",
+    "text": "Compose a mermaid diagram\nUse tokengraph_to_mermaid to create a diagram of the syntax graph. It returns two values: a Mermaid diagram string, and a list of any warnings (e.g., an edge that got skipped).\n\nfrom arsgrammatica import tokengraph_to_mermaid\ndiagram, warnings = tokengraph_to_mermaid(sentence_tokengraph)\n\n\n\n\n\n\n\n\ngraph BT\n    42.27.t0[\"Aperto\"]\n    42.27.t1[\"que\"]\n    42.27.t2[\"unus\"]\n    42.27.t3[\"sacco\"]\n    42.27.t5[\"ut\"]\n    42.27.t6[\"daret\"]\n    42.27.t7[\"jumento\"]\n    42.27.t8[\"pabulum\"]\n    42.27.t9[\"in\"]\n    42.27.t10[\"diversorio\"]\n    42.27.t12[\"contemplatus\"]\n    42.27.t13[\"pecuniam\"]\n    42.27.t14[\"in\"]\n    42.27.t15[\"ore\"]\n    42.27.t16[\"sacculi\"]\n    42.28.t0[\"dixit\"]\n    42.28.t1[\"fratribus\"]\n    42.28.t2[\"suis\"]\n    42.28.t4[\"Reddita\"]\n    42.28.t5[\"est\"]\n    42.28.t6[\"mihi\"]\n    42.28.t7[\"pecunia\"]\n    42.28.t9[\"en\"]\n    42.28.t10[\"habetur\"]\n    42.28.t11[\"in\"]\n    42.28.t12[\"sacco\"]\n    root([\"root\"])\n    42.27.t0 --&gt;|circumstantial participle| 42.27.t3\n    42.27.t1 --&gt;|coordinating conjunction| 42.28.t0\n    42.27.t2 --&gt;|subject| 42.28.t0\n    42.27.t3 --&gt;|ablative absolute| 42.28.t0\n    42.27.t5 --&gt;|subordinating conjunction| 42.27.t0\n    42.27.t6 --&gt;|unit verb| 42.27.t5\n    42.27.t7 --&gt;|dative| 42.27.t6\n    42.27.t8 --&gt;|direct object| 42.27.t6\n    42.27.t9 --&gt;|adverbial| 42.27.t6\n    42.27.t10 --&gt;|object of preposition| 42.27.t9\n    42.27.t12 --&gt;|circumstantial participle| 42.27.t2\n    42.27.t13 --&gt;|direct object| 42.27.t12\n    42.27.t14 --&gt;|attributive| 42.27.t13\n    42.27.t15 --&gt;|object of preposition| 42.27.t14\n    42.27.t16 --&gt;|genitive| 42.27.t15\n    42.28.t0 --&gt;|unit verb| root\n    42.28.t1 --&gt;|dative| 42.28.t0\n    42.28.t2 --&gt;|adjectival| 42.28.t1\n    42.28.t4 --&gt;|direct quote| 42.28.t0\n    42.28.t5 --&gt;|auxiliary| 42.28.t4\n    42.28.t6 --&gt;|dative| 42.28.t4\n    42.28.t7 --&gt;|subject| 42.28.t4\n    42.28.t9 --&gt;|adverbial| 42.28.t10\n    42.28.t10 --&gt;|direct quote| 42.28.t0\n    42.28.t11 --&gt;|adverbial| 42.28.t10\n    42.28.t12 --&gt;|object of preposition| 42.28.t11\n\n    42.27.t0 ~~~ 42.27.t12 ~~~ 42.28.t4 ~~~ 42.28.t10\n\n    classDef vu0 fill:#82bbff,stroke:#2a78d6,color:#000000;\n    classDef vu1 fill:#ffa682,stroke:#eb6834,color:#000000;\n    classDef vu2 fill:#70ffcc,stroke:#1baf7a,color:#000000;\n    classDef vu3 fill:#ffd170,stroke:#eda100,color:#000000;\n    classDef vu4 fill:#ff94bc,stroke:#e87ba4,color:#000000;\n    classDef vu5 fill:#7aff7a,stroke:#008300,color:#000000;\n    class 42.27.t0,42.27.t3 vu0;\n    class 42.27.t1,42.27.t2,42.28.t0,42.28.t1,42.28.t2 vu1;\n    class 42.27.t5,42.27.t6,42.27.t7,42.27.t8,42.27.t9,42.27.t10 vu2;\n    class 42.27.t12,42.27.t13,42.27.t14,42.27.t15,42.27.t16 vu3;\n    class 42.28.t4,42.28.t5,42.28.t6,42.28.t7 vu4;\n    class 42.28.t9,42.28.t10,42.28.t11,42.28.t12 vu5;",
+    "crumbs": [
+      "Recipes",
+      "Visualizing syntax graphs with Mermaid"
+    ]
+  },
+  {
+    "objectID": "guides/mermaid.html#save-a-diagram",
+    "href": "guides/mermaid.html#save-a-diagram",
+    "title": "Visualizing syntax graphs with Mermaid",
+    "section": "Save a diagram",
+    "text": "Save a diagram\nYou can save the diagram to a file with save_mermaid.\nfrom arsgrammatica import save_mermaid\nsave_mermaid(diagram,\"diagram.mmd\")",
+    "crumbs": [
+      "Recipes",
+      "Visualizing syntax graphs with Mermaid"
+    ]
+  },
+  {
+    "objectID": "guides/mermaid.html#options",
+    "href": "guides/mermaid.html#options",
+    "title": "Visualizing syntax graphs with Mermaid",
+    "section": "Options",
+    "text": "Options\n\nBoth tokengraph_to_mermaid and save_mermaid accept one of Mermaid’s orientation codes (BT, TB, LR, RL) in an optional orientation argument, with default value BT (bottom-to-top). Since the token graph is directed from subordinate to governing nodes, BT will result in root elements at the top, and RL will place root elements at the left of the diagram.\nIt is also possible to omit the hypothetical root node of a sentence\n\n\ndiagram_rl, warnings = tokengraph_to_mermaid(\n    sentence_tokengraph, \n    orientation=\"RL\")\n\n\n\n\n\n\n\n\ngraph RL\n    42.27.t0[\"Aperto\"]\n    42.27.t1[\"que\"]\n    42.27.t2[\"unus\"]\n    42.27.t3[\"sacco\"]\n    42.27.t5[\"ut\"]\n    42.27.t6[\"daret\"]\n    42.27.t7[\"jumento\"]\n    42.27.t8[\"pabulum\"]\n    42.27.t9[\"in\"]\n    42.27.t10[\"diversorio\"]\n    42.27.t12[\"contemplatus\"]\n    42.27.t13[\"pecuniam\"]\n    42.27.t14[\"in\"]\n    42.27.t15[\"ore\"]\n    42.27.t16[\"sacculi\"]\n    42.28.t0[\"dixit\"]\n    42.28.t1[\"fratribus\"]\n    42.28.t2[\"suis\"]\n    42.28.t4[\"Reddita\"]\n    42.28.t5[\"est\"]\n    42.28.t6[\"mihi\"]\n    42.28.t7[\"pecunia\"]\n    42.28.t9[\"en\"]\n    42.28.t10[\"habetur\"]\n    42.28.t11[\"in\"]\n    42.28.t12[\"sacco\"]\n    root([\"root\"])\n    42.27.t0 --&gt;|circumstantial participle| 42.27.t3\n    42.27.t1 --&gt;|coordinating conjunction| 42.28.t0\n    42.27.t2 --&gt;|subject| 42.28.t0\n    42.27.t3 --&gt;|ablative absolute| 42.28.t0\n    42.27.t5 --&gt;|subordinating conjunction| 42.27.t0\n    42.27.t6 --&gt;|unit verb| 42.27.t5\n    42.27.t7 --&gt;|dative| 42.27.t6\n    42.27.t8 --&gt;|direct object| 42.27.t6\n    42.27.t9 --&gt;|adverbial| 42.27.t6\n    42.27.t10 --&gt;|object of preposition| 42.27.t9\n    42.27.t12 --&gt;|circumstantial participle| 42.27.t2\n    42.27.t13 --&gt;|direct object| 42.27.t12\n    42.27.t14 --&gt;|attributive| 42.27.t13\n    42.27.t15 --&gt;|object of preposition| 42.27.t14\n    42.27.t16 --&gt;|genitive| 42.27.t15\n    42.28.t0 --&gt;|unit verb| root\n    42.28.t1 --&gt;|dative| 42.28.t0\n    42.28.t2 --&gt;|adjectival| 42.28.t1\n    42.28.t4 --&gt;|direct quote| 42.28.t0\n    42.28.t5 --&gt;|auxiliary| 42.28.t4\n    42.28.t6 --&gt;|dative| 42.28.t4\n    42.28.t7 --&gt;|subject| 42.28.t4\n    42.28.t9 --&gt;|adverbial| 42.28.t10\n    42.28.t10 --&gt;|direct quote| 42.28.t0\n    42.28.t11 --&gt;|adverbial| 42.28.t10\n    42.28.t12 --&gt;|object of preposition| 42.28.t11\n\n    42.27.t0 ~~~ 42.27.t12 ~~~ 42.28.t4 ~~~ 42.28.t10\n\n    classDef vu0 fill:#82bbff,stroke:#2a78d6,color:#000000;\n    classDef vu1 fill:#ffa682,stroke:#eb6834,color:#000000;\n    classDef vu2 fill:#70ffcc,stroke:#1baf7a,color:#000000;\n    classDef vu3 fill:#ffd170,stroke:#eda100,color:#000000;\n    classDef vu4 fill:#ff94bc,stroke:#e87ba4,color:#000000;\n    classDef vu5 fill:#7aff7a,stroke:#008300,color:#000000;\n    class 42.27.t0,42.27.t3 vu0;\n    class 42.27.t1,42.27.t2,42.28.t0,42.28.t1,42.28.t2 vu1;\n    class 42.27.t5,42.27.t6,42.27.t7,42.27.t8,42.27.t9,42.27.t10 vu2;\n    class 42.27.t12,42.27.t13,42.27.t14,42.27.t15,42.27.t16 vu3;\n    class 42.28.t4,42.28.t5,42.28.t6,42.28.t7 vu4;\n    class 42.28.t9,42.28.t10,42.28.t11,42.28.t12 vu5;",
+    "crumbs": [
+      "Recipes",
       "Visualizing syntax graphs with Mermaid"
     ]
   },
@@ -596,7 +643,7 @@
     "section": "Limitations",
     "text": "Limitations\nMermaid’s layout engine cannot enforce aligning nodes by rank. (You can think of rank as the syntactic depth of the node, like the generations in a family tree.) This kind of alignment can make the diagram of very complex sentences easier to read. If you want diagrams aligned by rank, you can use the open-source graphviz program: see “Diagramming syntactic analyses”.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Visualizing syntax graphs with Mermaid"
     ]
   },
@@ -621,7 +668,7 @@
     "section": "",
     "text": "You can serialize analyses to a delimited-text file, and read saved analyses back using the write_analyses and read_analyses functions.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Saving and loading analyses"
     ]
   },
@@ -632,7 +679,7 @@
     "section": "Saving analyses",
     "text": "Saving analyses\nIf you have analyzed one or more passages into two variables sentences and results (like these examples), here’s how to serialize them.\nfrom arsgrammatica import write_analyses, combined_tokengraph\n\ntokengraph = combined_tokengraph(results)\nverbalunits = [vu for result in results for vu in result.verbalunits]\n\nwarnings = write_analyses(sentences, verbalunits, tokengraph, \"analysis.txt\")\nwrite_analyses expects sentences, verbal units, and tokens to be separately organized, and writes them to a named file. We already have a sentences variable. We can extract from the results variable separate lists for verbal units (the nested for comprehension) and the token graph (the combined_tokengraph function).\nwrite_analyses returns a list with any warnings encountered in serializing the analyses. We could check those:\nfor w in warnings:\n    print(f\"Warning: {w}\")\nYou may also optionally record in a separate block of the delimited-text file the language model and its reasoning as part of the sentence-by-sentence record, using the optional parameters model and reasoning.\nimport os\n\nwarnings = write_analyses(\n    sentences, verbalunits, tokengraph, \"analysis.txt\",\n    model=os.environ[\"MODEL\"],\n    reasoning=[result.reasoning for result in results],\n)",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Saving and loading analyses"
     ]
   },
@@ -641,9 +688,9 @@
     "href": "guides/saving-loading.html#reading-saved-analyses",
     "title": "Saving and loading analyses",
     "section": "Reading saved analyses",
-    "text": "Reading saved analyses\nYou can read back a flat list of all the four parts of a serialization with the read_analyses function.\nfrom arsgrammatica import read_analyses\n\ntokengraph, verbalunits, sentences, lm_infos = \n    read_analyses(\"analysis.txt\")\nTo split up the composite token graph by sentence, use split_analysis_by_sentence.\nfrom arsgrammatica import split_analysis_by_sentence\nsentencetokens = split_analysis_by_sentence(tokengraph, verbalunits, sentences)\n\nfor (sentence_tokengraph, sentence_verbalunits) in \n    zip(sentences, sentencetokens):\n    ...  # work with analysis data per sentence\nFor details of the serialization format, see the reference documentation",
+    "text": "Reading saved analyses\nYou can read back a flat list of all the four parts of a serialization with the read_analyses function.\n\nfrom arsgrammatica import read_analyses\ntokengraph, verbalunits, sentences, lm_infos = read_analyses(analysis_file)\n\nTo split up the composite token graph by sentence, use split_analysis_by_sentence.\n\nfrom arsgrammatica import split_analysis_by_sentence\nsentence_slices = split_analysis_by_sentence(tokengraph, verbalunits, sentences)\n\nEach sentence slice has two parts: the syntactic graph of tokens, and a list of verbal units.\n\nsentence_tokengraph, sentence_verbalunits = sentence_slices[0]\n\n\n\n\n\n\n\nNote\n\n\n\nFor details of the serialization format, see the reference documentation",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Saving and loading analyses"
     ]
   },
@@ -654,7 +701,7 @@
     "section": "",
     "text": "arsgrammatica ensures that every token in a citable passage is uniquely identified by tokenizing the passage, and assigning identifiers to each token. When you analyze a full passage, arsgrammatica next segments the sequence of tokens into sentence units, and analyzes one sentence at a time.\narsgrammatica’s build-in management of token lengths is very good at preventing the analysis of a single sentence from overflowing your limits on the size of a request and reply. If, however, a single passage contains many long and complex sentences, the total reply from analyzing all the sentences in a passage could still result in a truncated reply. (Anyone interested in reading some orations of Cicero, for example?)\nThe solution is to submit separate requests for each sentence, but to do that, the tokens must already be uniquely identified. Otherwise the analysis of each sentence would once again begin assigning id values from t0, and tokens would no longer be uniquely identified within their citable context.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Tokenizing a source file without full syntax analysis"
     ]
   },
@@ -665,7 +712,7 @@
     "section": "",
     "text": "arsgrammatica ensures that every token in a citable passage is uniquely identified by tokenizing the passage, and assigning identifiers to each token. When you analyze a full passage, arsgrammatica next segments the sequence of tokens into sentence units, and analyzes one sentence at a time.\narsgrammatica’s build-in management of token lengths is very good at preventing the analysis of a single sentence from overflowing your limits on the size of a request and reply. If, however, a single passage contains many long and complex sentences, the total reply from analyzing all the sentences in a passage could still result in a truncated reply. (Anyone interested in reading some orations of Cicero, for example?)\nThe solution is to submit separate requests for each sentence, but to do that, the tokens must already be uniquely identified. Otherwise the analysis of each sentence would once again begin assigning id values from t0, and tokens would no longer be uniquely identified within their citable context.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Tokenizing a source file without full syntax analysis"
     ]
   },
@@ -674,54 +721,50 @@
     "href": "guides/tokenizing.html#a-work-around",
     "title": "Tokenizing a source file without full syntax analysis",
     "section": "A work around",
-    "text": "A work around\nutilities/tokenize_ctsdata.py is a command-line script that reads every passage out of a CEX source file, tokenizes it, and segments the results into sentences.\npython3 utilities/tokenize_ctsdata.py passages.cex &gt; tokenized.txt\nThe marimo notebook marimo/latin_syntaxer_tokenized.py reads files with tokenized data in the format written by tokenize_ctsdata.py. Users can this choose a tokenized sentence, and analyze it.\n\n\n\n\n\n\nTip\n\n\n\nSee the reference section for information about the output format.",
+    "text": "A work around\nutilities/tokenize_ctsdata.py is a command-line script that reads every passage out of a CEX source file, tokenizes it, and segments the results into sentences.\npython3 utilities/tokenize_ctsdata.py passages.cex &gt; tokenized.txt\nThe marimo notebook marimo/latin_syntaxer_tokenized.py reads files with tokenized data in the format written by tokenize_ctsdata.py. Users can choose a tokenized sentence, and analyze it. To analyze an entire file of tokenized passages, you can use the utilities/analyze_tokendata_to_files.py script. (See this tutorial)\n\n\n\n\n\n\nTip\n\n\n\nSee the reference section for information about the output format.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Tokenizing a source file without full syntax analysis"
     ]
   },
   {
-    "objectID": "guides/texthiliting.html",
-    "href": "guides/texthiliting.html",
-    "title": "Highlighting syntactic analysis in HTML",
+    "objectID": "guides/index.html",
+    "href": "guides/index.html",
+    "title": "Recipes",
     "section": "",
-    "text": "arsgrammatica includes utility functions to display a text in HTML with highlighting of its syntactic structure. First analyze a string or a passage.",
+    "text": "Guides for using arsgrammatica for particular tasks.",
     "crumbs": [
-      "Guides",
-      "Highlighting syntactic analysis in HTML"
+      "Recipes"
     ]
   },
   {
-    "objectID": "guides/texthiliting.html#coloring-by-verbal-expression",
-    "href": "guides/texthiliting.html#coloring-by-verbal-expression",
-    "title": "Highlighting syntactic analysis in HTML",
-    "section": "Coloring by verbal expression",
-    "text": "Coloring by verbal expression\nOnce you have an analysis result, you can compose an HTML string that colors tokens by the verbal expression they belong to, using the same colors as arsgramamtica’s Mermaid diagrams.\nfrom arsgrammatica import tokengraph_to_html\nhtml = tokengraph_to_html(result.tokengraph)\n(Use this in a web environment (like a Marimo notebook) to see the real results.)",
+    "objectID": "guides/index.html#analyzing-and-visualizing-syntax",
+    "href": "guides/index.html#analyzing-and-visualizing-syntax",
+    "title": "Recipes",
+    "section": "Analyzing and visualizing syntax",
+    "text": "Analyzing and visualizing syntax\n\nAnalyzing Latin texts\n\nInstalling arsgrammatica\nAnalyzing Latin syntax with a configured language model\nSaving and loading analyses\n\n\n\nVisualizing analyses\n\nHighlighting text syntactically in HTML\nVisualizing syntax graphs with Mermaid\n\n\n\nAnalyzing analyses as graph structures\n\nCharacterizing syntactic analyses with graph metrics\nBuilding an Agent-Action-Target (AAT) graph",
     "crumbs": [
-      "Guides",
-      "Highlighting syntactic analysis in HTML"
+      "Recipes"
     ]
   },
   {
-    "objectID": "guides/texthiliting.html#add-indentation-by-depth-of-subordination",
-    "href": "guides/texthiliting.html#add-indentation-by-depth-of-subordination",
-    "title": "Highlighting syntactic analysis in HTML",
-    "section": "Add indentation by depth of subordination",
-    "text": "Add indentation by depth of subordination\nThe tokengraph_to_depth_html function uses the same color highlighting as tokengraph_to_html, but instead of laying out the text in a single paragaph, it indents sequences of tokens by their level of subordination.\nfrom arsgrammatica import tokengraph_to_depth_html\nhtml, warnings = tokengraph_to_depth_html(result.tokengraph)",
+    "objectID": "guides/index.html#training-a-language-model",
+    "href": "guides/index.html#training-a-language-model",
+    "title": "Recipes",
+    "section": "Training a language model",
+    "text": "Training a language model\n\nOptimizing\nA development work flow\nExtending the syntax scheme\nHow to write a gold example\nComparing models",
     "crumbs": [
-      "Guides",
-      "Highlighting syntactic analysis in HTML"
+      "Recipes"
     ]
   },
   {
-    "objectID": "guides/texthiliting.html#limiting-display-by-syntactic-depth",
-    "href": "guides/texthiliting.html#limiting-display-by-syntactic-depth",
-    "title": "Highlighting syntactic analysis in HTML",
-    "section": "Limiting display by syntactic depth",
-    "text": "Limiting display by syntactic depth\nBoth tokengraph_to_html and tokengraph_to_depth_html accept an optional depth parameter. tokengraph_to_html will highlight only tokens at or below the specified syntactic depth; tokengraph_to_html entirely omits tokens above the cutoff depth. (These features are used interactively in the marimo notebooks to analyze passages and review analyses.)\n# depth=0 limits the display to root/independent clauses only:\nhtml, warnings = tokengraph_to_depth_html(result.tokengraph, depth=0)",
+    "objectID": "guides/index.html#managing-a-language-model",
+    "href": "guides/index.html#managing-a-language-model",
+    "title": "Recipes",
+    "section": "Managing a language model",
+    "text": "Managing a language model\n\nTokenizing text without analysis\nEstimating tokens budget",
     "crumbs": [
-      "Guides",
-      "Highlighting syntactic analysis in HTML"
+      "Recipes"
     ]
   },
   {
@@ -729,9 +772,9 @@
     "href": "guides/batch-texts.html",
     "title": "Utilities to simplify analyzing a corpus",
     "section": "",
-    "text": "You can analyze an entire corpus in a CEX-format file with analyze_ctsdata_to_files.py. An analysis file is written for each sentence to an output directory you provide.\npython utilities/analyze_ctsdata_to_files.py corpus.cex \n     --output-dir analyses/",
+    "text": "You can analyze an entire corpus in a CEX-format file with analyze_ctsdata_to_files.py. An analysis file is written for each sentence to an output directory you provide.\npython3 utilities/analyze_ctsdata_to_files.py corpus.cex \n     --output-dir analyses/",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Utilities to simplify analyzing a corpus"
     ]
   },
@@ -740,9 +783,9 @@
     "href": "guides/batch-texts.html#analyzing-a-corpus",
     "title": "Utilities to simplify analyzing a corpus",
     "section": "",
-    "text": "You can analyze an entire corpus in a CEX-format file with analyze_ctsdata_to_files.py. An analysis file is written for each sentence to an output directory you provide.\npython utilities/analyze_ctsdata_to_files.py corpus.cex \n     --output-dir analyses/",
+    "text": "You can analyze an entire corpus in a CEX-format file with analyze_ctsdata_to_files.py. An analysis file is written for each sentence to an output directory you provide.\npython3 utilities/analyze_ctsdata_to_files.py corpus.cex \n     --output-dir analyses/",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Utilities to simplify analyzing a corpus"
     ]
   },
@@ -751,9 +794,9 @@
     "href": "guides/batch-texts.html#working-with-part-of-a-corpus",
     "title": "Utilities to simplify analyzing a corpus",
     "section": "Working with part of a corpus",
-    "text": "Working with part of a corpus\nYou may not be able to analyze a large corpus all at once. The utilities directory includes scripts that do not require a language model to help you work with parts of a corpus.\n\nGroup cited passages by sentence boundaries\nIf you want to analyze a subset of a corpus where sentences and citation units do not always coincide (typical for Latin poetry cited by verse line), you can group passages into sequences that begin and end on sentence boundaries with group_ctsdata_by_sentence.py. This script writes to standard output a list of URNs for each group on a single line.\nIf we segemented a text of the Aeneid like this:\npython utilities/group_ctsdata_by_sentence.py aeneid.cex\nthe first two lines would list passages for a sentence beginning at Aeneid 1.1 and a second sentence beginning at Aeneid 1.8*, like this:\nurn:cts:latinLit:phi0690.phi003:1.1 urn:cts:latinLit:phi0690.phi003:1.2 urn:cts:latinLit:phi0690.phi003:1.3 urn:cts:latinLit:phi0690.phi003:1.4 urn:cts:latinLit:phi0690.phi003:1.5 urn:cts:latinLit:phi0690.phi003:1.6 urn:cts:latinLit:phi0690.phi003:1.7\nurn:cts:latinLit:phi0690.phi003:1.8 urn:cts:latinLit:phi0690.phi003:1.9 urn:cts:latinLit:phi0690.phi003:1.10 urn:cts:latinLit:phi0690.phi003:1.11\nUse normal IO redirection to save the results in a file:\npython utilities/group_ctsdata_by_sentence.py aeneid.cex &gt; aeneid-linegroups.txt\n\n\nDefine citable tokens and sentence units\nIt can be useful to cite tokens with the same stable identifiers produced by a syntactic analysis with arsgrammatica. The script tokenize_ctsdata.py reads a text corpus from a CEX-format file, and writes to standard output a delimited-text listing of all the tokens in the corpus, and a list of sentences defined by the starting and ending token of each sentence.\npython utilities/tokenize_ctsdata.py corpus.cex &gt; tokens-sentences.cex\nFor details of the output format, see the reference documentation.",
+    "text": "Working with part of a corpus\nYou may not be able to analyze a large corpus all at once. The utilities directory includes scripts that do not require a language model to help you work with parts of a corpus.\n\nGroup cited passages by sentence boundaries\nIf you want to analyze a subset of a corpus where sentences and citation units do not always coincide (typical for Latin poetry cited by verse line), you can group passages into sequences that begin and end on sentence boundaries with group_ctsdata_by_sentence.py. This script writes to standard output a list of URNs for each group on a single line.\nIf we segemented a text of the Aeneid like this:\npython3 utilities/group_ctsdata_by_sentence.py aeneid.cex\nthe first two lines would list passages for a sentence beginning at Aeneid 1.1 and a second sentence beginning at Aeneid 1.8*, like this:\nurn:cts:latinLit:phi0690.phi003:1.1 urn:cts:latinLit:phi0690.phi003:1.2 urn:cts:latinLit:phi0690.phi003:1.3 urn:cts:latinLit:phi0690.phi003:1.4 urn:cts:latinLit:phi0690.phi003:1.5 urn:cts:latinLit:phi0690.phi003:1.6 urn:cts:latinLit:phi0690.phi003:1.7\nurn:cts:latinLit:phi0690.phi003:1.8 urn:cts:latinLit:phi0690.phi003:1.9 urn:cts:latinLit:phi0690.phi003:1.10 urn:cts:latinLit:phi0690.phi003:1.11\nUse normal IO redirection to save the results in a file:\npython3 utilities/group_ctsdata_by_sentence.py aeneid.cex &gt; aeneid-linegroups.txt\n\n\nDefine citable tokens and sentence units\nIt can be useful to cite tokens with the same stable identifiers produced by a syntactic analysis with arsgrammatica. The script tokenize_ctsdata.py reads a text corpus from a CEX-format file, and writes to standard output a delimited-text listing of all the tokens in the corpus, and a list of sentences defined by the starting and ending token of each sentence.\npython3 utilities/tokenize_ctsdata.py corpus.cex &gt; tokens-sentences.cex\nFor details of the output format, see the reference documentation.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Utilities to simplify analyzing a corpus"
     ]
   },
@@ -764,7 +807,7 @@
     "section": "",
     "text": "A fundamental part of the DSPy development are the GoldExample pairings of a Latin passage with a hand-verified canned_answer. These are defined in tests/fixtures/gold_examples.py. Every GoldExample entry lives in the single GOLD_EXAMPLES list at the bottom of that file. You can add examples there that you have either hand-written, or harvested from successful analyses.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "How to add a gold example"
     ]
   },
@@ -775,7 +818,7 @@
     "section": "Harvesting from a successful analysis",
     "text": "Harvesting from a successful analysis\nIf you have analyzed a difficult construction that you want to add to the core training sets, you can save the analysis and use the analysis_to_gold_example.py script to compose the Python you need.\nPass it two arguments: the analysis file, and an identifying label for the analysis. The identifying label is a short, unique, descriptive id (e.g. cicero_proarchia_exordium) that serves as the pytest id for every test parametrized over GOLD_EXAMPLES. Include the --tags parameter to name constructions the example is meant to exercise, for a human skimming the file. Run analysis_to_gold_example -h to see all the optional parameters the script accepts.\nRun it like this:\npython3 utilities/analysis_to_gold_example.py analysisfile.cex cicero_proarchia_exordium --tags \"complex subordination\" \nThis prints to standard output a string in two parts . The first part is a Python dictionary, which in this example will be named _CICERO_PROARCHIA_EXORDIUM_ANSWER. The dictionary contains the complete analysis data (the model’s reasoning, the verbal expressions table, and the token graph).\nThe second part is a GoldExample object identifying the labelled analysis as the correct canned_answer for the passage. In our example, it would look like this:\n\nGoldExample(\n    slug=\"cicero_proarchia_exordium\",\n    passage=\"ac ne quis a nobis hoc ita dici forte miretur, quod alia quaedam in hoc facultas sit ingeni neque haec dicendi ratio aut disciplina, ne nos quidem huic uni studio penitus umquam dediti fuimus.\",\n    tags=[\"complex subordination\"],\n    canned_answer=_CICERO_PROARCHIA_EXORDIUM_ANSWER,\n),\nIn tests/fixtures/gold_examples.py, you can paste the dict above the list beginning GOLD_EXAMPLES = [ and place the new GoldExample(...) entry inside the list.\nBe sure to review the reasoning property of dict you’ve pasted in. It’s the model’s own recorded reasoning, and not guaranteed to read the way you would write it by hand.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "How to add a gold example"
     ]
   },
@@ -786,7 +829,7 @@
     "section": "Hand writing a GoldExample",
     "text": "Hand writing a GoldExample\nIf you want to add a small, deliberately-constructed example targeting one specific construction, refer to the existing examples and:\n\nWrite a module-level _SOME_ANSWER = {...} dict: reasoning (a real explanation, not a placeholder), verbalunits (one entry per verbal expression – id/syntactic_type/semantic_type), tokengraph (one entry per token – id/token/tokentype, plus whichever of lemma/verbalunitid/relatedtoken1/relationship1/relatedtoken2/relationship2 actually apply; omit a field entirely rather than setting it to None, matching every existing entry). See arsgrammatica/models.py’s TokenAnalysis/VerbalExpression and syntax_model.md for what’s allowed, and notes/relationship_labels.md for the relation-label catalog.\nAdd a GoldExample(slug=..., passage=..., tags=[...], canned_answer=_SOME_ANSWER) entry to GOLD_EXAMPLES, referencing that dict.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "How to add a gold example"
     ]
   },
@@ -797,7 +840,7 @@
     "section": "Before you add it",
     "text": "Before you add it\n\nRun pytest -k &lt;slug&gt;: test_gold_examples.py checks validate() and a clean Mermaid render for every fixture automatically, no test-file changes needed.\ntest_coverage.py reports which relation labels / verbal-expression types / tokentypes still have no example – worth a look if you’re deliberately filling a gap.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "How to add a gold example"
     ]
   },
@@ -808,7 +851,7 @@
     "section": "",
     "text": "Once we have analyzed a passage, we can characterize the resulting syntax graph with standard graph metrics. arsgrammatica includes functions for analyzing graphs in Python, and a Marimo notebook, latin_syntaxer_graphs.py, where you can interactively explore some of these metrics.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Characterizing syntax analyses with graph metrics"
     ]
   },
@@ -819,7 +862,7 @@
     "section": "Finding graph metrics",
     "text": "Finding graph metrics\nFirst, from a token graph, we create a graph in the format of the Python NetworkX package:\nfrom arsgrammatica import tokengraph_to_networkx, graph_metrics\nnxgraph, warnings = tokengraph_to_networkx(tokengraph)\nWe can compute graph metrics directly from the NetworkX graph:\nmetrics = graph_metrics(nxgraph)\n\n\n\n\n\n\nNote\n\n\n\nLike the diagramming utilities for visualizing graphs in Mermaid or graphviz, arsgrammatica ignores punctuation tokens in these metrics.\n\n\nThe resulting variable metrics has a number of properties that can help us understand the size, complexity, and “shape” of the syntax analysis’ graph structure.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Characterizing syntax analyses with graph metrics"
     ]
   },
@@ -830,7 +873,7 @@
     "section": "Size",
     "text": "Size\nnode_count and edge_count properties tell us the number of tokens and the number of relations connecting tokens in our syntax graph. If the graph is not cyclic, longest_chain tells us the deepest level of token relations in the sentence. longest_chain is None when a a graph includes a cycle.\nIf we analyzed an artificial sentence like Rosa pulchra est, we could visualize the graph like this:\n\n\n\nToy example of a syntax graph.\n\n\nIt has a node count of 3, edge count of 2, and a longest chain of 1.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Characterizing syntax analyses with graph metrics"
     ]
   },
@@ -841,7 +884,7 @@
     "section": "“Shape” (topology)",
     "text": "“Shape” (topology)\nleaf_count tells you the number of tokens that no other tokens depend on (the “leaves” in a tree visiualization). leaf_fraction gives you the proportion of nodes in the graph that are leaf nodes. In the toy example, two nodes are leaf nodes (Rosa and pulchra), and the leaf fraction is 67% (2/3).\nThe example syntax graph is a tree: every node is connected and there are no cycles or loops in the graph. Most syntax graphs come close to a tree structure, but tokens like relative pronouns (that are related both to their antecedent and to their function in the relative clause) can create cycles. The cyclomatic_number gives a measure of “how much non-tree structure does this sentence have?” (More techncially, it gives the number edges beyond a spanning tree, computed as edge_count - node_count + weakly_connected_components). The cyclomatic number in the example is 0, because the entire graph is a true tree.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Characterizing syntax analyses with graph metrics"
     ]
   },
@@ -852,7 +895,7 @@
     "section": "Organization of the graph",
     "text": "Organization of the graph\narsgrammatica’s syntax graphs are directed: pairs of nodes are connected from one node to another (e.g., the subject relationship makes a connection from a subject to its verb). For any node, the in-degree is the number of relations point to it, and the out-degree is the number of relations it points out to. In the example above, est has an in-degree of 2, and an out-degree of 0.\nThe mean_dependents and max_dependents measure the average and maximum in-degree of the graph. If a sentence has a high maximum compare to its node count, that tells us one token controls most of the syntax. Lower values with mean and maximum closer to each other suggests a “shallow and bushy” structure rather than a “deep and chainy” organization.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Characterizing syntax analyses with graph metrics"
     ]
   },
@@ -863,7 +906,7 @@
     "section": "Real examples",
     "text": "Real examples\nTo illustrate how graph metrics can describe syntax, compare the toy example with two sentences from the Latin Vulgate Bible. Genesis 1.1, In principio creavit Deus caelum et terram. is a syntactically straightforward sentence with a single verbal unit:\n\n\n\nGenesis 1.1\n\n\nGenesis 47.1 is much more complex syntactically: circumstantial participles include dicens introducing two clauses in direct speech.\nIngressus ergo Joseph nuntiavit Pharaoni, dicens: Pater meus et fratres, oves eorum et armenta, et cuncta quae possident, venerunt de terra Chanaan: et ecce consistunt in terra Gessen.\n\n\n\nGenesis 47.1\n\n\n\n\n\n\n\n\nTip\n\n\n\nIf the diagram is too small to read, open it in a separate browser tab or window to enlarge it.\n\n\nHere are the metrics for each example:\n\n\n\nmetric\nExample\nGenesis 1.1\nGenesis 47.1\n\n\n\n\nnode count\n3\n7\n54\n\n\nedge count\n2\n7\n59\n\n\ncyclomatic number\n0\n1\n8\n\n\nlongest chain\n1\n2\n-\n\n\nleaf count\n2\n3\n21\n\n\nleaf fraction\n67%\n43%\n39%\n\n\nmean dependents\n0.67\n1.0\n4\n\n\nmax dependents\n2\n1.09\n7\n\n\n\nFinally we should note that the output of graph_metrics also has a relationship_counts property. This property is a dictionary giving the counts of each value of relationship. Here is what the relationship_counts property looks like for Genesis 1.1:\n{'adverbial': 1, 'object of preposition': 1, 'subject': 1, 'direct object': 2, 'coordinating conjunction': 2}\nand for Genesis 47.1:\n{'circumstantial participle': 2, 'adverbial': 6, 'subject': 8, 'dative': 1, 'adjectival': 6, 'coordinating conjunction': 12, 'genitive': 4, 'relative pronoun': 2, 'direct object': 4, 'unit verb': 2, 'direct quote': 4, 'object of preposition': 3, 'apposition': 4, 'predicate': 1}",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Characterizing syntax analyses with graph metrics"
     ]
   },
@@ -874,7 +917,7 @@
     "section": "latin_syntaxer_graphs.py",
     "text": "latin_syntaxer_graphs.py\nWith the latin_syntaxer_graphs.py marimo notebook, you can apply these graph metrics to saved analyses. The user picks one or more sentences to analayze, and the compiles tables comparing their metrics.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Characterizing syntax analyses with graph metrics"
     ]
   },
@@ -885,7 +928,7 @@
     "section": "",
     "text": "arsgrammatica was developed with Claude Opus 5 hosted at the College of the Holy Cross. dspy lets us plug in other models and use the same code with them. What open-weight models hosted on Hugging Face, or running locally under Ollama could realistically run arsgrammatica?\nmodel_bakeoff.py lets you compare multiple models against the same held-out slice of gold examples, and see not just whether each one is “good enough” but where it falls short and whether that performance can be improved. You can run model_bakeoff.py whenever you want to evaluate a candidate; it never affects the production pipeline.\n\n\n“Can a given model run arsgrammatica?” is really three separate questions:\n\nHow good is the model with the instructions already written and tuned against Opus 5, without optimization?\nHow much does the performance improve if we let dspy.GEPA optimize instructions for the model?\nHow much does the performance improve if we use Opus 5 as a “teacher” model and modify the candidate model’s instructions?\n\nYou can answer each of those questions with the model_bakeoff.py script, selecting from these values for the --stages:\n\nbaseline : zero-shot testing answering question 1, how good is the model without optimization? The cheapest stage by far (one call per held-out example) and worth running alone first.\ngepa — uses dspy.GEPA to rewrite the instructions for the candidate model. The candidate still solves every example itself, both during optimization and at final scoring; only the wording changes. This answers question 2.\nbootstrap uses Opus 5 as a “teacher” model, and attaches verified correct traces to the model’s instructions as few-shot examples. Here the candidate never has to solve a training example itself — only the held-out scoring examples afterward.\n\nComparing baseline against gepa and bootstrap distinguishes “Does this model already perform adequately?” from “How much can it be improved?”. Comparing gepa against bootstrap separates two different ways of improving the model (with or without a separate “teacher” model). A candidate that is mediocre at baseline but closes most of the gap at gepa or bootstrap might be a good prospect for optimization. A mediocre performance on all three stages probably reflects a real ceiling on the model’s capabilities.\n\n\n\n\n\n\nTipManaging cost\n\n\n\ngepa and bootstrap make many more LM calls than baseline (since they involve calls both to the candidate and the “teacher” model). so start with baseline across every candidate you’re curious about, then spend the heavier stages only on the ones worth the API usage.\n\n\n\n\n\n--provider huggingface (the default) routes each candidate through Hugging Face’s Inference Providers layer. You can run several candidates in one invocation, one after another, since each is just an API call. Be sure you have included a Hugging Face access token in your .env file.\nHUGGINGFACE_API_KEY=hf_...\n--provider ollama is for models you pull and run locally with ollama. This needs no special configuration since it talks to ollama’s default port of http://localhost:11434. (Set OLLAMA_API_BASE in .env, or pass --ollama-api-base, if Ollama is running somewhere else on your network.)\nRealistically you can only have one model loaded in Ollama at a time, so this script’s shape is built around that constraint: --provider ollama refuses to run unless exactly one candidate is selected. The resulting workflow will look like this:\nollama pull llama3.1:8b            # or whichever candidate; make sure ollama serve is running\npython3 utilities/model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages baseline\n# ...stop that model, pull/load the next one...\npython3 utilities/model_bakeoff.py --provider ollama --candidates gpt-oss-20b --stages baseline\nEvery invocation is a normal one-shot run, not a long-lived process. Scores are collected in a cumulative results file (see below), so you can score one model, save the results, swap models, and repeat, without overwriting earlier results.\n\n\n\noptimize_gepa.py trains against every example in tests/fixtures/gold_examples.py, with no separate held-out set — a reasonable choice for tuning one model, but it would make cross-model comparison unreliable here: a candidate’s post-optimization score would partly reflect how well its own optimized prompt/demos fit the exact examples it’s judged on.\nmodel_bakeoff.py instead carves out a fixed slice of ten gold examples (HELD_OUT_SLUGS, near the top of the file) that no candidate’s gepa/bootstrap stage ever trains against. Every candidate optimizes against the same remaining examples and is scored against the same untouched held-out set, so scores are actually comparable across models and across stages. The slice is deliberately stratified — a plain independent clause, a subordinating-conjunction and a relative-pronoun dependent clause, a coordinated-verb pair, an indirect statement, a circumstantial participle, a depth-2 nesting case, and the three newest relations (apposition, indirect question, complementary infinitive) — so a low score can be traced to a specific construction rather than just “worse overall.”\n\n\n\nEvery stage reports a blended mean score in [0, 1] over the held-out set, plus three unblended sub-scores from arsgrammatica.gepa_metric.syntax_metric():\n\nfield_mean — basic per-token fields (tokentype, lemma, which verbal unit a token belongs to).\nrelation_mean — the actual dependency relations, weighted highest (0.5 of the blend) since they’re the heart of the scheme.\nvu_mean — verbal-expression classification (syntactic_type/semantic_type).\n\nA model that scores well on field_mean but collapses on relation_mean is failing at multi-hop structural reasoning specifically — a different problem (and probably less susceptible to fixing with prompts) than a model that is just generally worse across the board. The console output also prints, per held-out example, any that raised an outright error (a request that failed, or output that didn’t parse into the expected shape) rather than silently folding those into the average — worth reading before trusting a low score.\n\n\n\n# Cheap first pass across every Hugging Face candidate\npython3 utilities/model_bakeoff.py --stages baseline\n\n# Everything, every candidate (expensive -- gepa + bootstrap make many calls)\npython3 utilities/model_bakeoff.py --stages baseline gepa bootstrap\n\n# Just a couple of candidates\npython3 utilities/model_bakeoff.py --candidates llama-3.1-8b gpt-oss-20b\n\n# Skip gepa/bootstrap for anything that didn't clear a baseline threshold\npython3 utilities/model_bakeoff.py --min-baseline-to-optimize 0.3\n\n# Ollama, one candidate at a time (see workflow above)\npython3 utilities/model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages baseline\npython3 utilities/model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages gepa bootstrap\n\n# A model not in CANDIDATES at all -- either provider\npython3 utilities/model_bakeoff.py --provider ollama --model ollama_chat/llama3.1:8b-instruct-q8_0 --label llama-3.1-8b-q8\n\n# Optimizer knobs\npython3 utilities/model_bakeoff.py --auto medium                    # gepa's (and miprov2's) budget preset\npython3 utilities/model_bakeoff.py --max-metric-calls 40             # exact gepa budget instead of --auto\npython3 utilities/model_bakeoff.py --bootstrap-optimizer miprov2     # heavier alternative to bootstrap-fewshot\npython3 utilities/model_bakeoff.py --max-bootstrapped-demos 4 --max-labeled-demos 4\n\npython3 utilities/model_bakeoff.py --out results.csv                 # merge into a specific file\nThe full flag reference is always available with python3 utilities/model_bakeoff.py --help; the ones most worth knowing up front:\n\n--provider {huggingface,ollama} — where candidates run (default huggingface).\n--candidates LABEL [LABEL ...] — restrict to specific labels from CANDIDATES (default: all of them; --provider ollama requires exactly one).\n--model / --label — an ad hoc pair for a model not in CANDIDATES at all; both or neither.\n--stages {baseline,gepa,bootstrap} — which stage(s) to run this invocation (default: all three).\n--bootstrap-optimizer {bootstrap-fewshot,miprov2} — which optimizer implements the bootstrap stage (default bootstrap-fewshot, cheaper).\n--min-baseline-to-optimize — skip gepa/bootstrap for a candidate whose zero-shot mean is below this threshold, whether that baseline came from this invocation or a previously recorded row.\n--out — the results file to merge into (default model_bakeoff_results.csv).\n\n\n\n\nResults accumulate in a CSV file (model_bakeoff_results.csv by default), keyed by (label, provider, stage). Each invocation reads the contents, merges in new rows, and writes the whole thing back out, sorted by CANDIDATES order and then by stage. You could, for example, run a Hugging Face pass today and an Ollama pass tomorrow, or score one Ollama model per day as you cycle through them, and the results all accumulate in the same file. If you re-run the same combination of label, provider and stage, that overwrites only that single row; other rows are untouched.\n\nColumns: label, provider, model (the resolved model string actually called), family, tier, stage, n (held-out example count), mean/min/max (blended score), field_mean/relation_mean/vu_mean, elapsed_s, n_calls, total_cost (blank when the provider doesn’t report per-call cost — Ollama never will, since it’s local), and error (set instead of scores if the candidate was skipped entirely, e.g. a missing API key).\n\nEach optimized gepa/bootstrap run is also saved to disk as optimized_&lt;label&gt;_&lt;provider&gt;_&lt;stage&gt;.json, alongside the CSV row — load one of these into a dspy.ChainOfThought(SentenceAnalysis) instance with .load(...) if you want to inspect or reuse the actual optimized program, not just its score.\n\n\n\nCANDIDATES, near the top of the file, spans roughly 3B to 120B+ parameters across several major open-weight families, plus one reasoning-distilled model (DeepSeek-R1-Distill-Llama-8B) at the same size as its plain counterpart (Llama-3.1-8B), to see whether chain-of-thought distillation specifically helps a multi-hop structural task like this one.\n\n\n\nlabel\nfamily\ntier\n\n\n\n\nphi-4-mini\nMicrosoft Phi\n~4B\n\n\nllama-3.2-3b\nMeta Llama\n~3B\n\n\nllama-3.1-8b\nMeta Llama\n~8B\n\n\ndeepseek-r1-distill-llama-8b\nDeepSeek (R1 distill)\n~8B\n\n\nqwen-8b\nAlibaba Qwen\n~7B\n\n\ngpt-oss-20b\nOpenAI (open weights)\n~20B\n\n\nmistral-small-24b\nMistral AI\n~24B\n\n\nllama-3.3-70b\nMeta Llama\n~70B\n\n\ndeepseek-r1-distill-llama-70b\nDeepSeek (R1 distill)\n~70B\n\n\ngpt-oss-120b\nOpenAI (open weights)\n~120B\n\n\n\nModel availability and naming move fast on both sides. This roster is just a snapshot, so recheck against Hugging Face’s Inference Providers docs, each model’s Hub page, and ollama list before running.\nTo add a new candidate permanently, add a dict(...) entry to CANDIDATES with at least label, model (the huggingface/org/repo string), and ollama_model (the exact Ollama pull tag); for a one-off you don’t want to add to the roster at all, use --model/--label instead (see the Running it examples above).",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Comparing models with `model_bakeoff.py`"
     ]
   },
@@ -896,7 +939,7 @@
     "section": "",
     "text": "“Can a given model run arsgrammatica?” is really three separate questions:\n\nHow good is the model with the instructions already written and tuned against Opus 5, without optimization?\nHow much does the performance improve if we let dspy.GEPA optimize instructions for the model?\nHow much does the performance improve if we use Opus 5 as a “teacher” model and modify the candidate model’s instructions?\n\nYou can answer each of those questions with the model_bakeoff.py script, selecting from these values for the --stages:\n\nbaseline : zero-shot testing answering question 1, how good is the model without optimization? The cheapest stage by far (one call per held-out example) and worth running alone first.\ngepa — uses dspy.GEPA to rewrite the instructions for the candidate model. The candidate still solves every example itself, both during optimization and at final scoring; only the wording changes. This answers question 2.\nbootstrap uses Opus 5 as a “teacher” model, and attaches verified correct traces to the model’s instructions as few-shot examples. Here the candidate never has to solve a training example itself — only the held-out scoring examples afterward.\n\nComparing baseline against gepa and bootstrap distinguishes “Does this model already perform adequately?” from “How much can it be improved?”. Comparing gepa against bootstrap separates two different ways of improving the model (with or without a separate “teacher” model). A candidate that is mediocre at baseline but closes most of the gap at gepa or bootstrap might be a good prospect for optimization. A mediocre performance on all three stages probably reflects a real ceiling on the model’s capabilities.\n\n\n\n\n\n\nTipManaging cost\n\n\n\ngepa and bootstrap make many more LM calls than baseline (since they involve calls both to the candidate and the “teacher” model). so start with baseline across every candidate you’re curious about, then spend the heavier stages only on the ones worth the API usage.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Comparing models with `model_bakeoff.py`"
     ]
   },
@@ -907,7 +950,7 @@
     "section": "",
     "text": "--provider huggingface (the default) routes each candidate through Hugging Face’s Inference Providers layer. You can run several candidates in one invocation, one after another, since each is just an API call. Be sure you have included a Hugging Face access token in your .env file.\nHUGGINGFACE_API_KEY=hf_...\n--provider ollama is for models you pull and run locally with ollama. This needs no special configuration since it talks to ollama’s default port of http://localhost:11434. (Set OLLAMA_API_BASE in .env, or pass --ollama-api-base, if Ollama is running somewhere else on your network.)\nRealistically you can only have one model loaded in Ollama at a time, so this script’s shape is built around that constraint: --provider ollama refuses to run unless exactly one candidate is selected. The resulting workflow will look like this:\nollama pull llama3.1:8b            # or whichever candidate; make sure ollama serve is running\npython3 utilities/model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages baseline\n# ...stop that model, pull/load the next one...\npython3 utilities/model_bakeoff.py --provider ollama --candidates gpt-oss-20b --stages baseline\nEvery invocation is a normal one-shot run, not a long-lived process. Scores are collected in a cumulative results file (see below), so you can score one model, save the results, swap models, and repeat, without overwriting earlier results.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Comparing models with `model_bakeoff.py`"
     ]
   },
@@ -918,7 +961,7 @@
     "section": "",
     "text": "optimize_gepa.py trains against every example in tests/fixtures/gold_examples.py, with no separate held-out set — a reasonable choice for tuning one model, but it would make cross-model comparison unreliable here: a candidate’s post-optimization score would partly reflect how well its own optimized prompt/demos fit the exact examples it’s judged on.\nmodel_bakeoff.py instead carves out a fixed slice of ten gold examples (HELD_OUT_SLUGS, near the top of the file) that no candidate’s gepa/bootstrap stage ever trains against. Every candidate optimizes against the same remaining examples and is scored against the same untouched held-out set, so scores are actually comparable across models and across stages. The slice is deliberately stratified — a plain independent clause, a subordinating-conjunction and a relative-pronoun dependent clause, a coordinated-verb pair, an indirect statement, a circumstantial participle, a depth-2 nesting case, and the three newest relations (apposition, indirect question, complementary infinitive) — so a low score can be traced to a specific construction rather than just “worse overall.”",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Comparing models with `model_bakeoff.py`"
     ]
   },
@@ -929,7 +972,7 @@
     "section": "",
     "text": "Every stage reports a blended mean score in [0, 1] over the held-out set, plus three unblended sub-scores from arsgrammatica.gepa_metric.syntax_metric():\n\nfield_mean — basic per-token fields (tokentype, lemma, which verbal unit a token belongs to).\nrelation_mean — the actual dependency relations, weighted highest (0.5 of the blend) since they’re the heart of the scheme.\nvu_mean — verbal-expression classification (syntactic_type/semantic_type).\n\nA model that scores well on field_mean but collapses on relation_mean is failing at multi-hop structural reasoning specifically — a different problem (and probably less susceptible to fixing with prompts) than a model that is just generally worse across the board. The console output also prints, per held-out example, any that raised an outright error (a request that failed, or output that didn’t parse into the expected shape) rather than silently folding those into the average — worth reading before trusting a low score.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Comparing models with `model_bakeoff.py`"
     ]
   },
@@ -940,7 +983,7 @@
     "section": "",
     "text": "# Cheap first pass across every Hugging Face candidate\npython3 utilities/model_bakeoff.py --stages baseline\n\n# Everything, every candidate (expensive -- gepa + bootstrap make many calls)\npython3 utilities/model_bakeoff.py --stages baseline gepa bootstrap\n\n# Just a couple of candidates\npython3 utilities/model_bakeoff.py --candidates llama-3.1-8b gpt-oss-20b\n\n# Skip gepa/bootstrap for anything that didn't clear a baseline threshold\npython3 utilities/model_bakeoff.py --min-baseline-to-optimize 0.3\n\n# Ollama, one candidate at a time (see workflow above)\npython3 utilities/model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages baseline\npython3 utilities/model_bakeoff.py --provider ollama --candidates llama-3.1-8b --stages gepa bootstrap\n\n# A model not in CANDIDATES at all -- either provider\npython3 utilities/model_bakeoff.py --provider ollama --model ollama_chat/llama3.1:8b-instruct-q8_0 --label llama-3.1-8b-q8\n\n# Optimizer knobs\npython3 utilities/model_bakeoff.py --auto medium                    # gepa's (and miprov2's) budget preset\npython3 utilities/model_bakeoff.py --max-metric-calls 40             # exact gepa budget instead of --auto\npython3 utilities/model_bakeoff.py --bootstrap-optimizer miprov2     # heavier alternative to bootstrap-fewshot\npython3 utilities/model_bakeoff.py --max-bootstrapped-demos 4 --max-labeled-demos 4\n\npython3 utilities/model_bakeoff.py --out results.csv                 # merge into a specific file\nThe full flag reference is always available with python3 utilities/model_bakeoff.py --help; the ones most worth knowing up front:\n\n--provider {huggingface,ollama} — where candidates run (default huggingface).\n--candidates LABEL [LABEL ...] — restrict to specific labels from CANDIDATES (default: all of them; --provider ollama requires exactly one).\n--model / --label — an ad hoc pair for a model not in CANDIDATES at all; both or neither.\n--stages {baseline,gepa,bootstrap} — which stage(s) to run this invocation (default: all three).\n--bootstrap-optimizer {bootstrap-fewshot,miprov2} — which optimizer implements the bootstrap stage (default bootstrap-fewshot, cheaper).\n--min-baseline-to-optimize — skip gepa/bootstrap for a candidate whose zero-shot mean is below this threshold, whether that baseline came from this invocation or a previously recorded row.\n--out — the results file to merge into (default model_bakeoff_results.csv).",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Comparing models with `model_bakeoff.py`"
     ]
   },
@@ -951,7 +994,7 @@
     "section": "",
     "text": "Results accumulate in a CSV file (model_bakeoff_results.csv by default), keyed by (label, provider, stage). Each invocation reads the contents, merges in new rows, and writes the whole thing back out, sorted by CANDIDATES order and then by stage. You could, for example, run a Hugging Face pass today and an Ollama pass tomorrow, or score one Ollama model per day as you cycle through them, and the results all accumulate in the same file. If you re-run the same combination of label, provider and stage, that overwrites only that single row; other rows are untouched.\n\nColumns: label, provider, model (the resolved model string actually called), family, tier, stage, n (held-out example count), mean/min/max (blended score), field_mean/relation_mean/vu_mean, elapsed_s, n_calls, total_cost (blank when the provider doesn’t report per-call cost — Ollama never will, since it’s local), and error (set instead of scores if the candidate was skipped entirely, e.g. a missing API key).\n\nEach optimized gepa/bootstrap run is also saved to disk as optimized_&lt;label&gt;_&lt;provider&gt;_&lt;stage&gt;.json, alongside the CSV row — load one of these into a dspy.ChainOfThought(SentenceAnalysis) instance with .load(...) if you want to inspect or reuse the actual optimized program, not just its score.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Comparing models with `model_bakeoff.py`"
     ]
   },
@@ -962,7 +1005,7 @@
     "section": "",
     "text": "CANDIDATES, near the top of the file, spans roughly 3B to 120B+ parameters across several major open-weight families, plus one reasoning-distilled model (DeepSeek-R1-Distill-Llama-8B) at the same size as its plain counterpart (Llama-3.1-8B), to see whether chain-of-thought distillation specifically helps a multi-hop structural task like this one.\n\n\n\nlabel\nfamily\ntier\n\n\n\n\nphi-4-mini\nMicrosoft Phi\n~4B\n\n\nllama-3.2-3b\nMeta Llama\n~3B\n\n\nllama-3.1-8b\nMeta Llama\n~8B\n\n\ndeepseek-r1-distill-llama-8b\nDeepSeek (R1 distill)\n~8B\n\n\nqwen-8b\nAlibaba Qwen\n~7B\n\n\ngpt-oss-20b\nOpenAI (open weights)\n~20B\n\n\nmistral-small-24b\nMistral AI\n~24B\n\n\nllama-3.3-70b\nMeta Llama\n~70B\n\n\ndeepseek-r1-distill-llama-70b\nDeepSeek (R1 distill)\n~70B\n\n\ngpt-oss-120b\nOpenAI (open weights)\n~120B\n\n\n\nModel availability and naming move fast on both sides. This roster is just a snapshot, so recheck against Hugging Face’s Inference Providers docs, each model’s Hub page, and ollama list before running.\nTo add a new candidate permanently, add a dict(...) entry to CANDIDATES with at least label, model (the huggingface/org/repo string), and ollama_model (the exact Ollama pull tag); for a one-off you don’t want to add to the roster at all, use --model/--label instead (see the Running it examples above).",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Comparing models with `model_bakeoff.py`"
     ]
   },
@@ -973,7 +1016,7 @@
     "section": "",
     "text": "You can incorporate the results of reading real Latin texts with arsgrammatica into a repeatable development loop that constantly improves the package.\n\n\nWhen arsgrammatica fails to analyze the syntax of a passage correctly, we can use the results to identify gaps in the schema, or areas in need of better training.\nFirst check whether syntax_model.md explicitly and clearly defines the construction that was not analyzed correctly. If it does not, modify syntax_model.md and follow the steps given in the reference section to extend the scheme for the new construction.\nIf the scheme is already clear, but the analysis failed anyway, use this recipe to add a GoldExample with a correct canned_answer in tests/fixtures/gold_examples.py. If you’re unsure between two defensible readings, say so explicitly in a comment above the fixture rather than silently committing to one.\nRe-run pytest to confirm that the new or corrected fixture validates and that test_coverage.py is satisfied.\n\n\n\nWhen arsgrammatica correctly analyzes a passage, that is real evidence that the model is working correctly. We can save manually vetted examples as checks to ensure that future changes to a prompt or model can’t silently break this case, and to extend the evaluation pool for later optimization.\n\n\nIf the response correctly analyzes an unusual or difficult construction that you think it might not always get right, this is worth reinforcing in the core training set. If you save the analysis to a file, you can use the script utilities/analysis_to_gold_example.py to write the necessary Python for you that you can paste in to gold_examples.py.\n\n\n\nIf the analysis correctly identified something you already expected it to get right, such as a simple independent clause with direct object, this is still real evidence, but of low value as training signal. If we add more examples of easy cases that the model already gets right, it teaches the optimizer nothing new, and dilutes the training set with redundant coverage.\nInstead, serialize and save the analysis in a directory you can later pass to optimize_gepa.py with the --eval-dir parameter as part of the larger training and evaluation set.\n\n\n\n\nEvery addition to GOLD_EXAMPLES (whether a correction for a failure or a harvested success with a rare construction) becomes part of the training set for the next time optimize_gepa.py runs.\nEvery analysis you save expands the pool GEPA can use to optimize prompts for specific models.\n\n\n\nIf you save a large number of correct analyses as you work through a corpus, and then include all those analyses in the training set for GEPA, the result might perform better on your particular corpus, but worse on a broader corpus of Latin. In one experiment, for example, an optimized model drawing on a large number of analyzed passages from the Latin Vulgate performed worse on a selection of passages from Livy than an unoptimized generic model. Presumably it would do better on further passages of the Vulgate.\nYour specific strategy for optimization will depend on your goal: do want a more specialized system tailored to a particular corpus, or a more generally applicable system?\n\n\n\n\n\n\nNote\n\n\n\nThe github repository for arsgrammatica organizes a selection of hand-vetted analyses in subdirectories of the data directory by corpus, so they can easily be included or excluded with the --eval-dir parameter to optimize_gepa.py.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Improving  `arsgrammatica` by reading Latin"
     ]
   },
@@ -984,7 +1027,7 @@
     "section": "",
     "text": "Every addition to GOLD_EXAMPLES (whether a correction for a failure or a harvested success with a rare construction) becomes part of the training set for the next time optimize_gepa.py runs.\nEvery analysis you save expands the pool GEPA can use to optimize prompts for specific models.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Improving  `arsgrammatica` by reading Latin"
     ]
   },
@@ -995,9 +1038,23 @@
     "section": "",
     "text": "If you save a large number of correct analyses as you work through a corpus, and then include all those analyses in the training set for GEPA, the result might perform better on your particular corpus, but worse on a broader corpus of Latin. In one experiment, for example, an optimized model drawing on a large number of analyzed passages from the Latin Vulgate performed worse on a selection of passages from Livy than an unoptimized generic model. Presumably it would do better on further passages of the Vulgate.\nYour specific strategy for optimization will depend on your goal: do want a more specialized system tailored to a particular corpus, or a more generally applicable system?\n\n\n\n\n\n\nNote\n\n\n\nThe github repository for arsgrammatica organizes a selection of hand-vetted analyses in subdirectories of the data directory by corpus, so they can easily be included or excluded with the --eval-dir parameter to optimize_gepa.py.",
     "crumbs": [
-      "Guides",
+      "Recipes",
       "Improving  `arsgrammatica` by reading Latin"
     ]
+  },
+  {
+    "objectID": "concepts/examplepassages/gen42_10.html",
+    "href": "concepts/examplepassages/gen42_10.html",
+    "title": "Vulgate Genesis 42.10",
+    "section": "",
+    "text": "Qui dixerunt: Non est ita, domine, sed servi tui venerunt ut emerent cibos.\n\n\n\n\nSyntax graph of Vulgate, Genesis 42.10\n\n\n\n\n\n\n\n\nNoteExpland to see table of tokens\n\n\n\n\n\nTBA"
+  },
+  {
+    "objectID": "concepts/examplepassages/proarch4.html",
+    "href": "concepts/examplepassages/proarch4.html",
+    "title": "Cicero, Pro Archia 4",
+    "section": "",
+    "text": "quod si mihi a vobis tribui concedique sentiam, perficiam profecto ut hunc A. Licinium non modo non segregandum, cum sit civis, a numero civium verum etiam, si non esset, putetis asciscendum fuisse.\n\n\n\n\nSyntax graph of Cicero, Pro Archia 4\n\n\n\n\n\n\n\n\nNoteExpland to see table of tokens\n\n\n\n\n\nTBA"
   },
   {
     "objectID": "concepts/ud.html",
@@ -1048,7 +1105,40 @@
     "href": "concepts/tokens.html",
     "title": "How arsgrammatica tokenizes Latin",
     "section": "",
-    "text": "TBA\nimplied/elided\n\nelided forms of sum in compounds\nrepeated/understood verb\nimplied substantive",
+    "text": "Note\n\n\n\nIn arsgrammatica the Token class is the primary impementation of these ideas.",
+    "crumbs": [
+      "Concepts",
+      "How `arsgrammatica` tokenizes Latin"
+    ]
+  },
+  {
+    "objectID": "concepts/tokens.html#identifiers",
+    "href": "concepts/tokens.html#identifiers",
+    "title": "How arsgrammatica tokenizes Latin",
+    "section": "Identifiers",
+    "text": "Identifiers\nAlthough arsgrammatica can analyze strings of text in Latin, it is primarily intended to analyze passages of Latin with citation references such as CTS URNs. In tokenizing a passage, arsgrammatica tracks the citation and ensures that all tokens are uniquely identified within a given citation context.\n\n\n\n\n\n\nNoteExtending CTS URNs to identify tokens\n\n\n\nIn practical terms, this means that the token’s identifier could be used with a containing URN context to create token-level CTS URNs. If the URN urn:cts:latinLit:phi0474.phi016.omar:1 identifies passage 1 in Cicero’s Pro Archia, then we could extend its work component with an exemplar identifier tokens and extend the passage component with a token identifier like t0 to create a new URN urn:cts:latinLit:phi0474.phi016.omar.tokens:1.t0 to cite the first token in that passage.",
+    "crumbs": [
+      "Concepts",
+      "How `arsgrammatica` tokenizes Latin"
+    ]
+  },
+  {
+    "objectID": "concepts/tokens.html#token-categories",
+    "href": "concepts/tokens.html#token-categories",
+    "title": "How arsgrammatica tokenizes Latin",
+    "section": "Token categories",
+    "text": "Token categories\nTokenization splits a string into meaningful units that can be analyzed. Based on their orthography and content, tokens are classified with one of the following categories that will inform our subsequent analysis.\n\npraenomen\nWe take an abbreviated praenomen together with its punctuating period as a single token.\nExample: M. Agrippa L. f. cos. tertium fecit\nThe tokens M. and L. are classified as praenomen.\n\n\nabbreviation\nWe take other abbreviations, together with their punctuating periods, as single tokens classified as abbreviation.\nExample: M. Agrippa L. f. cos. tertium fecit\nBoth f. and cos. are classified as abbreviation.\n\n\npunctuation\nAny other Unicode punctuation character, in editions of Latin texts most commonly including period, comma, question mark, semicolon, colon, parentheses and brackets of various kinds, single or double quotation marks, dashes or hyphens, is treated as a distinct token of type punctuation\nExample: arma virumque cano.\nThe period . is a token of type punctuation.\n\n\nenclitic\nEnclitics belong to a distinct class because of their orthography, written without space between the enclitic and the preceding token. Tokenization of enclitics must consider the context.\nExample: arma virumque cano.\nThe token que is enclitic.\nExample: ratione docet?\nThe string ratione represents the enclitic token ne (a question word) following the lexical token ratio (noun in the nominative singular).\nExample: aequa ratione imperat.\nThe string ratione is a single lexical token (noun in the ablative singular): there is no enclitic.\nTokenization must also recognize the small number of frequently occurring words that have incorporated an original historic enclitic into a single lexical item such as quisque (and its compounds), or plerusque.\nExamples: forms such as quisque, cuique and quemque must each be treated as a single lexical token.\n\n\nnumeral\nAny numeral written numerically rather than phonetically.\nExample: hiberna aberant ab eo milia passuum XXV.\nXXV is a numeral token.\nExample: fratres Joseph decem venerunt\nAll four tokens are lexical tokens.\n\n\nlexical\nLexical tokens written in standard orthography.\nExample: arma virumque cano.\nThe tokens arma, virum and cano are all classified as lexical. (que is enclitic and the period . is punctuation) .",
+    "crumbs": [
+      "Concepts",
+      "How `arsgrammatica` tokenizes Latin"
+    ]
+  },
+  {
+    "objectID": "concepts/tokens.html#implied-tokens",
+    "href": "concepts/tokens.html#implied-tokens",
+    "title": "How arsgrammatica tokenizes Latin",
+    "section": "Implied tokens",
+    "text": "Implied tokens\n\n\n\n\n\n\nNote\n\n\n\nThis discussion focuses on adding implied tokens to the tokens table. For more on how elided forms of sum and understood repeated verb forms are documented in the list of verbal expressions, see the discussion of verbal units. For further discussion of how implied tokens are related to other tokens in the tokens graph, see the discussion of arsgrammatica’s graph of syntactic relations.\n\n\nThere are three circumstances where arsgrammatica inserts implied tokens into its syntax graph. All implied tokens have None for their text value.\n\nElided forms of sum\nThe verb sum (“to be”) is often elided in the present tense. A new token with unique ID must be added to the token table, and an entry added to the list of verbal expressions.\nExample: omnia praeclara rara.\nThis is a complete sentence, with a subject phrase omnia praeclara and a predicate rara. We record the implied form of “to be” with a new token entry with text value None, and enter its ID into the list of verbal expressions.\nA particularly important category of elided forms of sum is the participle: since there is no present participle of sum, its presence is always implied only.\nExample: P. Valerius anno post Agrippa Menenio P. Postumio consulibus moritur.\nThe phrase Agrippa Menenio P. Postumio consulibus is an ablative absolute construction implying a circumstantial participle of “to be”. We will need to create a new token with text value None, add an entry with its id in the verbal expressions table, and in the syntax graph treat it as a participle agreeing with each of the two consuls’ names.\nElision of sum can also occur with multiword compounds such as the perfect passive system.\nExample: inde P. Valerius iterum T. Lucretius consules facti.\nThis sentence has a single verbal expression with a perfect passive verb, facti with sunt omitted. We add a token with text value None to the table of tokens. In the syntax graph, it will be related to facti as auxiliary; there is no need to add an entry to the list of verbal units, since the participle (as the main verb of the compound) will already figure there.\n\n\nUnderstood repeated verb\nWhen parallel verbal constructions repeat the same verbal idea, the verb can be understood rather than repeated in each expression. We must add a new token with unique ID to the token table, and an entry added to the list of verbal expressions.\nExample: sic eius adventus celebrabantur ut famam ingeni exspectatio hominis, exspectationem ipsius adventus admiratioque superaret.\nHere, the conjunction ut introduces two parallel result clauses. The first has subject exspectatio and direct object famam; the second has subjects adventus and admiratio and direct object exspectationem. The explict verb superaret for the first result clause (with singular subject) implies that we would repeat a (plural) form of supero for the second result clause.\nUnderstood repetition of a verb is quite common in long sections of indirect speech, where entire passages may appear without repeating any governing verb of speaking or thinking.\nExample: nimium Tarquinios regno adsuesse; initium a Prisco factum; regnasse dein Ser. Tullium.\nHere three verbal expressions are each constructed in indirect statement. They imply a verb of speaking governing all three verbal expressions, so we add a new token with unique ID to the list of tokens, and add a verbal expression with its ID to the list of verbal expressions.\n\n\nImplied substantive\nWhen a relative pronoun or a participle depends on an implied but unexpressed antecedent, we must add a new token with unique ID to the token table..\nExample: quem dii amant adolescens moritur.\nThe relative pronoun quem depends on an unexpressed subject of moritur. We add a new token for the antecedent that the syntax graph will use both as the antecedent of quem and as an implied subject of moritur.\nExample: quasi ad alienos durius loquebatur, interrogans eos: Unde venistis?\nThe participle interrogans depends on an unexpressed antecedent. We add a new token for it. In the syntax graph this token will be both the antecedent of interrogans and the subject of loquebatur.\nThis distinguish this from substantive uses of the participle. When the participle can be construed as a direct substantive function, we take it as a single token that the syntax graph can treat like any other substantive.\nExample: sapientī sat est.\nWe recognize that the participle sapienti here is not a circumstantial participle requiring an entry in the verbal expressions table, but can be taken as a substantive “the wise person.” There is no need to add any implied antecedent to the list of tokens.",
     "crumbs": [
       "Concepts",
       "How `arsgrammatica` tokenizes Latin"
@@ -1057,100 +1147,122 @@
   {
     "objectID": "concepts/syntactic-analysis.html",
     "href": "concepts/syntactic-analysis.html",
-    "title": "Graph of syntactic relations",
+    "title": "arsgrammatica’s graph of syntactic relations",
     "section": "",
-    "text": "When arsgrammatica analyses a passage of Latin, every non-punctuation token is related to one or two other tokens in a graph structure. This page summarizes all relationship categories that arsgrammatica recognizes.",
+    "text": "Note\n\n\n\nIn arsgrammatica the TokenAnalysis class is the primary impementation of these ideas.\nWhen arsgrammatica analyses a passage of Latin, every non-punctuation token is related to one or two other tokens in a graph structure. This page summarizes all relationship categories that arsgrammatica recognizes.",
     "crumbs": [
       "Concepts",
-      "Graph of syntactic relations"
+      "`arsgrammatica`'s graph of syntactic relations"
     ]
   },
   {
     "objectID": "concepts/syntactic-analysis.html#constructions-of-verbal-expressions",
     "href": "concepts/syntactic-analysis.html#constructions-of-verbal-expressions",
-    "title": "Graph of syntactic relations",
+    "title": "arsgrammatica’s graph of syntactic relations",
     "section": "Constructions of verbal expressions",
-    "text": "Constructions of verbal expressions\n\nIndependent clause\nVerbs of independent (main) clauses are related to a hypthetical root value as unit verb.\nExample: arma virumque cano.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\ncano\nunit verb\n(root)\n\n\n\n\n\nDirectly quoted speech\nIndependent verbs in directly quoted speech are related to the verb introducing the quotation as direct quote.\nExample: ‘hanc ego aram’ inquit ‘Pudicitiae plebeiae dedico’.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\ndedico\ndirect quote\ninquit\n\n\ninquit\nunit verb\n(root)\n\n\n\n\n\nAside\nWhen the syntax of the sentence is interrupted by an independent verbal expression, the verb of the interrupting expression is related to the verb of the interrupted context as aside.\nExample: Sp. Nautius – Octavium Maecium quidam eum tradunt – cum auxiliaribus cohortibus erat.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\ntradunt\naside\nerat\n\n\nerat\nunit verb\n(root)\n\n\n\n\n\nDependent clause\nVerbs of dependent clauses are related to a subordinating word (such as a conjunction or relative pronoun) as unit verb.\nExample: Hercules cum gregem perlustrasset, pergit ad proximam speluncam.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nperlustrasset\nunit verb\ncum\n\n\npergit\nunit verb\n(root)\n\n\n\n\n\nIndirect statement\nInfinitive forms in indirect statement relate to the verb of speaking as indirect statement.\nExample: id philtrum esse dixit.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nesse\nindirect statement\ndixit\n\n\ndixit\nunit verb\n(root)\n\n\n\n\n\nCircumstantial participle\nCircumstantial participles express a verbal idea that is related to an antecedent substantive in the relation circumstantial participle.\nExample: adveniens vir Tarquiniique excepti benigne.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nadveniens\ncircumstantial participle\nvir\n\n\nexcepti\nunit verb\n(root)\n\n\n(elided sum)\nexcepti\nauxiliary\n\n\n\n\nSee below on the auxiliary relation; on elided tokens, see tokes.",
+    "text": "Constructions of verbal expressions\n\nIndependent clause\nVerbs of independent (main) clauses are related to a hypthetical root value as unit verb.\nExample: arma virumque cano.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\ncano\nunit verb\n(root)\n\n\n\n\n\nDirectly quoted speech\nIndependent verbs in directly quoted speech are related to the verb introducing the quotation as direct quote.\nExample: ‘hanc ego aram’ inquit ‘Pudicitiae plebeiae dedico’.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\ndedico\ndirect quote\ninquit\n\n\ninquit\nunit verb\n(root)\n\n\n\n\n\nAside\nWhen the syntax of the sentence is interrupted by an independent verbal expression, the verb of the interrupting expression is related to the verb of the interrupted context as aside.\nExample: Sp. Nautius – Octavium Maecium quidam eum tradunt – cum auxiliaribus cohortibus erat.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\ntradunt\naside\nerat\n\n\nerat\nunit verb\n(root)\n\n\n\n\n\nDependent clause\nVerbs of dependent clauses are related to a subordinating word (such as a conjunction or relative pronoun) as unit verb.\nExample: Hercules cum gregem perlustrasset, pergit ad proximam speluncam.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nperlustrasset\nunit verb\ncum\n\n\npergit\nunit verb\n(root)\n\n\n\n\n\nIndirect statement\nInfinitive forms in indirect statement relate to the verb of speaking as indirect statement.\nExample: id philtrum esse dixit.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nesse\nindirect statement\ndixit\n\n\ndixit\nunit verb\n(root)\n\n\n\n\n\nCircumstantial participle\nCircumstantial participles express a verbal idea that is related to an antecedent substantive in the relation circumstantial participle.\nExample: adveniens vir Tarquiniique excepti benigne.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nadveniens\ncircumstantial participle\nvir\n\n\nexcepti\nunit verb\n(root)\n\n\n(elided sum)\nexcepti\nauxiliary",
     "crumbs": [
       "Concepts",
-      "Graph of syntactic relations"
+      "`arsgrammatica`'s graph of syntactic relations"
     ]
   },
   {
     "objectID": "concepts/syntactic-analysis.html#other-constructions-with-verbs",
     "href": "concepts/syntactic-analysis.html#other-constructions-with-verbs",
-    "title": "Graph of syntactic relations",
+    "title": "arsgrammatica’s graph of syntactic relations",
     "section": "Other constructions with verbs",
     "text": "Other constructions with verbs\n\nComplementary infinitive\nWhen an infinitive is used to complete the semantics of a verbal expression with certain verbs such as volo, the infinitive relates to the verbal expression as complementary infinitive.\nExample: ascribi se in eam civitatem voluit.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nascribi\ncomplementary infinitive\nvoluit\n\n\nvoluit\nunit verb\n(root)\n\n\n\n\n\nCompound verb forms\nCompound forms using sum with a participle treat the participle as the verb of the verbal unit and the form of sum as an auxiliary. The participle therefore is related to its context just as any other verbal expression would be. The form of sum relates to the participle as auxiliary.\nExample: urbs condita est.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\ncondita\nunit verb\n(root)\n\n\nest\nauxiliary\ncondita",
     "crumbs": [
       "Concepts",
-      "Graph of syntactic relations"
+      "`arsgrammatica`'s graph of syntactic relations"
     ]
   },
   {
-    "objectID": "concepts/syntactic-analysis.html#aat-relations",
-    "href": "concepts/syntactic-analysis.html#aat-relations",
-    "title": "Graph of syntactic relations",
-    "section": "AAT relations",
-    "text": "AAT relations\nThe Agent-Action-Target model focuses on two special relations to verbal expressions: the agent and the target. In Latin (as in English), these relations are constructed differently depending on the voice of the verbal expression. Agency is expressed by the subject of transitive active, intransitive, and linking verbs, and by the ablative of agent construction with passive verbs. Target status is expressed by the direct object of transitive active verbs, the predicate of linking verbs, and by the subject of transitive passive verbs.\n\nSubject\nA substantive functioning as the grammatical subject of a verbal expression is related to it as subject.\nExample: Lucumo Demarati Corinthii filius erat.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nLucumo\nsubject\nerat\n\n\nerat\nunit verb\n(root)\n\n\n\n\n\nAgent\nThe headword of a prepositional phrase expressing agency with passive verbs (that is, a/ab) relates to the verbal expression as agent.\nExample: urbs a Romulo condita est.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nurbs\nsubject\ncondita\n\n\na\nagent\ncondita\n\n\nRomulo\nobject of preposition\na\n\n\ncondita\nunit verb\n(root)\n\n\nest\nauxiliary\ncondita\n\n\n\n\nSee below on objects of prepositions.\n\n\n\nDirect object\nThe direct object of a transitive active verb is related to the verbal expression as direct object.\nExample: Tarquinium mala libido Lucretiae per vim stuprandae capit.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nTarquinium\ndirect object\ncapit\n\n\nlibido\nsubject\ncapit\n\n\ncapit\nunit verb\n(root)\n\n\n\n\n\nPredicate\nSubstantives or adjectives serving as predicates of linking verbs are related to the verb as predicate\nExample: Lucumo Demarati Corinthii filius erat.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nLucumo\nsubject\nerat\n\n\nfilius\npredicate\nerat\n\n\nerat\nunit verb\n(root)",
+    "objectID": "concepts/syntactic-analysis.html#a-a-t-relations",
+    "href": "concepts/syntactic-analysis.html#a-a-t-relations",
+    "title": "arsgrammatica’s graph of syntactic relations",
+    "section": "A-A-T relations",
+    "text": "A-A-T relations\nThe Agent-Action-Target model focuses on two special relations to verbal expressions: the agent and the target. In Latin (as in English), these relations are constructed differently depending on the voice of the verbal expression. Agency is expressed by the subject of transitive active, intransitive, and linking verbs, and by the ablative of agent construction with passive verbs. Target status is expressed by the direct object of transitive active verbs, the predicate of linking verbs, and by the subject of transitive passive verbs.\n\nSubject\nA substantive functioning as the grammatical subject of a verbal expression is related to it as subject.\nExample: Lucumo Demarati Corinthii filius erat.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nLucumo\nsubject\nerat\n\n\nerat\nunit verb\n(root)\n\n\n\n\n\nAgent\nThe headword of a prepositional phrase expressing agency with passive verbs (that is, a/ab) relates to the verbal expression as agent.\nExample: urbs a Romulo condita est.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nurbs\nsubject\ncondita\n\n\na\nagent\ncondita\n\n\nRomulo\nobject of preposition\na\n\n\ncondita\nunit verb\n(root)\n\n\nest\nauxiliary\ncondita\n\n\n\n\nSee below on objects of prepositions.\n\n\n\nDirect object\nThe direct object of a transitive active verb is related to the verbal expression as direct object.\nExample: Tarquinium mala libido Lucretiae per vim stuprandae capit.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nTarquinium\ndirect object\ncapit\n\n\nlibido\nsubject\ncapit\n\n\ncapit\nunit verb\n(root)\n\n\n\n\n\nPredicate\nSubstantives or adjectives serving as predicates of linking verbs are related to the verb as predicate\nExample: Lucumo Demarati Corinthii filius erat.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nLucumo\nsubject\nerat\n\n\nfilius\npredicate\nerat\n\n\nerat\nunit verb\n(root)",
     "crumbs": [
       "Concepts",
-      "Graph of syntactic relations"
+      "`arsgrammatica`'s graph of syntactic relations"
     ]
   },
   {
     "objectID": "concepts/syntactic-analysis.html#case-constructions-with-substantives",
     "href": "concepts/syntactic-analysis.html#case-constructions-with-substantives",
-    "title": "Graph of syntactic relations",
+    "title": "arsgrammatica’s graph of syntactic relations",
     "section": "Case constructions with substantives",
-    "text": "Case constructions with substantives\nApart from the special AAT relations, arsgrammatica does not subdivide syntactic constructions of substantives by their semantics. Instead, it identifies the case that constitutes the syntactic relationship. arsgrammatica leaves it to subsequent semantic analysis to decide if, for example, a genitive relation between two nouns expresses possession, a partitive idea, material or units of measure, or whether the relationship is a subjective or objective action.\n\nGenitive\nWhen a substantive in the genitive case modifies another substantive, the relationship is genitive.\nExample: hic filius erat regis.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nhic\nsubject\nerat\n\n\nfilius\npredicate\nerat\n\n\nerat\nunit verb\n(root)\n\n\nregis\ngenitive\nfilius\n\n\n\n\n\nDative\nWhen a substantive in the dative case is related to a verb or another substantive, the relationship is dative.\nExample: documentum mortalibus dedero.\n\ndative – mortalibus in …documentum mortalibus dedero.\n\n\n\nAccusative\nWhen an accusative noun is related to a noun, or when it relates to a verb but does not express a direct object relationship, the relationship value is accusative.\nExample: Romam venit.\nThe verb venit is intransitive, but Romam relates to it.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nRomam\naccusative\nvenit\n\n\nvenit\nunit verb\n(root)\n\n\n\nExample: **duo milia passuum iter fecerunt*.\nThe phrase duo milia passuum qualifies the noun iter with a length of distance specified in the accusative.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nmilia\naccusative\niter\n\n\npassuum\ngenitive\nmilia\n\n\niter\ndirect object\nfecerunt\n\n\nfecerunt\nunit verb\n(root)\n\n\n\n\n\nAblative\nWhen nouns in the ablative case are related to another noun or to a verb, the relationship is ablative.\nExample: omnia ferro flammaque miscet\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nferro\nablative\nmiscet\n\n\nflamma\nablative\nmiscet\n\n\nmiscet\nunit verb\n(root)\n\n\n\nExample: Collatinus negat verbis opus esse.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nCollatinus\nsubject\nnegat\n\n\nnegat\nunit verb\n(root)\n\n\nverbis\nablative\nopus\n\n\nopus\nsubject\nesse\n\n\nesse\nindirect statement\nnegat\n\n\n\n\n\nVocative\nNouns in the vocative case are related to a verbal expression as vocative.\nExample: Non est ita, domine.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nest\nunit verb\n(root)\n\n\ndomine\nvocative\nest",
+    "text": "Case constructions with substantives\nApart from the special A-A-T relations, arsgrammatica does not subdivide syntactic constructions of substantives by their semantics. Instead, it identifies the case that constitutes the syntactic relationship. arsgrammatica leaves it to subsequent semantic analysis to decide if, for example, a genitive relation between two nouns expresses possession, a partitive idea, material or units of measure, or whether the relationship is a subjective or objective action.\n\nGenitive\nWhen a substantive in the genitive case modifies another substantive, the relationship is genitive.\nExample: hic filius erat regis.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nhic\nsubject\nerat\n\n\nfilius\npredicate\nerat\n\n\nerat\nunit verb\n(root)\n\n\nregis\ngenitive\nfilius\n\n\n\n\n\nDative\nWhen a substantive in the dative case is related to a verb or another substantive, the relationship is dative.\nExample of relationship to verb: documentum mortalibus dedero.\n\n\n\nToken\nrelationship\n\n\n\n\n\nmortalibus\ndative\ndedero\n\n\ndedero\nunit verb\n(root)\n\n\n\nExample of relationship to a substantive: te mihi mater aucturum caelestium numerum cecinit\n\n\n\nToken\nrelationship\n\n\n\n\n\nmihi\ndative\nmater\n\n\nmater\nsubject\ncecinit\n\n\ncecinit\nunit verb\n(root)\n\n\n\n\n\nAccusative\nWhen an accusative noun is related to a noun, or when it relates to a verb but does not express a direct object relationship, the relationship value is accusative.\nExample: Romam venit.\nThe verb venit is intransitive, but Romam relates to it.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nRomam\naccusative\nvenit\n\n\nvenit\nunit verb\n(root)\n\n\n\nExample: duo milia passuum iter fecerunt.\nThe phrase duo milia passuum qualifies the noun iter with a length of distance specified in the accusative.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nmilia\naccusative\niter\n\n\npassuum\ngenitive\nmilia\n\n\niter\ndirect object\nfecerunt\n\n\nfecerunt\nunit verb\n(root)\n\n\n\n\n\nAblative\nWhen nouns in the ablative case are related to another noun or to a verb, the relationship is ablative.\nExample: omnia ferro flammaque miscet\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nferro\nablative\nmiscet\n\n\nflamma\nablative\nmiscet\n\n\nmiscet\nunit verb\n(root)\n\n\n\nExample: Collatinus negat verbis opus esse.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nCollatinus\nsubject\nnegat\n\n\nnegat\nunit verb\n(root)\n\n\nverbis\nablative\nopus\n\n\nopus\nsubject\nesse\n\n\nesse\nindirect statement\nnegat\n\n\n\n\n\nVocative\nNouns in the vocative case are related to a verbal expression as vocative.\nExample: Non est ita, domine.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nest\nunit verb\n(root)\n\n\ndomine\nvocative\nest",
     "crumbs": [
       "Concepts",
-      "Graph of syntactic relations"
+      "`arsgrammatica`'s graph of syntactic relations"
+    ]
+  },
+  {
+    "objectID": "concepts/syntactic-analysis.html#substantives-from-verbal-roots",
+    "href": "concepts/syntactic-analysis.html#substantives-from-verbal-roots",
+    "title": "arsgrammatica’s graph of syntactic relations",
+    "section": "Substantives from verbal roots",
+    "text": "Substantives from verbal roots\nIn addition to the previously discussed constructions, the infinitive may be used as a nominative singular noun naming the action of a verbal idea (e.g., amare = “the act of loving”). In the oblique cases, the gerund is used to name the action of a verbal idea. The syntactic relationships of these substantive forms are treated exactly the same way as any other substantives.\nExample: dolere malum est.\nThe infinitive dolere is the subject of the verb est.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\ndolere\nsubject\nest\n\n\nmalum\npredicate\nest\n\n\nest\nunit verb\n(root)\n\n\n\nAs in all infinitive constructions, the infinitive, like any other verbal form, may have objects; if a subject is explicitly given, it will be in the accusative case.\nExample: Ingenuas didicisse fideliter artes emollit mores.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\ndidicisse\nsubject\nemollit\n\n\nartes\ndirect object\ndidicisse\n\n\nemollit\nunit verb\n(root)\n\n\nmores\ndirect object\nemollit\n\n\n\nExample: Multo labore constat ars dicendi.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nlabore\nablative\nconstat\n\n\nconstat\nunit verb\n(root)\n\n\nars\nsubject\nconstat\n\n\ndicendi\ngenitive\nars",
+    "crumbs": [
+      "Concepts",
+      "`arsgrammatica`'s graph of syntactic relations"
+    ]
+  },
+  {
+    "objectID": "concepts/syntactic-analysis.html#adverbial-and-adjectival-expressions",
+    "href": "concepts/syntactic-analysis.html#adverbial-and-adjectival-expressions",
+    "title": "arsgrammatica’s graph of syntactic relations",
+    "section": "Adverbial and adjectival expressions",
+    "text": "Adverbial and adjectival expressions\n\nAdverbs\nAdverbs and other adverbial expressions have relationship of adverbial to a verbal expression.\nExample: ad Ianiculum forte ventum erat.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nforte\nadverbial\nventum\n\n\nventum\nunit verb\n(root)\n\n\nerat\nauxiliary\nerat\n\n\n\n\n\nAdjectives\nIf an adjective is used as a substantive, it is treated just like any other substantive. If it describes a substantive, it has the relationship adjectival to that substantive. This example illustrates both an adjective used substantively (bonorum) and an adjective used adjectivally (omnium)\nExample: Lucumo superfuit patri bonorum omnium heres,\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nLucumo\nsubject\nsuperfuit\n\n\nsuperfuit\nunit verb\n(root)\n\n\nbonorum\ngenitive\nheres\n\n\nomnium\nadjectival\nbonorum\n\n\nheres\npredicate\nsuperfuit\n\n\n\n\n\nPrepositional phrases\nPrepositional phrases most frequently functional adverbially. In this construction the preposition is related to a verb or adjective with the adverbial relationship. Less frequently, a prepositional phrase serves as an adjectival description of a substantive. In these constructions, the preposition relates to the substantive as adjectival. Nouns functioning as objects of prepositions, whatever their case, relate to the preposition as object of preposition.\nExample of an adverbial phrase: ad Ianiculum forte ventum erat.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nad\nadverbial\nventum\n\n\nIaniculum\nobject of preposition\nad\n\n\nforte\nadverbial\nventum\n\n\nventum\nunit verb\n(root)\n\n\nerat\nauxiliary\nerat\n\n\n\nExample of an adjectival phrase: nuntius victoriae ad Cannas Carthaginem venerat\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nnuntius\nsubject\nvenerat\n\n\nvictoriae\ngenitive\nnuntius\n\n\nad\nadjectival\nvictoriae\n\n\nCannas\nobject of preposition\nad\n\n\nCarthaginem\naccusative\nvenerat\n\n\nvenerate\nunit verb\n(root)",
+    "crumbs": [
+      "Concepts",
+      "`arsgrammatica`'s graph of syntactic relations"
     ]
   },
   {
     "objectID": "concepts/syntactic-analysis.html#special-substantive-relations",
     "href": "concepts/syntactic-analysis.html#special-substantive-relations",
-    "title": "Graph of syntactic relations",
+    "title": "arsgrammatica’s graph of syntactic relations",
     "section": "Special substantive relations",
-    "text": "Special substantive relations\n\nAblative absolute\n\nablative absolute – Anco in Anco regnante Lucumo Romam commigravit.",
+    "text": "Special substantive relations\n\nAblative absolute\nSubstantives modified by a participle can be used in the ablative case without other syntactic connection to the governing verbal expression (that is, they are syntactically absolute). In this construction, the noun has the relationship ablative absolute to the governing verb. The participle is treated as any other circumstantial participle.\nExample: Anco regnante Lucumo Romam commigravit.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nAnco\nablative absolute\ncommigravit\n\n\nregnante\ncircumstantial participle\nAnco\n\n\nLucumo\nsubject\ncommigravit\n\n\nRomam\naccusative\ncommigravit\n\n\ncommigravit\nunit verb\n(root)\n\n\n\n\n\nApposition\nWhen a substantive stands in apposition to another substantive, it has the relationship apposition; the first substantive is constructed normally.\nExample: .Neptunus et Aegeus Pandionis filius in fano Mineruae cum Aethra Pitthei filia una nocte concubuerunt.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nNeptunus\nsubject\nconcubuerunt\n\n\nAegeus\nsubject\nconcubuerunt\n\n\nPandionis\ngenitive\nfilius\n\n\nfilius\napposition\nAegeus\n\n\ncum\nadverbial\nconcubuerunt\n\n\nAethra\nobject of preposition\ncum\n\n\nPitthei\ngenitive\nfilia\n\n\n*filia\napposition\nAethra\n\n\nuna\nadjectival\nnocte\n\n\nnocte\nablative\nconcubuerunt\n\n\nconcubuerunt\nunit verb\n(root)\n\n\n\n\n\nPraenomen\nA token that arsgrammatica classifies as praenomen is an abbreviation used in conjunction wth a fully spelled out nomen or cognomen. The abbreviated praenomen relates to the full form clearly showing its case usage as praenomen.\nExample: Sp. Nautius – Octavium Maecium quidam eum tradunt – cum auxiliaribus cohortibus erat.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nSp.\npraenomen\nNautius\n\n\nNautius\nsubject\nerat\n\n\nerat\nunit verb\n(root)",
     "crumbs": [
       "Concepts",
-      "Graph of syntactic relations"
+      "`arsgrammatica`'s graph of syntactic relations"
     ]
   },
   {
     "objectID": "concepts/syntactic-analysis.html#coordinating-and-subordinating-words",
     "href": "concepts/syntactic-analysis.html#coordinating-and-subordinating-words",
-    "title": "Graph of syntactic relations",
+    "title": "arsgrammatica’s graph of syntactic relations",
     "section": "Coordinating and subordinating words",
-    "text": "Coordinating and subordinating words\n\nCoordinating word\nUse example like autem… Expand on double inks iwth et (aut) 23. coordinating conjunction – que in arma virumque cano.\n\n\nSubordinating word\n\nsubordinating conjunction – cum in Hercules cum gregem perlustrasset.\n\n\n\nRelative pronoun\n\nrelative pronoun – quibus in Latini, cum quibus ictum foedus erat.\n\n\n\nObject of preposition\n\nobject of preposition – Romulo in urbs a Romulo condita est.\n\n\n\nApposition\n\napposition – filius in Aegeus Pandionis filius.\n\n\n\nPraenomen\nA token arsgrammatica classifies as praenomen is an abbreviation used in conjunction wth a fully spelled out nomen or cognomen. The abbreviated praenomen relates to the full form clearly showing its case usage as praenomen.\nExample: Sp. Nautius – Octavium Maecium quidam eum tradunt – cum auxiliaribus cohortibus erat.\n\n\n\nToken\nrelationship\nrelated token\n\n\n\n\nSp.\npraenomen\nNautius\n\n\nNautius\nsubject\nerat\n\n\nerat\nunit verb\n(root)",
+    "text": "Coordinating and subordinating words\n\nCoordinating word\nUse example like autem… Train on igitur Gen 42.3 Expand on double inks iwth et (aut) 23. coordinating conjunction – que in arma virumque cano.\n\n\nSubordinating word\n\nsubordinating conjunction – cum in Hercules cum gregem perlustrasset.\n\n\n\nRelative pronoun\n\nrelative pronoun – quibus in Latini, cum quibus ictum foedus erat.",
     "crumbs": [
       "Concepts",
-      "Graph of syntactic relations"
-    ]
-  },
-  {
-    "objectID": "concepts/syntactic-analysis.html#adverbial-and-attributive-expressions",
-    "href": "concepts/syntactic-analysis.html#adverbial-and-attributive-expressions",
-    "title": "Graph of syntactic relations",
-    "section": "Adverbial and attributive expressions",
-    "text": "Adverbial and attributive expressions\n\nadverbial – forte in ad Ianiculum forte ventum erat.\nattributive – ad in pugna ad Cannas.\nadjectival – omnium in patri bonorum omnium heres.",
-    "crumbs": [
-      "Concepts",
-      "Graph of syntactic relations"
+      "`arsgrammatica`'s graph of syntactic relations"
     ]
   },
   {
     "objectID": "concepts/syntactic-analysis.html#a-note-on-two-way-linking",
     "href": "concepts/syntactic-analysis.html#a-note-on-two-way-linking",
-    "title": "Graph of syntactic relations",
+    "title": "arsgrammatica’s graph of syntactic relations",
     "section": "A note on two-way linking",
     "text": "A note on two-way linking\nConjunction and relation\nSee complete examples.",
     "crumbs": [
       "Concepts",
-      "Graph of syntactic relations"
+      "`arsgrammatica`'s graph of syntactic relations"
+    ]
+  },
+  {
+    "objectID": "concepts/syntactic-analysis.html#syntactic-dependencies-of-implied-tokens",
+    "href": "concepts/syntactic-analysis.html#syntactic-dependencies-of-implied-tokens",
+    "title": "arsgrammatica’s graph of syntactic relations",
+    "section": "Syntactic dependencies of implied tokens",
+    "text": "Syntactic dependencies of implied tokens\nThe discussion of tokenization introduced the idea of implied tokens.\nWe treat their syntactic relations in exactly the same way as if they were instantiated by a real token in the text. Here is a summary of possibilities:\nimplied sum, continued verb, implied substantive\n…..\narsgrammatica recognizes two categories of understood or implied verbal expressions.\n\nelided form of sum: the verb sum (“to be”) is often elided in the present tense. A new token with unique ID must be added to the token table, and an entry added to the list of verbal expressions. The token will have None for its text value. Example: omnia praeclara rara is a complete sentence with subject omnia praeclara and predicate rara. A new token will be created with None as its text value, and its ID will be entered in the list of verbal expressions. This predicate construction is a main sentence, so its syntactic type will be independent clause and the semantic type will be linking verb. This elision can also occur with multiword compounds such as the perfect passive system, but here the treatment differs from the bare-predicate case above: because the participle itself is a real, already-present token, it – not a newly created token – anchors the verbal expression, per the multi-word compound verb form rule above. Example: the sentence inde P. Valerius iterum T. Lucretius consules facti. has a single verbal expression with a perfect passive verb, facti with sunt omitted. facti itself is entered in the list of verbal expressions (syntactic type independent clause, semantic type transitive passive). We still add a new token with unique ID and None for its text value to record the elided sunt, but this new token is not itself a verbal expression: it relates to facti as its auxiliary, exactly as a written-out sunt would. One important category of elided forms of sum is the participle: since there is no present participle of sum, its presence is always implied only. Example: in the sentence P. Valerius anno post Agrippa Menenio P. Postumio consulibus moritur, the phrase Agrippa Menenio P. Postumio consulibus is a predicate construction implying a circumstantial participle of “to be”. Here there is no already-present participle to anchor the verbal expression (unlike facti above), so we must add a new token with unique ID to the token table and use its ID for a new entry in the list of verbal expressions. The syntactic type will be circumstantial participle and the semantic type will be linking verb since this is a predicate construction (“when Agrippa Menenius and Publius Postumius were consuls…”)\ncontinuation of indirect discourse: in long sections of indirect speech, entire passages may appear without repeating any governing verb of speaking or thinking. In this situation, we must add new token with unique ID to the token table, with None for its text value, and use its ID for new entry in the list of verbal expressions. For example, these three verbal expressions are each constructed in indirect statement: nimium Tarquinios regno adsuesse; initium a Prisco factum; regnasse dein Ser. Tullium. They imply a verb of speaking governing all three verbal expressions, so we add a new token with unique ID to the list of tokens, and add a verbal expression with its ID to the list of verbal expressions. Here, we assume that the understood verbal expression is of syntatic type independent clause; its semantic type is ‘transitive active’.",
+    "crumbs": [
+      "Concepts",
+      "`arsgrammatica`'s graph of syntactic relations"
     ]
   },
   {
@@ -1158,7 +1270,51 @@
     "href": "concepts/verbalunits.html",
     "title": "Verbal units",
     "section": "",
-    "text": "Although arsgrammatica tries to account for all syntactic features of a Latin text, its analytical scheme is anchored in the reduced Agent-Action-Target model (AAT): all syntactic features are organized around explicit or implicit verbal ideas, that may optionally include agent/target elements (e.g., for transitive active verbs, subject/direct object elements).\nTBA",
+    "text": "Note\n\n\n\nIn arsgrammatica the VerbalExpression class is the primary implementation of these ideas.\nAlthough arsgrammatica tries to account for all syntactic features of a Latin text, its analytical scheme is anchored in the reduced Agent-Action-Target model (AAT): all syntactic features are organized around explicit or implicit verbal ideas, that may optionally include agent/target elements (e.g., for transitive active verbs, subject/direct object elements). These verbal expressions (subject-verb ideas) most frequently correspond to clauses in an English translation. (Of course in Latin the subject may be implicit where that is not possible in English.)",
+    "crumbs": [
+      "Concepts",
+      "Verbal units"
+    ]
+  },
+  {
+    "objectID": "concepts/verbalunits.html#verbal-constructions",
+    "href": "concepts/verbalunits.html#verbal-constructions",
+    "title": "Verbal units",
+    "section": "Verbal constructions",
+    "text": "Verbal constructions\narsgrammatica identifies three possible constructions as verbal expressions: finite verbs, infinitives and participles.\n\nEvery finite verb constitutes a verbal expression. Latin finite verbs include the compound forms of the perfect and pluperfect tenses (composed of a past participle plus a form of sum) as well as conjugated verbs forms identifiable by tense-mood-voice-person-number.\nInfinitives constitute a verbal expression when they are constructed as a verbal expression in indirect speech.\nParticiples constitute a verbal expression when they have a circumstantial sense rather than purely attributive sense.\n\narsgrammatica classifies verbal expressions according to syntactic type and semantic type.",
+    "crumbs": [
+      "Concepts",
+      "Verbal units"
+    ]
+  },
+  {
+    "objectID": "concepts/verbalunits.html#syntactic-type",
+    "href": "concepts/verbalunits.html#syntactic-type",
+    "title": "Verbal units",
+    "section": "Syntactic type",
+    "text": "Syntactic type\n\nindependent\nAlso called “main” or “principal” verbs, these are syntactically independent finite verbs: their clause is syntactically coherent by itself.\nExample: Quo usque tandem abutere, Catilina, patientia nostra?\nabutere is an independent verbal expresion.\n\n\ndependent\nFinite verbs introduced by a subordinating word (such as a subordinating conjunction or relative pronoun). They cannot appear without an explicit or implicit governing (superior) clause.\nExample: principes Albanorum in patres, ut ea quoque pars rei publicae cresceret, legit.\nThe verb legit is an independent verbal expression; cresceret is dependent (introduced by the subordinating conjunction ut).\n\n\ndirect quote\nFinite verbs in directly quoted speech.\nExample: Tuum est’ inquit, ‘Servi regnum.’\ninquit is an independent verbal unit, while est occurs in directly quoted speech and is classifed as direct quote.\n\n\naside\nA finite verb that interrupts the syntactic flow of the surrounding text.\nExample: equidem — pace dixerim deum — eos nos iam populi Romani beneficio esse spero.\nspero is independent, the infinitive esse is part of an indirect statement (below). dixerim is an aside, as the entire phrase pace dixerim deum interrupts the sentence with a syntactically unconneccted verbal expression.\n\n\nindirect statement\nAn infinitive construction in indirect speech.\nExample: Collatinus negat verbis opus esse.\nnegat is indepedendent; the infinitive esse is indirect speech.\nNote that as with finite verbs, compound verbs constructed from participles plus “to be” use the participle as the verbal expression. (In the token graph, the form of “to be” will related to it as an auxiliary.)\nExample: facturum enim se fuisse dixit.\ndixit is an independent verbal expression, and facturum fuisse is the compound form of the future infinitive. The verbal unit wil be anchored to the token facturum as indirect statement. In the token graph, esse will be related to it as auxiliary.\n\n\ncircumstantial participle\nParticiples in a circumstantial sense rather than purely attributive sense.\nExample: Anco regnante Lucumo, vir inpiger ac divitiis potens, Romam commigravit.\ncommigravit is an independent verb. The participle regnante (agreeing with Anco) is circumsstantial (“while Ancus was reigning…”)\nCounter example: gloria est consentiens laus bonorum. The verb est is independent with subject gloria and predicate laus. Here, the participle consentiens has an attributive sense with laus, “universal praise”. This does not constitute a verbal expression. (In the syntax graph, this will be treated like any other attributive or adjectival expression, and will be related to laus as adjectival.)\nWhen it is unclear whether to take the relation of a participle as attributive or circumstantial, prefer the treatment as circumstantial participle.\nExample ille moriens, cum sciret sagittas hydrae Lernaeae felle tinctas quantam uim haberent ueneni, sanguinem suum exceptum Deianirae dedit.\nThe participle moriens agrees with ille, and the participle tinctas agrees with sagittas. Treat both as circumstantial participles definiing a verbal expression.",
+    "crumbs": [
+      "Concepts",
+      "Verbal units"
+    ]
+  },
+  {
+    "objectID": "concepts/verbalunits.html#semantic-type",
+    "href": "concepts/verbalunits.html#semantic-type",
+    "title": "Verbal units",
+    "section": "Semantic type",
+    "text": "Semantic type\narsgrammatica recognizes four semantic types for verbal expressions.\nlinking verb applies to verbs joining a subject and predicate nominative expression (a substantive or adjectival expression). intransitive is for verbs that cannot take a direct object. transitive active and transitive passive apply to verbs that, in the active voice, are capable of construction with a direct object.\nNote that in Latin, transitive active expressions can be converted to equivalent transitive passive expressions under the A-A-T model (and vice versa) by changing the voice of the verb, and the construction of any explicit agent and target as follows:\n\n\n\nSemantic type\nAgent\nAction\nTarget\n\n\n\n\ntransitive active\nsubject\nactive voice\ndirect object\n\n\ntransitive passive\nablative of agent\npassive voice\nsubject\n\n\n\n\nlinking verb\nThe most common verb linking a nominative subject with a nominative predicate is sum.\nExample: Etruria erat vicina.\nThe verb erat is a linking verb with subject Etruria and predicate vicina.\n\n\nintransitive\nActive- or passive-voice verbal expressions that are intransitive in sense (i.e., that cannot take a direct object).\nExample: principes Albanorum in patres, ut ea quoque pars rei publicae cresceret, legit.\nThe verb cresceret is an active-voice form that cannot take a direct object. It is intransitive.\n\n\ntransitive active\nAny active-voice verbal expression with a transitive sense, so is capable of taking a direct object.\nExample: principes Albanorum in patres, ut ea quoque pars rei publicae cresceret, legit.\nThe verb legit is transitive active with an explicit direct object principes.\n\n\ntransitive passive\nAny passive-voice verbal expression with a transitive sense, so is capable of taking a construction with the ablative of agent.\nurbs a Romulo condita est\nThe compound verb form condita est is transitive passive with grammatical subject urbs and agent expressed by the prepositional phrase a Romulo.",
+    "crumbs": [
+      "Concepts",
+      "Verbal units"
+    ]
+  },
+  {
+    "objectID": "concepts/verbalunits.html#handling-implied-verbal-expressions",
+    "href": "concepts/verbalunits.html#handling-implied-verbal-expressions",
+    "title": "Verbal units",
+    "section": "Handling implied verbal expressions",
+    "text": "Handling implied verbal expressions\nThe discussion of tokenization introduced the idea of implied verbal expressions. There are two circumstances where we need to create an entry in the list of verbal expressions for an implied verbal expression.\n\nOmitted forms of sum\nExample: omnia praeclara rara.\nThis is a complete sentence, with a subject phrase omnia praeclara and a predicate rara. We record the implied form of “to be” with a new token entry, and enter its ID into the list of verbal expressions.\nand its ID will be entered in the list of verbal expressions.\nThis predicate construction is a main sentence, so its syntactic type will be independent clause and the semantic type will be linking verb. This elision can also occur with multiword compounds such as the perfect passive system, but here the treatment differs from the bare-predicate case above: because the participle itself is a real, already-present token, it – not a newly created token – anchors the verbal expression, per the multi-word compound verb form rule above. Example: the sentence inde P. Valerius iterum T. Lucretius consules facti. has a single verbal expression with a perfect passive verb, facti with sunt omitted. facti itself is entered in the list of verbal expressions (syntactic type independent clause, semantic type transitive passive). We still add a new token with unique ID and None for its text value to record the elided sunt, but this new token is not itself a verbal expression: it relates to facti as its auxiliary, exactly as a written-out sunt would. One important category of elided forms of sum is the participle: since there is no present participle of sum, its presence is always implied only. Example: in the sentence P. Valerius anno post Agrippa Menenio P. Postumio consulibus moritur, the phrase Agrippa Menenio P. Postumio consulibus is a predicate construction implying a circumstantial participle of “to be”. Here there is no already-present participle to anchor the verbal expression (unlike facti above), so we must add a new token with unique ID to the token table and use its ID for a new entry in the list of verbal expressions. The syntactic type will be circumstantial participle and the semantic type will be linking verb since this is a predicate construction (“when Agrippa Menenius and Publius Postumius were consuls…”)\n\n\nUnderstood repeated verb\nEspecially common in indirect discourse. 2. continuation of indirect discourse: in long sections of indirect speech, entire passages may appear without repeating any governing verb of speaking or thinking. In this situation, we must add new token with unique ID to the token table, with None for its text value, and use its ID for new entry in the list of verbal expressions. For example, these three verbal expressions are each constructed in indirect statement: nimium Tarquinios regno adsuesse; initium a Prisco factum; regnasse dein Ser. Tullium. They imply a verb of speaking governing all three verbal expressions, so we add a new token with unique ID to the list of tokens, and add a verbal expression with its ID to the list of verbal expressions. Here, we assume that the understood verbal expression is of syntatic type independent clause; its semantic type is ‘transitive active’.",
     "crumbs": [
       "Concepts",
       "Verbal units"
@@ -1220,7 +1376,7 @@
     "href": "tutorials/quick.html",
     "title": "Quick start to write a script querying a language model",
     "section": "",
-    "text": "Configure DSPy with a model:\nimport dspy\ndspy.configure(lm=dspy.LM(model=\"litellm_proxy/anthropic/Claude Opus 5\",\n                           api_base=\"https://api_url/litellm\",\n                           api_key=\"your-key-here\"))\nAnalyze a string:\nfrom arsgrammatica import analyze_passage\nsentences, results = analyze_passage(\"Gallia est omnis divisa in partes tres.\")\nAnalyze an entire citable corpus from a CEX source file:\nfrom arsgrammatica import analyze_ctsdata\nsentences, results = analyze_ctsdata(\"corpus.cex\")\nSee the guides section for examples of how to use results of an analysis.",
+    "text": "Configure DSPy with a model:\nimport dspy\ndspy.configure(lm=dspy.LM(model=\"litellm_proxy/anthropic/Claude Opus 5\",\n                           api_base=\"https://api_url/litellm\",\n                           api_key=\"your-key-here\"))\nAnalyze a string:\nfrom arsgrammatica import analyze_string\nsentences, results = analyze_string(\"Gallia est omnis divisa in partes tres.\")\nAnalyze an entire citable corpus from a CEX source file:\nfrom arsgrammatica import analyze_ctsdata\nsentences, results = analyze_ctsdata(\"corpus.cex\")\nSee the guides section for examples of how to use results of an analysis.",
     "crumbs": [
       "Tutorials",
       "Quick start to write a script querying a language model"
@@ -1231,7 +1387,7 @@
     "href": "reference/vuvalues.html",
     "title": "Allowed terms for documenting verbal expressions",
     "section": "",
-    "text": "For finite verbs: independent, dependent, direct quote, aside\nFor infinitives: indirect statement\nFor participles: circumstantial participle",
+    "text": "For finite verbs: independent, dependent, direct quote, aside\nFor infinitives: indirect statement",
     "crumbs": [
       "Reference",
       "Allowed terms for documenting verbal expressions"
@@ -1242,7 +1398,7 @@
     "href": "reference/vuvalues.html#syntactic-type",
     "title": "Allowed terms for documenting verbal expressions",
     "section": "",
-    "text": "For finite verbs: independent, dependent, direct quote, aside\nFor infinitives: indirect statement\nFor participles: circumstantial participle",
+    "text": "For finite verbs: independent, dependent, direct quote, aside\nFor infinitives: indirect statement",
     "crumbs": [
       "Reference",
       "Allowed terms for documenting verbal expressions"
@@ -1363,7 +1519,7 @@
     "href": "reference/tokentypes.html",
     "title": "Allowed terms for classifying tokens",
     "section": "",
-    "text": "punctuation, enclitic , lexical , praenomen, abbreviation, numeral",
+    "text": "Actual tokens:\npunctuation, enclitic , lexical , praenomen, abbreviation, numeral\nImplied tokens:\nimplied sum, continued verb, implied substantive",
     "crumbs": [
       "Reference",
       "Allowed terms for classifying tokens"

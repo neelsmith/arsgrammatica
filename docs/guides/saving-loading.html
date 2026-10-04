@@ -141,7 +141,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
   <li class="nav-item">
     <a class="nav-link active" href="../guides/index.html" aria-current="page"> 
-<span class="menu-text">Guides</span></a>
+<span class="menu-text">Recipes</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../reference/index.html"> 
@@ -357,18 +357,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="reading-saved-analyses" class="level2">
 <h2 class="anchored" data-anchor-id="reading-saved-analyses">Reading saved analyses</h2>
 <p>You can read back a flat list of all the four parts of a serialization with the <code>read_analyses</code> function.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> read_analyses</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>tokengraph, verbalunits, sentences, lm_infos <span class="op">=</span> </span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    read_analyses(<span class="st">"analysis.txt"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="18770e6e" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> read_analyses</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>tokengraph, verbalunits, sentences, lm_infos <span class="op">=</span> read_analyses(analysis_file)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 <p>To split up the composite token graph by sentence, use <code>split_analysis_by_sentence</code>.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> split_analysis_by_sentence</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>sentencetokens <span class="op">=</span> split_analysis_by_sentence(tokengraph, verbalunits, sentences)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (sentence_tokengraph, sentence_verbalunits) <span class="kw">in</span> </span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">zip</span>(sentences, sentencetokens):</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    ...  <span class="co"># work with analysis data per sentence</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="387a8d94" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> split_analysis_by_sentence</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>sentence_slices <span class="op">=</span> split_analysis_by_sentence(tokengraph, verbalunits, sentences)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Each sentence slice has two parts: the syntactic graph of tokens, and a list of verbal units.</p>
+<div id="0858e4b3" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>sentence_tokengraph, sentence_verbalunits <span class="op">=</span> sentence_slices[<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
 <p>For details of the serialization format, see <a href="../reference/">the reference documentation</a></p>
+</div>
+</div>
 
 
 </section>

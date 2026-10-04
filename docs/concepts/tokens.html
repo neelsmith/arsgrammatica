@@ -106,7 +106,7 @@ ul.task-list li input[type="checkbox"] {
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../guides/index.html"> 
-<span class="menu-text">Guides</span></a>
+<span class="menu-text">Recipes</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../reference/index.html"> 
@@ -199,7 +199,7 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../concepts/syntactic-analysis.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Graph of syntactic relations</span></a>
+ <span class="menu-text"><code>arsgrammatica</code>’s graph of syntactic relations</span></a>
   </div>
 </li>
         <li class="px-0"><hr class="sidebar-divider hi "></li>
@@ -214,8 +214,29 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#identifiers" id="toc-identifiers" class="nav-link active" data-scroll-target="#identifiers">Identifiers</a></li>
+  <li><a href="#token-categories" id="toc-token-categories" class="nav-link" data-scroll-target="#token-categories">Token categories</a>
+  <ul class="collapse">
+  <li><a href="#praenomen" id="toc-praenomen" class="nav-link" data-scroll-target="#praenomen"><code>praenomen</code></a></li>
+  <li><a href="#abbreviation" id="toc-abbreviation" class="nav-link" data-scroll-target="#abbreviation"><code>abbreviation</code></a></li>
+  <li><a href="#punctuation" id="toc-punctuation" class="nav-link" data-scroll-target="#punctuation"><code>punctuation</code></a></li>
+  <li><a href="#enclitic" id="toc-enclitic" class="nav-link" data-scroll-target="#enclitic"><code>enclitic</code></a></li>
+  <li><a href="#numeral" id="toc-numeral" class="nav-link" data-scroll-target="#numeral"><code>numeral</code></a></li>
+  <li><a href="#lexical" id="toc-lexical" class="nav-link" data-scroll-target="#lexical"><code>lexical</code></a></li>
+  </ul></li>
+  <li><a href="#implied-tokens" id="toc-implied-tokens" class="nav-link" data-scroll-target="#implied-tokens">Implied tokens</a>
+  <ul class="collapse">
+  <li><a href="#elided-forms-of-sum" id="toc-elided-forms-of-sum" class="nav-link" data-scroll-target="#elided-forms-of-sum">Elided forms of <code>sum</code></a></li>
+  <li><a href="#understood-repeated-verb" id="toc-understood-repeated-verb" class="nav-link" data-scroll-target="#understood-repeated-verb">Understood repeated verb</a></li>
+  <li><a href="#implied-substantive" id="toc-implied-substantive" class="nav-link" data-scroll-target="#implied-substantive">Implied substantive</a></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -239,15 +260,135 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p><em>TBA</em></p>
-<p>implied/elided</p>
-<ul>
-<li>elided forms of <em>sum</em> in compounds</li>
-<li>repeated/understood verb</li>
-<li>implied substantive</li>
-</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In <code>arsgrammatica</code> the <code>Token</code> class is the primary impementation of these ideas.</p>
+</div>
+</div>
+<section id="identifiers" class="level2">
+<h2 class="anchored" data-anchor-id="identifiers">Identifiers</h2>
+<p>Although <code>arsgrammatica</code> can analyze strings of text in Latin, it is primarily intended to analyze passages of Latin with citation references such as CTS URNs. In tokenizing a passage, <code>arsgrammatica</code> tracks the citation and ensures that all tokens are uniquely identified within a given citation context.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Extending CTS URNs to identify tokens
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In practical terms, this means that the token’s identifier could be used with a containing URN context to create token-level CTS URNs. If the URN <code>urn:cts:latinLit:phi0474.phi016.omar:1</code> identifies passage <code>1</code> in Cicero’s <em>Pro Archia</em>, then we could extend its work component with an exemplar identifier <code>tokens</code> and extend the passage component with a token identifier like <code>t0</code> to create a new URN <code>urn:cts:latinLit:phi0474.phi016.omar.tokens:1.t0</code> to cite the first token in that passage.</p>
+</div>
+</div>
+</section>
+<section id="token-categories" class="level2">
+<h2 class="anchored" data-anchor-id="token-categories">Token categories</h2>
+<p>Tokenization splits a string into meaningful units that can be analyzed. Based on their orthography and content, tokens are classified with one of the following categories that will inform our subsequent analysis.</p>
+<section id="praenomen" class="level3">
+<h3 class="anchored" data-anchor-id="praenomen"><code>praenomen</code></h3>
+<p>We take an abbreviated praenomen together with its punctuating period as a single token.</p>
+<p><strong>Example</strong>: <em>M. Agrippa L. f.&nbsp;cos. tertium fecit</em></p>
+<p>The tokens <em>M.</em> and <em>L.</em> are classified as <code>praenomen</code>.</p>
+</section>
+<section id="abbreviation" class="level3">
+<h3 class="anchored" data-anchor-id="abbreviation"><code>abbreviation</code></h3>
+<p>We take other abbreviations, together with their punctuating periods, as single tokens classified as <code>abbreviation</code>.</p>
+<p><strong>Example</strong>: <em>M. Agrippa L. f.&nbsp;cos. tertium fecit</em></p>
+<p>Both <em>f.</em> and <em>cos.</em> are classified as <code>abbreviation</code>.</p>
+</section>
+<section id="punctuation" class="level3">
+<h3 class="anchored" data-anchor-id="punctuation"><code>punctuation</code></h3>
+<p>Any other Unicode punctuation character, in editions of Latin texts most commonly including period, comma, question mark, semicolon, colon, parentheses and brackets of various kinds, single or double quotation marks, dashes or hyphens, is treated as a distinct token of type <code>punctuation</code></p>
+<p><strong>Example</strong>: <em>arma virumque cano.</em></p>
+<p>The period <em>.</em> is a token of type <code>punctuation</code>.</p>
+</section>
+<section id="enclitic" class="level3">
+<h3 class="anchored" data-anchor-id="enclitic"><code>enclitic</code></h3>
+<p>Enclitics belong to a distinct class because of their orthography, written without space between the enclitic and the preceding token. Tokenization of enclitics must consider the context.</p>
+<p><strong>Example</strong>: <em>arma virumque cano.</em></p>
+<p>The token <em>que</em> is <code>enclitic</code>.</p>
+<p><strong>Example</strong>: <em>ratione docet?</em></p>
+<p>The string <em>ratione</em> represents the enclitic token <em>ne</em> (a question word) following the lexical token <em>ratio</em> (noun in the nominative singular).</p>
+<p><strong>Example</strong>: <em>aequa ratione imperat.</em></p>
+<p>The string <em>ratione</em> is a single lexical token (noun in the ablative singular): there is no enclitic.</p>
+<p>Tokenization must also recognize the small number of frequently occurring words that have incorporated an original historic enclitic into a single lexical item such as <em>quisque</em> (and its compounds), or <em>plerusque</em>.</p>
+<p><strong>Examples</strong>: forms such as <em>quisque</em>, <em>cuique</em> and <em>quemque</em> must each be treated as a single lexical token.</p>
+</section>
+<section id="numeral" class="level3">
+<h3 class="anchored" data-anchor-id="numeral"><code>numeral</code></h3>
+<p>Any numeral written numerically rather than phonetically.</p>
+<p><strong>Example</strong>: <em>hiberna aberant ab eo milia passuum XXV.</em></p>
+<p><code>XXV</code> is a <em>numeral</em> token.</p>
+<p><strong>Example</strong>: <em>fratres Joseph decem venerunt</em></p>
+<p>All four tokens are <em>lexical</em> tokens.</p>
+</section>
+<section id="lexical" class="level3">
+<h3 class="anchored" data-anchor-id="lexical"><code>lexical</code></h3>
+<p>Lexical tokens written in standard orthography.</p>
+<p><strong>Example</strong>: <em>arma virumque cano.</em></p>
+<p>The tokens <em>arma</em>, <em>virum</em> and <em>cano</em> are all classified as <code>lexical</code>. (<em>que</em> is <code>enclitic</code> and the period <code>.</code> is <code>punctuation</code>) .</p>
+</section>
+</section>
+<section id="implied-tokens" class="level2">
+<h2 class="anchored" data-anchor-id="implied-tokens">Implied tokens</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This discussion focuses on adding implied tokens to the tokens table. For more on how elided forms of <em>sum</em> and understood repeated verb forms are documented in the list of verbal expressions, see the discussion of <a href="../concepts/verbalunits.html">verbal units</a>. For further discussion of how implied tokens are related to other tokens in the tokens graph, see the discussion of <code>arsgrammatica</code>’s <a href="../concepts/syntactic-analysis.html">graph of syntactic relations</a>.</p>
+</div>
+</div>
+<p>There are three circumstances where <code>arsgrammatica</code> inserts implied tokens into its syntax graph. All implied tokens have <code>None</code> for their text value.</p>
+<section id="elided-forms-of-sum" class="level3">
+<h3 class="anchored" data-anchor-id="elided-forms-of-sum">Elided forms of <code>sum</code></h3>
+<p>The verb <code>sum</code> (“to be”) is often elided in the present tense. A new token with unique ID must be added to the token table, and an entry added to the list of verbal expressions.</p>
+<p><strong>Example</strong>: <em>omnia praeclara rara.</em></p>
+<p>This is a complete sentence, with a subject phrase <em>omnia praeclara</em> and a predicate <em>rara</em>. We record the implied form of “to be” with a new token entry with text value <code>None</code>, and enter its ID into the list of verbal expressions.</p>
+<p>A particularly important category of elided forms of <em>sum</em> is the participle: since there is no present participle of <em>sum</em>, its presence is <em>always</em> implied only.</p>
+<p><strong>Example</strong>: <em>P. Valerius anno post Agrippa Menenio P. Postumio consulibus moritur.</em></p>
+<p>The phrase <em>Agrippa Menenio P. Postumio consulibus</em> is an ablative absolute construction implying a circumstantial participle of “to be”. We will need to create a new token with text value <code>None</code>, add an entry with its id in the verbal expressions table, and in the syntax graph treat it as a participle agreeing with each of the two consuls’ names.</p>
+<p>Elision of <em>sum</em> can also occur with multiword compounds such as the perfect passive system.</p>
+<p><strong>Example</strong>: <em>inde P. Valerius iterum T. Lucretius consules facti.</em></p>
+<p>This sentence has a single verbal expression with a perfect passive verb, <em>facti</em> with <em>sunt</em> omitted. We add a token with text value <code>None</code> to the table of tokens. In the syntax graph, it will be related to <em>facti</em> as <code>auxiliary</code>; there is no need to add an entry to the list of verbal units, since the participle (as the main verb of the compound) will already figure there.</p>
+</section>
+<section id="understood-repeated-verb" class="level3">
+<h3 class="anchored" data-anchor-id="understood-repeated-verb">Understood repeated verb</h3>
+<p>When parallel verbal constructions repeat the same verbal idea, the verb can be understood rather than repeated in each expression. We must add a new token with unique ID to the token table, and an entry added to the list of verbal expressions.</p>
+<p><strong>Example</strong>: <em>sic eius adventus celebrabantur ut famam ingeni exspectatio hominis, exspectationem ipsius adventus admiratioque superaret.</em></p>
+<p>Here, the conjunction <em>ut</em> introduces two parallel result clauses. The first has subject <em>exspectatio</em> and direct object <em>famam</em>; the second has subjects <em>adventus</em> and <em>admiratio</em> and direct object <em>exspectationem</em>. The explict verb <em>superaret</em> for the first result clause (with singular subject) implies that we would repeat a (plural) form of <em>supero</em> for the second result clause.</p>
+<p>Understood repetition of a verb is quite common in long sections of indirect speech, where entire passages may appear without repeating any governing verb of speaking or thinking.</p>
+<p><strong>Example</strong>: <em>nimium Tarquinios regno adsuesse; initium a Prisco factum; regnasse dein Ser. Tullium</em>.</p>
+<p>Here three verbal expressions are each constructed in indirect statement. They imply a verb of speaking governing all three verbal expressions, so we add a new token with unique ID to the list of tokens, and add a verbal expression with its ID to the list of verbal expressions.</p>
+</section>
+<section id="implied-substantive" class="level3">
+<h3 class="anchored" data-anchor-id="implied-substantive">Implied substantive</h3>
+<p>When a relative pronoun or a participle depends on an implied but unexpressed antecedent, we must add a new token with unique ID to the token table..</p>
+<p><strong>Example</strong>: <em>quem dii amant adolescens moritur.</em></p>
+<p>The relative pronoun <em>quem</em> depends on an unexpressed subject of <em>moritur</em>. We add a new token for the antecedent that the syntax graph will use both as the antecedent of <em>quem</em> and as an implied subject of <em>moritur</em>.</p>
+<p><strong>Example</strong>: <em>quasi ad alienos durius loquebatur, interrogans eos: Unde venistis?</em></p>
+<p>The participle <em>interrogans</em> depends on an unexpressed antecedent. We add a new token for it. In the syntax graph this token will be both the antecedent of <em>interrogans</em> and the subject of <em>loquebatur</em>.</p>
+<p>This distinguish this from substantive uses of the participle. When the participle can be construed as a direct substantive function, we take it as a single token that the syntax graph can treat like any other substantive.</p>
+<p><strong>Example</strong>: <em>sapientī sat est.</em></p>
+<p>We recognize that the participle <em>sapienti</em> here is not a circumstantial participle requiring an entry in the verbal expressions table, but can be taken as a substantive “the wise person.” There is no need to add any implied antecedent to the list of tokens.</p>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

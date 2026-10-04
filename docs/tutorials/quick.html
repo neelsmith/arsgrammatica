@@ -141,7 +141,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../guides/index.html"> 
-<span class="menu-text">Guides</span></a>
+<span class="menu-text">Recipes</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../reference/index.html"> 
@@ -275,8 +275,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>                           api_base<span class="op">=</span><span class="st">"https://api_url/litellm"</span>,</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                           api_key<span class="op">=</span><span class="st">"your-key-here"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Analyze a string:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> analyze_passage</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>sentences, results <span class="op">=</span> analyze_passage(<span class="st">"Gallia est omnis divisa in partes tres."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> analyze_string</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>sentences, results <span class="op">=</span> analyze_string(<span class="st">"Gallia est omnis divisa in partes tres."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Analyze an entire citable corpus from a CEX source file:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> analyze_ctsdata</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>sentences, results <span class="op">=</span> analyze_ctsdata(<span class="st">"corpus.cex"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>

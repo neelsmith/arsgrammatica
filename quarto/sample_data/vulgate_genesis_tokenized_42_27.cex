@@ -1,0 +1,52 @@
+#!lm
+MODEL=litellm_proxy/anthropic/Claude Opus 5
+CONTEXT=urn:cts:compnov:bible.genesis.vulgate:42.27.42.27.t0-urn:cts:compnov:bible.genesis.vulgate:42.28.42.28.t13
+REASONING=The sentence continues a narrative (enclitic "-que" opens it), so "que" has only relatedtoken1 -> the verb it introduces ("dixit"), with no preceding verb in the passage to pair with. "Aperto ... sacco" is a true ablative absolute: "Aperto" is a predicate (circumstantial) participle agreeing with "sacco" (relationship 'circumstantial participle'), and "sacco", having no other syntactic tie, relates to the main verb "dixit" via 'ablative absolute'. "unus" is nominative and serves as subject of the main verb "dixit". The purpose clause "ut daret jumento pabulum in diversorio" is genuinely ambiguous in attachment: it could depend on the main verb "dixit" or on the participle "Aperto". Semantically the opening of the sack was for the purpose of giving fodder, so I attach "ut" to "Aperto"; the alternative (attachment to "dixit") would make no sense of the narrative. "contemplatus" (deponent perfect participle, active in sense) agrees with "unus" and has predicate/circumstantial force ('when he had observed the money'), so it anchors its own verbal expression with 'circumstantial participle' -> "unus"; "pecuniam" is its direct object, and "in ore sacculi" is attributive to "pecuniam" (money located in the sack's mouth) rather than adverbial to the participle — a close call, but the phrase specifies where the money was, modifying the noun. The words after the colon are directly quoted speech framed by "dixit": "Reddita est" (compound perfect passive, the participle "Reddita" anchoring the expression with "est" as 'auxiliary') and "habetur" both get syntactic type 'direct quote', relating to "dixit". "en" is an interjection, treated adverbially with the verb it accompanies ("habetur").
+
+#!sentences
+context_begin|first_token|context_end|last_token
+urn:cts:compnov:bible.genesis.vulgate:42.27|42.27.t0|urn:cts:compnov:bible.genesis.vulgate:42.28|42.28.t13
+
+#!verbal_units
+context|token|syntactic_type|semantic_type
+urn:cts:compnov:bible.genesis.vulgate:42.27|42.27.t0|dependent|transitive passive
+urn:cts:compnov:bible.genesis.vulgate:42.27|42.27.t6|dependent|transitive active
+urn:cts:compnov:bible.genesis.vulgate:42.27|42.27.t12|dependent|transitive active
+urn:cts:compnov:bible.genesis.vulgate:42.28|42.28.t0|independent|transitive active
+urn:cts:compnov:bible.genesis.vulgate:42.28|42.28.t4|direct quote|transitive passive
+urn:cts:compnov:bible.genesis.vulgate:42.28|42.28.t10|direct quote|transitive passive
+
+#!tokens
+context|id|tokentype|text|lemma|verbalunit|related1|relationship1|related2|relationship2
+urn:cts:compnov:bible.genesis.vulgate:42.27|42.27.t0|lexical|Aperto|aperio|42.27.t0|42.27.t3|circumstantial participle||
+urn:cts:compnov:bible.genesis.vulgate:42.27|42.27.t1|enclitic|que|que||42.28.t0|coordinating conjunction||
+urn:cts:compnov:bible.genesis.vulgate:42.27|42.27.t2|lexical|unus|unus||42.28.t0|subject||
+urn:cts:compnov:bible.genesis.vulgate:42.27|42.27.t3|lexical|sacco|saccus||42.28.t0|ablative absolute||
+urn:cts:compnov:bible.genesis.vulgate:42.27|42.27.t4|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.27|42.27.t5|lexical|ut|ut||42.27.t0|subordinating conjunction||
+urn:cts:compnov:bible.genesis.vulgate:42.27|42.27.t6|lexical|daret|do|42.27.t6|42.27.t5|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.27|42.27.t7|lexical|jumento|jumentum||42.27.t6|dative||
+urn:cts:compnov:bible.genesis.vulgate:42.27|42.27.t8|lexical|pabulum|pabulum||42.27.t6|direct object||
+urn:cts:compnov:bible.genesis.vulgate:42.27|42.27.t9|lexical|in|in||42.27.t6|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.27|42.27.t10|lexical|diversorio|diversorium||42.27.t9|object of preposition||
+urn:cts:compnov:bible.genesis.vulgate:42.27|42.27.t11|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.27|42.27.t12|lexical|contemplatus|contemplor|42.27.t12|42.27.t2|circumstantial participle||
+urn:cts:compnov:bible.genesis.vulgate:42.27|42.27.t13|lexical|pecuniam|pecunia||42.27.t12|direct object||
+urn:cts:compnov:bible.genesis.vulgate:42.27|42.27.t14|lexical|in|in||42.27.t13|attributive||
+urn:cts:compnov:bible.genesis.vulgate:42.27|42.27.t15|lexical|ore|os||42.27.t14|object of preposition||
+urn:cts:compnov:bible.genesis.vulgate:42.27|42.27.t16|lexical|sacculi|sacculus||42.27.t15|genitive||
+urn:cts:compnov:bible.genesis.vulgate:42.27|42.27.t17|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.28|42.28.t0|lexical|dixit|dico|42.28.t0|root|unit verb||
+urn:cts:compnov:bible.genesis.vulgate:42.28|42.28.t1|lexical|fratribus|frater||42.28.t0|dative||
+urn:cts:compnov:bible.genesis.vulgate:42.28|42.28.t2|lexical|suis|suus||42.28.t1|adjectival||
+urn:cts:compnov:bible.genesis.vulgate:42.28|42.28.t3|punctuation|:||||||
+urn:cts:compnov:bible.genesis.vulgate:42.28|42.28.t4|lexical|Reddita|reddo|42.28.t4|42.28.t0|direct quote||
+urn:cts:compnov:bible.genesis.vulgate:42.28|42.28.t5|lexical|est|sum||42.28.t4|auxiliary||
+urn:cts:compnov:bible.genesis.vulgate:42.28|42.28.t6|lexical|mihi|ego||42.28.t4|dative||
+urn:cts:compnov:bible.genesis.vulgate:42.28|42.28.t7|lexical|pecunia|pecunia||42.28.t4|subject||
+urn:cts:compnov:bible.genesis.vulgate:42.28|42.28.t8|punctuation|,||||||
+urn:cts:compnov:bible.genesis.vulgate:42.28|42.28.t9|lexical|en|en||42.28.t10|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.28|42.28.t10|lexical|habetur|habeo|42.28.t10|42.28.t0|direct quote||
+urn:cts:compnov:bible.genesis.vulgate:42.28|42.28.t11|lexical|in|in||42.28.t10|adverbial||
+urn:cts:compnov:bible.genesis.vulgate:42.28|42.28.t12|lexical|sacco|saccus||42.28.t11|object of preposition||
+urn:cts:compnov:bible.genesis.vulgate:42.28|42.28.t13|punctuation|.||||||

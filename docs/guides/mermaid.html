@@ -105,6 +105,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script src="../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
 
 <link rel="stylesheet" href="styles.css">
@@ -141,7 +144,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
   <li class="nav-item">
     <a class="nav-link active" href="../guides/index.html" aria-current="page"> 
-<span class="menu-text">Guides</span></a>
+<span class="menu-text">Recipes</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../reference/index.html"> 
@@ -304,7 +307,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#limitations" id="toc-limitations" class="nav-link active" data-scroll-target="#limitations">Limitations</a></li>
+  <li><a href="#start-from-the-token-graph" id="toc-start-from-the-token-graph" class="nav-link active" data-scroll-target="#start-from-the-token-graph">Start from the token graph</a></li>
+  <li><a href="#compose-a-mermaid-diagram" id="toc-compose-a-mermaid-diagram" class="nav-link" data-scroll-target="#compose-a-mermaid-diagram">Compose a mermaid diagram</a></li>
+  <li><a href="#save-a-diagram" id="toc-save-a-diagram" class="nav-link" data-scroll-target="#save-a-diagram">Save a diagram</a></li>
+  <li><a href="#options" id="toc-options" class="nav-link" data-scroll-target="#options">Options</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
   </ul>
 </nav>
     </div>
@@ -330,17 +337,208 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p><a href="https://mermaid.ai">Mermaid</a> is a lightweight diagramming language that is easily used in many Markdown viewers and editors, web environments, the <a href="https://mermaid.live">https://mermaid.live</a> mermaid editor, and others. To compose a Mermaid diagram for a token graph:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> tokengraph_to_mermaid</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>diagram, warnings <span class="op">=</span> tokengraph_to_mermaid(result.tokengraph)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><code>warnings</code> lists any edge that got skipped because it pointed at a punctuation token or an id missing from <code>tokengraph</code>.</p>
+<p><a href="https://mermaid.ai">Mermaid</a> is a lightweight diagramming language that is easily used in many Markdown viewers and editors, web environments, the <a href="https://mermaid.live">https://mermaid.live</a> mermaid editor, and others.</p>
+<section id="start-from-the-token-graph" class="level2">
+<h2 class="anchored" data-anchor-id="start-from-the-token-graph">Start from the token graph</h2>
+<p>To compose a Mermaid diagram for a token graph, first <a href="../guides/analysis.html">analyze a string or a passage</a>, or read in a <a href="../guides/saving-loading.html">previously saved analysis</a>. In this example, let’s assume we have read in a saved analysis and used <code>split_analysis_by_sentence</code> to get a list of sentences called <code>sentence_slices</code>. Each sentence pairs a list of verbal units with the syntactic graph of tokens, but to create the HTML views, we only need the graph.</p>
+<div id="e9d2444c" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>sentence_tokengraph, sentence_verbalunits <span class="op">=</span> sentence_slices[<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="compose-a-mermaid-diagram" class="level2">
+<h2 class="anchored" data-anchor-id="compose-a-mermaid-diagram">Compose a mermaid diagram</h2>
+<p>Use <code>tokengraph_to_mermaid</code> to create a diagram of the syntax graph. It returns two values: a Mermaid diagram string, and a list of any warnings (e.g., an edge that got skipped).</p>
+<div id="2b17d2dc" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> tokengraph_to_mermaid</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>diagram, warnings <span class="op">=</span> tokengraph_to_mermaid(sentence_tokengraph)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="8901d2cc" class="cell" data-execution_count="4">
+<div class="cell-output cell-output-display cell-output-markdown">
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">graph BT
+    42.27.t0["Aperto"]
+    42.27.t1["que"]
+    42.27.t2["unus"]
+    42.27.t3["sacco"]
+    42.27.t5["ut"]
+    42.27.t6["daret"]
+    42.27.t7["jumento"]
+    42.27.t8["pabulum"]
+    42.27.t9["in"]
+    42.27.t10["diversorio"]
+    42.27.t12["contemplatus"]
+    42.27.t13["pecuniam"]
+    42.27.t14["in"]
+    42.27.t15["ore"]
+    42.27.t16["sacculi"]
+    42.28.t0["dixit"]
+    42.28.t1["fratribus"]
+    42.28.t2["suis"]
+    42.28.t4["Reddita"]
+    42.28.t5["est"]
+    42.28.t6["mihi"]
+    42.28.t7["pecunia"]
+    42.28.t9["en"]
+    42.28.t10["habetur"]
+    42.28.t11["in"]
+    42.28.t12["sacco"]
+    root(["root"])
+    42.27.t0 --&gt;|circumstantial participle| 42.27.t3
+    42.27.t1 --&gt;|coordinating conjunction| 42.28.t0
+    42.27.t2 --&gt;|subject| 42.28.t0
+    42.27.t3 --&gt;|ablative absolute| 42.28.t0
+    42.27.t5 --&gt;|subordinating conjunction| 42.27.t0
+    42.27.t6 --&gt;|unit verb| 42.27.t5
+    42.27.t7 --&gt;|dative| 42.27.t6
+    42.27.t8 --&gt;|direct object| 42.27.t6
+    42.27.t9 --&gt;|adverbial| 42.27.t6
+    42.27.t10 --&gt;|object of preposition| 42.27.t9
+    42.27.t12 --&gt;|circumstantial participle| 42.27.t2
+    42.27.t13 --&gt;|direct object| 42.27.t12
+    42.27.t14 --&gt;|attributive| 42.27.t13
+    42.27.t15 --&gt;|object of preposition| 42.27.t14
+    42.27.t16 --&gt;|genitive| 42.27.t15
+    42.28.t0 --&gt;|unit verb| root
+    42.28.t1 --&gt;|dative| 42.28.t0
+    42.28.t2 --&gt;|adjectival| 42.28.t1
+    42.28.t4 --&gt;|direct quote| 42.28.t0
+    42.28.t5 --&gt;|auxiliary| 42.28.t4
+    42.28.t6 --&gt;|dative| 42.28.t4
+    42.28.t7 --&gt;|subject| 42.28.t4
+    42.28.t9 --&gt;|adverbial| 42.28.t10
+    42.28.t10 --&gt;|direct quote| 42.28.t0
+    42.28.t11 --&gt;|adverbial| 42.28.t10
+    42.28.t12 --&gt;|object of preposition| 42.28.t11
+
+    42.27.t0 ~~~ 42.27.t12 ~~~ 42.28.t4 ~~~ 42.28.t10
+
+    classDef vu0 fill:#82bbff,stroke:#2a78d6,color:#000000;
+    classDef vu1 fill:#ffa682,stroke:#eb6834,color:#000000;
+    classDef vu2 fill:#70ffcc,stroke:#1baf7a,color:#000000;
+    classDef vu3 fill:#ffd170,stroke:#eda100,color:#000000;
+    classDef vu4 fill:#ff94bc,stroke:#e87ba4,color:#000000;
+    classDef vu5 fill:#7aff7a,stroke:#008300,color:#000000;
+    class 42.27.t0,42.27.t3 vu0;
+    class 42.27.t1,42.27.t2,42.28.t0,42.28.t1,42.28.t2 vu1;
+    class 42.27.t5,42.27.t6,42.27.t7,42.27.t8,42.27.t9,42.27.t10 vu2;
+    class 42.27.t12,42.27.t13,42.27.t14,42.27.t15,42.27.t16 vu3;
+    class 42.28.t4,42.28.t5,42.28.t6,42.28.t7 vu4;
+    class 42.28.t9,42.28.t10,42.28.t11,42.28.t12 vu5;
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="save-a-diagram" class="level2">
+<h2 class="anchored" data-anchor-id="save-a-diagram">Save a diagram</h2>
 <p>You can save the diagram to a file with <code>save_mermaid</code>.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> save_mermaid</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>save_mermaid(diagram,<span class="st">"diagram.mmd"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Both <code>tokengraph_to_mermaid</code> and <code>save_mermaid</code> accept one of Mermaid’s orientation codes (<code>BT</code>, <code>TB</code>, <code>LR</code>, <code>RL</code>) in an optional <code>orientation</code> argument, with default value <code>BT</code> (bottom-to-top). Remember that the token graph is directed from subordinate to governing nodes. <code>BT</code> will result in root elements at the top, and <code>RL</code> will place root elements at the left of the diagram.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>diagram, warnings <span class="op">=</span> tokengraph_to_mermaid(</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    result.tokengraph, </span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    orientation<span class="op">=</span><span class="st">"RL"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> save_mermaid</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>save_mermaid(diagram,<span class="st">"diagram.mmd"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="options" class="level2">
+<h2 class="anchored" data-anchor-id="options">Options</h2>
+<ul>
+<li>Both <code>tokengraph_to_mermaid</code> and <code>save_mermaid</code> accept one of Mermaid’s orientation codes (<code>BT</code>, <code>TB</code>, <code>LR</code>, <code>RL</code>) in an optional <code>orientation</code> argument, with default value <code>BT</code> (bottom-to-top). Since the token graph is directed from subordinate to governing nodes, <code>BT</code> will result in root elements at the top, and <code>RL</code> will place root elements at the left of the diagram.</li>
+<li>It is also possible to omit the hypothetical <code>root</code> node of a sentence</li>
+</ul>
+<div id="45ef78ed" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>diagram_rl, warnings <span class="op">=</span> tokengraph_to_mermaid(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    sentence_tokengraph, </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    orientation<span class="op">=</span><span class="st">"RL"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="23c7a2b7" class="cell" data-execution_count="6">
+<div class="cell-output cell-output-display cell-output-markdown">
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">graph RL
+    42.27.t0["Aperto"]
+    42.27.t1["que"]
+    42.27.t2["unus"]
+    42.27.t3["sacco"]
+    42.27.t5["ut"]
+    42.27.t6["daret"]
+    42.27.t7["jumento"]
+    42.27.t8["pabulum"]
+    42.27.t9["in"]
+    42.27.t10["diversorio"]
+    42.27.t12["contemplatus"]
+    42.27.t13["pecuniam"]
+    42.27.t14["in"]
+    42.27.t15["ore"]
+    42.27.t16["sacculi"]
+    42.28.t0["dixit"]
+    42.28.t1["fratribus"]
+    42.28.t2["suis"]
+    42.28.t4["Reddita"]
+    42.28.t5["est"]
+    42.28.t6["mihi"]
+    42.28.t7["pecunia"]
+    42.28.t9["en"]
+    42.28.t10["habetur"]
+    42.28.t11["in"]
+    42.28.t12["sacco"]
+    root(["root"])
+    42.27.t0 --&gt;|circumstantial participle| 42.27.t3
+    42.27.t1 --&gt;|coordinating conjunction| 42.28.t0
+    42.27.t2 --&gt;|subject| 42.28.t0
+    42.27.t3 --&gt;|ablative absolute| 42.28.t0
+    42.27.t5 --&gt;|subordinating conjunction| 42.27.t0
+    42.27.t6 --&gt;|unit verb| 42.27.t5
+    42.27.t7 --&gt;|dative| 42.27.t6
+    42.27.t8 --&gt;|direct object| 42.27.t6
+    42.27.t9 --&gt;|adverbial| 42.27.t6
+    42.27.t10 --&gt;|object of preposition| 42.27.t9
+    42.27.t12 --&gt;|circumstantial participle| 42.27.t2
+    42.27.t13 --&gt;|direct object| 42.27.t12
+    42.27.t14 --&gt;|attributive| 42.27.t13
+    42.27.t15 --&gt;|object of preposition| 42.27.t14
+    42.27.t16 --&gt;|genitive| 42.27.t15
+    42.28.t0 --&gt;|unit verb| root
+    42.28.t1 --&gt;|dative| 42.28.t0
+    42.28.t2 --&gt;|adjectival| 42.28.t1
+    42.28.t4 --&gt;|direct quote| 42.28.t0
+    42.28.t5 --&gt;|auxiliary| 42.28.t4
+    42.28.t6 --&gt;|dative| 42.28.t4
+    42.28.t7 --&gt;|subject| 42.28.t4
+    42.28.t9 --&gt;|adverbial| 42.28.t10
+    42.28.t10 --&gt;|direct quote| 42.28.t0
+    42.28.t11 --&gt;|adverbial| 42.28.t10
+    42.28.t12 --&gt;|object of preposition| 42.28.t11
+
+    42.27.t0 ~~~ 42.27.t12 ~~~ 42.28.t4 ~~~ 42.28.t10
+
+    classDef vu0 fill:#82bbff,stroke:#2a78d6,color:#000000;
+    classDef vu1 fill:#ffa682,stroke:#eb6834,color:#000000;
+    classDef vu2 fill:#70ffcc,stroke:#1baf7a,color:#000000;
+    classDef vu3 fill:#ffd170,stroke:#eda100,color:#000000;
+    classDef vu4 fill:#ff94bc,stroke:#e87ba4,color:#000000;
+    classDef vu5 fill:#7aff7a,stroke:#008300,color:#000000;
+    class 42.27.t0,42.27.t3 vu0;
+    class 42.27.t1,42.27.t2,42.28.t0,42.28.t1,42.28.t2 vu1;
+    class 42.27.t5,42.27.t6,42.27.t7,42.27.t8,42.27.t9,42.27.t10 vu2;
+    class 42.27.t12,42.27.t13,42.27.t14,42.27.t15,42.27.t16 vu3;
+    class 42.28.t4,42.28.t5,42.28.t6,42.28.t7 vu4;
+    class 42.28.t9,42.28.t10,42.28.t11,42.28.t12 vu5;
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
 <section id="limitations" class="level2">
 <h2 class="anchored" data-anchor-id="limitations">Limitations</h2>
 <p>Mermaid’s layout engine cannot enforce aligning nodes by rank. (You can think of <em>rank</em> as the syntactic depth of the node, like the generations in a family tree.) This kind of alignment can make the diagram of very complex sentences easier to read. If you want diagrams aligned by rank, you can use the open-source <code>graphviz</code> program: see “<a href="../tutorials/diagrams.html">Diagramming syntactic analyses</a>”.</p>

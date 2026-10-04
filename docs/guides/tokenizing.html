@@ -141,7 +141,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
   <li class="nav-item">
     <a class="nav-link active" href="../guides/index.html" aria-current="page"> 
-<span class="menu-text">Guides</span></a>
+<span class="menu-text">Recipes</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../reference/index.html"> 
@@ -341,7 +341,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="a-work-around">A work around</h2>
 <p><code>utilities/tokenize_ctsdata.py</code> is a command-line script that reads every passage out of a CEX source file, tokenizes it, and segments the results into sentences.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> utilities/tokenize_ctsdata.py passages.cex <span class="op">&gt;</span> tokenized.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The marimo notebook <code>marimo/latin_syntaxer_tokenized.py</code> reads files with tokenized data in the format written by <code>tokenize_ctsdata.py</code>. Users can this choose a tokenized sentence, and analyze it.</p>
+<p>The marimo notebook <code>marimo/latin_syntaxer_tokenized.py</code> reads files with tokenized data in the format written by <code>tokenize_ctsdata.py</code>. Users can choose a tokenized sentence, and analyze it. To analyze an entire file of tokenized passages, you can use the <code>utilities/analyze_tokendata_to_files.py</code> script. (See <a href="../tutorials/corpus.html">this tutorial</a>)</p>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">

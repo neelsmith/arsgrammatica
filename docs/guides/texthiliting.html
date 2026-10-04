@@ -61,7 +61,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/quarto-nav/headroom.min.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -105,6 +105,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 <link rel="stylesheet" href="styles.css">
@@ -141,7 +144,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
   <li class="nav-item">
     <a class="nav-link active" href="../guides/index.html" aria-current="page"> 
-<span class="menu-text">Guides</span></a>
+<span class="menu-text">Recipes</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../reference/index.html"> 
@@ -304,8 +307,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#coloring-by-verbal-expression" id="toc-coloring-by-verbal-expression" class="nav-link active" data-scroll-target="#coloring-by-verbal-expression">Coloring by verbal expression</a></li>
-  <li><a href="#add-indentation-by-depth-of-subordination" id="toc-add-indentation-by-depth-of-subordination" class="nav-link" data-scroll-target="#add-indentation-by-depth-of-subordination">Add indentation by depth of subordination</a></li>
+  <li><a href="#start-from-the-token-graph" id="toc-start-from-the-token-graph" class="nav-link active" data-scroll-target="#start-from-the-token-graph">Start from the token graph</a></li>
+  <li><a href="#color-by-verbal-expression-tokengraph_to_html" id="toc-color-by-verbal-expression-tokengraph_to_html" class="nav-link" data-scroll-target="#color-by-verbal-expression-tokengraph_to_html">Color by verbal expression: <code>tokengraph_to_html</code></a></li>
+  <li><a href="#add-indentation-by-depth-of-subordination-tokengraph_to_depth_html" id="toc-add-indentation-by-depth-of-subordination-tokengraph_to_depth_html" class="nav-link" data-scroll-target="#add-indentation-by-depth-of-subordination-tokengraph_to_depth_html">Add indentation by depth of subordination: <code>tokengraph_to_depth_html</code></a></li>
   <li><a href="#limiting-display-by-syntactic-depth" id="toc-limiting-display-by-syntactic-depth" class="nav-link" data-scroll-target="#limiting-display-by-syntactic-depth">Limiting display by syntactic depth</a></li>
   </ul>
 </nav>
@@ -332,25 +336,71 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p><code>arsgrammatica</code> includes utility functions to display a text in HTML with highlighting of its syntactic structure. First <a href="../guides/analysis.html">analyze a string or a passage</a>.</p>
-<section id="coloring-by-verbal-expression" class="level2">
-<h2 class="anchored" data-anchor-id="coloring-by-verbal-expression">Coloring by verbal expression</h2>
-<p>Once you have an analysis result, you can compose an HTML string that colors tokens by the verbal expression they belong to, using the same colors as <code>arsgramamtica</code>’s <a href="../guides/mermaid.html">Mermaid diagrams</a>.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> tokengraph_to_html</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>html <span class="op">=</span> tokengraph_to_html(result.tokengraph)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>(Use this in a web environment (like a Marimo notebook) to see the real results.)</p>
+<p><code>arsgrammatica</code> includes utility functions to display a text in HTML with highlighting of its syntactic structure.</p>
+<section id="start-from-the-token-graph" class="level2">
+<h2 class="anchored" data-anchor-id="start-from-the-token-graph">Start from the token graph</h2>
+<p>First <a href="../guides/analysis.html">analyze a string or a passage</a>, or read in a <a href="../guides/saving-loading.html">previously saved analysis</a>. In this example, let’s assume we have read in a saved analysis and used <code>split_analysis_by_sentence</code> to get a list of sentences called <code>sentence_slices</code>. Each sentence pairs a list of verbal units with the syntactic graph of tokens, but to create the HTML views, we only need the graph.</p>
+<div id="5e5e14b3" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>sentence_tokengraph, sentence_verbalunits <span class="op">=</span> sentence_slices[<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 </section>
-<section id="add-indentation-by-depth-of-subordination" class="level2">
-<h2 class="anchored" data-anchor-id="add-indentation-by-depth-of-subordination">Add indentation by depth of subordination</h2>
-<p>The <code>tokengraph_to_depth_html</code> function uses the same color highlighting as tokengraph_to_html, but instead of laying out the text in a single paragaph, it indents sequences of tokens by their level of subordination.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> tokengraph_to_depth_html</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>html, warnings <span class="op">=</span> tokengraph_to_depth_html(result.tokengraph)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="color-by-verbal-expression-tokengraph_to_html" class="level2">
+<h2 class="anchored" data-anchor-id="color-by-verbal-expression-tokengraph_to_html">Color by verbal expression: <code>tokengraph_to_html</code></h2>
+<p><code>tokengraph_to_html</code> will create an HTML view of the sentence with words colored by the verbal unit they belong to.</p>
+<div id="1b4f18cf" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> tokengraph_to_html</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>colored_by_vu, warnings <span class="op">=</span> tokengraph_to_html(sentence_tokengraph)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The resulting <code>colored_by_vu</code> object looks like this:</p>
+<div id="b73b92ce" class="cell" data-execution_count="4">
+<div class="cell-output cell-output-display">
+<span style="background-color: #82bbff; color: #000000;">Aperto</span><span style="background-color: #ffa682; color: #000000;">que</span> <span style="background-color: #ffa682; color: #000000;">unus</span> <span style="background-color: #82bbff; color: #000000;">sacco</span>, <span style="background-color: #70ffcc; color: #000000;">ut</span> <span style="background-color: #70ffcc; color: #000000;">daret</span> <span style="background-color: #70ffcc; color: #000000;">jumento</span> <span style="background-color: #70ffcc; color: #000000;">pabulum</span> <span style="background-color: #70ffcc; color: #000000;">in</span> <span style="background-color: #70ffcc; color: #000000;">diversorio</span>, <span style="background-color: #ffd170; color: #000000;">contemplatus</span> <span style="background-color: #ffd170; color: #000000;">pecuniam</span> <span style="background-color: #ffd170; color: #000000;">in</span> <span style="background-color: #ffd170; color: #000000;">ore</span> <span style="background-color: #ffd170; color: #000000;">sacculi</span>, <span style="background-color: #ffa682; color: #000000;">dixit</span> <span style="background-color: #ffa682; color: #000000;">fratribus</span> <span style="background-color: #ffa682; color: #000000;">suis</span>: <span style="background-color: #ff94bc; color: #000000;">Reddita</span> <span style="background-color: #ff94bc; color: #000000;">est</span> <span style="background-color: #ff94bc; color: #000000;">mihi</span> <span style="background-color: #ff94bc; color: #000000;">pecunia</span>, <span style="background-color: #7aff7a; color: #000000;">en</span> <span style="background-color: #7aff7a; color: #000000;">habetur</span> <span style="background-color: #7aff7a; color: #000000;">in</span> <span style="background-color: #7aff7a; color: #000000;">sacco</span>.
+</div>
+</div>
+</section>
+<section id="add-indentation-by-depth-of-subordination-tokengraph_to_depth_html" class="level2">
+<h2 class="anchored" data-anchor-id="add-indentation-by-depth-of-subordination-tokengraph_to_depth_html">Add indentation by depth of subordination: <code>tokengraph_to_depth_html</code></h2>
+<p>The <code>tokengraph_to_depth_html</code> function uses the same color highlighting as <code>tokengraph_to_html</code>, but instead of laying out the text in a single paragraph, it indents sequences of tokens by their level of subordination.</p>
+<div id="b36c41e9" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> tokengraph_to_depth_html</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>indented_by_subordination, warnings <span class="op">=</span> tokengraph_to_depth_html(sentence_tokengraph)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="3a8036c6" class="cell" data-execution_count="6">
+<div class="cell-output cell-output-display">
+<div style="margin-left: 2.0em; margin-bottom: 0.35em;"><span style="background-color: #82bbff; color: #000000;">Aperto</span><span style="background-color: #ffa682; color: #000000;">que</span></div>
+<div style="margin-left: 0.0em; margin-bottom: 0.35em;"><span style="background-color: #ffa682; color: #000000;">unus</span></div>
+<div style="margin-left: 2.0em; margin-bottom: 0.35em;"><span style="background-color: #82bbff; color: #000000;">sacco</span>,</div>
+<div style="margin-left: 4.0em; margin-bottom: 0.35em;"><span style="background-color: #70ffcc; color: #000000;">ut</span> <span style="background-color: #70ffcc; color: #000000;">daret</span> <span style="background-color: #70ffcc; color: #000000;">jumento</span> <span style="background-color: #70ffcc; color: #000000;">pabulum</span> <span style="background-color: #70ffcc; color: #000000;">in</span> <span style="background-color: #70ffcc; color: #000000;">diversorio</span>,</div>
+<div style="margin-left: 2.0em; margin-bottom: 0.35em;"><span style="background-color: #ffd170; color: #000000;">contemplatus</span> <span style="background-color: #ffd170; color: #000000;">pecuniam</span> <span style="background-color: #ffd170; color: #000000;">in</span> <span style="background-color: #ffd170; color: #000000;">ore</span> <span style="background-color: #ffd170; color: #000000;">sacculi</span>,</div>
+<div style="margin-left: 0.0em; margin-bottom: 0.35em;"><span style="background-color: #ffa682; color: #000000;">dixit</span> <span style="background-color: #ffa682; color: #000000;">fratribus</span> <span style="background-color: #ffa682; color: #000000;">suis</span>:</div>
+<div style="margin-left: 2.0em; margin-bottom: 0.35em;"><span style="background-color: #ff94bc; color: #000000;">Reddita</span> <span style="background-color: #ff94bc; color: #000000;">est</span> <span style="background-color: #ff94bc; color: #000000;">mihi</span> <span style="background-color: #ff94bc; color: #000000;">pecunia</span>,</div>
+<div style="margin-left: 2.0em; margin-bottom: 0.35em;"><span style="background-color: #7aff7a; color: #000000;">en</span> <span style="background-color: #7aff7a; color: #000000;">habetur</span> <span style="background-color: #7aff7a; color: #000000;">in</span> <span style="background-color: #7aff7a; color: #000000;">sacco</span>.</div>
+</div>
+</div>
 </section>
 <section id="limiting-display-by-syntactic-depth" class="level2">
 <h2 class="anchored" data-anchor-id="limiting-display-by-syntactic-depth">Limiting display by syntactic depth</h2>
-<p>Both <code>tokengraph_to_html</code> and <code>tokengraph_to_depth_html</code> accept an optional <code>depth</code> parameter. <code>tokengraph_to_html</code> will highlight only tokens at or below the specified syntactic depth; <code>tokengraph_to_html</code> entirely omits tokens above the cutoff depth. (These features are used interactively in the <a href="../tutorials/marimo.html">marimo notebooks</a> to analyze passages and review analyses.)</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># depth=0 limits the display to root/independent clauses only:</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>html, warnings <span class="op">=</span> tokengraph_to_depth_html(result.tokengraph, depth<span class="op">=</span><span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Both <code>tokengraph_to_html</code> and <code>tokengraph_to_depth_html</code> accept an optional <code>depth</code> parameter. <code>tokengraph_to_html</code> will highlight only tokens at or below the specified syntactic depth.</p>
+<div id="314730fe" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># depth=0 highlights root/independent clauses only:</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>depth_hilited, warnings <span class="op">=</span> tokengraph_to_html(sentence_tokengraph, depth<span class="op">=</span><span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="ab72a1a8" class="cell" data-execution_count="8">
+<div class="cell-output cell-output-display">
+Aperto<span style="background-color: #ffa682; color: #000000;">que</span> <span style="background-color: #ffa682; color: #000000;">unus</span> sacco, ut daret jumento pabulum in diversorio, contemplatus pecuniam in ore sacculi, <span style="background-color: #ffa682; color: #000000;">dixit</span> <span style="background-color: #ffa682; color: #000000;">fratribus</span> <span style="background-color: #ffa682; color: #000000;">suis</span>: Reddita est mihi pecunia, en habetur in sacco.
+</div>
+</div>
+<p><code>tokengraph_to_depth_html</code> entirely omits tokens above the cutoff depth.</p>
+<div id="ef8e64bb" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># depth=0 limits the display to root/independent clauses only:</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>depth_filtered, warnings <span class="op">=</span> tokengraph_to_depth_html(sentence_tokengraph, depth<span class="op">=</span><span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="da73b719" class="cell" data-execution_count="10">
+<div class="cell-output cell-output-display">
+<div style="margin-left: 0.0em; margin-bottom: 0.35em;"><span style="background-color: #ffa682; color: #000000;">unus</span></div>
+<div style="margin-left: 0.0em; margin-bottom: 0.35em;"><span style="background-color: #ffa682; color: #000000;">dixit</span> <span style="background-color: #ffa682; color: #000000;">fratribus</span> <span style="background-color: #ffa682; color: #000000;">suis</span>:</div>
+</div>
+</div>
 
 
 </section>

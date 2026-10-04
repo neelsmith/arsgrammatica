@@ -141,7 +141,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
   <li class="nav-item">
     <a class="nav-link active" href="../guides/index.html" aria-current="page"> 
-<span class="menu-text">Guides</span></a>
+<span class="menu-text">Recipes</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../reference/index.html"> 
@@ -330,13 +330,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>The <a href="https://github.com/neelsmith/aat"><code>aat</code></a> package defines a reductive model of natural language syntax focusing only on Agent-Action-Target relations, instantiated in an <code>AATGraph</code>. You can construct an <code>AATGraph</code> from an <code>arsgrammatica</code> analysis with the <code>attgraph</code> function.</p>
+<p>The <a href="https://github.com/neelsmith/aat"><code>aat</code></a> package defines a reductive model of natural language syntax focusing only on Agent-Action-Target relations, instantiated in an <code>AATGraph</code>. You can construct an <code>AATGraph</code> from an <code>arsgrammatica</code> analysis with the <code>aatgraph</code> function.</p>
 <p>Load a <a href="../guides/saving-loading.html">saved analysis</a>, or analyze some Latin text:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> analyze_string</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>sentences, results <span class="op">=</span> analyze_string(<span class="st">"Troia et huic loco nomen est."</span>, citation<span class="op">=</span><span class="st">"Livy 1.1.4:"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>You can then construct an <code>AATGraph</code> from the resulting sentences and analyses.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> attgraph</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>graph, warnings <span class="op">=</span> attgraph(sentences, results)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> arsgrammatica <span class="im">import</span> aatgraph</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>graph, warnings <span class="op">=</span> aatgraph(sentences, results)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>For more information about AAT graphs, see the <a href="https://github.com/neelsmith/aat"><code>aat</code> github repository</a>.</p>
 <section id="a-graph-theoretic-note" class="level2">
 <h2 class="anchored" data-anchor-id="a-graph-theoretic-note">A graph-theoretic note</h2>

@@ -6,6 +6,10 @@ format:
 
 jupyter: arsgrammatica
 ---
+```{python}
+#| echo: false
+from IPython.display import HTML, display
+```
 
 
 
@@ -17,9 +21,12 @@ jupyter: arsgrammatica
 
 First [analyze a string or a passage](./analysis.qmd), or read in a [previously saved analysis](./saving-loading.qmd). In this example, let's assume we have read in a saved analysis and used `split_analysis_by_sentence` to get a list of sentences called `sentence_slices`. Each sentence pairs a list of verbal units with the syntactic graph of tokens, but to create the HTML views, we only need the graph.
 
+
+
+
 ```{python}
 #| echo: false
-analysis_file = "../scratch/for-blogposts/pssv-analysis.cex"
+analysis_file = "../quarto/sample_data/vulgate_genesis_tokenized_42_27.cex"
 
 from arsgrammatica import (
   read_analyses,
@@ -51,7 +58,6 @@ The resulting `colored_by_vu` object looks like this:
 
 ```{python}
 #| echo: false
-from IPython.display import HTML, display
 display(HTML(colored_by_vu))
 ```
 
@@ -85,12 +91,6 @@ depth_hilited, warnings = tokengraph_to_html(sentence_tokengraph, depth=0)
 #| echo: false
 display(HTML(depth_hilited))
 ```
-
-
-
-
-
-
 
 `tokengraph_to_depth_html` entirely omits tokens above the cutoff depth. 
 
