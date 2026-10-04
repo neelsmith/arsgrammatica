@@ -3,6 +3,7 @@ title: Saving and loading analyses
 ---
 
 
+
 You can serialize analyses to a delimited-text file, and read saved analyses back using the `write_analyses` and `read_analyses` functions.
 
 
@@ -47,26 +48,32 @@ warnings = write_analyses(
 
 
 ## Reading saved analyses
+```{python}
+#| echo: false
+
+analysis_file = "../scratch/for-blogposts/pssv-analysis.cex"
+```
 
 You can read back a flat list of all the four parts of a serialization with the `read_analyses` function.
 
-```python
+```{python}
 from arsgrammatica import read_analyses
-
-tokengraph, verbalunits, sentences, lm_infos = 
-    read_analyses("analysis.txt")
+tokengraph, verbalunits, sentences, lm_infos = read_analyses(analysis_file)
 ```
 
 To split up the composite token graph by sentence, use `split_analysis_by_sentence`.
 
-```python
+```{python}
 from arsgrammatica import split_analysis_by_sentence
-sentencetokens = split_analysis_by_sentence(tokengraph, verbalunits, sentences)
-
-for (sentence_tokengraph, sentence_verbalunits) in 
-    zip(sentences, sentencetokens):
-    ...  # work with analysis data per sentence
+sentence_slices = split_analysis_by_sentence(tokengraph, verbalunits, sentences)
 ```
 
+Each sentence slice has two parts: the syntactic graph of tokens, and a list of verbal units.
 
+```{python}
+sentence_tokengraph, sentence_verbalunits = sentence_slices[0]
+```
+
+::: {.callout-note}
 For details of the serialization format, see [the reference documentation](../reference/)
+:::

@@ -9,80 +9,100 @@ jupyter: arsgrammatica
 
 
 
-`arsgrammatica` includes utility functions to display a text in HTML with highlighting of its syntactic structure. First [analyze a string or a passage](./analysis.qmd). 
+`arsgrammatica` includes utility functions to display a text in HTML with highlighting of its syntactic structure.
 
 
 
-## Readιν a saved analysis
+## Start from the token graph
+
+First [analyze a string or a passage](./analysis.qmd), or read in a [previously saved analysis](./saving-loading.qmd). In this example, let's assume we have read in a saved analysis and used `split_analysis_by_sentence` to get a list of sentences called `sentence_slices`. Each sentence pairs a list of verbal units with the syntactic graph of tokens, but to create the HTML views, we only need the graph.
 
 ```{python}
 #| echo: false
-
 analysis_file = "../scratch/for-blogposts/pssv-analysis.cex"
-```
 
-In this example, let's assume we have saved an analysis in a file referred to by `analysis_file`. We can read the file with the `read_analyses` function, and split the results into individual sentences with the `split_analysis_by_sentence` function. We can index into the resulting list of sentences to get pairs of token graphs and verbal units for each sentence. See the code:
-
-
-```{python}
-#| echo: true
 from arsgrammatica import (
   read_analyses,
   split_analysis_by_sentence
 )
 tokengraph, verbalunits, sentences, lm_infos = read_analyses(analysis_file)
 sentence_slices = split_analysis_by_sentence(tokengraph, verbalunits, sentences)
+```
+
+
+```{python}
 sentence_tokengraph, sentence_verbalunits = sentence_slices[0]
 ```
 
 
-## Color by verbal expression
 
-Once you have an analysis result, you can compose an HTML string that colors tokens by the verbal expression they belong to, using the same colors as `arsgramamtica`'s [Mermaid diagrams](./mermaid.qmd).
+
+## Color by verbal expression: `tokengraph_to_html`
+
+
+`tokengraph_to_html` will create an HTML view of the sentence with words colored by the verbal unit they belong to.
 
 ```{python}
 from arsgrammatica import tokengraph_to_html
-html = tokengraph_to_html(sentence_tokengraph)
+colored_by_vu = tokengraph_to_html(sentence_tokengraph)
 ```
 
-The resulting `html` object looks like this:
+The resulting `colored_by_vu` object looks like this:
 
 ```{python}
 #| echo: false
-
-
 from IPython.display import HTML, display
-display(HTML(html))
+display(HTML(colored_by_vu))
 ```
 
 
-##  Add indentation by depth of subordination
+##  Add indentation by depth of subordination: `tokengraph_to_depth_html`
 
-The `tokengraph_to_depth_html` function uses the same color highlighting as tokengraph_to_html, but instead of laying out the text in a single paragaph, it indents sequences of tokens by their level of subordination.
+The `tokengraph_to_depth_html` function uses the same color highlighting as `tokengraph_to_html`, but instead of laying out the text in a single paragraph, it indents sequences of tokens by their level of subordination.
+
 
 ```{python}
 from arsgrammatica import tokengraph_to_depth_html
-htmldepth, warnings = tokengraph_to_depth_html(sentence_tokengraph)
+indented_by_subordination, warnings = tokengraph_to_depth_html(sentence_tokengraph)
 ```
 
 ```{python}
 #| echo: false
-display(HTML(htmldepth))
+display(HTML(indented_by_subordination))
 ```
 
 
 ## Limiting display by syntactic depth
 
-Both `tokengraph_to_html` and `tokengraph_to_depth_html` accept an optional `depth` parameter. `tokengraph_to_html` will highlight only tokens at or below the specified syntactic depth; `tokengraph_to_depth_html` entirely omits tokens above the cutoff depth. (These features are used interactively in the [marimo notebooks](../tutorials/marimo.qmd) to analyze passages and review analyses.)
+Both `tokengraph_to_html` and `tokengraph_to_depth_html` accept an optional `depth` parameter. `tokengraph_to_html` will highlight only tokens at or below the specified syntactic depth.
+
+```{python}
+# depth=0 highlights root/independent clauses only:
+depth_hilited, warnings = tokengraph_to_html(sentence_tokengraph, depth=0)
+```
+
+
+
+
+`tokengraph_to_depth_html` entirely omits tokens above the cutoff depth. 
+
 
 ```{python}
 # depth=0 limits the display to root/independent clauses only:
-html_filtered, warnings = tokengraph_to_depth_html(sentence_tokengraph, depth=0)
+depth_filtered, warnings = tokengraph_to_depth_html(sentence_tokengraph, depth=0)
 ```
 
 
 
 ```{python}
 #| echo: false
-display(HTML(html_filtered))
+display(HTML(depth_filtered))
+```
+
+
+
+
+```{python}
+#| echo: false
+#display(HTML(depth_hilited))
 ```
