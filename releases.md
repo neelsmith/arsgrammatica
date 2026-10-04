@@ -1,6 +1,6 @@
 # Release history
 
-Current version: **0.11.2**.
+Current version: **0.12.0**.
 
 
 **0.12.0** *??*: Updated docs. Extensive revision of basic syntax guide inclucing merging `attributive` with `adjectival`. New HTML display highight relationship type.
