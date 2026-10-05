@@ -51,7 +51,7 @@ warnings = write_analyses(
 ```{python}
 #| echo: false
 
-analysis_file = "../scratch/for-blogposts/pssv-analysis.cex"
+analysis_file = "../quarto/sample_data/vulgate_genesis_tokenized_42_27.cex"
 ```
 
 You can read back a flat list of all the four parts of a serialization with the `read_analyses` function.

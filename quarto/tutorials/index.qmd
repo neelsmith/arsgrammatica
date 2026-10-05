@@ -38,7 +38,7 @@ API_KEY=your_key
 
 ### Scripts to diagram syntax 
 
-- [diagram a save analyses](./diagrams.qmd) with graphviz
+- [diagram syntactic analyses](./diagrams.qmd) with graphviz
 - generate [PNG diagrams from multiple saved analyses](./batch-images.qmd) with graphviz
 
 

@@ -1,0 +1,19 @@
+#!lm
+MODEL=litellm_proxy/anthropic/Claude Opus 5
+CONTEXT=demo:mwe.t0-demo:mwe.t3
+REASONING="rosa pulchra est" is a simple copular sentence: "est" is a finite linking verb, independent, with "rosa" as its subject and the predicate adjective "pulchra" as its predicate complement (not merely attributive, since "est" is a linking verb and "pulchra" completes it). The period is punctuation with no relation.
+
+#!sentences
+context_begin|first_token|context_end|last_token
+demo:mwe|t0|demo:mwe|t3
+
+#!verbal_units
+context|token|syntactic_type|semantic_type
+demo:mwe|t2|independent|linking verb
+
+#!tokens
+context|id|tokentype|text|lemma|verbalunit|related1|relationship1|related2|relationship2
+demo:mwe|t0|lexical|rosa|rosa||t2|subject||
+demo:mwe|t1|lexical|pulchra|pulcher||t2|predicate||
+demo:mwe|t2|lexical|est|sum|t2|root|unit verb||
+demo:mwe|t3|punctuation|.||||||

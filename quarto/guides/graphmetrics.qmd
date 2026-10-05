@@ -2,22 +2,31 @@
 title: Characterizing syntax analyses with graph metrics
 ---
 
+
+```{python}
+#| echo: false
+analysis_file = "../quarto/sample_data/rosa.cex"
+
+from arsgrammatica import (
+  read_analyses,
+  split_analysis_by_sentence
+)
+tokengraph, verbalunits, sentences, lm_infos = read_analyses(analysis_file)
+sentence_slices = split_analysis_by_sentence(tokengraph, verbalunits, sentences)
+
+tokengraph, sentence_verbalunits = sentence_slices[0]
+```
+
+
 Once we have [analyzed a passage](./analysis.qmd), we can characterize the resulting syntax graph with standard graph metrics. `arsgrammatica` includes functions for analyzing graphs in Python, and a Marimo notebook, `latin_syntaxer_graphs.py`, where you can interactively explore some of these metrics.
-
-
 
 ## Finding graph metrics
 
-First, from a token graph, we create a graph in the format of the Python NetworkX package:  
+Assume that we've created or loaded a token graph into the variable `tokengraph`. We first create a graph in the format of the Python NetworkX package, then compute graph metrics directly from the NetworkX graph:
 
-```python
+```{python}
 from arsgrammatica import tokengraph_to_networkx, graph_metrics
 nxgraph, warnings = tokengraph_to_networkx(tokengraph)
-```
-We can compute graph metrics directly from the NetworkX graph:
-
-
-```python
 metrics = graph_metrics(nxgraph)
 ```
 
@@ -27,26 +36,57 @@ Like the diagramming utilities for visualizing graphs in [Mermaid](./mermaid.qmd
 :::
 
 
-The resulting variable `metrics`  has a number of properties that  can help us understand the size, complexity, and "shape" of the syntax analysis' graph structure.
 
+## An example graph
 
-## Size
-
-`node_count` and `edge_count` properties tell us the number of tokens and the number of relations connecting tokens in our syntax graph. If the graph is not cyclic, `longest_chain` tells us the deepest level of token relations in the sentence. `longest_chain` is `None` when a a graph includes a cycle. 
-
-If we analyzed an artificial sentence like *Rosa pulchra est*, we could visualize the graph like this:
+The resulting variable `metrics`  has a number of properties that  can help us understand the size, complexity, and "shape" of the syntax analysis' graph structure. Let's illustrate those metrics with a minimal Latin sentence: *Rosa pulchra est.* We could visualize its graph like this:
 
 ![Toy example of a syntax graph.](./imgs/rosa.png)
 
-It has a node count of 3, edge count of 2, and a longest chain of 1.
+## Size
+
+
+`node_count` and `edge_count` properties tell us the number of tokens and the number of relations connecting tokens in our syntax graph. If the graph is not cyclic, `longest_chain` tells us the deepest level of token relations in the sentence. `longest_chain` is `None` when a a graph includes a cycle. 
+
+```{python}
+metrics.node_count
+```
+
+```{python}
+metrics.edge_count
+```
+
+```{python}
+metrics.longest_chain
+```
+
+Compare the diagram of the graph with these results: node count of 3, edge count of 2, and a longest chain of 1.
 
 
 
 ## "Shape" (topology)  
 
-`leaf_count` tells you the number of tokens that no other tokens depend on (the "leaves" in a tree visiualization). `leaf_fraction` gives you the proportion of nodes in the graph that are leaf nodes. In the toy example, two nodes are leaf nodes (*Rosa* and *pulchra*), and the leaf fraction is 67% (2/3).
+`leaf_count` tells you the number of tokens that no other tokens depend on (the "leaves" in a tree visiualization). `leaf_fraction` gives you the proportion of nodes in the graph that are leaf nodes. 
 
-The example syntax graph is a *tree*: every node is connected and there are no cycles or loops in the graph. Most syntax graphs come close to a tree structure, but tokens like relative pronouns (that are related both to their antecedent and to their function in the relative clause) can create cycles.  The `cyclomatic_number` gives a measure of "how much non-tree structure does this sentence have?" (More techncially, it gives the number edges beyond a spanning tree, computed as `edge_count - node_count + weakly_connected_components`). The cyclomatic number in the example is 0, because the entire graph is a true tree.
+
+```{python}
+metrics.leaf_count
+```
+
+
+```{python}
+metrics.leaf_fraction
+```
+
+In the toy example, two nodes are leaf nodes (*Rosa* and *pulchra*), and the leaf fraction is 2/3.
+
+
+The example syntax graph is a *tree*: every node is connected and there are no cycles or loops in the graph. Most syntax graphs come close to a tree structure, but tokens like relative pronouns (that are related both to their antecedent and to their function in the relative clause) can create cycles.  The `cyclomatic_number` gives a measure of "how much non-tree structure does this sentence have?" (More techncially, it gives the number edges beyond a spanning tree, computed as `edge_count - node_count + weakly_connected_components`). The cyclomatic number in this example is 0, because the entire graph is a true tree.
+
+
+```{python}
+metrics.cyclomatic_number
+```
 
 ## Organization of the graph
 
