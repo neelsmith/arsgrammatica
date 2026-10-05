@@ -481,10 +481,51 @@ A token that `arsgrammatica` classifies as `praenomen` is an abbreviation used i
 
 ### Coordinating word
 
-Use example like autem...
-Train on igitur Gen 42.3
+When words like *igitur*, *autem*, and *nam* (among many others) join a verbal expression to a preceding expression, we relate the coordinating word to the verb as a `coordinating conjunction`.
+
+**Example**: *audiens autem Iacob quod alimenta venderentur in Aegypto dixit filiis suis quare neglegitis?*
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *audiens* | `circumstantial participle` | *Iacob* |
+| *autem* | `coordinating conjunction` | *dixit* |
+| *Iacob* | `subject` | *dixit* |
+
+| 
+
+
+
+**Example**: *suo tempore peperit Chrysen iuniorem et dixit se ab Apolline concepisse.* 
+
+
+
+has two verbal expressions joined by *et*. The conjunction *et* will have the IDs of *peperit* and *dixit* for`relation1` and `relation2` and `coordinating conjunction` for both `relationship1` and `relationship2`. Note that (unlike when joining nouns, adjectives or prepositional phrase) in such instances, the word order of the conjunction will be dictated by the opening of the new verbal expression, and may not always be close in word order to the verb token itself. Example: in *ille fidem suam infirmare noluit, Hermionenque ab Oreste adduxit*, the two verbal expressions with *noluit* and *adduxit* are joined by *que*, even though the enclitic *que* is physically attached to *Hermionen*, the direct object of *adduxit*. Here, *que* will have the IDs of *noluit* and *adduxit* for`relation1` and `relation2` and `coordinating conjunction` for both `relationship1` and `relationship2`. Sometimes a coordinating conjunction introduces a verbal expression to begin a new sentence; although there may be an implicit connection to a preceding sentence, we only mark the conjunction as related to the explicit verb. Example: in *sed re cognita, iussu Cereris Triptolemo regnum dedit*, the conjunction *sed* introduces the entire verbal expression with *dedit*, but we do not mark any implied relation to a preceding expression. *sed* will have the ID of *dedit* for `relation1`, with `relationship1` as *coordinating conjunction*. A further important detail to note is that the word *et* can be used as a conjunction or adverbially ("even", "also")! Example: in *Tu quoque, Brute, fili mi, et tu?* the token *et* is functioning as an adverb, not a conjunction and will have the last lexical token *tu* as its `relation1`, with the `relationship1` value *adverbial*.
+
+
+
+
+
+
+PAAIR OF SUBSTSNTIATIVES
 Expand on double inks iwth et (aut)
-23. **coordinating conjunction** -- **que** in *arma virumque cano*.
+**Example**: *arma virumque cano*.
+
+
+| Token | relationship 1| related token 1| relationship 2 |related token 2 |
+| --- | --- | --- | --- | --- |
+| *arma* | `direct object` | *cano* | | |
+| *virum* | `direct object` | *cano* | | |
+| *que* | `coordinating conjunction` | *arma* | `coordinating conjunction` | *virum* |
+| *cano* | `unit verb` | (`root`) | | |
+
+
+
+- coordinating conjunctions: when coordinating conjunctions join pairs of adjectives, nouns or prepositional phrases, they use the IDs of the nouns, adjectives or prepositions of the prepositional phrases for `relation1` and `relation2`, and `coordinating conjunction` for both `relationship1` and `relationship2`. Example: in *arma virumque cano*, the conjunction *que* will have the ids of *arma* and *virum* for`relation1` and `relation2` and `coordinating conjunction` for both `relationship1` and `relationship2`. When two verbal expressions are coordinated, the conjunction will use the IDs of the two verbs. 
+
+Note that conjunctions like *et* and *aut* can be repeated to form connecting pairs or even series of conjunctions (eg *et..et..et*). If the repetition has the form *A et B et C*, we annotate each conjunction as connecting a pair of elements: the first *et* connects *A* and *B*, the second *et* connects *B* and *C*. If, however, the series has repetitions like *et A et B et C*, we relate the first, introductory conjunction only to the first element *A*; subsequent conjunctions are annotated as usual. Example: in *Spectaculorum et assiduitate et varietate et magnificentia omnes antecessit*, there are three ablative expressions, *assiduate*,  *varietate*, and *magnificentia*,  each introduced by *et*.  
+
+The first *et* (before *assiduitate*) takes the id of *assiduate* for `relation1`. The second *et* (before *varietate*)  takes the id of *assiduitate* for `relation1`, and the id of the *varietate* as `relation2`. The third *et* takes the id of *varietate* as `relation1` and the id of the  *magnificentia* as `relation2`. All have relationship values of `ccoordinating conjunction`.
 
 
 ### Subordinating word
