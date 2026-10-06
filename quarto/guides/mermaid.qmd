@@ -1,5 +1,6 @@
 ---
 title: Visualizing syntax graphs with Mermaid
+jupyter: arsgrammatica
 ---
 
 [Mermaid](https://mermaid.ai) is a lightweight diagramming language that is easily used in many Markdown viewers and editors, web environments, the [https://mermaid.live](https://mermaid.live) mermaid editor, and others. 

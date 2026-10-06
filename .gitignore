@@ -21,3 +21,6 @@ quarto/quarto-build/
 **/*.quarto_ipynb
 
 *~
+
+/_environment.local
+
