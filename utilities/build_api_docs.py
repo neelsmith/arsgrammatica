@@ -22,6 +22,15 @@ pinned in a requirements file anywhere in this repo, so install it by hand
 if it's missing.
 """
 
+import argparse
+
+# Parse arguments before doing anything else, so `-h`/`--help` just prints
+# usage and exits instead of running the script. Takes no other options.
+if __name__ == "__main__":
+    argparse.ArgumentParser(
+        description="Regenerate the single-page pdoc API reference, docs/arsgrammatica-api-docs.html."
+    ).parse_args()
+
 import pkgutil
 import sys
 import tempfile

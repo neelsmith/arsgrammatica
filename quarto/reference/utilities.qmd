@@ -1,0 +1,49 @@
+---
+title: "Command-line scripts in `utilities` directory"
+---
+
+
+The `utilities/` has the following scripts for working with `arsgrammatica`. For details on usage, run the script with the help option, `-h`.
+
+
+
+
+## Analyzing texts
+
+
+- `analyze_ctsdata_to_files.py`: Analyze a `#!ctsdata` corpus and write each sentence's analysis to its own file.
+- `analyze_tokendata_to_files.py`: Analyze already-tokenized files and write each sentence's analysis to its own file.
+- `analyze_tokendata_w_diagrams.py`: Run analysis plus PNG diagramming, starting from already-tokenized files.
+- `analyze_w_diagrams.py`: Run the full pipeline from a `#!ctsdata` source file to diagrams (tokenize, analyze, diagram) in one command.
+- `group_ctsdata_by_sentence.py`: Group a corpus's passages into runs that each begin and end on a sentence boundary.
+- `tokenize_ctsdata.py`: Tokenize a `#!ctsdata` corpus and split it into sentences, with no syntax analysis.
+
+
+## Visualization
+
+- `analyses_to_dot_pngs.py`: Render every sentence in one or more saved analysis files as Graphviz PNG diagrams.
+- `analysis_to_displacy.py`: Render a saved analysis file's tokengraph as a self-contained displaCy-style HTML diagram.
+- `analysis_to_dot.py`: Render a saved analysis file's tokengraph as Graphviz DOT source.
+
+
+
+## Cost management
+
+- `calibrate_max_tokens.py`: Calibrate `token_budget.py`'s `max_tokens` estimate against real LM output.
+- `diagnose_max_tokens.py`: One-off check of whether passing `max_tokens` triggers the proxy's 405 error.
+- `diagnose_proxy_raw.py`: Send a raw stdlib HTTP request to the litellm proxy to tell client-library problems from server problems.
+- `estimate_corpus_cost.py`: Estimate the LM cost of analyzing a whole corpus from a random sample of passages.
+
+## Optimizing models
+
+- `model_bakeoff.py`: Compare how well candidate task models, mainly open-weight ones, perform on `SentenceAnalysis`.
+- `optimize_gepa.py`: Optimize the `SentenceAnalysis` prompt with dspy.GEPA against the gold examples.
+- `analysis_to_gold_example.py`: Convert a reviewed analysis file into ready-to-paste `GoldExample` Python source.
+
+
+
+
+## Documentation
+
+
+- `build_api_docs.py`: Regenerate the single-page pdoc API reference in `docs/arsgrammatica-api-docs.html`.

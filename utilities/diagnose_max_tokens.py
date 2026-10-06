@@ -21,6 +21,15 @@ both, or neither) tells us where to look next:
     trigger, not a bare max_tokens value.
 """
 
+import argparse
+
+# Parse arguments before doing anything else, so `-h`/`--help` just prints
+# usage and exits instead of running the script. Takes no other options.
+if __name__ == "__main__":
+    argparse.ArgumentParser(
+        description="One-off check of whether passing max_tokens to the configured LM triggers the proxy's 405 error."
+    ).parse_args()
+
 import os
 from importlib.metadata import version, PackageNotFoundError
 

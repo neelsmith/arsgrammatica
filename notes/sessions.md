@@ -4,6 +4,14 @@ A running record of what Claude actually did in this repo, session by session, n
 
 ---
 
+## 2026-10-06
+
+**Branch:** `wip`
+
+**`-h` now works for every script in `utilities/`.** Three scripts had no argument parsing, so `-h` ran them: `build_api_docs.py` regenerated the docs, and `diagnose_max_tokens.py` and `diagnose_proxy_raw.py` made live LM/proxy calls. Each now builds a bare `argparse.ArgumentParser` (one-line description, no options) right after its docstring, inside an `if __name__ == "__main__":` guard, so `-h` prints usage and exits before any side effects, unknown arguments are rejected, and the module stays importable. Verified `-h` (exit 0) and `--bogus` (usage error) on all three. The other 14 scripts already used argparse. Also in conversation: Quarto setup help (`QUARTO_PYTHON` via `quarto/_environment.local`; pages with Python cells but no `jupyter: arsgrammatica` key, namely `guides/mermaid.qmd`, `saving-loading.qmd` and `graphmetrics.qmd`, fall back to a `python3` kernel that may not be this venv). No `quarto/` files were edited.
+
+---
+
 ## 2026-10-04
 
 **Branch:** `wip`

@@ -113,6 +113,8 @@ website:
         - reference/analysisformat.qmd
         - reference/tokenizationformat.qmd
         - "---"
+        - reference/utilities.qmd
+        - "---"
         - reference/managing_prompt_size.qmd        
 
 

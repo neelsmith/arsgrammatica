@@ -27,6 +27,15 @@ What to look for:
     the same 405 the other diagnostic reported.
 """
 
+import argparse
+
+# Parse arguments before doing anything else, so `-h`/`--help` just prints
+# usage and exits instead of running the script. Takes no other options.
+if __name__ == "__main__":
+    argparse.ArgumentParser(
+        description="Send a raw stdlib HTTP request to the litellm proxy to tell client-library problems from server problems."
+    ).parse_args()
+
 import json
 import os
 import urllib.error
