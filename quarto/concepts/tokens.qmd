@@ -155,7 +155,7 @@ They imply a verb of speaking governing all three verbal expressions, so we add 
 
 ### Implied substantive
 
-When a relative pronoun or a participle depends on an implied but unexpressed antecedent, we must add a new token with unique ID to the token table.. 
+When a relative pronoun or a participle depends on an implied but unexpressed antecedent, we must add a new token with unique ID to the token table. 
 
 **Example**: *quem dii amant adolescens moritur.*
 
