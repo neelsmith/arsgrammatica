@@ -16,6 +16,22 @@ Although `arsgrammatica` tries to account for *all* syntactic features of a Lati
 1. *Every finite verb* constitutes a verbal expression. Latin finite verbs include the compound forms of the perfect and pluperfect tenses (composed of a past participle plus a form of *sum*) as well as conjugated verbs forms identifiable by tense-mood-voice-person-number. 
 2. *Infinitives* constitute a verbal expression when they are constructed as a verbal expression in indirect speech.
 3. *Participles* constitute a verbal expression when they have a *circumstantial* sense rather than purely *attributive* sense. 
+4. *Every gerundive* constitutes a verbal expression. When a gerundive appears in predicate position with a form of *sum*, the form of *sum* is treated as an auxiliary, analogously to the compound forms of the perfect system composed of a participle plus *sum*. Note: the *gerund* is treated as a substantive, and is *not* a verbal expression. Gerundives and gerunds share some overlapping forms, so the verbal expressions of gerundives must be carefully distinguished. (See examples below.)
+
+**Example**: *Legatos ad eum mittunt ad pacem faciendam.*
+
+*Faciendam* is a verbal expression.
+
+**Example**: *Carthago delenda est*.
+
+*delenda* is a verbal expression: *est* is an auxiliary.
+
+**Counter example**: *Multo labore constat ars dicendi.*
+
+*dicendi* is a gerund, not a gerundive; it is *not* a verbal expression.
+
+
+## Classifiying verbal expressions
 
 `arsgrammatica` classifies verbal expressions according to *syntactic type* and *semantic type*.
 
@@ -42,7 +58,7 @@ The verb *legit* is an `independent` verbal expression; *cresceret* is `dependen
 
 Finite verbs in directly quoted speech. 
 
-**Example**:  *Tuum est' inquit, 'Servi regnum.'*
+**Example**:  *'Tuum est' inquit, 'Servi regnum.'*
 
 *inquit* is an `independent` verbal unit, while *est* occurs in directly quoted speech and is classifed as `direct quote`.
 
@@ -94,7 +110,27 @@ The participle *moriens* agrees with *ille*, and the participle *tinctas* agrees
 
 
 
+### `gerundive`
 
+When a gerundive form is in attributive position with a substantive, its construction is classified as `gerundive`.
+
+**Example**: *Legatos ad eum mittunt ad pacem faciendam.*
+
+
+The gerundive *faciendam* is attributive to *pacem*, so its construction is `gerundive`.
+
+When gerundive forms are in predicate position with a form of *sum*, they gerundive + *sum* is treated as a compound form and is classified like any other finite or infinitive form.
+
+**Example**: *Carthago delenda est*.
+
+The phrase *delenda est* is treated as a compound form anchored on *delenda*. (In the syntax graph, *est* is classified as an `auxiliary`.) This example is a complete sentence, with syntactic type `independent`.
+
+
+**Example**: *Cato dixit Carthaginem delendam esse*.
+
+
+
+The phrase *delendam esse* is treated as a compound form anchored on *delendam*. (In the syntax graph, *esse* is classified as an `auxiliary`.) This example is indirect statement after *dixit* and is classified as `indirect statement`.
 
 
 
@@ -142,11 +178,15 @@ The verb *legit* is *transitive active* with an explicit direct object *principe
 
 Any passive-voice verbal expression with a transitive sense, so is capable of taking a construction with the ablative of agent. 
 
-*urbs a Romulo condita est*
+**Example**: *urbs a Romulo condita est*
 
 The compound verb form *condita est* is `transitive passive` with grammatical subject `urbs` and agent expressed by the prepositional phrase `a Romulo`. 
 
+Note that the gerundive is *always* `transitive passive`.
 
+**Example**: *Legatos ad eum mittunt ad pacem faciendam.*
+
+The gerundive *faciendam* is `transitive passive`.
 
 
 ## Handling implied verbal expressions
