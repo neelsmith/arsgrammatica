@@ -131,13 +131,19 @@ As noted in documentation of [verbal units](./verbalunits.qmd), when a gerundive
 
 Reminder: when gerundives are part of a compound form with *sum*, they are *not* linked to a substantive in the syntax graph, but instead are treated like any other finite or infinitive verb form.
 
-**Counter example**: *Cato dixit Carthaginem delendam esse*.
+**Counter example**: *tantam dimicationem subeundam non sine periculo esse intellegebat*
+
+Here, *subeundam esse* is a compound form in indirect statement after *intellegebat*, with accusative subject *dimicationem*.
+
+
 
 | Token | relationship | related token |
 | --- | --- | --- |
-| *dixit* | `unit verb` | (`root`) |
-| *delendam* | `indirect speech` | *dixit* | 
-| *esse* | `auxiliary` | *delendam* |
+| *subeundam* | `indirect speech` | *intellegebat* | 
+| *esse* | `auxiliary` | *subeundam* |
+| *intellegebat* | `unit verb` | (`root`´) |
+
+
 
 
 ## Other constructions with verbs
