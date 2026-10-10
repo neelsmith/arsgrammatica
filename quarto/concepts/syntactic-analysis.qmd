@@ -25,6 +25,31 @@ Verbs of independent (main) clauses are  related to a hypthetical `root` value a
 | *cano*  | `unit verb` | (`root`) |
 
 
+
+
+
+#### Compound verb forms
+
+All compound forms using *sum* with a participle treat the participle as the verb of the verbal unit and the form of *sum* as an auxiliary. The participle therefore is related to its context just as any other verbal expression would be. The form of *sum* relates to the participle as `auxiliary`.
+
+**Example**: *urbs condita est*.
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *condita* | `unit verb` | (`root`) |
+| *est* | `auxiliary` | *condita* |
+
+Similarly, when gerundive forms are in predicate position with a form of *sum*, the gerundive + *sum* is treated as a compound form and is classified like any other finite or infinitive form.
+
+**Example**: *Carthago delenda est*.
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *delenda* | `unit verb` | (`root`) | 
+| *est* | `auxiliary` | *delenda* |
+
+
 ### Directly quoted speech
 
 Independent verbs in directly quoted speech are related to the verb introducing the quotation as `direct quote`.
@@ -88,6 +113,32 @@ Circumstantial participles express a verbal idea that is related to an anteceden
 | (`elided sum`) | *excepti* | `auxiliary` |
 
 
+### Gerundive
+
+As noted in documentation of [verbal units](./verbalunits.qmd), when a gerundive form is in attributive position with a substantive, it has `gerundive` as its type of verbal unit. In this construction, the gerundive relates to its governing substantive with relationship `gerundive`.
+
+**Example**: *Legatos ad eum mittunt ad pacem faciendam.*
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *mittunt* | `unit verb` | (`root`) |
+| *ad* | `adverbial` | *mittunt* |
+| *pacem* | `object of preposition` | *ad* |
+| *faciendam* | `gerundive` | *pacem* |
+
+(See below on constructions of prepositional phrases.)
+
+
+Reminder: when gerundives are part of a compound form with *sum*, they are *not* linked to a substantive in the syntax graph, but instead are treated like any other finite or infinitive verb form.
+
+**Counter example**: *Cato dixit Carthaginem delendam esse*.
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *dixit* | `unit verb` | (`root`) |
+| *delendam* | `indirect speech` | *dixit* | 
+| *esse* | `auxiliary` | *delendam* |
+
 
 ## Other constructions with verbs
 
@@ -103,23 +154,6 @@ When an infinitive is used to complete the semantics of a verbal expression with
 | --- | --- | --- |
 | *ascribi* | `complementary infinitive` | *voluit* |
 | *voluit* | `unit verb` | (`root`) |
-
-
-
-
-
-### Compound verb forms
-
-Compound forms using *sum* with a participle treat the participle as the verb of the verbal unit and the form of *sum* as an auxiliary. The participle therefore is related to its context just as any other verbal expression would be. The form of *sum* relates to the participle as `auxiliary`.
-
-**Example**: *urbs condita est*.
-
-
-| Token | relationship | related token |
-| --- | --- | --- |
-| *condita* | `unit verb` | (`root`) |
-| *est* | `auxiliary` | *condita* |
-
 
 
 
@@ -488,7 +522,7 @@ A token that `arsgrammatica` classifies as `praenomen` is an abbreviation used i
 
 ### Coordinating word
 
-When words like *igitur*, *autem*, *sed*, *ceterum* and *nam* (among many others) join a verbal expression to a preceding expression, we relate the coordinating word to the verb as a `coordinating conjunction`.
+When words like *igitur*, *autem*, *sed*, *ceterum* and *nam* (among many others) join a verbal expression to a preceding expression, we relate the coordinating word to the verb as a `coordinating word`.
 
 **Example**: *audiens autem Iacob quod alimenta venderentur in Aegypto dixit filiis suis quare neglegitis?*
 
@@ -496,11 +530,11 @@ When words like *igitur*, *autem*, *sed*, *ceterum* and *nam* (among many others
 | Token | relationship | related token |
 | --- | --- | --- |
 | *audiens* | `circumstantial participle` | *Iacob* |
-| *autem* | `coordinating conjunction` | *dixit* |
+| *autem* | `coordinating word` | *dixit* |
 | *Iacob* | `subject` | *dixit* |
 
 
-When a coordinating word like *et*, *aut* or the post-positive *que* connects a pair of items, we relate the connecting word to both items with `coordinating conjunction` as the value for relationship type. 
+When a coordinating word like *et*, *aut* or the post-positive *que* connects a pair of items, we relate the connecting word to both items with `coordinating word` as the value for relationship type. 
 
 
 **Example**: *suo tempore peperit Chrysen iuniorem et dixit se ab Apolline concepisse.* 
@@ -510,7 +544,7 @@ The conjunction *et* joins two independent verbal expressions.
 | Token | relationship 1| related token 1| relationship 2 |related token 2 |
 | --- | --- | --- | --- | --- |
 | *peperit* | `unit verb` | (`root`) | | |
-| *et* | `coordinating conjunction` | *peperit* | `coordinating conjunction` | `dixit` |
+| *et* | `coordinating word` | *peperit* | `coordinating word` | `dixit` |
 | *dixit* | `unit verb` | (`root`) | ||
 
 
@@ -526,7 +560,7 @@ The coordinating word *que* joins two verbal expressions.
 | --- | --- | --- | --- | --- |
 | *noluit* | `unit verb` | (`root`) | ||
 | *Hermionen* | `direct object` | *adduxit* | ||
-| *que* | `coordinating conjunction` | *noluit* | `coordinating conjunction` | *adduxit* | ||
+| *que* | `coordinating word` | *noluit* | `coordinating word` | *adduxit* | ||
 | *adduxit* | `unit verb` | (`root`) | ||
 
 
@@ -550,7 +584,7 @@ We use exactly the same annotation when coordinating words connect other kinds o
 | --- | --- | --- | --- | --- |
 | *arma* | `direct object` | *cano* | | |
 | *virum* | `direct object` | *cano* | | |
-| *que* | `coordinating conjunction` | *arma* | `coordinating conjunction` | *virum* |
+| *que* | `coordinating word` | *arma* | `coordinating word` | *virum* |
 | *cano* | `unit verb` | (`root`) | | |
 
 
@@ -565,11 +599,11 @@ Three ablative expressions, *assiduate*,  *varietate*, and *magnificentia*, are 
 
 | Token | relationship 1| related token 1| relationship 2 |related token 2 |
 | --- | --- | --- | --- | --- |
-| *et* | `coordinating conjunction` | *assiduitate* | ||
+| *et* | `coordinating word` | *assiduitate* | ||
 | *assiduitate* | `ablative` | *antecessit* | ||
-| *et* | `coordinating conjunction` | *assiduitate* | `coordinating conjunction` | *varietate* | 
+| *et* (second instance)| `coordinating word` | *assiduitate* | `coordinating word` | *varietate* | 
 | *varietate* | `ablative` | *antecessit* | ||
-| *et* | `coordinating conjunction` | *varietate* | `coordinating conjunction` | *magnificentia* | 
+| *et* (third instance) | `coordinating word` | *varietate* | `coordinating word` | *magnificentia* | 
 | *omnes* | `direct object` | *antecessit* | ||
 | *antecessit* | `unit verb` | (`root`) | ||
 
@@ -577,13 +611,41 @@ Three ablative expressions, *assiduate*,  *varietate*, and *magnificentia*, are 
 
 ### Subordinating word
 
-2. **subordinating conjunction** -- **cum** in *Hercules cum gregem perlustrasset*.
+
+When subordinating words like *ut*, *cum*, *ne*, *quoniam*, *quo*, *quod*, and *si* (among many others) join a verbal expression to a preceding expression, we relate the coordinating word to the verb as a `subordinating word`.
+
+
+
+**Example**: *Hercules cum gregem perlustrasset, pergit ad proximam speluncam.*
+
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *cum* | `subordinating word` | *pergit* |
+| *perlustrasset* | `unit verb` | *cum* |
+| *pergit* | `unit verb` | (`root`) |
+
+
 
 
 ### Relative pronoun
 
-3. **relative pronoun** -- **quibus** in *Latini, cum quibus ictum foedus erat*.
+**Example**: *Latini, cum quibus Tullo regnante ictum foedus erat, sustulerant animos.*
 
+
+
+
+| Token | relationship 1 | related token 1| relationship 2 | related token 2|
+| --- | --- | --- | --- | --- |
+| *Latini* | `subject` | *sustulerant* | | |
+| *cum* | `adjectival` | *Latini* | | |
+| *quibus* | `relative pronoun` | *Latini* | `object of preposition` | *cum* |
+| *ictum* | `unit verb` | *quibus* | | | 
+| *foedus* | `subject` | *ictum* | ||
+| *erat* | `auxiliary` | *ictum* |  ||
+| *sustulerant* | `unit verb` | (`root`) | ||
+| *animos* | `direct object` | *sustulerant* | ||
 
 
 

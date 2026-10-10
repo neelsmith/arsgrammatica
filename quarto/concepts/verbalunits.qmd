@@ -119,7 +119,7 @@ When a gerundive form is in attributive position with a substantive, its constru
 
 The gerundive *faciendam* is attributive to *pacem*, so its construction is `gerundive`.
 
-When gerundive forms are in predicate position with a form of *sum*, they gerundive + *sum* is treated as a compound form and is classified like any other finite or infinitive form.
+When gerundive forms are in predicate position with a form of *sum*, the gerundive + *sum* is treated as a compound form and is classified like any other finite or infinitive form.
 
 **Example**: *Carthago delenda est*.
 
@@ -127,8 +127,6 @@ The phrase *delenda est* is treated as a compound form anchored on *delenda*. (I
 
 
 **Example**: *Cato dixit Carthaginem delendam esse*.
-
-
 
 The phrase *delendam esse* is treated as a compound form anchored on *delendam*. (In the syntax graph, *esse* is classified as an `auxiliary`.) This example is indirect statement after *dixit* and is classified as `indirect statement`.
 
