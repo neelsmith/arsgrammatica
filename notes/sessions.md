@@ -4,6 +4,14 @@ A running record of what Claude actually did in this repo, session by session, n
 
 ---
 
+## 2026-10-10
+
+**Branch:** `wip`
+
+**Review of the revised syntax model.** Compared Neel's rewritten `quarto/concepts/tokens.qmd`, `verbalunits.qmd` and `syntactic-analysis.qmd` against `syntax_model.md`, without writing code or editing the Quarto files. Findings are in `notes/syntax_model_revision_review.md`: (1) what changed, chiefly gerundives as verbal expressions, the new `parataxis`, renamed coordinating/subordinating labels, `attributive` merged into `adjectival`, and three categories of implied tokens; (2) about 25 inconsistencies or unclear points, plus formatting problems and typos. The package code (`models.py` `RelationLabel`, renderers, the dspy prompt, tests) still implements and cites the old model.
+
+---
+
 ## 2026-10-06
 
 **Branch:** `wip`

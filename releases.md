@@ -3,7 +3,15 @@
 Current version: **0.12.0**.
 
 
-**0.12.0** *??*: Updated docs. Extensive revision of basic syntax guide inclucing merging `attributive` with `adjectival`. New HTML display highight relationship type.
+**0.12.0** *??*: Breaking changes with complete revision of the fundamental syntactic model:
+
+- Gerundives are now verbal expressions, with a new syntactic type gerundive. Gerundive + sum is treated as a compound form with sum as auxiliary.
+- parataxis is a new relation.
+- coordinating conjunction and subordinating conjunction are renamed coordinating word and subordinating word, and both now cover more cases.
+- The old attributive relation is merged into adjectival.
+- Implied tokens are reorganized into three categories: elided sum, understood repeated verb, and implied substantive.
+- The model is now framed around Agent-Action-Target
+
 
 **0.11.2** *Sept. 22, 2026*: Change dependency on `aat` to use `aatgraph` from pypi.org.
 
