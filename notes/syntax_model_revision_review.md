@@ -140,7 +140,7 @@ Grouped roughly by importance. "VU" = `verbalunits.qmd`, "SA" = `syntactic-analy
 
 ### Markdown and formatting issues
 
-- SA:285 and SA:293: header rows have two columns, but the data rows have three.
+- ✅ SA:285 and SA:293: header rows have two columns, but the data rows have three.
 - SA:443–449: an orphaned table fragment (*Legatos … mittunt … ad*) with no heading or example, ending in a stray `|`.
 - SA:748: the header repeats `relationship 1 | related token 1` and should be `… 2`. Row SA:755 is short.
 - SA:587: the row has extra trailing cells.

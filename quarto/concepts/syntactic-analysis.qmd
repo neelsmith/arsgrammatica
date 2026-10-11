@@ -282,7 +282,7 @@ When a substantive in the dative case is related to a verb or another substantiv
 
 **Example of relationship to verb**: *documentum mortalibus dedero*.
 
-| Token | relationship
+| Token | relationship | related token |
 | --- | --- | --- |
 | *mortalibus* | `dative` | *dedero* |
 | *dedero* | `unit verb` | (`root`) |
@@ -290,7 +290,7 @@ When a substantive in the dative case is related to a verb or another substantiv
 **Example of relationship to a substantive**: *te mihi mater aucturum caelestium numerum cecinit*
 
 
-| Token | relationship
+| Token | relationship | related token | 
 | --- | --- | --- |
 | *mihi* | `dative` |  *mater* | 
 | *mater* | `subject` | *cecinit* |
