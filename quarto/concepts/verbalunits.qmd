@@ -31,7 +31,7 @@ Although `arsgrammatica` tries to account for *all* syntactic features of a Lati
 *dicendi* is a gerund, not a gerundive; it is *not* a verbal expression.
 
 
-## Classifiying verbal expressions
+## Classifying verbal expressions
 
 `arsgrammatica` classifies verbal expressions according to *syntactic type* and *semantic type*.
 
@@ -44,7 +44,7 @@ Also called "main" or "principal" verbs, these are syntactically independent fin
 
 **Example**: *Quo usque tandem abutere, Catilina, patientia nostra?*
 
-*abutere* is an `independent` verbal expresion.
+*abutere* is an `independent` verbal expression.
 
 ### `dependent`
 
@@ -60,7 +60,7 @@ Finite verbs in directly quoted speech.
 
 **Example**:  *'Tuum est' inquit, 'Servi regnum.'*
 
-*inquit* is an `independent` verbal unit, while *est* occurs in directly quoted speech and is classifed as `direct quote`.
+*inquit* is an `independent` verbal unit, while *est* occurs in directly quoted speech and is classified as `direct quote`.
 
 ### `aside`
 
@@ -69,7 +69,7 @@ A finite verb that interrupts the syntactic flow of the surrounding text.
 **Example**: *equidem — pace dixerim deum — eos nos iam populi Romani beneficio esse spero.*
 
 
-*spero* is `independent`, the infinitive *esse* is part of an indirect statement (below). *dixerim* is an `aside`, as the entire phrase *pace dixerim deum* interrupts the sentence with a syntactically unconneccted verbal expression.
+*spero* is `independent`, the infinitive *esse* is part of an indirect statement (below). *dixerim* is an `aside`, as the entire phrase *pace dixerim deum* interrupts the sentence with a syntactically unconnected verbal expression.
 
 
 
@@ -79,13 +79,13 @@ An infinitive construction in indirect speech.
 
 **Example**: *Collatinus negat verbis opus esse.*
 
-*negat* is `indepedendent`; the infinitive *esse* is `indirect speech`.
+*negat* is `independent`; the infinitive *esse* is `indirect speech`.
 
 Note that as with finite verbs, compound verbs constructed from participles plus "to be" use the participle as the verbal expression. (In [the token graph](./syntactic-analysis.qmd), the form of "to be" will related to it as an `auxiliary`.)
 
 **Example**: *facturum enim se fuisse dixit*.
 
-*dixit* is an independent verbal expression, and *facturum fuisse* is the compound form of the future infinitive. The verbal unit wil be anchored to the token *facturum* as `indirect statement`. In the token graph, *esse* will be related to it as `auxiliary`.
+*dixit* is an independent verbal expression, and *facturum fuisse* is the compound form of the future infinitive. The verbal unit will be anchored to the token *facturum* as `indirect statement`. In the token graph, *esse* will be related to it as `auxiliary`.
 
 
 ### `circumstantial participle`
@@ -95,7 +95,7 @@ Participles in a circumstantial sense rather than purely attributive sense.
 
 **Example**: *Anco regnante Lucumo, vir inpiger ac divitiis potens, Romam commigravit*.
 
-*commigravit* is an `independent` verb. The participle *regnante* (agreeing with *Anco*) is circumsstantial ("while Ancus was reigning...")
+*commigravit* is an `independent` verb. The participle *regnante* (agreeing with *Anco*) is circumstantial ("while Ancus was reigning...")
 
 
 **Counter example**: *gloria est consentiens laus bonorum*. 
@@ -105,7 +105,7 @@ When it is unclear whether to take the relation of a participle as attributive o
 
 **Example**  *ille moriens, cum sciret sagittas hydrae Lernaeae felle tinctas quantam uim haberent ueneni, sanguinem suum exceptum Deianirae dedit*.
 
-The participle *moriens* agrees with *ille*, and the participle *tinctas* agrees with *sagittas*. Treat both as circumstantial participles definiing a verbal expression.
+The participle *moriens* agrees with *ille*, and the participle *tinctas* agrees with *sagittas*. Treat both as circumstantial participles defining a verbal expression.
 
 
 
@@ -196,10 +196,10 @@ The discussion of [tokenization](./tokens.qmd) introduced the idea of *implied* 
 
 **Example**: *omnia praeclara rara.* 
 
-This is a complete sentence, with a subject phrase *omnia praeclara* and a predicate *rara*. We record the implied form of "to be" with a new token entry, and enter the token's ID into the list of verbal expressions. Here, the implied token will classified as syntactic type `independent` and semantic thpe `linking verb`.
+This is a complete sentence, with a subject phrase *omnia praeclara* and a predicate *rara*. We record the implied form of "to be" with a new token entry, and enter the token's ID into the list of verbal expressions. Here, the implied token will classified as syntactic type `independent` and semantic type `linking verb`.
  
  
- Elision of *sum* can also occur with multiword compounds such as the perfect passive system. This situtation does not require an entry in the verbal units table because the participle itself is a real token that will already be entered there to anchor the verbal expression.
+ Elision of *sum* can also occur with multiword compounds such as the perfect passive system. This situation does not require an entry in the verbal units table because the participle itself is a real token that will already be entered there to anchor the verbal expression.
 
  **Example**:  *inde P. Valerius iterum T. Lucretius consules facti.* 
  
@@ -220,10 +220,10 @@ When parallel verbal constructions repeat the same verbal idea, the verb can be 
 
 **Example**: *sic eius adventus celebrabantur ut famam ingeni exspectatio hominis, exspectationem ipsius adventus admiratioque superaret.*
 
-Here, the conjunction *ut* introduces two parallel result clauses. The first has subject *exspectatio* and direct object *famam*; the second has subjects *adventus* and *admiratio* and direct object *exspectationem*. The explict verb *superaret* is recorded in the verbal entry table for the first result clause (with singular subject *exspectatio*); this implies that we would repeat a (plural) form of *supero* for the second result clause. We must add an entry to the token table, and an entry with its unique to the verbal expressions list. Like the verbal expression it repeats, it will be of syntactic type `dependent` (after *ut*), and semantic type `transitive active`.
+Here, the conjunction *ut* introduces two parallel result clauses. The first has subject *exspectatio* and direct object *famam*; the second has subjects *adventus* and *admiratio* and direct object *exspectationem*. The explicit verb *superaret* is recorded in the verbal entry table for the first result clause (with singular subject *exspectatio*); this implies that we would repeat a (plural) form of *supero* for the second result clause. We must add an entry to the token table, and an entry with its unique to the verbal expressions list. Like the verbal expression it repeats, it will be of syntactic type `dependent` (after *ut*), and semantic type `transitive active`.
 
 
-Implied repetition of verbal expressions is particularly common in indirect discourse.Entire passages may appear without repeating any governing verb of speaking or thinking. In this situation, we must add new token with unique ID to the token table, with `None` for its text value, and use its ID for new entry in the list of verbal expressions.
+Implied repetition of verbal expressions is particularly common in indirect discourse. Entire passages may appear without repeating any governing verb of speaking or thinking. In this situation, we must add new token with unique ID to the token table, with `None` for its text value, and use its ID for new entry in the list of verbal expressions.
 
 **Example**: *nimium Tarquinios regno adsuesse; initium a Prisco factum; regnasse dein Ser. Tullium*. 
-This sentence has three verbal expressions each constructed in indirect statement. They imply a verb of speaking governing all three verbal expressions, so we add a new token with unique ID to the list of tokens, and add a verbal expression with its ID to the list of verbal expressions. Here, we assume that the understood verbal expression is of syntatic type `independent`, with  semantic type `transitive active`. 
+This sentence has three verbal expressions each constructed in indirect statement. They imply a verb of speaking governing all three verbal expressions, so we add a new token with unique ID to the list of tokens, and add a verbal expression with its ID to the list of verbal expressions. Here, we assume that the understood verbal expression is of syntactic type `independent`, with  semantic type `transitive active`. 

@@ -4,7 +4,7 @@ title: "`arsgrammatica`'s graph of syntactic relations"
 
 
 ::: {.callout-note}
-In `arsgrammatica` the `TokenAnalysis` class is the primary impementation of these ideas.
+In `arsgrammatica` the `TokenAnalysis` class is the primary implementation of these ideas.
 :::
 
 
@@ -15,7 +15,7 @@ When `arsgrammatica` analyses a passage of Latin, every non-punctuation token is
 
 ### Independent clause
 
-Verbs of independent (main) clauses are  related to a hypthetical `root` value as `unit verb`. 
+Verbs of independent (main) clauses are  related to a hypothetical `root` value as `unit verb`. 
 
 
 **Example**: *arma virumque cano*.
@@ -89,14 +89,14 @@ Verbs of dependent clauses are related to a subordinating word (such as a conjun
 
 ### Parataxis
 
-Several verbs expressing ideas connected with necessity, wishes, preferences or commandsj  (such as *oportet*, *necesse est*, *volo*, *peto*, or imperative *fac*) can be constructed with a dependent clause in the subjunctive without any subordinating word. In this construction, the subordinate verbal unit is related to the governing verb with the relationship `parataxis`.
+Several verbs expressing ideas connected with necessity, wishes, preferences or commands (such as *oportet*, *necesse est*, *volo*, *peto*, or imperative *fac*) can be constructed with a dependent clause in the subjunctive without any subordinating word. In this construction, the subordinate verbal unit is related to the governing verb with the relationship `parataxis`.
 
 **Example**: *Precor eam videam.*
 
 | Token | relationship | related token |
 | --- | --- | --- |
 | *Precor* | `unit verb` | (`root`) |
-| *videam* | `parataxis` | *Precord* |
+| *videam* | `parataxis` | *Precor* |
 
 **Example**: *Tu velim ad me scribas.*
 
@@ -450,7 +450,7 @@ If an adjective is used as a substantive, it is treated just like any other subs
 
 ### Prepositional phrases
 
-Prepositional phrases most frequently functional adverbially. In this construction the preposition is related to a verb or adjective with the `adverbial` relationship. Less frequently, a prepositional phrase serves as an adjectival description of a substantive. In these constructions, the preposition relates to the substantive as `adjectival`. Nouns functioning as objects of prepositions, whatever their case, relate to the preposition as `object of preposition`.
+Prepositional phrases most frequently function adverbially. In this construction the preposition is related to a verb or adjective with the `adverbial` relationship. Less frequently, a prepositional phrase serves as an adjectival description of a substantive. In these constructions, the preposition relates to the substantive as `adjectival`. Nouns functioning as objects of prepositions, whatever their case, relate to the preposition as `object of preposition`.
 
 **Example of an adverbial phrase**: *ad Ianiculum forte ventum erat.*
 
@@ -475,7 +475,7 @@ Prepositional phrases most frequently functional adverbially. In this constructi
 | *ad* | `adjectival` | *victoriae* |
 | *Cannas* | `object of preposition` | *ad* |
 | *Carthaginem* | `accusative` | *venerat* |
-| *venerate* | `unit verb` | (`root`) |
+| *venerat* | `unit verb` | (`root`) |
 
 
 
@@ -525,7 +525,7 @@ When a substantive stands in apposition to another substantive, it has the relat
 ### Praenomen
 
 
-A token that `arsgrammatica` classifies as `praenomen` is an abbreviation used in conjunction wth a fully spelled out *nomen* or *cognomen*. The abbreviated *praenomen* relates to the full form clearly showing its case usage as `praenomen`.
+A token that `arsgrammatica` classifies as `praenomen` is an abbreviation used in conjunction with a fully spelled out *nomen* or *cognomen*. The abbreviated *praenomen* relates to the full form clearly showing its case usage as `praenomen`.
 
 **Example**: *Sp. Nautius – Octavium Maecium quidam eum tradunt – cum auxiliaribus cohortibus erat.*
 
@@ -593,7 +593,7 @@ An important detail to note is that the word *et* can be used as a conjunction o
 
 **Example**: *Tu quoque, Brute, fili mi, et tu?* 
 
-Here the token *et* is functioning as an adverb, not a conjunction. It will have the la`t lexical token *tu* as its `relation1`, with the `relationship1` value *adverbial*.
+Here the token *et* is functioning as an adverb, not a conjunction. It will have the lexical token *tu* as its `relation1`, with the `relationship1` value *adverbial*.
 
 
 We use exactly the same annotation when coordinating words connect other kinds of items than verbal expressions.
@@ -618,7 +618,7 @@ Note that conjunctions like *et* and *aut* can be repeated to form connecting pa
 **Example**: *Spectaculorum et assiduitate et varietate et magnificentia omnes antecessit*.
 
 
-Three ablative expressions, *assiduate*,  *varietate*, and *magnificentia*, are each introduced by *et*.  
+Three ablative expressions, *assiduitate*,  *varietate*, and *magnificentia*, are each introduced by *et*.  
 
 
 | Token | relationship 1| related token 1| relationship 2 |related token 2 |
@@ -668,7 +668,7 @@ The interrogative pronoun introducing indirect questions needs to be carefully d
 
 ### Relative pronoun
 
-When a subordinate clause is introducted by a form of the relative pronoun, we must relate the relative to two different tokens: its antecedent in the governing clause, and to a token showing its function in the relative clause.
+When a subordinate clause is introduced by a form of the relative pronoun, we must relate the relative to two different tokens: its antecedent in the governing clause, and to a token showing its function in the relative clause.
 
 **Example**: *Latini, cum quibus Tullo regnante ictum foedus erat, sustulerant animos.*
 

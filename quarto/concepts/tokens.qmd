@@ -4,7 +4,7 @@ title: How `arsgrammatica` tokenizes Latin
 
 
 ::: {.callout-note}
-In `arsgrammatica` the `Token` class is the primary impementation of these ideas.
+In `arsgrammatica` the `Token` class is the primary implementation of these ideas.
 :::
 
 ## Identifiers
@@ -166,8 +166,8 @@ The relative pronoun *quem* depends on an unexpressed subject of *moritur*. We a
 
 The participle *interrogans* depends on an unexpressed antecedent. We add a new token for it. In the syntax graph this token will be both the antecedent of *interrogans* and the subject of *loquebatur*.
 
-This distinguish this from substantive uses of the participle. When the participle can be construed as a direct substantive function, we take it as a single token that the syntax graph can treat like any other substantive.
+We must distinguish the circumstantial participle from substantive uses of the participle. When the participle can be construed as a direct substantive function, we take it as a single token that the syntax graph can treat like any other substantive.
 
-**Example**: *sapientī sat est.*
+**Example**: *sapienti sat est.*
 
 We recognize that the participle *sapienti* here is not a circumstantial participle requiring an entry in the verbal expressions table, but can be taken as a substantive "the wise person." There is no need to add any implied antecedent to the list of tokens.

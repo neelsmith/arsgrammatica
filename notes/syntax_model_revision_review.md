@@ -1,5 +1,7 @@
 # Review: revised syntax model (quarto/concepts) vs. `syntax_model.md`
 
+> ✅ marks issues or questions that have been resolved
+
 Drafted 2026-10-10 on `wip`. Compares the old single-file spec `syntax_model.md` with Neel's rewritten pages `quarto/concepts/tokens.qmd`, `verbalunits.qmd` and `syntactic-analysis.qmd` (read-only for Claude; nothing in them was edited). Line numbers refer to the files as of this date.
 
 ---
@@ -148,34 +150,35 @@ Grouped roughly by importance. "VU" = `verbalunits.qmd`, "SA" = `syntactic-analy
 - SA:571: `dixit` is in code style instead of italics.
 - SA:711: `(root)` vs. (`root`) elsewhere.
 
+
 ### Typos
 
 - **TK:**
-  - "impementation" (7)
-  - "This distinguish this" (169)
-  - *sapientī* with a macron vs. *sapienti* in the text
+  - ✅ "impementation" (7)
+  - ✅ "This distinguish this" (169)
+  - ✅ *sapientī* with a macron vs. *sapienti* in the text
 - **VU:**
-  - "Classifiying" (34)
-  - "expresion" (47)
-  - "classifed" (63)
-  - "unconneccted" (72)
-  - "indepedendent" (82)
-  - "wil" (88)
-  - "circumsstantial" (98)
-  - "definiing" (108)
-  - "thpe" (199)
-  - "situtation" (202)
-  - "explict" (223)
-  - "discourse.Entire" (226)
-  - "syntatic" (229)
+  - ✅ "Classifiying" (34)
+  - ✅ "expresion" (47)
+  - ✅ "classifed" (63)
+  - ✅ "unconneccted" (72)
+  - ✅ "indepedendent" (82)
+  - ✅ "wil" (88)
+  - ✅ "circumsstantial" (98)
+  - ✅ "definiing" (108)
+  - ✅ "thpe" (199)
+  - ✅ "situtation" (202)
+  - ✅ "explict" (223)
+  - ✅ "discourse.Entire" (226)
+  - ✅ "syntatic" (229)
 - **SA:**
-  - "impementation" (7)
-  - "hypthetical" (18)
-  - "commandsj" (92)
-  - *Precord* (99)
-  - "functional adverbially" (453)
-  - *venerate* (478)
-  - "wth" (528)
-  - "la\`t" (596)
-  - *assiduate* (621, inherited from the old spec)
-  - "introducted" (671)
+  - ✅ "impementation" (7)
+  - ✅ "hypthetical" (18)
+  - ✅ "commandsj" (92)
+  - ✅ *Precord* (99)
+  - ✅ "functional adverbially" (453)
+  - ✅ *venerate* (478)
+  - ✅ "wth" (528)
+  - ✅ "la\`t" (596)
+  - ✅ assiduitate*assiduate* (621, inherited from the old spec)
+  - ✅ "introducted" (671)
