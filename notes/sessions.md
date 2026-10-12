@@ -4,6 +4,20 @@ A running record of what Claude actually did in this repo, session by session, n
 
 ---
 
+## 2026-10-12
+
+**Branch:** `wip` (at `f05a476`)
+
+**Second review of the revised syntax model and serialization format.** No code was written and no `quarto/` files were edited. Findings are in `notes/syntax_model_revision_review_2.md`:
+
+1. Changes from `syntax_model.md`, cumulative. New since the first review: semantic types removed; `agent` split into `agent-ablative` and `agent-dative`; `predicate` widened to three uses; unabbreviated praenomina; abbreviations and numerals now related; unlimited relations per token, serialized as repeated `#!tokens` rows (8-column header).
+2. Status of the first review's ✅/open items. Item 1 (a syntactic type for parataxis) is still open despite its ✅, and SA:177 still says `indirect speech`.
+3. New issues. Main ones: `#!verbal_units` still has `semantic_type`; the `#!lm` example uses retired vocabulary; the `verbalunit` column and the placement and fields of implied-token rows are undefined; and the two `praenomen` definitions disagree.
+
+`quarto/reference/vuvalues.qmd`, `relationshipvalues.qmd` and the code (`serialization.py`, `models.py`) still reflect the old model.
+
+---
+
 ## 2026-10-10
 
 **Branch:** `wip`
