@@ -6,12 +6,12 @@ title: Verbal units
 In `arsgrammatica` the `VerbalExpression` class is the primary implementation of these ideas.
 :::
 
-Although `arsgrammatica` tries to account for *all* syntactic features of a Latin text, its analytical scheme is anchored in the reduced Agent-Action-Target model (AAT): all syntactic features are organized around explicit or implicit verbal ideas, that may optionally include agent/target elements (e.g., for transitive active verbs, subject/direct object elements). These verbal expressions (subject-verb ideas) most frequently correspond to clauses in an English translation. (Of course in Latin the subject may be implicit where that is not possible in English.) 
+Although `arsgrammatica` tries to account for *all* syntactic features of a Latin text, its analytic scheme is anchored in the reduced semantic model of Agent-Action-Target model (AAT): all syntactic features are organized around explicit or implicit verbal ideas, that may optionally include agent/target elements (e.g., for transitive active verbs, subject/direct object elements). These verbal expressions (subject-verb ideas) most frequently correspond to clauses in an English translation. (Of course in Latin the subject may be implicit where that is not possible in English.) 
 
 
 ## Verbal constructions
 
-`arsgrammatica` identifies four possible constructions as verbal expressions: finite verbs, infinitives and participles.
+`arsgrammatica` identifies four possible constructions as verbal expressions: finite verbs, infinitives, participles and gerundives.
 
 1. *Every finite verb* constitutes a verbal expression. Latin finite verbs include the compound forms of the perfect and pluperfect tenses (composed of a past participle plus a form of *sum*) as well as conjugated verbs forms identifiable by tense-mood-voice-person-number. 
 2. *Infinitives* constitute a verbal expression when they are constructed as a verbal expression in indirect speech.
@@ -33,10 +33,7 @@ Although `arsgrammatica` tries to account for *all* syntactic features of a Lati
 
 ## Classifying verbal expressions
 
-`arsgrammatica` classifies verbal expressions according to *syntactic type* and *semantic type*.
-
-
-## Syntactic type
+`arsgrammatica` classifies verbal expressions according to *syntactic type*.
 
 ### `independent`
 
@@ -132,61 +129,6 @@ The phrase *delendam esse* is treated as a compound form anchored on *delendam*.
 
 
 
-## Semantic type    
-
-`arsgrammatica` recognizes four semantic types for verbal expressions. 
-
-`linking verb` applies to verbs joining a subject and predicate nominative expression (a substantive or adjectival expression).  `intransitive` is for verbs that cannot take a direct object. `transitive active` and `transitive passive` apply to verbs that, in the active voice,  are capable of construction with a direct object. 
-
-Note that in Latin, `transitive active` expressions can be converted to equivalent `transitive passive` expressions under the A-A-T model (and vice versa) by changing the voice of the verb, and the construction of any explicit agent and target as follows:
-
-|Semantic type | Agent | Action | Target|
-| --- | ---  | --- | --- |
-| `transitive active` | subject | active voice | direct object |
-| `transitive passive` | ablative of agent  | passive voice | subject |
-
-### `linking verb`
-
-
-The most common verb linking a nominative subject with a nominative predicate is *sum*.
-
-**Example**: *Etruria erat vicina*.
-
-
-The verb *erat* is a `linking verb` with subject *Etruria* and predicate *vicina*.
-
-### `intransitive`
-
-Active- or passive-voice verbal  expressions that are intransitive in sense (i.e., that cannot take a direct object).
-
-**Example**: *principes Albanorum in patres, ut ea quoque pars rei publicae cresceret, legit*.
-
-The verb *cresceret* is an active-voice form that cannot take a direct object. It is `intransitive`.
-
-
-### `transitive active`
-
-Any active-voice verbal expression with a transitive sense, so is capable of taking a direct object.
-
-**Example**: *principes Albanorum in patres, ut ea quoque pars rei publicae cresceret, legit*.
-
-The verb *legit* is *transitive active* with an explicit direct object *principes*.
-
-### `transitive passive`
-
-Any passive-voice verbal expression with a transitive sense, so is capable of taking a construction with the ablative of agent. 
-
-**Example**: *urbs a Romulo condita est*
-
-The compound verb form *condita est* is `transitive passive` with grammatical subject `urbs` and agent expressed by the prepositional phrase `a Romulo`. 
-
-Note that the gerundive is *always* `transitive passive`.
-
-**Example**: *Legatos ad eum mittunt ad pacem faciendam.*
-
-The gerundive *faciendam* is `transitive passive`.
-
-
 ## Handling implied verbal expressions
 
 The discussion of [tokenization](./tokens.qmd) introduced the idea of *implied* verbal expressions. There are two circumstances where we need to create an entry in the list of verbal expressions for an implied verbal expression.
@@ -196,22 +138,21 @@ The discussion of [tokenization](./tokens.qmd) introduced the idea of *implied* 
 
 **Example**: *omnia praeclara rara.* 
 
-This is a complete sentence, with a subject phrase *omnia praeclara* and a predicate *rara*. We record the implied form of "to be" with a new token entry, and enter the token's ID into the list of verbal expressions. Here, the implied token will classified as syntactic type `independent` and semantic type `linking verb`.
+This is a complete sentence, with a subject phrase *omnia praeclara* and a predicate *rara*. We record the implied form of "to be" with a new token entry, and enter the token's ID into the list of verbal expressions. Here, the implied token will classified as syntactic type `independent`.
  
  
  Elision of *sum* can also occur with multiword compounds such as the perfect passive system. This situation does not require an entry in the verbal units table because the participle itself is a real token that will already be entered there to anchor the verbal expression.
 
  **Example**:  *inde P. Valerius iterum T. Lucretius consules facti.* 
  
- This complete sentence has a single verbal expression with a perfect passive verb, *facti* with *sunt* omitted. *facti* itself is entered in the list of verbal expressions (syntactic type `independent`, semantic type `transitive passive`). The token graph will still add a new token with unique ID and `None` for its text value to record the elided *sunt*, but this new token will be related to *facti* as its `auxiliary`. 
+ This complete sentence has a single verbal expression with a perfect passive verb, *facti* with *sunt* omitted. *facti* itself is entered in the list of verbal expressions (syntactic type `independent`). The token graph will still add a new token with unique ID and `None` for its text value to record the elided *sunt*, but this new token will be related to *facti* as its `auxiliary`. 
  
  
  One important category of elided forms of *sum* is the participle: since there is no present participle of *sum*, its presence is *always* implied only. 
  
  **Example**: *P. Valerius anno post Agrippa Menenio P. Postumio consulibus moritur.* 
  
- The phrase *Agrippa Menenio P. Postumio consulibus* is an ablative absolute construction implying a circumstantial participle of "to be". We must add a new token with a unique ID to the token table and use its ID for a new entry in the list of verbal expressions. Its syntactic type will be `circumstantial participle` and its semantic type will be `linking verb` since this participial phrase is a predicate construction ("when Agrippa Menenius and Publius Postumius were consuls...")
-
+ The phrase *Agrippa Menenio P. Postumio consulibus* is an ablative absolute construction implying a circumstantial participle of "to be". We must add a new token with a unique ID to the token table and use its ID for a new entry in the list of verbal expressions. Its syntactic type will be `circumstantial participle`.
 
 ### Understood repeated verb
 
@@ -220,10 +161,10 @@ When parallel verbal constructions repeat the same verbal idea, the verb can be 
 
 **Example**: *sic eius adventus celebrabantur ut famam ingeni exspectatio hominis, exspectationem ipsius adventus admiratioque superaret.*
 
-Here, the conjunction *ut* introduces two parallel result clauses. The first has subject *exspectatio* and direct object *famam*; the second has subjects *adventus* and *admiratio* and direct object *exspectationem*. The explicit verb *superaret* is recorded in the verbal entry table for the first result clause (with singular subject *exspectatio*); this implies that we would repeat a (plural) form of *supero* for the second result clause. We must add an entry to the token table, and an entry with its unique to the verbal expressions list. Like the verbal expression it repeats, it will be of syntactic type `dependent` (after *ut*), and semantic type `transitive active`.
+Here, the conjunction *ut* introduces two parallel result clauses. The first has subject *exspectatio* and direct object *famam*; the second has subjects *adventus* and *admiratio* and direct object *exspectationem*. The explicit verb *superaret* is recorded in the verbal entry table for the first result clause (with singular subject *exspectatio*); this implies that we would repeat a (plural) form of *supero* for the second result clause. We must add an entry to the token table, and an entry with its unique to the verbal expressions list. Like the verbal expression it repeats, it will be of syntactic type `dependent` (after *ut*).
 
 
 Implied repetition of verbal expressions is particularly common in indirect discourse. Entire passages may appear without repeating any governing verb of speaking or thinking. In this situation, we must add new token with unique ID to the token table, with `None` for its text value, and use its ID for new entry in the list of verbal expressions.
 
 **Example**: *nimium Tarquinios regno adsuesse; initium a Prisco factum; regnasse dein Ser. Tullium*. 
-This sentence has three verbal expressions each constructed in indirect statement. They imply a verb of speaking governing all three verbal expressions, so we add a new token with unique ID to the list of tokens, and add a verbal expression with its ID to the list of verbal expressions. Here, we assume that the understood verbal expression is of syntactic type `independent`, with  semantic type `transitive active`. 
+This sentence has three verbal expressions each constructed in indirect statement. They imply a verb of speaking governing all three verbal expressions, so we add a new token with unique ID to the list of tokens, and add a verbal expression with its ID to the list of verbal expressions. Here, we assume that the understood verbal expression is of syntactic type `independent`.

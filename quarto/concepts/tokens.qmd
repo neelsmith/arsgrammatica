@@ -24,11 +24,21 @@ Based on their orthography and content, tokens are classified with one of the fo
 
 ### `praenomen`
 
-We take an abbreviated praenomen together with its punctuating period as a single token. 
+
+When a Latin name appears in the form *praenomen nomen*, we take the praenomen as distinct token type. Most *praenomina* are so common that they are abbreviated. In these instances, we take the abbreviated praenomen together with its punctuating period as a single token.
 
 **Example**:  *M. Agrippa L. f. cos. tertium fecit*
 
 The tokens *M.* and *L.* are classified as `praenomen`.
+
+
+**Example**: *P. Valerius anno post Agrippa Menenio P. Postumio consulibus moritur.*
+
+The two different tokens *P.* (with *nomina* *Valerius* and *Postumio*) and the token *Agrippa* (with *Menenio*) are each classified as `praenomen`.
+
+
+
+
 
 ### `abbreviation`
 
