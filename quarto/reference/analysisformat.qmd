@@ -47,25 +47,41 @@ urn:cts:latinLit:phi0690.phi003.omar:1.1|t3|independent|transitive active
 
 Token analysis blocks begin with a header `context|id|tokentype|text|lemma|verbalunit|related|relationship`
 
-**REWORK THIS**!
+
+Entries in the table token are *ordered* by the position of the token in document order. Each token is identified by a CTS URN plus token ID, followed by the surface form appearing in the passage and a lemma (headword). The graph structure is recorded by two fields identifying a token by its ID, and classifying the relationship of the two tokens. Tokens that are syntactically related to more than one node in the syntax graph have one row for each relation. The sequence of rows for a token with more than one entry is not specified.
 
 
-::: {.callout-caution}
-## Obsolete text needing revision
-Entries in the table token are *ordered*. Each token is identified by a CTS URN plus token ID, followed by the surface form appearing in the passage and a lemma (headword). The graph structure is recorded by two pairs of fields identifying a token by its ID, and classifying the relationship of the two tokens. In a successful analysis, all non-punctuation tokens have a value for `related1` and `relationship1`; the second pair (`related2` and `relationship2`) have values only for two-way relationships.
+In a successful analysis, all non-punctuation tokens have a value for `related` and `relationship`. Puncutuation tokens appear in the table but are not related to any element of the syntax graph.
 
-**Example**:
+**Example**: *arma virumque cano.*
+
+The coordinating word *que* relates to both *arma* and *virum*. It therefore appears twice in the table. This is a valid serialization:
 
 ```
 #!tokens
-context|id|tokentype|text|lemma|verbalunit|related1|relationship1|related2|relationship2
-urn:cts:latinLit:phi0690.phi003.omar:1.1|t0|lexical|arma|arma||t3|direct object||
-urn:cts:latinLit:phi0690.phi003.omar:1.1|t1|lexical|virum|vir||t3|direct object||
-urn:cts:latinLit:phi0690.phi003.omar:1.1|t2|enclitic|que|que||t0|coordinating conjunction|t1|coordinating conjunction
-urn:cts:latinLit:phi0690.phi003.omar:1.1|t3|lexical|cano|cano|t3|root|unit verb||
+context|id|tokentype|text|lemma|verbalunit|related|relationship
+urn:cts:latinLit:phi0690.phi003.omar:1.1|t0|lexical|arma|arma||t3|direct object
+urn:cts:latinLit:phi0690.phi003.omar:1.1|t1|lexical|virum|vir||t3|direct object
+urn:cts:latinLit:phi0690.phi003.omar:1.1|t2|enclitic|que|que||t0|coordinating word
+urn:cts:latinLit:phi0690.phi003.omar:1.1|t2|enclitic|que|que||t1|coordinating word
+urn:cts:latinLit:phi0690.phi003.omar:1.1|t3|lexical|cano|cano|t3|root|unit verb
+urn:cts:latinLit:phi0690.phi003.omar:1.1|t4|punctuation|.|cano|||
 ```
-:::
 
+
+The following table has identical contents except that the sequence of two lines for token `t2` is reversed.  This is also a valid serialization since the unique set of tokens appears in document order, and the sequence of rows for the multiple entries for *que* is not specified.
+
+
+```
+#!tokens
+context|id|tokentype|text|lemma|verbalunit|related|relationship
+urn:cts:latinLit:phi0690.phi003.omar:1.1|t0|lexical|arma|arma||t3|direct object
+urn:cts:latinLit:phi0690.phi003.omar:1.1|t1|lexical|virum|vir||t3|direct object
+urn:cts:latinLit:phi0690.phi003.omar:1.1|t2|enclitic|que|que||t1|coordinating word
+urn:cts:latinLit:phi0690.phi003.omar:1.1|t2|enclitic|que|que||t0|coordinating word
+urn:cts:latinLit:phi0690.phi003.omar:1.1|t3|lexical|cano|cano|t3|root|unit verb
+urn:cts:latinLit:phi0690.phi003.omar:1.1|t4|punctuation|.|cano|||
+```
 
 ### `#!lm`
 
