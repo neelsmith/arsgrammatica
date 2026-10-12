@@ -641,12 +641,12 @@ When a coordinating word like *et*, *aut* or the post-positive *que* connects a 
 
 The conjunction *et* joins two independent verbal expressions.
 
-| Token | relationship 1| related token 1| relationship 2 |related token 2 |
-| --- | --- | --- | --- | --- |
-| *peperit* | `unit verb` | (`root`) | | |
-| *et* | `coordinating word` | *peperit* | `coordinating word` | *dixit* |
-| *dixit* | `unit verb` | (`root`) | ||
-
+| Token | relationship| related token | 
+| --- | --- | --- | 
+| *peperit* | `unit verb` | (`root`) | 
+| *et* (t5) | `coordinating word` | *peperit* | 
+| *et* (t5) | `coordinating word` | *dixit* |
+| *dixit* | `unit verb` | (`root`) | 
 
 
 
@@ -656,12 +656,13 @@ Note that when joining verbal expressions, the coordinating word may not be clos
 
 The coordinating word *que* joins two verbal expressions.
 
-| Token | relationship 1| related token 1| relationship 2 |related token 2 |
-| --- | --- | --- | --- | --- |
-| *noluit* | `unit verb` | (`root`) | ||
-| *Hermionen* | `direct object` | *adduxit* | ||
-| *que* | `coordinating word` | *noluit* | `coordinating word` | *adduxit* |
-| *adduxit* | `unit verb` | (`root`) | | |
+| Token | relationship | related token | 
+| --- | --- | --- | 
+| *noluit* | `unit verb` | (`root`) | 
+| *Hermionen* | `direct object` | *adduxit* | 
+| *que* (t7) | `coordinating word` | *noluit* | 
+| *que* (t7) | `coordinating word` | *adduxit* |
+| *adduxit* | `unit verb` | (`root`) | 
 
 
 
@@ -669,7 +670,7 @@ An important detail to note is that the word *et* can be used as a conjunction o
 
 **Example**: *Tu quoque, Brute, fili mi, et tu?* 
 
-Here the token *et* is functioning as an adverb, not a conjunction. It will have the lexical token *tu* as its `relation1`, with the `relationship1` value *adverbial*.
+Here the token *et* is functioning as an adverb, not a conjunction. It will have the lexical token *tu* as its `relation`, with the `relationship` value *adverbial*.
 
 
 We use exactly the same annotation when coordinating words connect other kinds of items than verbal expressions.
@@ -826,14 +827,15 @@ Here three verbal expressions are each constructed in indirect statement. They i
 
 Here the relative pronoun *quem* assumes an unexpressed antecedent functioning as the subject of the main clause, "(He) dies young whom the gods love."
 
-| Token | relationship 1 | related token 1 | relationship 2 | related token 2 |
-| --- | --- | --- | --- | --- | 
-| *quem* | `relative pronoun` | (`implied substantive`) | `direct object` | *amant* |
-| *dii* | `subject` | *amant* | ||
-|*amant* | `unit verb` | *quem* | ||
-| *adolescens* | `predicate` | *moritur* | ||
-| *moritur* | `unit verb` | (`root`) | ||
-| (`implied substantive`) | `subject` | *moritur* | ||
+| Token | relationship  | related token  | 
+| --- | --- | --- | 
+| *quem* (t0) | `relative pronoun` | (`implied substantive`) | 
+| *quem* (t0) | `direct object` | *amant* |
+| *dii* | `subject` | *amant* | 
+|*amant* | `unit verb` | *quem* | 
+| *adolescens* | `predicate` | *moritur* | 
+| *moritur* | `unit verb` | (`root`) | 
+| (`implied substantive`) | `subject` | *moritur* | 
 
 
 
