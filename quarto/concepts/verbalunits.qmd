@@ -1,5 +1,5 @@
 ---
-title: Verbal units
+title: "Verbal units: anchor points for syntactic analysis"
 ---
 
 ::: {.callout-note}
@@ -20,11 +20,11 @@ Although `arsgrammatica` tries to account for *all* syntactic features of a Lati
 
 **Example**: *Legatos ad eum mittunt ad pacem faciendam.*
 
-*Faciendam* is a verbal expression.
+The gerundive *faciendam* is a verbal expression.
 
 **Example**: *Carthago delenda est*.
 
-*delenda* is a verbal expression: *est* is an auxiliary.
+*delenda* is a verbal expression: *est* is an auxiliary to it.
 
 **Counter example**: *Multo labore constat ars dicendi.*
 

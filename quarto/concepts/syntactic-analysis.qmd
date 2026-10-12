@@ -8,7 +8,7 @@ In `arsgrammatica` the `TokenAnalysis` class is the primary implementation of th
 :::
 
 
-When `arsgrammatica` analyses a passage of Latin, every non-punctuation token is related to one or two other tokens in a graph structure. This page summarizes all relationship categories that `arsgrammatica` recognizes.
+When `arsgrammatica` analyses a passage of Latin, every non-punctuation token is related in a graph structure to one or more of the following: other tokens in the text, implied tokens, or a hypothetical root element. This page summarizes all relationship categories that `arsgrammatica` recognizes. For ease of human reading, examples are presented in a simple tabular form not identical to the [format used to serialize analyses](../reference/tokenizationformat.qmd).
 
 
 ## Constructions of verbal expressions
@@ -40,7 +40,7 @@ All compound forms using *sum* with a participle treat the participle as the ver
 | *condita* | `unit verb` | (`root`) |
 | *est* | `auxiliary` | *condita* |
 
-Similarly, when gerundive forms are in predicate position with a form of *sum*, the gerundive + *sum* is treated as a compound form and is classified like any other finite or infinitive form.
+Similarly, when gerundive forms are in predicate position with a form of *sum*, the gerundive + *sum* is treated as a compound form. The gerundive classified like any other finite or infinitive form, and the form of *sum* relates to it as `auxiliary`.
 
 **Example**: *Carthago delenda est*.
 
@@ -52,7 +52,7 @@ Similarly, when gerundive forms are in predicate position with a form of *sum*, 
 
 ### Directly quoted speech
 
-Independent verbs in directly quoted speech are related to the verb introducing the quotation as `direct quote`.
+Finite verbs in directly quoted speech are related to the verb introducing the quotation as `direct quote`.
 
 **Example**: *'hanc ego aram' inquit 'Pudicitiae plebeiae dedico'*.
 
@@ -60,6 +60,21 @@ Independent verbs in directly quoted speech are related to the verb introducing 
 | --- | --- | --- |
 | *dedico* | `direct quote` | *inquit* |
 | *inquit* | `unit verb` | (`root`) |
+
+
+Further constructions governed by the direct speech, such as subordinate clauses, are treated the same way they would be treated after an independent clause
+
+**Example**: "Vos,” inquit, “videritis quid balteo conveniat."
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *Vos* | `subject` | *videritis* |
+| *inquit* | `unit verb` | (`root`) |
+| *videritis* | `direct quote` | *inquit* |
+| *quid* | `subordinating word` | *videritis* | 
+| *balteo* | `dative` | *conveniat* | 
+| *conveniat* | `unit verb` | *quid* |
 
 
 ### Aside
@@ -77,7 +92,7 @@ When the syntax of the sentence is interrupted by an independent verbal expressi
 
 ### Dependent clause
 
-Verbs of dependent clauses are related to a subordinating word (such as a conjunction or relative pronoun) as `unit verb`. 
+When a dependent clause is introduced by a subordinating word (such as a subordinating conjunction or relative pronoun), the verb relates to the subordinating word as `unit verb`. 
 
 
 **Example**: *Hercules cum gregem perlustrasset, pergit ad proximam speluncam.*
@@ -89,7 +104,9 @@ Verbs of dependent clauses are related to a subordinating word (such as a conjun
 
 ### Parataxis
 
-Several verbs expressing ideas connected with necessity, wishes, preferences or commands (such as *oportet*, *necesse est*, *volo*, *peto*, or imperative *fac*) can be constructed with a dependent clause in the subjunctive without any subordinating word. In this construction, the subordinate verbal unit is related to the governing verb with the relationship `parataxis`.
+Several verbs expressing ideas connected with necessity, wishes, preferences or commands (such as *oportet*, *necesse est*, *volo*, *peto*, or imperative *fac*) can be constructed with a clause in the subjunctive without any subordinating word. 
+
+In this construction, the subordinate verbal unit is related to the governing verb with the relationship `parataxis`.
 
 **Example**: *Precor eam videam.*
 
@@ -204,7 +221,7 @@ A substantive functioning as the grammatical subject of a verbal expression is r
 ### Agent
 
 
-The headword of a prepositional phrase expressing agency with passive verbs (that is, `a`/`ab`) relates to the verbal expression as `agent`.
+The headword of a prepositional phrase expressing agency with passive verbs (that is, `a`/`ab`) relates to the verbal expression as `agent-ablative`.
 
 **Example**: *urbs a Romulo condita est*.
 
@@ -212,12 +229,25 @@ The headword of a prepositional phrase expressing agency with passive verbs (tha
 | Token | relationship | related token |
 | --- | --- | --- |
 | *urbs* | `subject` | *condita* |
-| *a* | `agent` | *condita* |
+| *a* | `agent-ablative` | *condita* |
 | *Romulo* | `object of preposition` | *a* |
 | *condita* | `unit verb` | (`root`) |
 | *est* | `auxiliary` | *condita* |
 
 > See below on objects of prepositions.
+
+Compound forms of the perfect sometimes and compounds formed from the gerundive + *sum* regularly express agency with a substantive in the dative cases. We relate these substantives to the verb as `agent-dative`.
+
+
+**Example**: *res silentio praeterita nobis est.*
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *res* | `subject` | `praeterita` | 
+| *praeterita* | `unit verb` | (`root`) |
+| *nobis* | `agent-dative` | *praeterita* | 
+| *est* | `auxiliary` | *praerterita* |
+
 
 ### Direct object
 
@@ -239,8 +269,9 @@ The direct object of a transitive active verb is related to the verbal expressio
 
 ### Predicate
 
+We use the `predicate` relation in three ways. 
 
-Substantives or adjectives serving as predicates of linking verbs are related to the verb as `predicate`
+1) Substantives or adjectives serving as predicates of linking (copulative) verbs. 
 
 **Example**: *Lucumo Demarati Corinthii filius erat*.
 
@@ -250,6 +281,28 @@ Substantives or adjectives serving as predicates of linking verbs are related to
 | *Lucumo* | `subject` | *erat* |
 | *filius* | `predicate` | *erat* |
 | *erat* | `unit verb` | (`root`) |
+
+2) A substantive describing the role or state in which the subject performs an action.
+
+**Example**: *Lucumo superfuit patri bonorum omnium heres.*
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *Lucumo* | `subject` | *superfuit* | 
+| *superfuit* | `unit verb` | (`root`) |
+| *heres* | `predicate` | *superfuit* |
+
+
+3) A substantive describing the direct object of a verb qualifying the result of the action, typically after verbs of naming, calling, thinking, judging or showing such as  *appellare, vocare, creare, facere, habere, iudicare, putare, aestimare, se praebere*, or  *reddere*.
+
+**Example**: *Ciceronem consulem creaverunt.*
+
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *Ciceronem* | `direct object` | *creaverunt* | 
+| *consulem* | `predicate` | *creaverunt* |
+| *creaverunt* | `unit verb` | (`root`) |
 
 
 
@@ -440,13 +493,24 @@ If an adjective is used as a substantive, it is treated just like any other subs
 | *heres* | `predicate` | `superfuit` |
 
 
+**Example**: *hiberna aberant ab eo milia passuum XXV.* 
+
+In this example, the numeric adjective *viginti quinque* is written with a numeric token *XXV*.
+
 
 | Token | relationship | related token |
 | --- | --- | --- |
-| *Legatos* | `direct object` | *mittunt* |
-| *mittunt* | `unit verb` | (`root`) |
-| *ad* | `adverbial` | *mittunt* |
-|
+| *hiberna* | `subject` | *aberant* |
+| *aberant* | `unit verb` | (`root`) |
+| *ab* | `adverbial` | *aberant* |
+| *eo* | `object of preposition` | *ab* |
+| *milia* | `accusative` | *aberant* |
+| *passuum* | `genitive` | *milia* |
+| *XXV* | `adjectival` | *milia* |
+
+
+
+
 
 ### Prepositional phrases
 
@@ -522,6 +586,7 @@ When a substantive stands in apposition to another substantive, it has the relat
 
 
 
+
 ### Praenomen
 
 
@@ -537,8 +602,19 @@ A token that `arsgrammatica` classifies as `praenomen` is an abbreviation used i
 | *erat* | `unit verb` | (`root`) |
 
 
+**Example**:  *M. Agrippa L. f. cos. tertium fecit*
 
+In this sentence, the token *M.* is in relation of `praenomen` with *Agrippa*. The token *L.*, on the other, refers to an individual with praenomen only, without corresponding nomen. We treat it as we would any other substantive. Here, we take it be genitive with *f.* and we take the abbreviations *f.* and *cos.* to be nominatives in apposition to *Agrippa*, *L(ucii) f(ilius)* and *co(n)s(sul)*.
 
+| Token | relationship | related token |
+| --- | --- | --- |
+| *M.* | `praenomen` | *Agrippa* |
+| *Agrippa* | `subject` | *fecit* |
+| *L.* | `genitive` | *f.* |
+| *f.* | `apposition` | *Agrippa* |
+| *cos.* | `apposition` | *Agrippa* |
+| *tertium* | `adverbial` | *cos.* |
+| *fecit* | `unit verb` | (`root`) |
 
 
 ## Coordinating and subordinating words
@@ -604,12 +680,13 @@ We use exactly the same annotation when coordinating words connect other kinds o
 **Example**: *arma virumque cano*.
 
 
-| Token | relationship 1| related token 1| relationship 2 |related token 2 |
-| --- | --- | --- | --- | --- |
-| *arma* | `direct object` | *cano* | | |
-| *virum* | `direct object` | *cano* | | |
-| *que* | `coordinating word` | *arma* | `coordinating word` | *virum* |
-| *cano* | `unit verb` | (`root`) | | |
+| Token | relationship| related token | 
+| --- | --- | --- |
+| *arma* | `direct object` | *cano* | 
+| *virum* | `direct object` | *cano* | 
+| *que*  (t2) | `coordinating word` | *arma* | 
+| *que*  (t2) |`coordinating word` | *virum* |
+| *cano* | `unit verb` | (`root`) | 
 
 
 
@@ -621,15 +698,18 @@ Note that conjunctions like *et* and *aut* can be repeated to form connecting pa
 Three ablative expressions, *assiduitate*,  *varietate*, and *magnificentia*, are each introduced by *et*.  
 
 
-| Token | relationship 1| related token 1| relationship 2 |related token 2 |
-| --- | --- | --- | --- | --- |
-| *et* | `coordinating word` | *assiduitate* | ||
-| *assiduitate* | `ablative` | *antecessit* | ||
-| *et* (second instance)| `coordinating word` | *assiduitate* | `coordinating word` | *varietate* | 
-| *varietate* | `ablative` | *antecessit* | ||
-| *et* (third instance) | `coordinating word` | *varietate* | `coordinating word` | *magnificentia* | 
-| *omnes* | `direct object` | *antecessit* | ||
-| *antecessit* | `unit verb` | (`root`) | ||
+| Token | relationship | related token | 
+| --- | --- | --- | 
+| *et* (t1) | `coordinating word` | *assiduitate* | 
+| *assiduitate* | `ablative` | *antecessit* | 
+| *et* (t3) (second instance)| `coordinating word` | *assiduitate* | 
+| *et* (t3) (second instance) |`coordinating word` | *varietate* | 
+| *varietate* | `ablative` | *antecessit* | 
+| *et* (t5) (third instance) | `coordinating word` | *varietate* |
+| *et* (t5) (third instance) | `coordinating word` | *magnificentia* |
+| *magnificentia* | `ablative` | *antecessit* |
+| *omnes* | `direct object` | *antecessit* | 
+| *antecessit* | `unit verb` | (`root`) |
 
 
 
@@ -676,16 +756,17 @@ The relative pronoun *quibus* refers to *Latini* in the main clause. In the rela
 
 
 
-| Token | relationship 1 | related token 1| relationship 2 | related token 2|
-| --- | --- | --- | --- | --- |
-| *Latini* | `subject` | *sustulerant* | | |
-| *cum* | `adjectival` | *Latini* | | |
-| *quibus* | `relative pronoun` | *Latini* | `object of preposition` | *cum* |
-| *ictum* | `unit verb` | *quibus* | | | 
-| *foedus* | `subject` | *ictum* | ||
-| *erat* | `auxiliary` | *ictum* |  ||
-| *sustulerant* | `unit verb` | (`root`) | ||
-| *animos* | `direct object` | *sustulerant* | ||
+| Token | relationship  | related token |
+| --- | --- | --- | 
+| *Latini* | `subject` | *sustulerant* | 
+| *cum* | `adjectival` | *Latini* | 
+| *quibus* (t3) | `relative pronoun` | *Latini* | 
+| *quibus* (t3) | `object of preposition` | *cum* |
+| *ictum* | `unit verb` | *quibus* |  
+| *foedus* | `subject` | *ictum* | 
+| *erat* | `auxiliary` | *ictum* |  
+| *sustulerant* | `unit verb` | (`root`) | 
+| *animos* | `direct object` | *sustulerant* | 
 
 
 
@@ -765,6 +846,6 @@ The participle *interrogans* depends on an unexpressed antecedent referring to t
 | --- | --- | --- | 
 | *loquebatur* | `unit verb` | (`root`) |
 | *interrogans* | `circumstantial participle` | (`implied substantive`) |
-| *Unde* | `subordinating word` | *interrogans* |
-| *venistis* | `unit verb` | *Unde* |
+| *Unde* | `adverbial` | *venistis* |
+| *venistis* | `direct quote` | *interrogans* |
 | (`implied substantive`) | `subject` | *loquebatur* |
