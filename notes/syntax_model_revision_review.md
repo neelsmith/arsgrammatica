@@ -119,15 +119,15 @@ Grouped roughly by importance. "VU" = `verbalunits.qmd`, "SA" = `syntactic-analy
 
 ### Internal contradictions and label errors
 
-15. **"Three constructions" but four are listed.** VU:14 says "three possible constructions"; the list has four (gerundive added).
-16. **`indirect speech` is used where `indirect statement` is meant.** VU:82 has "*esse* is `indirect speech`" and SA:160 has *subeundam* `indirect speech`. The defined label is `indirect statement`.
-17. **Wrong token in the future-infinitive example.** VU:88 says "*esse* will be related to it as `auxiliary`", but the example is *facturum fuisse*, so this should be *fuisse*.
-18. **Auxiliary attached to itself.** SA:424 and SA:464 have *erat* `auxiliary` → *erat*. It should be → *ventum*.
-19. **A row with swapped columns.** SA:131 has `(elided sum) | excepti | auxiliary`, so the relationship and the related token are in the wrong columns. The label `elided sum` also differs from `implied sum` elsewhere.
-20. **Spelling mismatch.** *adolescens* (TK:160) vs. *adulescens* (SA:753).
+✅ 15. **"Three constructions" but four are listed.** VU:14 says "three possible constructions"; the list has four (gerundive added).
+✅ 16. **`indirect speech` is used where `indirect statement` is meant.** VU:82 has "*esse* is `indirect speech`" and SA:160 has *subeundam* `indirect speech`. The defined label is `indirect statement`.
+✅ 17. **Wrong token in the future-infinitive example.** VU:88 says "*esse* will be related to it as `auxiliary`", but the example is *facturum fuisse*, so this should be *fuisse*.
+✅ 18. **Auxiliary attached to itself.** SA:424 and SA:464 have *erat* `auxiliary` → *erat*. It should be → *ventum*.
+✅ 19. **A row with swapped columns.** SA:131 has `(elided sum) | excepti | auxiliary`, so the relationship and the related token are in the wrong columns. The label `elided sum` also differs from `implied sum` elsewhere.
+✅ 20. **Spelling mismatch.** *adolescens* (TK:160) vs. *adulescens* (SA:753).
 21. **The general rule for elided *sum* is overstated.** TK:112 says an elided *sum* always adds an entry to the list of verbal expressions. The perfect-passive case a few lines later (TK:129) correctly says it doesn't. Qualify the general sentence.
 22. **"Every gerundive is a verbal expression" (VU:19) vs. the `gerundive` type (VU:115).** These are compatible: attributive gets type `gerundive` and predicate + *sum* gets the type of its context. But a reader could take VU:19 to mean the type is always `gerundive`. A line saying "the syntactic type `gerundive` is only for attributive use" would prevent that. Also, the attributive gerundive in SA:227's example (*Lucretiae … stuprandae*) is not acknowledged.
-23. **Subordinating-word definition.** SA:639 says "we relate the *coordinating* word to the verb" (it should be *subordinating*). It also says the word joins a clause "to a *preceding* expression", but the example's subordinate clause precedes its governing verb (*cum … perlustrasset, pergit*).
+✅ 23. **Subordinating-word definition.** SA:639 says "we relate the *coordinating* word to the verb" (it should be *subordinating*). It also says the word joins a clause "to a *preceding* expression", but the example's subordinate clause precedes its governing verb (*cum … perlustrasset, pergit*).
 24. **Terminology drift.**
     - "verbal unit" and "verbal expression" are used interchangeably: the VU page title vs. the `VerbalExpression` class and most of the text.
     - SA:596 switches to `relation1`/`relationship1`, which the rest of the page no longer uses.
@@ -142,13 +142,14 @@ Grouped roughly by importance. "VU" = `verbalunits.qmd`, "SA" = `syntactic-analy
 
 - ✅ SA:285 and SA:293: header rows have two columns, but the data rows have three.
 - SA:443–449: an orphaned table fragment (*Legatos … mittunt … ad*) with no heading or example, ending in a stray `|`.
-- SA:748: the header repeats `relationship 1 | related token 1` and should be `… 2`. Row SA:755 is short.
-- SA:587: the row has extra trailing cells.
-- SA:162: stray `´` after (`root`).
-- SA:507: stray leading `.` in the example.
-- SA:518: `*filia` is missing its closing asterisk.
-- SA:571: `dixit` is in code style instead of italics.
-- SA:711: `(root)` vs. (`root`) elsewhere.
+- ✅ SA:748: the header repeats `relationship 1 | related token 1` and should be `… 2`. Row SA:755 is short.
+- ✅ SA:587: the row has extra trailing cells.
+- ✅ SA:162: stray `´` after (`root`).
+- ✅ SA:507: stray leading `.` in the example.
+- ✅ SA:518: `*filia` is missing its closing asterisk.
+- ✅ SA:571: `dixit` is in code style instead of italics.
+- ✅ SA:711: `(root)` vs. (`root`) elsewhere.
+
 
 
 ### Typos

@@ -128,7 +128,7 @@ Circumstantial participles express a verbal idea that is related to an anteceden
 | --- | --- | --- |
 | *adveniens* | `circumstantial participle` | *vir* |
 | *excepti* | `unit verb` | (`root`) |
-| (`elided sum`) | *excepti* | `auxiliary` |
+| (`implied sum`)  | `auxiliary` | *excepti* |
 
 
 ### Gerundive
@@ -159,7 +159,7 @@ Here, *subeundam esse* is a compound form in indirect statement after *intellege
 | --- | --- | --- |
 | *subeundam* | `indirect speech` | *intellegebat* | 
 | *esse* | `auxiliary` | *subeundam* |
-| *intellegebat* | `unit verb` | (`root`´) |
+| *intellegebat* | `unit verb` | (`root`) |
 
 
 
@@ -421,7 +421,7 @@ Adverbs and other adverbial expressions have relationship of `adverbial` to a ve
 | --- | --- | --- |
 | *forte* | `adverbial` | *ventum* |
 | *ventum* | `unit verb` | (`root`) |
-| *erat* | `auxiliary` | *erat* |
+| *erat* | `auxiliary` | *ventum* |
 
 
 ### Adjectives
@@ -461,7 +461,7 @@ Prepositional phrases most frequently function adverbially. In this construction
 | *Ianiculum* | `object of preposition` | *ad* |
 | *forte* | `adverbial` | *ventum* |
 | *ventum* | `unit verb` | (`root`) |
-| *erat* | `auxiliary` | *erat* |
+| *erat* | `auxiliary` | *ventum* |
 
 
 
@@ -504,7 +504,7 @@ Substantives modified by a participle can be used  in the ablative case without 
 
 When a substantive stands in apposition to another substantive, it has the relationship `apposition`; the first substantive is constructed normally.
 
-**Example**: *.Neptunus et Aegeus Pandionis filius in fano Mineruae cum Aethra Pitthei filia una nocte concubuerunt.*
+**Example**: *Neptunus et Aegeus Pandionis filius in fano Mineruae cum Aethra Pitthei filia una nocte concubuerunt.*
 
 | Token | relationship | related token |
 | --- | --- | --- |
@@ -515,7 +515,7 @@ When a substantive stands in apposition to another substantive, it has the relat
 | *cum* | `adverbial` | *concubuerunt* |
 | *Aethra* | `object of preposition` | *cum* |
 | *Pitthei* | `genitive` | *filia* |
-| *filia | `apposition` | *Aethra* |
+| *filia* | `apposition` | *Aethra* |
 | *una* | `adjectival` | *nocte* | 
 | *nocte* | `ablative` | *concubuerunt* | 
 | *concubuerunt* | `unit verb` | (`root`) |
@@ -568,7 +568,7 @@ The conjunction *et* joins two independent verbal expressions.
 | Token | relationship 1| related token 1| relationship 2 |related token 2 |
 | --- | --- | --- | --- | --- |
 | *peperit* | `unit verb` | (`root`) | | |
-| *et* | `coordinating word` | *peperit* | `coordinating word` | `dixit` |
+| *et* | `coordinating word` | *peperit* | `coordinating word` | *dixit* |
 | *dixit* | `unit verb` | (`root`) | ||
 
 
@@ -584,8 +584,8 @@ The coordinating word *que* joins two verbal expressions.
 | --- | --- | --- | --- | --- |
 | *noluit* | `unit verb` | (`root`) | ||
 | *Hermionen* | `direct object` | *adduxit* | ||
-| *que* | `coordinating word` | *noluit* | `coordinating word` | *adduxit* | ||
-| *adduxit* | `unit verb` | (`root`) | ||
+| *que* | `coordinating word` | *noluit* | `coordinating word` | *adduxit* |
+| *adduxit* | `unit verb` | (`root`) | | |
 
 
 
@@ -636,7 +636,7 @@ Three ablative expressions, *assiduitate*,  *varietate*, and *magnificentia*, ar
 ### Subordinating word
 
 
-When subordinating words like *ut*, *cum*, *ne*, *quoniam*, *quo*, *quod*, and *si* (among many others) or words introducing an indirect question join a verbal expression to a preceding expression, we relate the coordinating word to the verb as a `subordinating word`.
+When subordinating words like *ut*, *cum*, *ne*, *quoniam*, *quo*, *quod*, and *si* (among many others) or words introducing an indirect question join a verbal expression to a preceding expression, we relate the subordinating word to the verb as a `subordinating word`.
 
 
 
@@ -714,7 +714,7 @@ This sentence has a single verbal expression with a perfect passive verb, *facti
 
 | Token | relationship | related token | 
 | --- | --- | --- | 
-| *facti* | `unit verb` | `(root)` |
+| *facti* | `unit verb` | (`root`) |
 | (`implied sum`) | `auxiliary` | *facti* |
  
 
@@ -745,14 +745,14 @@ Here three verbal expressions are each constructed in indirect statement. They i
 
 Here the relative pronoun *quem* assumes an unexpressed antecedent functioning as the subject of the main clause, "(He) dies young whom the gods love."
 
-| Token | relationship 1 | related token 1 | relationship 1 | related token 1 |
+| Token | relationship 1 | related token 1 | relationship 2 | related token 2 |
 | --- | --- | --- | --- | --- | 
 | *quem* | `relative pronoun` | (`implied substantive`) | `direct object` | *amant* |
 | *dii* | `subject` | *amant* | ||
 |*amant* | `unit verb` | *quem* | ||
-| *adulescens* | `predicate` | *moritur* | ||
+| *adolescens* | `predicate` | *moritur* | ||
 | *moritur* | `unit verb` | (`root`) | ||
-| (`implied substantive`) | `subject` | *moritur* |
+| (`implied substantive`) | `subject` | *moritur* | ||
 
 
 

@@ -16,7 +16,7 @@ Any computational analysis of natural-language syntax must choose a syntactic mo
 ## Implementation of the `arsgrammatica` model
 
 
-The `arsgrammatica` package is based on three classes, representing the tokenization of a Latin passage, the syntactic anchor points of verbal expressions, and the graph of syntactic relations.
+The `arsgrammatica` package is based on three classes, representing the tokenization of a Latin passage, the syntactic anchor points of verbal expressions, and the complete graph of syntactic relations.
 
 - [Tokenization of a passage](./tokens.qmd) (the `Token` class)
 - AAT anchor points: [verbal units](./verbalunits.qmd) (the `VerbalExpression` class)

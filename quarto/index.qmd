@@ -26,7 +26,7 @@ A python package leveraging LLMs with [dspy](https://dspy.ai) to analyze the syn
 
 
 - [udsyntax](https://github.com/neelsmith/udsyntax) : get Universal Dependency data from spaCy into a simple syntax graph format
-- [aat](https://github.com/neelsmith/aat) : Agent-Action-Target model, a reductive model of natural-language syntax
+- [aat](https://github.com/neelsmith/aat) : Agent-Action-Target, a generic reductive model  of natural-language semantics that can be mapped on to language-specific syntax
 
 *Language-specific models* for detailed syntactic analysis:
 

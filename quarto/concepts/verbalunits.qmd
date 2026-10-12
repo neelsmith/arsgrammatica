@@ -11,7 +11,7 @@ Although `arsgrammatica` tries to account for *all* syntactic features of a Lati
 
 ## Verbal constructions
 
-`arsgrammatica` identifies three possible constructions as verbal expressions: finite verbs, infinitives and participles.
+`arsgrammatica` identifies four possible constructions as verbal expressions: finite verbs, infinitives and participles.
 
 1. *Every finite verb* constitutes a verbal expression. Latin finite verbs include the compound forms of the perfect and pluperfect tenses (composed of a past participle plus a form of *sum*) as well as conjugated verbs forms identifiable by tense-mood-voice-person-number. 
 2. *Infinitives* constitute a verbal expression when they are constructed as a verbal expression in indirect speech.
@@ -79,13 +79,13 @@ An infinitive construction in indirect speech.
 
 **Example**: *Collatinus negat verbis opus esse.*
 
-*negat* is `independent`; the infinitive *esse* is `indirect speech`.
+*negat* is `independent`; the infinitive *esse* is `indirect statement`.
 
 Note that as with finite verbs, compound verbs constructed from participles plus "to be" use the participle as the verbal expression. (In [the token graph](./syntactic-analysis.qmd), the form of "to be" will related to it as an `auxiliary`.)
 
 **Example**: *facturum enim se fuisse dixit*.
 
-*dixit* is an independent verbal expression, and *facturum fuisse* is the compound form of the future infinitive. The verbal unit will be anchored to the token *facturum* as `indirect statement`. In the token graph, *esse* will be related to it as `auxiliary`.
+*dixit* is an independent verbal expression, and *facturum fuisse* is the compound form of the future infinitive. The verbal unit will be anchored to the token *facturum* as `indirect statement`. In the token graph, *fuisse* will be related to it as `auxiliary`.
 
 
 ### `circumstantial participle`

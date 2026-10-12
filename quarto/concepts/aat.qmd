@@ -3,11 +3,12 @@ title: "`arsgrammatica` and the AAT model"
 ---
 
 
-Agent-Action-Target (AAT) is a *universal* syntactic model, but it takes a very different approach from the [Universal Dependency scheme](./ud.qmd). Instead of trying to map *every* syntactic feature of a given language onto a universal scheme, AAT is a *reductive* model focused on verbal ideas (actions), with their immediate subjects and objects (actors and targets).
+Agent-Action-Target (AAT) is a *universal* model of a small set of semantic features that can be mapped on to the syntax of specific languages. In contrast to the [Universal Dependency scheme](./ud.qmd), mapping AAT to syntax is *reductive*: it focuses on verbal ideas (actions), with their immediate subjects and objects (actors and targets), and ignores other features.
+
 In Latin, AAT's actors and targets correspond to subjects and direct objects of transitive active verbs, and to agents and subjects of transitive passive verbs. AAT's graph maintains coordinated or subordinated ranking of its actions, so it is possible to construct a semantically compatible AAT graph using a subset of the tokens in `arsgrammatica`'s dependency graph. 
 
 ::: {.callout-tip}
-The `arsgrammatica` package includes a function `aatgraph` that takes the sentence and token lists returned by `arsgrammatica`'s analysis functions and constructs an A-A-T graph. See [this recipe](../guides/aat.qmd).
+The `arsgrammatica` package includes a function `aatgraph` that takes the output of `arsgrammatica`'s analysis functions and constructs an AAT graph. See [this recipe](../guides/aat.qmd).
 :::
 
 
@@ -38,7 +39,7 @@ Consider a very short Latin sentence, and compare the visualization of the  `ars
 
 The similarity in their structure is obvious. Both graphs take *cano* for the root; the direct objects of the `arsgrammatica` graph correspond to the *targets* of the AAT graph. Note that the AAT reduction, working from the `arsgrammatica` tokenization where the enclitic *-que* was correctly handled as a distinct token from *virum*, omits the conjunction.
 
-Now consider a possible English translation of the same passage. Since the `aat` package ([https://github.com/neelsmith/aat](https://github.com/neelsmith/aat)) includes a module implementing the AAT scheme for English, we can juxtapse its AAT graph with the AAT reduction of the Latin passage.
+Now consider a possible English translation of the same passage. Since the `aat` package ([https://github.com/neelsmith/aat](https://github.com/neelsmith/aat)) includes a module implementing the AAT scheme for English, we can juxtapose its AAT graph with the AAT reduction of the Latin passage.
 
 > *I sing of arms and the man.*
 
