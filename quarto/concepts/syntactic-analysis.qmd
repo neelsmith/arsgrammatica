@@ -616,7 +616,7 @@ When a substantive stands in apposition to another substantive, it has the relat
 ### Praenomen
 
 
-A token that `arsgrammatica` classifies as `praenomen` is always used in conjunction with a fully spelled out *nomen* or *cognomen*. When a `praenomen` appears in abbreviated form, the related *nomen* or *cognomen* will clearly showing its case usage.
+A token that `arsgrammatica` classifies as `praenomen` is often used in conjunction with a fully spelled out *nomen* or *cognomen*. In these constructions, we relate it to the name with relatinship `praenomen`.
 
 **Example**: *Sp. Nautius – Octavium Maecium quidam eum tradunt – cum auxiliaribus cohortibus erat.*
 
@@ -628,9 +628,12 @@ A token that `arsgrammatica` classifies as `praenomen` is always used in conjunc
 | *erat* | `unit verb` | (`root`) |
 
 
-**Example**:  *M. Agrippa L. f. cos. tertium fecit*
 
-In this sentence, the token *M.* is in relation of `praenomen` with *Agrippa*. The token *L.*, on the other hand, refers to an individual with praenomen only, without corresponding nomen. We treat it as we would any other substantive. Here, we take it be genitive with *f.* and we take the abbreviations *f.* and *cos.* to be nominatives in apposition to *Agrippa*, *L(ucii) f(ilius)* and *co(n)s(ul)*.
+When, on the other hand, a `praenomen` appears without a *nomen* or *cognomen*, we treat it as we would any other substantive.
+
+**Example of `praenomen` token as a substantive**:  *M. Agrippa L. f. cos. tertium fecit*
+
+In this sentence, the token *M.* is in relation of `praenomen` with *Agrippa*. The token *L.*, on the other hand, refers to an individual with praenomen only, without corresponding nomen. Here, we take it be a genitive form *L(ucii)* standing in `genitive` relationship to *f.* We take the abbreviations *f.* and *cos.* to be nominatives in apposition to *Agrippa*, *L(ucii) f(ilius)* and *co(n)s(ul)*.
 
 | Token | relationship | related token |
 | --- | --- | --- |

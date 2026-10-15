@@ -9,7 +9,7 @@ In `arsgrammatica` the `Token` class is the primary implementation of these idea
 
 ## Identifiers
 
-Although `arsgrammatica` can analyze strings of text in Latin, it is primarily intended to analyze passages of Latin with citation references such as CTS URNs. In tokenizing a passage, `arsgrammatica` tracks the citation and ensures that all tokens are uniquely identified within a given citation context.
+Although `arsgrammatica` can analyze strings of text in Latin, it is primarily intended to analyze passages of Latin with citation references such as CTS URNs. In tokenizing a passage, `arsgrammatica` tracks the citation and ensures that all tokens are uniquely identified within a sentence.
 
 ::: {.callout-note}
 ## Extending CTS URNs to identify tokens
@@ -25,7 +25,7 @@ Based on their orthography and content, tokens are classified with one of the fo
 ### `praenomen`
 
 
-When a Latin name appears in the form *praenomen nomen*, we take the praenomen as distinct token type. Most *praenomina* are so common that they are abbreviated. In these instances, we take the abbreviated praenomen together with its punctuating period as a single token.
+When a Latin name appears in the form *praenomen nomen*, we take the praenomen as distinct token type. Most *praenomina* are so common that they are abbreviated. In these instances, we take the abbreviated praenomen together with its punctuating period as a single token, whether or not there is an associated *nomen*.
 
 **Example**:  *M. Agrippa L. f. cos. tertium fecit*
 
@@ -119,7 +119,7 @@ There are three circumstances where `arsgrammatica` inserts implied tokens into 
 
 ### Elided forms of `sum`
 
-The verb `sum` ("to be") is often elided in the present tense. A new token with unique ID must be added to the token table, and an entry added to the list of verbal expressions. 
+The verb `sum` ("to be") is often elided in the present tense. A new token with unique ID must be added to the token table. Unless if functions as an auxiliary, an entry must also be added to the list of verbal expressions. 
 
 **Example**: *omnia praeclara rara.* 
 

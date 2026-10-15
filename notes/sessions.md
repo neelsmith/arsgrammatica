@@ -33,6 +33,10 @@ Follow-up, same day: Neel found the third review too long to work from and asked
 
 ---
 
+Also same day: a single-page review of `quarto/concepts/tokens.qmd` is saved as `notes/tokens_review.md` (18 items). A re-check of the revised `analysisformat.qmd` was given in conversation only. Most items were fixed; still open are uniqueness of real-token IDs, the implied-token context ("analysis" should be "sentence"), and `relatedtoken1` in the `#!lm` example.
+
+---
+
 ## 2026-10-12
 
 **Branch:** `wip` (at `f05a476`)
