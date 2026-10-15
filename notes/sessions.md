@@ -29,6 +29,10 @@ Main new issues:
 
 ---
 
+Follow-up, same day: Neel found the third review too long to work from and asked for a review of `quarto/reference/analysisformat.qmd` alone. That review is saved as `notes/analysisformat_review.md` (15 items: errors, open questions, clarifications).
+
+---
+
 ## 2026-10-12
 
 **Branch:** `wip` (at `f05a476`)

@@ -11,4 +11,4 @@ Actual tokens:
 Implied tokens:
 
 
-`implied sum`, `continued verb`, `implied substantive` 
+`implied sum`, `implied verb`, `implied substantive` 

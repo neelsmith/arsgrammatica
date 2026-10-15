@@ -6,13 +6,13 @@ title: Serialization format of analyses
 
 ## Block structure
 
-Syntactic analyses produce a list of `Sentence` objects, `VerbalExpression` objects, and `TokenAnalysis` objects. These are serialized to a plain-text format with delimited-text data blocks identified by labels for each, identified by the labels `#!sentences`, `#!verbal_units` and `#!tokens` respectively. A fourth, optional block with metadata about the language model and its reasoning is identified by the label `#!lm`. Blocks may appear in any order and may repeat. (This means it that concatenating data from multiple analyses results in a valid serialization). 
+Syntactic analyses produce a list of `Sentence` objects, `VerbalExpression` objects, and `TokenAnalysis` objects. These are serialized to a plain-text format with delimited-text data blocks identified by labels for each, identified by the labels `#!sentences`, `#!verbal_units` and `#!tokens` respectively. A fourth, optional block with metadata about the language model and its reasoning is identified by the label `#!lm`. Blocks may appear in any order and may repeat. (This means that concatenating data from multiple analyses results in a valid serialization). 
 
-The delimited-text structure of each block's data directly translates the structure of the object it is serializing. `None` fields are serialized as an empty string (`""`). By default, the pipe character `|` is used as a delimiter in delimited-text blocks.
+The delimited-text structure of each block's data directly translates the structure of the object it is serializing. `None` fields are serialized as an empty string (`""`). Programs may choose to allow users to specify a delimiter string within delimited-text blocks; by default, the pipe character `|` is used as a delimiter. The value of the delimiter string may not be used within the field values of a row.
 
 ## Field structure of each block
 
-The structure of each block type is illustrated with the serialization of an analysis of a passage with text content `arma virumque cano` and CTS URN `urn:cts:latinLit:phi0690.phi003.omar:1.1`.
+The structure of each block type is illustrated with the serialization of an analysis of a passage with text content `arma virumque cano.` and CTS URN `urn:cts:latinLit:phi0690.phi003.omar:1.1`.
 
 ### `#!sentences`
 
@@ -48,14 +48,13 @@ urn:cts:latinLit:phi0690.phi003.omar:1.1|t3|independent
 Token analysis blocks begin with a header `context|id|tokentype|text|lemma|related|relationship`.
 
 
-Entries in the table for tokens are *ordered* by the position of the token in document order. Each token is identified by a CTS URN plus token ID, followed by the surface form appearing in the passage and a lemma (headword). The graph structure is recorded by two fields identifying a token by its ID, and classifying the relationship of the two tokens. 
-
+Entries in the table for tokens are *ordered* by the position of the token in document order except for implied tokens. Each token is identified by a CTS URN plus token ID, followed by the surface form appearing in the passage and a lemma (headword). The graph structure is recorded by two fields: `related` gives the ID of the related node in the graph, and `relationship` classifies the edge between the two nodes.  Note that `related` could be a real token, an implied token, or the special value `root`.
 
 Tokens that are syntactically related to more than one node in the syntax graph have one row for each relation. Each repeated row will have the same values for `context`, `id`, `tokentype`, `text` and `lemma`: only the values of
 `related` and `relationship` will differ. These rows must appear together to satisfy the requirement that tokens appear in document order, but the sequence of rows for a token with multiple relations is not specified.
 
 
-In a successful analysis, all non-punctuation tokens have a value for `related` and `relationship`. Punctuation tokens appear in the table but are not related to any element of the syntax graph.  
+In a successful analysis, all non-punctuation tokens have a value for `related` and `relationship`. Punctuation tokens appear in the table but are not related to any element of the syntax graph, and will have empty values for `lemma`, `related` and `relationship`.
 
 **Example**: *arma virumque cano.*
 
@@ -88,7 +87,7 @@ urn:cts:latinLit:phi0690.phi003.omar:1.1|t4|punctuation|.|||
 ```
 
 
-Implied tokens have no specified order since they do not appear in the text: they may be added to the table at any point.
+Implied tokens have no specified order since they do not appear in the text: they may be added to the table at any point between the first token and last token of the sentence. The only requirement for ID values for implied tokens is that they must be unique across the current analysis. For their context, they may use the value of either the first or last context value in the current analysis. Note that if a single citation unit has multiple sentences with implied tokens, care must be taken to ensure that their ids do not conflict.
 
 
 **Example with implied token**: *omnia praeclara rara.*
@@ -97,26 +96,31 @@ This complete sentence has an implied form of *sum* for its main verb. The follo
 
 
 ```
+#!verbal_units
+context|token|syntactic_type
+sample:1|t2_implied|independent
+
+
 #!tokens
 context|id|tokentype|text|lemma|related|relationship
-|t0|lexical|omnia|omnis|t2_implied|subject
-|t1|lexical|praeclara|praeclarus|t0|adjectival
-|t2|lexical|rara|rarus|t2_implied|predicate
-|t2_implied|implied sum||sum|root|unit verb
-|t3|punctuation|.|||
+sample:1|t0|lexical|omnia|omnis|t1|adjectival
+sample:1|t1|lexical|praeclara|praeclarus|t2_implied|subject
+sample:1|t2|lexical|rara|rarus|t2_implied|predicate
+sample:1|t2_implied|implied sum||sum|root|unit verb
+sample:1|t3|punctuation|.|||
 ```
 
 ### `#!lm`
 
 
 
-The optional `#!lm` block is shaped differently. It has three `KEY=value` lines per sentence with keys (`MODEL`, `CONTEXT` and `REASONING`). These record the model that producse the analysis, the sentence, identified as a URN range, and the model's reasoning (collapsed to one line).
+The optional `#!lm` block is shaped differently. It has three `KEY=value` lines per sentence with keys `MODEL`, `CONTEXT` and `REASONING`. These record the model that produces the analysis, the sentence, identified as a URN range, and the model's reasoning (collapsed to one line).
 
 ```
 #!lm
 MODEL=litellm_proxy/anthropic/Claude Opus 5
-CONTEXT=urn:cts:latinLit:phi0690.phi003.omar:1.1.t0-urn:cts:latinLit:phi0690.phi003.omar:1.1.t3
-REASONING="arma virumque cano" = "I sing of arms and a man." The only verbal expression is the finite verb "cano" (1st sg. present indicative active), an independent main verb, transitive active, with relatedtoken1 = 'root'. "arma" (neuter accusative plural) and "virum" (accusative singular) are both direct objects of "cano". The enclitic "-que" (here tokenized separately as "que") is a coordinating conjunction joining the two nouns: relatedtoken1 -> "arma", relatedtoken2 -> "virum", both relations 'coordinating conjunction'. Each noun independently keeps its own 'direct object' relation to "cano". No implied tokens are needed; no ambiguity of note ("virum" could theoretically be a genitive plural of "vir", but "arma virumque cano" is unambiguously accusative singular here as a second object of "cano").
+CONTEXT=urn:cts:latinLit:phi0690.phi003.omar.tokens:1.1.t0-urn:cts:latinLit:phi0690.phi003.omar.tokens:1.1.t4
+REASONING="arma virumque cano" = "I sing of arms and a man." The only verbal expression is the finite verb "cano" (1st sg. present indicative active), an independent main verb, with relatedtoken1 = 'root'. "arma" (neuter accusative plural) and "virum" (accusative singular) are both direct objects of "cano". The enclitic "-que" (here tokenized separately as "que") is a coordinating word joining the two nouns: related -> "arma", related -> "virum", both relations 'coordinating word'. Each noun independently keeps its own 'direct object' relation to "cano". No implied tokens are needed; no ambiguity of note ("virum" could theoretically be a genitive plural of "vir", but "arma virumque cano" is unambiguously accusative singular here as a second object of "cano").
 
 
 ```
