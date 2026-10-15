@@ -2,6 +2,10 @@
 title: Examples of complete syntactic analyses
 ---
 
+::: {.callout-warning}
+## Document may be out of date
+Content was generated with an earlier version of the `arsgrammatica` schema and needs to be regenerated to guarantee it matches the 1.0 specification.
+:::
 
 Four passages from `arsgrammatica`'s training set illustrate every category of syntactic relationship defined by `arsgrammatica`.
 

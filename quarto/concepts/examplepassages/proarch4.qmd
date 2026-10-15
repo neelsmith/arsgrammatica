@@ -2,6 +2,11 @@
 title: Cicero, *Pro Archia* 4
 ---
 
+::: {.callout-warning}
+## Document may be out of date
+Content was generated with an earlier version of the `arsgrammatica` schema and needs to be regenerated to guarantee it matches the 1.0 specification.
+:::
+
 > quod si mihi a vobis tribui concedique sentiam, perficiam profecto ut hunc A. Licinium non modo non segregandum, cum sit civis, a numero civium verum etiam, si non esset, putetis asciscendum fuisse.
 
 ![Syntax graph of Cicero, *Pro Archia* 4](../imgs/passage3.png)
