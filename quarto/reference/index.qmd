@@ -2,11 +2,6 @@
 title: Reference
 ---
 
-## Code
-
-- [API docs](../arsgrammatica-api-docs.html)
-- [testing with `pytest`](./testing.qmd)
-
 ## Controlled vocabulary
 
 - [values used in recording verbal expressions](./vuvalues.qmd)
@@ -24,6 +19,12 @@ title: Reference
 
 - [command-line scripts](./utilities.qmd)
 
+
+
+## Code
+
+- [API docs](../arsgrammatica-api-docs.html)
+- [testing with `pytest`](./testing.qmd)
 
 
 ## Design

@@ -8,7 +8,7 @@ In `arsgrammatica` the `TokenAnalysis` class is the primary implementation of th
 :::
 
 
-When `arsgrammatica` analyses a passage of Latin, every non-punctuation token is related in a graph structure to one or more of the following: other tokens in the text, implied tokens, or a hypothetical root element. This page summarizes all relationship categories that `arsgrammatica` recognizes. For ease of human reading, examples are presented in a simple tabular form not identical to the [format used to serialize analyses](../reference/tokenizationformat.qmd).
+When `arsgrammatica` analyses a passage of Latin, every non-punctuation token is related in a graph structure to one or more of the following: other tokens in the text, implied tokens, or a hypothetical root element. This page summarizes all relationship categories that `arsgrammatica` recognizes. For ease of human reading, examples are presented in a simple tabular form not identical to the [format used to serialize analyses](../reference/analysisformat.qmd).
 
 
 ## Constructions of verbal expressions
@@ -40,7 +40,7 @@ All compound forms using *sum* with a participle treat the participle as the ver
 | *condita* | `unit verb` | (`root`) |
 | *est* | `auxiliary` | *condita* |
 
-Similarly, when gerundive forms are in predicate position with a form of *sum*, the gerundive + *sum* is treated as a compound form. The gerundive classified like any other finite or infinitive form, and the form of *sum* relates to it as `auxiliary`.
+Similarly, when gerundive forms are in predicate position with a form of *sum*, the gerundive + *sum* is treated as a compound form. The gerundive is classified like any other finite or infinitive form, and the form of *sum* relates to it as `auxiliary`.
 
 **Example**: *Carthago delenda est*.
 
@@ -174,7 +174,7 @@ Here, *subeundam esse* is a compound form in indirect statement after *intellege
 
 | Token | relationship | related token |
 | --- | --- | --- |
-| *subeundam* | `indirect speech` | *intellegebat* | 
+| *subeundam* | `indirect statement` | *intellegebat* | 
 | *esse* | `auxiliary` | *subeundam* |
 | *intellegebat* | `unit verb` | (`root`) |
 
@@ -203,7 +203,11 @@ When an infinitive is used to complete the semantics of a verbal expression with
 
 ## A-A-T relations
 
-The Agent-Action-Target model focuses on two special relations to verbal expressions: the agent and the target. In Latin (as in English), these relations are constructed differently depending on the voice of the verbal expression. *Agency* is expressed by the *subject* of transitive active, intransitive, and linking verbs, and by the ablative of *agent* construction with passive verbs. *Target* status is expressed by the *direct object* of transitive active verbs, the *predicate* of linking verbs, and by the *subject* of transitive passive verbs.
+The Agent-Action-Target model focuses on two special relations to verbal expressions: the agent and the target. In Latin (as in English), these relations are constructed differently depending on the voice of the verbal expression. 
+
+In active-voice verbs and deponent verbs, agency is expressed by the `subject` relationship. If the verb has a `direct object`, the object is the target of the A-A-T model. If a linking verb (copula) has a nominative `predicate`, the predicate is the target. Note that non-nominative predicates (illustrated below) are not treated as targets in the A-A-T model.
+
+In passive voice verbs that are not deponent, the `subject` relationship expresses the target. Agency is expressed either by the `agent-ablative` or the `agent-dative` relationship.
 
 ### Subject
 
@@ -216,6 +220,7 @@ A substantive functioning as the grammatical subject of a verbal expression is r
 | --- | --- | --- |
 | *Lucumo* | `subject` | *erat* |
 | *erat* | `unit verb` | (`root`) |
+| *filius* | `predicate` | *erat* |
 
 
 ### Agent
@@ -236,14 +241,35 @@ The headword of a prepositional phrase expressing agency with passive verbs (tha
 
 > See below on objects of prepositions.
 
-Compound forms of the perfect sometimes and compounds formed from the gerundive + *sum* regularly express agency with a substantive in the dative cases. We relate these substantives to the verb as `agent-dative`.
+
+When the gerundive is in a compound construction with an explicit or implicit form of *sum*, agency is expressed by a substantive in the dative case, which is related as `agent-dative`.
+
+**Example**: *Caesari omnia uno tempore erant agenda*
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *Caesari* | `agent-dative` | *agenda* |
+| *erant* | `auxiliary` | *agenda* |
+| *agenda* | `verbal unit` | (`root`) |
+
+
+**Example**: *nunc pede libero pulsanda tellus*
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *pede* | `agent-dative` | *pulsanda* |
+| *pulsanda* | `unit verb` | (`root`) |
+| *tellus* | `subject` | *pulsanda* |
+| (`implied sum`) | `auxiliary` | *pulsanda* |
+
+Compound forms of the perfect sometimes admit a similar construction.
 
 
 **Example**: *res silentio praeterita nobis est.*
 
 | Token | relationship | related token |
 | --- | --- | --- |
-| *res* | `subject` | `praeterita` | 
+| *res* | `subject` | *praeterita* | 
 | *praeterita* | `unit verb` | (`root`) |
 | *nobis* | `agent-dative` | *praeterita* | 
 | *est* | `auxiliary` | *praerterita* |
@@ -271,7 +297,7 @@ The direct object of a transitive active verb is related to the verbal expressio
 
 We use the `predicate` relation in three ways. 
 
-1) Substantives or adjectives serving as predicates of linking (copulative) verbs. 
+1) Substantives or adjectives serving as predicates of linking (copulative) verbs. These are *targets* in the A-A-T model.
 
 **Example**: *Lucumo Demarati Corinthii filius erat*.
 
@@ -282,7 +308,7 @@ We use the `predicate` relation in three ways.
 | *filius* | `predicate` | *erat* |
 | *erat* | `unit verb` | (`root`) |
 
-2) A substantive describing the role or state in which the subject performs an action.
+2) A substantive describing the role or state in which the subject performs an action. Note that these are *not* targets in the A-A-T model.
 
 **Example**: *Lucumo superfuit patri bonorum omnium heres.*
 
@@ -293,7 +319,7 @@ We use the `predicate` relation in three ways.
 | *heres* | `predicate` | *superfuit* |
 
 
-3) A substantive describing the direct object of a verb qualifying the result of the action, typically after verbs of naming, calling, thinking, judging or showing such as  *appellare, vocare, creare, facere, habere, iudicare, putare, aestimare, se praebere*, or  *reddere*.
+3) A substantive describing the direct object of a verb qualifying the result of the action, typically after verbs of naming, calling, thinking, judging or showing such as  *appellare, vocare, creare, facere, habere, iudicare, putare, aestimare, se praebere*, or  *reddere*. We relate these as `predicate` to the substantive direct object. Note that these are *not* targets in the A-A-T model.
 
 **Example**: *Ciceronem consulem creaverunt.*
 
@@ -301,7 +327,7 @@ We use the `predicate` relation in three ways.
 | Token | relationship | related token |
 | --- | --- | --- |
 | *Ciceronem* | `direct object` | *creaverunt* | 
-| *consulem* | `predicate` | *creaverunt* |
+| *consulem* | `predicate` | *Ciceronem*|
 | *creaverunt* | `unit verb` | (`root`) |
 
 
@@ -590,7 +616,7 @@ When a substantive stands in apposition to another substantive, it has the relat
 ### Praenomen
 
 
-A token that `arsgrammatica` classifies as `praenomen` is an abbreviation used in conjunction with a fully spelled out *nomen* or *cognomen*. The abbreviated *praenomen* relates to the full form clearly showing its case usage as `praenomen`.
+A token that `arsgrammatica` classifies as `praenomen` is always used in conjunction with a fully spelled out *nomen* or *cognomen*. When a `praenomen` appears in abbreviated form, the related *nomen* or *cognomen* will clearly showing its case usage.
 
 **Example**: *Sp. Nautius – Octavium Maecium quidam eum tradunt – cum auxiliaribus cohortibus erat.*
 
@@ -604,7 +630,7 @@ A token that `arsgrammatica` classifies as `praenomen` is an abbreviation used i
 
 **Example**:  *M. Agrippa L. f. cos. tertium fecit*
 
-In this sentence, the token *M.* is in relation of `praenomen` with *Agrippa*. The token *L.*, on the other, refers to an individual with praenomen only, without corresponding nomen. We treat it as we would any other substantive. Here, we take it be genitive with *f.* and we take the abbreviations *f.* and *cos.* to be nominatives in apposition to *Agrippa*, *L(ucii) f(ilius)* and *co(n)s(sul)*.
+In this sentence, the token *M.* is in relation of `praenomen` with *Agrippa*. The token *L.*, on the other hand, refers to an individual with praenomen only, without corresponding nomen. We treat it as we would any other substantive. Here, we take it be genitive with *f.* and we take the abbreviations *f.* and *cos.* to be nominatives in apposition to *Agrippa*, *L(ucii) f(ilius)* and *co(n)s(ul)*.
 
 | Token | relationship | related token |
 | --- | --- | --- |
@@ -774,7 +800,7 @@ The relative pronoun *quibus* refers to *Latini* in the main clause. In the rela
 ## Syntactic dependencies of implied tokens
 
 
-The discussion of [tokenization](./tokens.qmd) identified three categories *implied* tokens that `arsgrammatica` recognizes:  `implied sum`, `implied verb`, `implied substantive`. These implied nodes will appear in the token table with text value `None`. We treat their syntactic relations in exactly the same way as if they were  instantiated by a real token in the text. 
+The discussion of [tokenization](./tokens.qmd) identified three categories of *implied* tokens that `arsgrammatica` recognizes:  `implied sum`, `implied verb`, `implied substantive`. These implied nodes will appear in the token table with text value `None`. We treat their syntactic relations in exactly the same way as if they were  instantiated by a real token in the text. 
 
 ### Implied *sum*
 

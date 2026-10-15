@@ -4,6 +4,31 @@ A running record of what Claude actually did in this repo, session by session, n
 
 ---
 
+## 2026-10-15
+
+**Branch:** `wip`
+
+**Third review of the revised syntax model and serialization format.** No code was written and no `quarto/` files were edited. Findings are in `notes/syntax_model_revision_review_3.md`.
+
+New in this revision:
+- a `parataxis` syntactic type;
+- the A-A-T mapping rewritten by voice;
+- `agent-dative` narrowed;
+- `predicate` use 3 attached to the object;
+- `#!verbal_units` reduced to 3 columns and `#!tokens` to 7;
+- rules for repeated rows and for placing implied tokens.
+
+Main new issues:
+- the implied-token example in `analysisformat.qmd` is malformed: its header says `relationship1`, its fields are shifted, and its relations contradict SA;
+- punctuation rows have an extra field;
+- membership of implied tokens in sentences is undefined;
+- review text was pasted into SA:246;
+- the `agent-dative` example *pede libero* is an ablative;
+- the `praenomen` "always" rule contradicts *L. f.*;
+- implied-token type names conflict with `tokentypes.qmd` (`continued verb` vs `implied verb`).
+
+---
+
 ## 2026-10-12
 
 **Branch:** `wip` (at `f05a476`)

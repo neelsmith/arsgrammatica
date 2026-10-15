@@ -65,7 +65,7 @@ Neel marked items ✅ in the first note. I checked each one against the current 
 
 | # | Item | Status |
 |---|---|---|
-| 1 | Parataxis has no verbal-unit syntactic type | **Still open.** SA:105–124 is reworded, but VU still defines `dependent` as "introduced by a subordinating word" (VU:48) and lists no `parataxis` type. What type do *videam* and *scribas* get? |
+| ✅ 1 | Parataxis has no verbal-unit syntactic type | **Still open.** SA:105–124 is reworded, but VU still defines `dependent` as "introduced by a subordinating word" (VU:48) and lists no `parataxis` type. What type do *videam* and *scribas* get? |
 | 2 | `predicate` used with non-linking verbs | Resolved: SA:270–305 defines three uses. The A-A-T paragraph still mentions only the first use (B2). |
 | 3 | *Unde venistis?* analyzed as an indirect question | Resolved (SA:851–852). |
 | 4 | Gerundives always transitive passive; dative of agent | Resolved: semantic types are gone and `agent-dative` is added. |
@@ -80,7 +80,7 @@ Neel marked items ✅ in the first note. I checked each one against the current 
 | 13 | `direct quote` scope | Resolved in SA:55–77. VU:56 still says "Finite verbs in directly quoted speech", which could be read to include *conveniat* in SA's own example. That verb is presumably `dependent`. |
 | 14 | "Every non-punctuation token…" | Resolved (SA:11). Praenomina, abbreviations and numerals now get relations. |
 | 15 | "Three constructions" with four listed | Resolved. |
-| 16 | `indirect speech` vs `indirect statement` | **Mostly resolved.** SA:177 still has *subeundam* `indirect speech`. |
+| ✅ 16 | `indirect speech` vs `indirect statement` | **Mostly resolved.** SA:177 still has *subeundam* `indirect speech`. |
 | 17 | *esse* vs *fuisse* | Resolved. |
 | 18 | Auxiliary attached to itself | Resolved. |
 | 19 | Row with swapped columns | Resolved. |
@@ -99,17 +99,17 @@ Neel marked items ✅ in the first note. I checked each one against the current 
 
 ### A. Serialization (`analysisformat.qmd`)
 
-1. **`#!verbal_units` still has `semantic_type`.** AF:34 and AF:41–42 give the header `context|token|syntactic_type|semantic_type`, and the example row has `transitive active`. This contradicts the removal of semantic classification. Either drop the column or say that it is retained and left empty.
+1. ✅ **`#!verbal_units` still has `semantic_type`.** AF:34 and AF:41–42 give the header `context|token|syntactic_type|semantic_type`, and the example row has `transitive active`. This contradicts the removal of semantic classification. Either drop the column or say that it is retained and left empty.
 2. **The `#!lm` example uses retired vocabulary.** The REASONING text (AF:96) mentions "transitive active", `relatedtoken1`/`relatedtoken2` and 'coordinating conjunction'. Readers may take it as current.
-3. **The `verbalunit` column is never explained.** In the example only *cano* has a value (its own ID, `t3`), and *arma* and *virum* are empty. Does it mean "this token anchors a verbal unit"? Or "the verbal unit this token belongs to"? If the second, why are the objects empty?
-4. **Where do implied tokens go, and what do they contain?** AF:51 orders rows by "the position of the token in document order", but implied tokens have no position in the text. Three things need stating:
+3. ✅ **The `verbalunit` column is never explained.** In the example only *cano* has a value (its own ID, `t3`), and *arma* and *virum* are empty. Does it mean "this token anchors a verbal unit"? Or "the verbal unit this token belongs to"? If the second, why are the objects empty?
+4. ✅ **Where do implied tokens go, and what do they contain?** AF:51 orders rows by "the position of the token in document order", but implied tokens have no position in the text. Three things need stating:
    - where implied tokens are placed in the row order;
    - what their `tokentype` is (none of the six categories fits; compare item 10);
    - what goes in `text` and `lemma`. The text is presumably empty, since `None` is written as `""`. Is the lemma `sum` for an implied *sum*?
-5. **Should a token's repeated rows agree?** With one row per relation, `context`, `tokentype`, `text`, `lemma` and `verbalunit` repeat. Must they be identical across a token's rows? Must the rows be contiguous? AF:72 implies contiguity ("the unique set of tokens appears in document order"), but doesn't state it.
-6. **The punctuation row has a lemma.** AF:68 and AF:83 give `.` the lemma `cano`, which looks like a copy-paste slip. It should probably be empty.
-7. **Does the sentence include its final punctuation?** The `#!sentences` example ends the sentence at `t3`, but the `#!tokens` example includes `t4` (`.`). So it's unclear whether final punctuation belongs to the sentence. This matters because the reader currently finds sentence boundaries by row position (see `notes/serialization_formats.md`).
-8. **Typos in AF:**
+5. ✅ **Should a token's repeated rows agree?** With one row per relation, `context`, `tokentype`, `text`, `lemma` and `verbalunit` repeat. Must they be identical across a token's rows? Must the rows be contiguous? AF:72 implies contiguity ("the unique set of tokens appears in document order"), but doesn't state it.
+6. ✅ **The punctuation row has a lemma.** AF:68 and AF:83 give `.` the lemma `cano`, which looks like a copy-paste slip. It should probably be empty.
+7. ✅ **Does the sentence include its final punctuation?** The `#!sentences` example ends the sentence at `t3`, but the `#!tokens` example includes `t4` (`.`). So it's unclear whether final punctuation belongs to the sentence. This matters because the reader currently finds sentence boundaries by row position (see `notes/serialization_formats.md`).
+8. ✅ **Typos in AF:**
    - "metatadata", "it that" (9)
    - "table token" (51)
    - "Puncutuation" (54)
@@ -118,27 +118,27 @@ Neel marked items ✅ in the first note. I checked each one against the current 
 
 ### B. Model pages
 
-1. **The two `praenomen` definitions disagree.** TK:28–37 allows an unabbreviated praenomen (*Agrippa*). SA:593 still defines it as "an abbreviation used in conjunction with a fully spelled out *nomen* or *cognomen*". Also, *Agrippa* is a `praenomen` in *Agrippa Menenio* (TK:37) but the subject in *M. Agrippa* (SA:611). That's correct, but it means the token type depends on context. A sentence in TK saying the tokenizer has to decide this from context would help.
-2. **The A-A-T paragraph (SA:206) is out of step with the rest.**
+1. ✅ **The two `praenomen` definitions disagree.** TK:28–37 allows an unabbreviated praenomen (*Agrippa*). SA:593 still defines it as "an abbreviation used in conjunction with a fully spelled out *nomen* or *cognomen*". Also, *Agrippa* is a `praenomen` in *Agrippa Menenio* (TK:37) but the subject in *M. Agrippa* (SA:611). That's correct, but it means the token type depends on context. A sentence in TK saying the tokenizer has to decide this from context would help.
+2. ✅ **The A-A-T paragraph (SA:206) is out of step with the rest.**
    - It still uses the semantic-type vocabulary ("transitive active, intransitive, and linking verbs") that VU no longer defines.
    - It names only the ablative of agent, not `agent-dative`.
    - It names only the linking-verb `predicate` as a target. Is the predicate of use 3 (*consulem*) a target, or part of the target?
 
    Since VU's AAT table is gone, this paragraph and `concepts/aat.qmd` are now the only statement of the mapping.
-3. **The `agent-dative` scope is vague.** SA:239 says "compound forms of the perfect sometimes and compounds formed from the gerundive + *sum* regularly". Is `agent-dative` limited to compound forms? What about the dative of agent with a gerundive that is not in a compound with *sum*, e.g. an attributive `gerundive`? There is also a related question: should a dative after a simple passive be `dative` or `agent-dative`?
-4. **`predicate` use 3 attaches to the verb.** In *Ciceronem consulem creaverunt*, *consulem* → *creaverunt*, even though it describes *Ciceronem*. That may be intended, since it parallels use 2. But with multiple relations now allowed, it's worth stating explicitly that there is no link to the object.
+3. ✅ **The `agent-dative` scope is vague.** SA:239 says "compound forms of the perfect sometimes and compounds formed from the gerundive + *sum* regularly". Is `agent-dative` limited to compound forms? What about the dative of agent with a gerundive that is not in a compound with *sum*, e.g. an attributive `gerundive`? There is also a related question: should a dative after a simple passive be `dative` or `agent-dative`?
+4. ✅ **`predicate` use 3 attaches to the verb.** In *Ciceronem consulem creaverunt*, *consulem* → *creaverunt*, even though it describes *Ciceronem*. That may be intended, since it parallels use 2. But with multiple relations now allowed, it's worth stating explicitly that there is no link to the object.
 5. **`parataxis` and `direct quote` interact with subordination.** In *scias oportet quid discas*, *quid* is `subordinating word` → *scias*. That's fine, but it shows a paratactic verb can govern subordinate clauses. Its syntactic type (item 1) affects how renderers will rank it.
-6. **SA:11 links to the wrong page.** The link to "the format used to serialize analyses" points to `../reference/tokenizationformat.qmd`. It should be `analysisformat.qmd`.
+6. ✅ **SA:11 links to the wrong page.** The link to "the format used to serialize analyses" points to `../reference/tokenizationformat.qmd`. It should be `analysisformat.qmd`.
 7. **The direct-quote example (SA:67) is not formatted like the others.** It isn't italicized and mixes straight and curly quotation marks. SA:65 is also missing its final period.
 8. **Typos in SA and VU:**
-   - **SA:**
+   - ✅ **SA:**
      - "The gerundive classified" (43)
      - "dative cases" (239)
      - `praeterita` in code style (246)
      - *praerterita* (249)
      - "on the other" → "on the other hand", and "co(n)s(sul)" → "co(n)s(ul)" (607)
      - "three categories *implied* tokens" is missing "of" (777)
-   - **VU:**
+   - ✅ **VU:**
      - "will related" (81)
      - "will classified" (141)
      - "an entry with its unique" is missing "ID" (164)
