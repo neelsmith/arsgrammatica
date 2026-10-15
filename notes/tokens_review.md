@@ -21,7 +21,7 @@ Drafted 2026-10-15 on `wip`, against the working-tree version of `quarto/concept
 4. **Token URNs with the real IDs (the callout, line 16).** The example appends `t0` to the passage to get `…omar.tokens:1.t0`. With the code's composite IDs (`1.t0`), naive appending would give `…:1.1.t0`.
    - Say which part of the ID is appended.
    - How does an implied token, which has no place in the text, get a URN?
-5. **Classification depends on context, not just "orthography and content" (line 23).**
+5. ✅  **Classification depends on context, not just "orthography and content" (line 23).**
    - *Agrippa* is a `praenomen` in *Agrippa Menenio* (line 37) but presumably `lexical` in *M. Agrippa* (line 30). Say so explicitly.
    - The abbreviated praenomina *M.*, *C.*, *D.* and *L.* collide with the Roman numerals 1000, 100, 500 and 50, and *V* and *I* also collide with words. Add a sentence on how these are resolved.
 6. **Which enclitics count (lines 62–79)?** Only *-que* and *-ne* are illustrated.
@@ -45,11 +45,11 @@ Drafted 2026-10-15 on `wip`, against the working-tree version of `quarto/concept
 
 ## Minor
 
-15. **Line 83:** "phonetically" would be clearer as "spelled out as words".
-16. **Line 96:** "Lexical tokens written in standard orthography" is close to circular. Consider "any word not in the categories above".
+15. ✅  **Line 83:** "phonetically" would be clearer as "spelled out as words".
+16. ✅  **Line 96:** "Lexical tokens written in standard orthography" is close to circular. Consider "any word not in the categories above".
 17. **Small slips:**
-    - "explict" (line 153)
-    - a stray " ." at the end of line 100
-    - no final period on line 54
-    - the callout on lines 111–112 says "tokens graph", where other pages say "syntax graph"
-18. **Line 54:** "Any *other*" punctuation relies on the reader inferring "other than the periods that belong to praenomina and abbreviations". Say that explicitly.
+    -  ✅  "explict" (line 153)
+    -  ✅ a stray " ." at the end of line 100
+    -  ✅ no final period on line 54
+    -  ✅ the callout on lines 111–112 says "tokens graph", where other pages say "syntax graph"
+18.✅  **Line 54:** "Any *other*" punctuation relies on the reader inferring "other than the periods that belong to praenomina and abbreviations". Say that explicitly.

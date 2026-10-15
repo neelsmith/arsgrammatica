@@ -19,8 +19,7 @@ In practical terms, this means that the token's identifier could be used with a 
 
 ## Token categories
 
-Tokenization splits a string into meaningful units that can be analyzed. 
-Based on their orthography and content, tokens are classified with one of the following categories that will inform our subsequent analysis.
+Tokenization splits a string into meaningful units that can be analyzed. Based on their content as indicated by orthography and context, tokens are classified with one of the following categories that will inform our subsequent analysis.
 
 ### `praenomen`
 
@@ -51,7 +50,7 @@ Both *f.* and *cos.* are classified as `abbreviation`.
 
 ### `punctuation`
 
-Any other Unicode punctuation character, in editions of Latin texts most commonly including period, comma, question mark, semicolon, colon, parentheses and brackets of various kinds, single or double quotation marks, dashes or hyphens, is treated as a distinct token of type `punctuation`
+Other than the periods that belong to praenomina and abbreviation, any Unicode punctuation character (in editions of Latin texts most commonly including period, comma, question mark, semicolon, colon, parentheses and brackets of various kinds, single or double quotation marks, dashes or hyphens) is treated as a distinct token of type `punctuation`.
 
 **Example**: *arma virumque cano.*
 
@@ -80,7 +79,7 @@ Tokenization must also recognize the small number of frequently occurring words 
 
 ### `numeral`
 
-Any numeral written numerically rather than phonetically. 
+Any numeral written numerically rather than spelled out as words. 
 
 **Example**: *hiberna aberant ab eo milia passuum XXV.* 
 
@@ -93,11 +92,11 @@ All four tokens are *lexical* tokens.
 
 ### `lexical`
 
-Lexical tokens written in standard orthography.
+Any word not falling in one of the specialized categories above.
 
 **Example**: *arma virumque cano.*
 
-The tokens *arma*, *virum* and *cano* are all classified as `lexical`. (*que* is `enclitic` and the period `.` is `punctuation`) .
+The tokens *arma*, *virum* and *cano* are all classified as `lexical`. (*que* is `enclitic` and the period `.` is `punctuation`.)
 
 
 
@@ -109,7 +108,7 @@ The tokens *arma*, *virum* and *cano* are all classified as `lexical`. (*que* is
 
 ::: {.callout-note}
 This discussion focuses on adding implied tokens to the tokens table. For more on how elided forms of *sum* and understood repeated verb forms are documented in the list of verbal expressions, see the discussion of 
-[verbal units](./verbalunits.qmd).  For further discussion of how implied tokens are related to other tokens in the tokens graph, see the discussion of `arsgrammatica`'s  [graph of syntactic relations](./syntactic-analysis.qmd).
+[verbal units](./verbalunits.qmd).  For further discussion of how implied tokens are related to other tokens in the syntax graph, see the discussion of `arsgrammatica`'s  [graph of syntactic relations](./syntactic-analysis.qmd).
 :::
 
 
@@ -150,7 +149,7 @@ When parallel verbal constructions repeat the same verbal idea, the verb can be 
 **Example**: *sic eius adventus celebrabantur ut famam ingeni exspectatio hominis, exspectationem ipsius adventus admiratioque superaret.*
 
 
-Here, the conjunction *ut* introduces two parallel result clauses. The first has subject *exspectatio* and direct object *famam*; the second has subjects *adventus* and  *admiratio* and direct object *exspectationem*. The explict verb *superaret* for the first result clause (with singular subject) implies that we would repeat a (plural) form of *supero* for the second result clause.
+Here, the conjunction *ut* introduces two parallel result clauses. The first has subject *exspectatio* and direct object *famam*; the second has subjects *adventus* and  *admiratio* and direct object *exspectationem*. The explicit verb *superaret* for the first result clause (with singular subject) implies that we would repeat a (plural) form of *supero* for the second result clause.
 
 Understood repetition of a verb is quite common in long sections of indirect speech, where entire passages may appear without repeating any governing verb of speaking or thinking. 
 
