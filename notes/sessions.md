@@ -37,6 +37,10 @@ Also same day: a single-page review of `quarto/concepts/tokens.qmd` is saved as 
 
 ---
 
+Also same day: single-page reviews of `quarto/concepts/verbalunits.qmd` (`notes/verbalunits_review.md`, 17 items) and `quarto/concepts/syntactic-analysis.qmd` (`notes/syntactic_analysis_review.md`, 22 items).
+
+---
+
 ## 2026-10-12
 
 **Branch:** `wip` (at `f05a476`)
