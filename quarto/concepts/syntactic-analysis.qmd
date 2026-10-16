@@ -250,17 +250,7 @@ When the gerundive is in a compound construction with an explicit or implicit fo
 | --- | --- | --- |
 | *Caesari* | `agent-dative` | *agenda* |
 | *erant* | `auxiliary` | *agenda* |
-| *agenda* | `verbal unit` | (`root`) |
-
-
-**Example**: *nunc pede libero pulsanda tellus*
-
-| Token | relationship | related token |
-| --- | --- | --- |
-| *pede* | `agent-dative` | *pulsanda* |
-| *pulsanda* | `unit verb` | (`root`) |
-| *tellus* | `subject` | *pulsanda* |
-| (`implied sum`) | `auxiliary` | *pulsanda* |
+| *agenda* | `unit verb` | (`root`) |
 
 Compound forms of the perfect sometimes admit a similar construction.
 
@@ -272,7 +262,7 @@ Compound forms of the perfect sometimes admit a similar construction.
 | *res* | `subject` | *praeterita* | 
 | *praeterita* | `unit verb` | (`root`) |
 | *nobis* | `agent-dative` | *praeterita* | 
-| *est* | `auxiliary` | *praerterita* |
+| *est* | `auxiliary` | *praeterita* |
 
 
 ### Direct object
@@ -789,7 +779,7 @@ The relative pronoun *quibus* refers to *Latini* in the main clause. In the rela
 | Token | relationship  | related token |
 | --- | --- | --- | 
 | *Latini* | `subject` | *sustulerant* | 
-| *cum* | `adjectival` | *Latini* | 
+| *cum* | `adverbial` | *ictum* | 
 | *quibus* (t3) | `relative pronoun` | *Latini* | 
 | *quibus* (t3) | `object of preposition` | *cum* |
 | *ictum* | `unit verb` | *quibus* |  
@@ -815,6 +805,7 @@ This is a complete sentence, with a subject phrase *omnia praeclara* and a predi
 | --- | --- | --- | 
 | *omnia* | `adjectival` | *praeclara* |
 | *praeclara* | `subject` | (`implied sum`) |
+| (`implied sum`) | `unit verb` | (`root`) |
 | *rara* | `predicate` | (`implied sum`) |
 
 
@@ -841,6 +832,7 @@ Here three verbal expressions are each constructed in indirect statement. They i
 | --- | --- | --- | 
 | *Tarquinios* | `subject` | *adsuesse* |
 | *adsuesse* | `indirect statement` | (`implied verb`) |
+| (`implied verb`) | `unit verb` | (`root`) |
 | *initium* | `subject` | *factum* |
 | *factum* | `indirect statement` | (`implied verb`) |
 | (`implied sum`) | `auxiliary` | *factum* |

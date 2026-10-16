@@ -1,16 +1,17 @@
 # Review: `quarto/concepts/syntactic-analysis.qmd`
 
+
 Drafted 2026-10-15 on `wip`. This review covers only the committed version of `quarto/concepts/syntactic-analysis.qmd` (SA). The page is Neel's and read-only for Claude. Line numbers refer to it as of this date.
 
 ## Errors to fix
 
-1. **Line 253:** *agenda* has the relationship `verbal unit`. It should be `unit verb`.
-2. **The second `agent-dative` example is wrong (lines 256–263).** In *nunc pede libero pulsanda tellus*, *pede (libero)* is ablative ("with free foot"), not a dative of agent.
+1. ✅ **Line 253:** *agenda* has the relationship `verbal unit`. It should be `unit verb`.
+2. ✅ **The second `agent-dative` example is wrong (lines 256–263).** In *nunc pede libero pulsanda tellus*, *pede (libero)* is ablative ("with free foot"), not a dative of agent.
    - The sentence has gerundive + implied *sum*, but no agent at all. *pede* should be `ablative` → *pulsanda*.
    - For an example with an implied *sum* and a real dative, try something like *mihi eundum* or *Carthago nobis delenda*.
-3. **Line 275:** *praerterita* → *praeterita*.
-4. **Line 792:** *cum* `adjectival` → *Latini* looks misattached. *cum quibus* belongs to the relative clause ("with whom a treaty had been struck"), so it should be `adverbial` → *ictum*.
-5. **Implied verbal tokens have no rows of their own.** In these tables, other tokens point to the implied token, but it never appears as a row itself:
+3.  ✅ **Line 275:** *praerterita* → *praeterita*.
+4.  ✅ **Line 792:** *cum* `adjectival` → *Latini* looks misattached. *cum quibus* belongs to the relative clause ("with whom a treaty had been struck"), so it should be `adverbial` → *ictum*.
+5. ✅ **Implied verbal tokens have no rows of their own.** In these tables, other tokens point to the implied token, but it never appears as a row itself:
    - lines 814–818: (`implied sum`) for *omnia praeclara rara*
    - lines 840–849: (`implied verb`)
 
