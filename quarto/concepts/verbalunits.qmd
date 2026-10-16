@@ -14,9 +14,9 @@ Although `arsgrammatica` tries to account for *all* syntactic features of a Lati
 `arsgrammatica` identifies four possible constructions as verbal expressions: finite verbs, infinitives, participles and gerundives.
 
 1. *Every finite verb* constitutes a verbal expression. Latin finite verbs include the compound forms of the perfect and pluperfect tenses (composed of a past participle plus a form of *sum*) as well as conjugated verb forms identifiable by tense-mood-voice-person-number. 
-2. *Infinitives* constitute a verbal expression when they are constructed as a verbal expression in indirect speech.
+2. *Infinitives* constitute a verbal expression when when they are the verb of an indirect statement.
 3. *Participles* constitute a verbal expression when they have a *circumstantial* sense rather than purely *attributive* sense. 
-4. *Every gerundive* constitutes a verbal expression. When a gerundive appears in predicate position with a form of *sum*, the form of *sum* is treated as an auxiliary, analogously to the compound forms of the perfect system composed of a participle plus *sum*. Note: the *gerund* is treated as a substantive, and is *not* a verbal expression. Gerundives and gerunds share some overlapping forms, so the verbal expressions of gerundives must be carefully distinguished. (See examples below.)
+4. *Every gerundive* constitutes a verbal expression. In an attributive constructive, it will have the type `gerundive`. When a gerundive appears in predicate position with a form of *sum* (the "passive periphrastic"), the gerundive takes its type from its context (e.g., `independent`, `dependent`...) and the form of *sum* is treated as an auxiliary, analogously to the compound forms of the perfect system composed of a participle plus *sum*. Note: the *gerund* is treated as a substantive, and is *not* a verbal expression. Gerundives and gerunds share some overlapping forms, so the verbal expressions of gerundives must be carefully distinguished. (See examples below.)
 
 **Example**: *Legatos ad eum mittunt ad pacem faciendam.*
 
@@ -53,11 +53,17 @@ The verb *legit* is an `independent` verbal expression; *cresceret* is `dependen
 
 ### `direct quote`
 
-Finite verbs in directly quoted speech. 
+Syntactically top-level finite verbs in directly quoted speech that would be `unit verb` at the root level if the passage appeared directly rather than quoted.
 
 **Example**:  *'Tuum est' inquit, 'Servi regnum.'*
 
 *inquit* is an `independent` verbal unit, while *est* occurs in directly quoted speech and is classified as `direct quote`.
+
+Verbal constructions governed by direct quotes are constructed as they would be in any other context.
+
+**Example**: *"Vos," inquit, "videritis quid balteo conveniat"*
+
+*inquit* is an `independent` verbal unit and *videritis* relates to it as `direct quote`. *conveniat* is the verb of a dependent clause subordinate to *videritis*. It will be classifed as as `subordinate`.
 
 ### `aside`
 

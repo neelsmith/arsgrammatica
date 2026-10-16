@@ -4,14 +4,14 @@ Drafted 2026-10-15 on `wip`. This review covers the committed version of `quarto
 
 ## Contradictions to fix
 
-1. **The `direct quote` scope is too broad (line 56).** "Finite verbs in directly quoted speech" also covers subordinate verbs inside a quotation. But `syntactic-analysis.qmd` (lines 65–77) analyzes those normally: *conveniat* in *"Vos," inquit, "videritis quid balteo conveniat"* relates to *quid*, so it is presumably `dependent`. Say "the main verb(s) of directly quoted speech".
-2. **"Every gerundive" (line 19) vs the `gerundive` type (lines 122–129).**
+1. ✅  **The `direct quote` scope is too broad (line 56).** "Finite verbs in directly quoted speech" also covers subordinate verbs inside a quotation. But `syntactic-analysis.qmd` (lines 65–77) analyzes those normally: *conveniat* in *"Vos," inquit, "videritis quid balteo conveniat"* relates to *quid*, so it is presumably `dependent`. Say "the main verb(s) of directly quoted speech".
+2.  ✅  **"Every gerundive" (line 19) vs the `gerundive` type (lines 122–129).**
    - Line 19 says every gerundive is a verbal expression.
    - The type `gerundive` applies only to the attributive use.
    - Gerundive + *sum* takes the type of its context, e.g. `independent` or `indirect statement`.
 
    Lines 122–129 do say this, but line 19 reads as if the type is always `gerundive`. One sentence at line 19 would prevent the misreading.
-3. **The infinitive criterion is circular (line 17).** "Constitute a verbal expression when they are constructed as a verbal expression in indirect speech" defines the term with itself. Say "when they are the verb of an indirect statement".
+3.  ✅  **The infinitive criterion is circular (line 17).** "Constitute a verbal expression when they are constructed as a verbal expression in indirect speech" defines the term with itself. Say "when they are the verb of an indirect statement".
 4. **The *superaret* example (line 174).** *superaret* is written at the end of the *second* clause (*exspectationem … adventus admiratioque superaret*). A singular verb with a compound subject like *adventus admiratioque* is normal in Latin. So the more natural reading is the reverse of the page's:
    - the explicit verb belongs to the second clause;
    - the understood verb belongs to the first clause (*famam … exspectatio [superaret]*).
