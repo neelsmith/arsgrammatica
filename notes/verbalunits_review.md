@@ -52,13 +52,13 @@ Drafted 2026-10-15 on `wip`. This review covers the committed version of `quarto
     - the class `VerbalExpression`
 
     Pick one term for the item and one for the list.
-13. **"Token graph" vs "syntax graph".** Lines 91 and 95 say "token graph"; lines 109 and 133 say "syntax graph".
-14. **Line 9.** "e.g., for transitive active verbs" is the only remaining use of a retired semantic-type term. Consider "e.g., for active verbs with a direct object".
+13.  ✅ **"Token graph" vs "syntax graph".** Lines 91 and 95 say "token graph"; lines 109 and 133 say "syntax graph".
+14. ✅ **Line 9.** "e.g., for transitive active verbs" is the only remaining use of a retired semantic-type term. Consider "e.g., for active verbs with a direct object".
 
 ## Minor
 
-15. **Line 16:** "conjugated verbs forms" → "conjugated verb forms".
-16. **Line 113:** "**Example**" is missing its colon.
+15.  ✅ **Line 16:** "conjugated verbs forms" → "conjugated verb forms".
+16.  ✅**Line 113:** "**Example**" is missing its colon.
 17. **Duplicate examples.** *Legatos … ad pacem faciendam* and *Carthago delenda est* appear twice: at lines 21–27 and again at 124–133. That's fine, but the first pair could simply link forward.
 
 ## Related page (outside this review)

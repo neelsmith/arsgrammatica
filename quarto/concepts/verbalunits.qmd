@@ -6,14 +6,14 @@ title: "Verbal units: anchor points for syntactic analysis"
 In `arsgrammatica` the `VerbalExpression` class is the primary implementation of these ideas.
 :::
 
-Although `arsgrammatica` tries to account for *all* syntactic features of a Latin text, its analytic scheme is anchored in the reduced semantic model of Agent-Action-Target (AAT): all syntactic features are organized around explicit or implicit verbal ideas, that may optionally include agent/target elements (e.g., for transitive active verbs, subject/direct object elements). These verbal expressions (subject-verb ideas) most frequently correspond to clauses in an English translation. (Of course in Latin the subject may be implicit where that is not possible in English.) 
+Although `arsgrammatica` tries to account for *all* syntactic features of a Latin text, its analytic scheme is anchored in the reduced semantic model of Agent-Action-Target (AAT): all syntactic features are organized around explicit or implicit verbal ideas, that may optionally include agent/target elements (e.g., for active verbs with a direct object, subject/direct object elements). These verbal expressions (subject-verb ideas) most frequently correspond to clauses in an English translation. (Of course in Latin the subject may be implicit where that is not possible in English.) 
 
 
 ## Verbal constructions
 
 `arsgrammatica` identifies four possible constructions as verbal expressions: finite verbs, infinitives, participles and gerundives.
 
-1. *Every finite verb* constitutes a verbal expression. Latin finite verbs include the compound forms of the perfect and pluperfect tenses (composed of a past participle plus a form of *sum*) as well as conjugated verbs forms identifiable by tense-mood-voice-person-number. 
+1. *Every finite verb* constitutes a verbal expression. Latin finite verbs include the compound forms of the perfect and pluperfect tenses (composed of a past participle plus a form of *sum*) as well as conjugated verb forms identifiable by tense-mood-voice-person-number. 
 2. *Infinitives* constitute a verbal expression when they are constructed as a verbal expression in indirect speech.
 3. *Participles* constitute a verbal expression when they have a *circumstantial* sense rather than purely *attributive* sense. 
 4. *Every gerundive* constitutes a verbal expression. When a gerundive appears in predicate position with a form of *sum*, the form of *sum* is treated as an auxiliary, analogously to the compound forms of the perfect system composed of a participle plus *sum*. Note: the *gerund* is treated as a substantive, and is *not* a verbal expression. Gerundives and gerunds share some overlapping forms, so the verbal expressions of gerundives must be carefully distinguished. (See examples below.)
@@ -88,11 +88,11 @@ An infinitive construction in indirect speech.
 
 *negat* is `independent`; the infinitive *esse* is `indirect statement`.
 
-Note that as with finite verbs, compound verbs constructed from participles plus "to be" use the participle as the verbal expression. (In [the token graph](./syntactic-analysis.qmd), the form of "to be" will relate to it as an `auxiliary`.)
+Note that as with finite verbs, compound verbs constructed from participles plus "to be" use the participle as the verbal expression. (In [the syntax graph](./syntactic-analysis.qmd), the form of "to be" will relate to it as an `auxiliary`.)
 
 **Example**: *facturum enim se fuisse dixit*.
 
-*dixit* is an independent verbal expression, and *facturum fuisse* is the compound form of the future infinitive. The verbal unit will be anchored to the token *facturum* as `indirect statement`. In the token graph, *fuisse* will be related to it as `auxiliary`.
+*dixit* is an independent verbal expression, and *facturum fuisse* is the compound form of the future infinitive. The verbal unit will be anchored to the token *facturum* as `indirect statement`. In the syntax graph, *fuisse* will be related to it as `auxiliary`.
 
 
 ### `circumstantial participle`
@@ -110,7 +110,7 @@ The verb *est* is `independent` with subject *gloria* and predicate *laus*. Here
 
 When it is unclear whether to take the relation of a participle as attributive or circumstantial, **prefer the treatment as circumstantial participle**. 
 
-**Example**  *ille moriens, cum sciret sagittas hydrae Lernaeae felle tinctas quantam uim haberent ueneni, sanguinem suum exceptum Deianirae dedit*.
+**Example**:  *ille moriens, cum sciret sagittas hydrae Lernaeae felle tinctas quantam uim haberent ueneni, sanguinem suum exceptum Deianirae dedit*.
 
 The participle *moriens* agrees with *ille*, and the participle *tinctas* agrees with *sagittas*. Treat both as circumstantial participles defining a verbal expression.
 
