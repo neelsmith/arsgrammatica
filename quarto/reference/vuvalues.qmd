@@ -10,13 +10,10 @@ title: Allowed terms for documenting verbal expressions
 ## Syntactic type
 
 
-For finite verbs: `independent`, `dependent`, `direct quote`, `aside`
+For finite verbs and gerundives in passive periphrastics: `independent`, `dependent`, `direct quote`, `aside`, `parataxis`
 
 For infinitives: `indirect statement`
 
+For participles not in attributive concstruction: `circumstantial participle` 
 
-
-## Semantic type
-
-
-`transitive active`, `transitive passive`, `intransitive`, `linking verb`
+For other gerundives:  `gerundive`

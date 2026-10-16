@@ -1,5 +1,5 @@
 ---
-title: "Verbal units: anchor points for syntactic analysis"
+title: "Verbal expressions: anchor points for syntactic analysis"
 ---
 
 ::: {.callout-note}
@@ -13,8 +13,8 @@ Although `arsgrammatica` tries to account for *all* syntactic features of a Lati
 
 `arsgrammatica` identifies four possible constructions as verbal expressions: finite verbs, infinitives, participles and gerundives.
 
-1. *Every finite verb* constitutes a verbal expression. Latin finite verbs include the compound forms of the perfect and pluperfect tenses (composed of a past participle plus a form of *sum*) as well as conjugated verb forms identifiable by tense-mood-voice-person-number. 
-2. *Infinitives* constitute a verbal expression when when they are the verb of an indirect statement.
+1. *Every finite verb* constitutes a verbal expression. Latin finite verbs include the compound forms of the perfect passive system (composed of a past participle plus a form of *sum*) as well as conjugated verb forms identifiable by tense-mood-voice-person-number. 
+2. *Infinitives* constitute a verbal expression when when they are the verb of an indirect statement. Complementary infinitives and infinitives used substantivally are *not* verbal expressions.
 3. *Participles* constitute a verbal expression when they have a *circumstantial* sense rather than purely *attributive* sense. 
 4. *Every gerundive* constitutes a verbal expression. In an attributive constructive, it will have the type `gerundive`. When a gerundive appears in predicate position with a form of *sum* (the "passive periphrastic"), the gerundive takes its type from its context (e.g., `independent`, `dependent`...) and the form of *sum* is treated as an auxiliary, analogously to the compound forms of the perfect system composed of a participle plus *sum*. Note: the *gerund* is treated as a substantive, and is *not* a verbal expression. Gerundives and gerunds share some overlapping forms, so the verbal expressions of gerundives must be carefully distinguished. (See examples below.)
 
@@ -33,11 +33,11 @@ The gerundive *faciendam* is a verbal expression.
 
 ## Classifying verbal expressions
 
-`arsgrammatica` classifies verbal expressions according to *syntactic type*.
+`arsgrammatica` classifies verbal expressions according to *syntactic type*. These apply both to the explicit verbal explicit expressions listed above and the implied verbal expressions discussed below.
 
 ### `independent`
 
-Also called "main" or "principal" verbs, these are syntactically independent finite verbs: their clause is syntactically coherent by itself.
+Also called "main" or "principal" verbs, these are syntactically independent verbs: their clause is syntactically coherent by itself. The explicit or implied verb form will be finite (with tense, mood, voice, person and number).
 
 **Example**: *Quo usque tandem abutere, Catilina, patientia nostra?*
 
@@ -57,13 +57,13 @@ Syntactically top-level finite verbs in directly quoted speech that would be `un
 
 **Example**:  *'Tuum est' inquit, 'Servi regnum.'*
 
-*inquit* is an `independent` verbal unit, while *est* occurs in directly quoted speech and is classified as `direct quote`.
+*inquit* is an `independent` verbal expression, while *est* occurs in directly quoted speech and is classified as `direct quote`.
 
 Verbal constructions governed by direct quotes are constructed as they would be in any other context.
 
 **Example**: *"Vos," inquit, "videritis quid balteo conveniat"*
 
-*inquit* is an `independent` verbal unit and *videritis* relates to it as `direct quote`. *conveniat* is the verb of a dependent clause subordinate to *videritis*. It will be classifed as as `subordinate`.
+*inquit* is an `independent` verbal expression and *videritis* relates to it as `direct quote`. *conveniat* is the verb of a dependent clause subordinate to *videritis*. It will be classifed as as `subordinate`.
 
 ### `aside`
 
@@ -76,12 +76,12 @@ A finite verb that interrupts the syntactic flow of the surrounding text.
 
 ### `parataxis`
 
-A subordinate clause in the subjunctive introduced by a verb expressing ideas connected with necessity, wishes, preferences or commands (such as *oportet*, *necesse est*, *volo*, *peto*, or imperative *fac*) without any subordinating word. 
+A subjunctive verb governed without a subordinating word by a verb expressing ideas connected with necessity, wishes, preferences or commands (such as *oportet*, *necesse est*, *volo*, *peto*, or imperative *fac*) without any subordinating word. 
 
 
 **Example**: *Precor eam videam.*
 
-*Precor* is an `independent` verbal unit; the subjunctive *videam* is subordinated to it without any conjunction, and is classified as `parataxis`.
+*Precor* is an `independent` verbal expression; the subjunctive *videam* is subordinated to it without any conjunction, and is classified as `parataxis`.
 
 
 
@@ -98,7 +98,7 @@ Note that as with finite verbs, compound verbs constructed from participles plus
 
 **Example**: *facturum enim se fuisse dixit*.
 
-*dixit* is an independent verbal expression, and *facturum fuisse* is the compound form of the future infinitive. The verbal unit will be anchored to the token *facturum* as `indirect statement`. In the syntax graph, *fuisse* will be related to it as `auxiliary`.
+*dixit* is an independent verbal expression, and *facturum fuisse* is the compound form of the future infinitive. The verbal expression will be anchored to the token *facturum* as `indirect statement`. In the syntax graph, *fuisse* will be related to it as `auxiliary`.
 
 
 ### `circumstantial participle`
@@ -118,8 +118,7 @@ When it is unclear whether to take the relation of a participle as attributive o
 
 **Example**:  *ille moriens, cum sciret sagittas hydrae Lernaeae felle tinctas quantam uim haberent ueneni, sanguinem suum exceptum Deianirae dedit*.
 
-The participle *moriens* agrees with *ille*, and the participle *tinctas* agrees with *sagittas*. Treat both as circumstantial participles defining a verbal expression.
-
+The participle *moriens* agrees with *ille*, the participle *tinctas* agrees with *sagittas*, and the participle *exceptum* agrees with *sanginem*. Treat all three as circumstantial participles defining a verbal expression.
 
 
 
@@ -132,7 +131,16 @@ When a gerundive form is in attributive position with a substantive, its constru
 
 The gerundive *faciendam* is attributive to *pacem*, so its construction is `gerundive`.
 
+
+**Example**: *pontem faciendum curavit.*
+
+In the same way, we relate *faciendum* to *pontem* as `gerundive`
+
+
 When gerundive forms are in predicate position with a form of *sum*, the gerundive + *sum* is treated as a compound form and is classified like any other finite or infinitive form.
+
+
+
 
 **Example**: *Carthago delenda est*.
 
@@ -147,7 +155,7 @@ The phrase *delendam esse* is treated as a compound form anchored on *delendam*.
 
 ## Handling implied verbal expressions
 
-The discussion of [tokenization](./tokens.qmd) introduced the idea of *implied* verbal expressions. There are two circumstances where we need to create an entry in the list of verbal expressions for an implied verbal expression.
+The discussion of [tokenization](./tokens.qmd) introduced the idea of *implied* verbal expressions. We need to create an entry in the list of verbal expressions for an implied verbal expression if there is an omitted form of *sum*, or if a verb is understood to be repeated.
 
 
 ### Omitted forms of *sum*
@@ -157,7 +165,7 @@ The discussion of [tokenization](./tokens.qmd) introduced the idea of *implied* 
 This is a complete sentence, with a subject phrase *omnia praeclara* and a predicate *rara*. We record the implied form of "to be" with a new token entry, and enter the token's ID into the list of verbal expressions. Here, the implied token will be classified as syntactic type `independent`.
  
  
- Elision of *sum* can also occur with multiword compounds such as the perfect passive system. This situation does not require an entry in the verbal units table because the participle itself is a real token that will already be entered there to anchor the verbal expression.
+ Elision of *sum* can also occur with multiword compounds such as the perfect passive system. This situation does not require an entry in the verbal expressions table because the participle itself is a real token that will already be entered there to anchor the verbal expression.
 
  **Example**:  *inde P. Valerius iterum T. Lucretius consules facti.* 
  
@@ -177,8 +185,7 @@ When parallel verbal constructions repeat the same verbal idea, the verb can be 
 
 **Example**: *sic eius adventus celebrabantur ut famam ingeni exspectatio hominis, exspectationem ipsius adventus admiratioque superaret.*
 
-Here, the conjunction *ut* introduces two parallel result clauses. The first has subject *exspectatio* and direct object *famam*; the second has subjects *adventus* and *admiratio* and direct object *exspectationem*. The explicit verb *superaret* is recorded in the verbal entry table for the first result clause (with singular subject *exspectatio*); this implies that we would repeat a (plural) form of *supero* for the second result clause. We must add an entry to the token table, and an entry with its unique ID to the verbal expressions list. Like the verbal expression it repeats, it will be of syntactic type `dependent` (after *ut*).
-
+Here, the conjunction *ut* introduces two parallel result clauses. The first has subject *exspectatio* and direct object *famam*; the second has subjects *adventus* and *admiratio* and direct object *exspectationem*.  This pattern *subject1 object1, subject2 object2, verb* is a typical example of how Latin can understand *verb* as distributively applying to entire contexts like *subject1 object1* and *subject2 object2*. It also clarifies an important detail that will guide our construction of this passage. For a native speaker of English, a naive reading might immediately associate *superaret* with the nearest subject, *adventus admiratioque*, but this is clearly wrong. The subject/object pairings  *exspectatio*  / *fama* vs. *adventus admiratioque*  / *exspectationem* show that we must read *adventus admiratioque* as a plural subject, so we record the singular *superaret* must as the verb of the first result clause (with singular subject *exspectatio*). By implicatoin we must repeat a (plural) form of *supero* for the second result clause. We must add an entry to the token table, and an entry with its unique ID to the verbal expressions list. Like the verbal expression it repeats, it will be of syntactic type `dependent` (after *ut*).
 
 Implied repetition of verbal expressions is particularly common in indirect discourse. Entire passages may appear without repeating any governing verb of speaking or thinking. In this situation, we must add new token with unique ID to the token table, with `None` for its text value, and use its ID for new entry in the list of verbal expressions.
 
