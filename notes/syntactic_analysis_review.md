@@ -19,30 +19,30 @@ Drafted 2026-10-15 on `wip`. This review covers only the committed version of `q
 
 ## Contradictions and unclear rules
 
-6. **A-A-T: "nominative predicate" is the wrong criterion (line 208).**
+6. ✅ **A-A-T: "nominative predicate" is the wrong criterion (line 208).**
    - Line 208 makes a linking verb's *nominative* predicate the target. It adds that "non-nominative predicates (illustrated below) are not treated as targets".
    - But a linking verb's predicate is accusative in indirect statement (*dixit Lucumonem filium esse*). This is still predicate use 1, so presumably a target.
    - Meanwhile use 2's *heres* is nominative, yet explicitly not a target.
 
    The criterion that matches lines 300–322 is "use 1: the predicate of a linking verb", not the predicate's case.
-7. **A-A-T: gerundive compounds.** Line 210 maps agent and target for "passive voice verbs that are not deponent". Say explicitly that gerundive + *sum* follows the same mapping. The gerundive isn't a passive verb form in the morphological sense, yet it takes `agent-dative`.
-8. **`adverbial` is defined too narrowly (line 495).** It says "to a verbal expression", but the page itself attaches `adverbial` to other things:
+7. ✅ **A-A-T: gerundive compounds.** Line 210 maps agent and target for "passive voice verbs that are not deponent". Say explicitly that gerundive + *sum* follows the same mapping. The gerundive isn't a passive verb form in the morphological sense, yet it takes `agent-dative`.
+8. ✅ **`adverbial` is defined too narrowly (line 495).** It says "to a verbal expression", but the page itself attaches `adverbial` to other things:
    - prepositions → "a verb or adjective" (line 543)
    - *tertium* → *cos.*, a noun (line 645)
    - *et* → *tu*, a pronoun (line 702)
 
    Widen the definition, and say what heads are allowed.
-9. **Where a subordinate clause sits (lines 95 and 749).** Both lines say the subordinating word joins a clause "to a *preceding* expression". But the example's subordinate clause comes first (*cum … perlustrasset, pergit*). Drop "preceding".
-10. **Relative pronouns vs. `subordinating word`.**
+9. ✅ **Where a subordinate clause sits (lines 95 and 749).** Both lines say the subordinating word joins a clause "to a *preceding* expression". But the example's subordinate clause comes first (*cum … perlustrasset, pergit*). Drop "preceding".
+10. ✅ **Relative pronouns vs. `subordinating word`.**
     - Line 95 lists the relative pronoun as a kind of subordinating word.
     - But relatives never take the `subordinating word` relation. They take `relative pronoun` plus their function in the clause (lines 781–799).
 
     One sentence would prevent confusion.
-11. **Predicate use 3 in the passive.** In *Cicero consul creatus est*, there is no object for *consul* to attach to.
+11. ✅ ***Predicate use 3 in the passive.** In *Cicero consul creatus est*, there is no object for *consul* to attach to.
     - Which use applies?
     - Is it related to *Cicero* or to *creatus*?
     - Is it a target?
-12. **`agent-dative` vs. `dative`.** The text implies, but doesn't say, that the following are plain `dative`:
+12. ✅ **`agent-dative` vs. `dative`.** The text implies, but doesn't say, that the following are plain `dative`:
     - a dative with an attributive `gerundive`;
     - a dative with a simple (non-compound) passive.
 

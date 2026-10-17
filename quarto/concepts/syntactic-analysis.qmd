@@ -92,7 +92,7 @@ When the syntax of the sentence is interrupted by an independent verbal expressi
 
 ### Dependent clause
 
-When a dependent clause is introduced by a subordinating word (such as a subordinating conjunction or relative pronoun), the verb relates to the subordinating word as `unit verb`. 
+When a dependent clause is introduced by a subordinating word or by a relative pronoun, the verb relates to the subordinating word or reative pronoun as `unit verb`. 
 
 
 **Example**: *Hercules cum gregem perlustrasset, pergit ad proximam speluncam.*
@@ -205,9 +205,9 @@ When an infinitive is used to complete the semantics of a verbal expression with
 
 The Agent-Action-Target model focuses on two special relations to verbal expressions: the agent and the target. In Latin (as in English), these relations are constructed differently depending on the voice of the verbal expression. 
 
-In active-voice verbs and deponent verbs, agency is expressed by the `subject` relationship. If the verb has a `direct object`, the object is the target of the A-A-T model. If a linking verb (copula) has a nominative `predicate`, the predicate is the target. Note that non-nominative predicates (illustrated below) are not treated as targets in the A-A-T model.
+In active-voice verbs and deponent verbs, agency is expressed by the `subject` relationship. If the verb has a `direct object`, the object is the target of the A-A-T model. If a linking verb (copula) has a substantive `predicate`, the predicate is the target. Note that non-nominative predicates (illustrated below) are not treated as targets in the A-A-T model.
 
-In passive voice verbs that are not deponent, the `subject` relationship expresses the target. Agency is expressed either by the `agent-ablative` or the `agent-dative` relationship.
+In passive voice verbs that are not deponent, the `subject` relationship expresses the target. This is also true for gerundive constructed with *sum* (passive periphrastic). Agency is expressed either by the `agent-ablative` or the `agent-dative` relationship.
 
 ### Subject
 
@@ -265,6 +265,8 @@ Compound forms of the perfect sometimes admit a similar construction.
 | *est* | `auxiliary` | *praeterita* |
 
 
+Note that datives with an attributive `gerundive` are in a simple `dative` relation to the gerundive. Datives with a passive verbs are not common, and do not occur with simple (non-compound) forms.
+
 ### Direct object
 
 
@@ -285,7 +287,7 @@ The direct object of a transitive active verb is related to the verbal expressio
 
 ### Predicate
 
-We use the `predicate` relation in three ways. 
+We use the `predicate` relation in four ways. 
 
 1) Substantives or adjectives serving as predicates of linking (copulative) verbs. These are *targets* in the A-A-T model.
 
@@ -320,6 +322,16 @@ We use the `predicate` relation in three ways.
 | *consulem* | `predicate` | *Ciceronem*|
 | *creaverunt* | `unit verb` | (`root`) |
 
+4) A substantive predicate in the passive-voice equivalent of category three is in a `predicate` relation to the passive verb, and constitutes an AAT target.
+
+**Example**: *Cicero consul creatus est.*
+
+| Token | relationship | related token |
+| --- | --- | --- |
+| *Cicero* | `subject` | *creatus* |
+| *consul* | `predicate` | *creatus* |
+| *creatus*  | `unit verb` | (`root`) |
+| *est* | `auxiliary` | *creatus* |
 
 
 ## Case constructions with substantives
@@ -482,7 +494,7 @@ As in all infinitive constructions, the infinitive, like any other verbal form, 
 
 ### Adverbs 
 
-Adverbs and other adverbial expressions have relationship of `adverbial` to a verbal expression.
+Adverbs and other adverbial expressions (such as prepositional phrases with an adverbial sense)   have the relationship of `adverbial` to the token they qualify, whether the token is verbal, substantive or adjectival.
 
 **Example**: *ad Ianiculum forte ventum erat*.
 
@@ -641,7 +653,7 @@ In this sentence, the token *M.* is in relation of `praenomen` with *Agrippa*. T
 
 ### Coordinating word
 
-When words like *igitur*, *autem*, *sed*, *ceterum* and *nam* (among many others) join a verbal expression to a preceding expression, we relate the coordinating word to the verb as a `coordinating word`.
+When words like *igitur*, *autem*, *sed*, *ceterum* and *nam* (among many others) join a verbal expression to a preceding sentence, we relate the coordinating word to the verb as a `coordinating word`.
 
 **Example**: *audiens autem Iacob quod alimenta venderentur in Aegypto dixit filiis suis quare neglegitis?*
 
