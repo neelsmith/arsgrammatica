@@ -46,7 +46,7 @@ the same corpus directly actually share DSPy's LM response cache for a
 passage they both segment the same way (assign_passage_scoped_ids()'s own
 docstring has the full rationale). Safe to do purely by position: at this
 stage (segmentation only, no syntax analysis yet) no token id is referenced
-anywhere else the way `TokenAnalysis`'s `relatedtoken1`/`verbalunitid`
+anywhere else the way `TokenAnalysis`'s `relations`/`verbalunitid`
 fields reference one another once analysis has run, so rewriting ids here
 can never leave a dangling reference.
 

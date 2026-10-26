@@ -28,7 +28,7 @@ def test_bad_answer_is_caught():
     bad_answer["tokengraph"] = list(base.canned_answer["tokengraph"])
     bad_answer["tokengraph"][0] = {
         **base.canned_answer["tokengraph"][0],
-        "relatedtoken1": "t99",  # does not exist
+        "relations": [{"related": "t99", "relationship": "subject"}],  # does not exist
     }
  
     dspy.configure(lm=DummyLM([bad_answer]))
@@ -40,7 +40,7 @@ def test_bad_answer_is_caught():
  
 
 # ---------------------------------------------------------------------------
-# Implied/elided tokens (tokentype='implied sum'/'continued discourse'; see
+# Implied/elided tokens (tokentype='implied sum'/'implied verb'; see
 # models.py's TokenAnalysis and IMPLIED_TOKENTYPES)
 # ---------------------------------------------------------------------------
 #
@@ -52,7 +52,7 @@ def test_bad_answer_is_caught():
 # test_gold_example_validates) already cover the well-formed case for all
 # four implied_* fixtures end to end.
 
-from arsgrammatica.models import Token, TokenAnalysis, VerbalExpression
+from arsgrammatica.models import Token, TokenAnalysis, VerbalExpression, rel
 
 
 def _result(tokengraph, verbalunits=()):
@@ -65,11 +65,11 @@ def _well_formed_implied_case():
     tokens = [Token(id="t0", text="Rara")]
     tokengraph = [
         TokenAnalysis(id="t0", token="Rara", tokentype="lexical",
-                      relatedtoken1="t0_implied", relationship1="predicate"),
+                      relations=[rel("t0_implied", "predicate")]),
         TokenAnalysis(id="t0_implied", token=None, tokentype="implied sum",
-                      verbalunitid="t0_implied", relatedtoken1="root", relationship1="unit verb"),
+                      verbalunitid="t0_implied", relations=[rel("root", "unit verb")]),
     ]
-    verbalunits = [VerbalExpression(id="t0_implied", syntactic_type="independent", semantic_type="linking verb")]
+    verbalunits = [VerbalExpression(id="t0_implied", syntactic_type="independent")]
     return tokens, tokengraph, verbalunits
 
 
@@ -83,16 +83,16 @@ def test_well_formed_implied_token_is_accepted():
 
 
 def test_implied_token_reusing_a_real_id_is_caught():
-    """An implied entry (tokentype='implied sum' or 'continued discourse')
+    """An implied entry (tokentype='implied sum' or 'implied verb')
     must use a NEW id -- reusing one already in `tokens` (as if it were
     describing that real token) is malformed, not a legitimate implied
     token."""
     tokens, tokengraph, verbalunits = _well_formed_implied_case()
     tokengraph[1] = TokenAnalysis(
         id="t0", token=None, tokentype="implied sum",  # reuses t0's own id
-        verbalunitid="t0", relatedtoken1="root", relationship1="unit verb",
+        verbalunitid="t0", relations=[rel("root", "unit verb")],
     )
-    tokengraph[0].relatedtoken1 = "t0"
+    tokengraph[0].relations[0].related = "t0"
     verbalunits[0].id = "t0"
     problems = validate(tokens, _result(tokengraph, verbalunits))
     assert problems, "expected validate() to catch an implied entry reusing a real token's id"
@@ -100,7 +100,7 @@ def test_implied_token_reusing_a_real_id_is_caught():
 
 
 def test_implied_token_with_real_text_is_caught():
-    """tokentype='implied sum'/'continued discourse' with a non-None
+    """tokentype='implied sum'/'implied verb' with a non-None
     `token` value contradicts itself -- an implied token is defined by
     having NO surface text."""
     tokens, tokengraph, verbalunits = _well_formed_implied_case()
@@ -119,3 +119,21 @@ def test_non_implied_token_with_none_text_is_caught():
     problems = validate(tokens, _result(tokengraph, verbalunits))
     assert problems, "expected validate() to catch a non-implied token with token=None"
     assert any("may omit surface text" in p for p in problems), problems
+
+
+def test_root_used_with_a_label_other_than_unit_verb_is_caught():
+    """'root' is reserved as the target of an independent verb's 'unit
+    verb' relation (quarto/concepts/syntactic-analysis.qmd)."""
+    tokens, tokengraph, verbalunits = _well_formed_implied_case()
+    tokengraph[0].relations.append(rel("root", "subject"))
+    problems = validate(tokens, _result(tokengraph, verbalunits))
+    assert any("may only be the target of a 'unit verb'" in p for p in problems), problems
+
+
+def test_every_relation_of_a_token_is_checked():
+    """A token may have several relations; a bad id in any of them (not
+    just the first) is reported."""
+    tokens, tokengraph, verbalunits = _well_formed_implied_case()
+    tokengraph[0].relations.append(rel("t99", "adverbial"))
+    problems = validate(tokens, _result(tokengraph, verbalunits))
+    assert any("'t99'" in p for p in problems), problems

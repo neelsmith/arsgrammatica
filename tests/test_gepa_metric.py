@@ -34,7 +34,7 @@ def _pred_from(gold):
     return dspy.Prediction(
         reasoning="(irrelevant to the metric)",
         verbalunits=[vu.model_copy() for vu in gold.verbalunits],
-        tokengraph=[tok.model_copy() for tok in gold.tokengraph],
+        tokengraph=[tok.model_copy(deep=True) for tok in gold.tokengraph],
     )
 
 
@@ -53,8 +53,7 @@ def test_missing_relation_is_penalized_and_named():
     # Hercules (t0) should relate to pergit (t5) as its subject; drop it.
     for tok in pred.tokengraph:
         if tok.id == "t0":
-            tok.relatedtoken1 = None
-            tok.relationship1 = None
+            tok.relations = []
     result = syntax_metric(gold, pred)
     assert result.score < 1.0
     assert "t0" in result.feedback
@@ -64,28 +63,26 @@ def test_missing_relation_is_penalized_and_named():
 def test_extra_hallucinated_relation_is_penalized_and_named():
     gold = _gold_example("unit_verb_hercules_cum")
     pred = _pred_from(gold)
-    # proximam (t7) has no relation in the gold answer; hallucinate one.
+    # proximam (t7) relates to speluncam only as 'adjectival' in the gold
+    # answer; hallucinate a second relation.
     for tok in pred.tokengraph:
         if tok.id == "t7":
-            tok.relatedtoken1 = "t8"
-            tok.relationship1 = "adjectival"
+            tok.add_relation("t5", "adverbial")
     result = syntax_metric(gold, pred)
     assert result.score < 1.0
     assert "t7" in result.feedback
     assert "unexpected relation" in result.feedback
 
 
-def test_relatedtoken_slot_swap_is_not_penalized():
-    """relatedtoken1/relationship1 vs. relatedtoken2/relationship2 is an
-    overflow slot (see models.py's RelationLabel comment) -- a prediction
-    that puts the same two relations in the opposite slots from the gold
-    answer must score identically to the gold answer itself."""
+def test_relation_order_is_not_penalized():
+    """A token's relations are unordered (see models.Relation) -- a
+    prediction that lists the same relations in a different order from the
+    gold answer must score identically to the gold answer itself."""
     gold = _gold_example("relative_pronoun_latini_cum_quibus")
     pred = _pred_from(gold)
     for tok in pred.tokengraph:
         if tok.id == "t3":
-            tok.relatedtoken1, tok.relatedtoken2 = tok.relatedtoken2, tok.relatedtoken1
-            tok.relationship1, tok.relationship2 = tok.relationship2, tok.relationship1
+            tok.relations = list(reversed(tok.relations))
     result = syntax_metric(gold, pred)
     assert result.score == pytest.approx(1.0), result.feedback
 
@@ -129,8 +126,7 @@ def test_result_exposes_the_three_unblended_dimension_scores():
     pred = _pred_from(gold)
     for tok in pred.tokengraph:
         if tok.id == "t0":
-            tok.relatedtoken1 = None
-            tok.relationship1 = None
+            tok.relations = []
     result = syntax_metric(gold, pred)
     assert result.field_score == pytest.approx(1.0)
     assert result.relation_score < 1.0

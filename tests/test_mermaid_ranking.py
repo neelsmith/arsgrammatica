@@ -18,7 +18,7 @@ import re
 import pytest
 
 from arsgrammatica import tokengraph_to_mermaid, validate
-from arsgrammatica.models import TokenAnalysis
+from arsgrammatica.models import TokenAnalysis, rel
 from arsgrammatica.verbal_units import (
     assign_verbal_units,
     compute_aat_depths,
@@ -83,7 +83,7 @@ def test_multiple_depth_groups_each_get_their_own_chain():
     diagram, warnings = tokengraph_to_mermaid(result.tokengraph)
     assert not warnings
     lines = diagram.splitlines()
-    assert "    t1 ~~~ t4 ~~~ t19" in lines  # moriens, sciret, esse -- all depth 1
+    assert "    t1 ~~~ t4 ~~~ t13 ~~~ t19" in lines  # moriens, sciret, exceptum, esse -- all depth 1
     assert "    t15 ~~~ t20" in lines  # dedit, dixit -- both depth 0
     # tinctas (t9) is the only anchor at depth 2 -- nothing to chain it to.
     chain_lines = [line for line in lines if "~~~" in line]
@@ -131,11 +131,11 @@ def test_cyclic_anchors_still_get_ranked_with_no_warning():
     tokengraph = [
         TokenAnalysis(
             id="t0", token="a", tokentype="lexical", verbalunitid="t0",
-            relatedtoken1="t1", relationship1="unit verb",
+            relations=[rel("t1", "unit verb")],
         ),
         TokenAnalysis(
             id="t1", token="b", tokentype="lexical", verbalunitid="t1",
-            relatedtoken1="t0", relationship1="unit verb",
+            relations=[rel("t0", "unit verb")],
         ),
     ]
     depths, direct_warnings = compute_subordination_depths(tokengraph)
@@ -232,20 +232,19 @@ def test_aat_depth_dangling_edge_from_kept_node_is_skipped_with_a_warning():
     tokengraph = [
         TokenAnalysis(
             id="t5", token="cano", tokentype="lexical", verbalunitid="t5",
-            relatedtoken1="root", relationship1="unit verb",
+            relations=[rel("root", "unit verb")],
         ),
         TokenAnalysis(
             id="t0", token="arma", tokentype="lexical",
-            relatedtoken1="t5", relationship1="direct object",
+            relations=[rel("t5", "direct object")],
         ),
         TokenAnalysis(
             id="t1", token="que", tokentype="enclitic",
-            relatedtoken1="t0", relationship1="coordinating conjunction",
-            relatedtoken2="t2", relationship2="coordinating conjunction",
+            relations=[rel("t0", "coordinating word"), rel("t2", "coordinating word")],
         ),
         TokenAnalysis(
             id="t2", token="virum", tokentype="lexical", verbalunitid="t2",
-            relatedtoken1="t5", relationship1="direct object",
+            relations=[rel("t5", "direct object")],
         ),
     ]
     diagram, warnings = tokengraph_to_mermaid(tokengraph, aat_depth=0, color_by_verbal_unit=False)
@@ -254,7 +253,7 @@ def test_aat_depth_dangling_edge_from_kept_node_is_skipped_with_a_warning():
     assert not re.search(r'^    t2[\[\(]', diagram, re.MULTILINE)
     assert "--> t2" not in diagram  # the dangling edge itself must not appear
     assert any(
-        "t1 -[coordinating conjunction]-> t2" in w
+        "t1 -[coordinating word]-> t2" in w
         and "excluded by the aat_depth cutoff" in w
         for w in warnings
     )

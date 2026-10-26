@@ -9,40 +9,42 @@ This codebase has two separate pipe-delimited, line-oriented plain-text formats 
 
 ## 1. Serializing analyses (`serialization.py`)
 
-Three required pipe-delimited blocks, each a label line alone on its own line, then a fixed header, then one data row per record. Blocks may appear in any order and may each repeat (e.g. from concatenating two files); `read_analyses()` merges same-label blocks before parsing.
+Implements the format specified in `quarto/reference/analysisformat.qmd`. Three required pipe-delimited blocks, each a label line, then a fixed header, then data rows. Blocks may appear in any order and may repeat (e.g. from concatenating two files); `read_analyses()` merges same-label blocks before parsing.
 
 ```
 #!sentences
 context_begin|first_token|context_end|last_token
-Aeneid 1.1|t0|Aeneid 1.1|t9
+Aeneid 1.1|t0|Aeneid 1.1|t4
 
 #!verbal_units
-context|token|syntactic_type|semantic_type
-Aeneid 1.1|t5|independent|transitive active
+context|token|syntactic_type
+Aeneid 1.1|t3|independent
 
 #!tokens
-context|id|tokentype|text|lemma|verbalunit|related1|relationship1|related2|relationship2
-Aeneid 1.1|t0|lexical|Arma|arma|||||
+context|id|tokentype|text|lemma|related|relationship
+Aeneid 1.1|t0|lexical|arma|arma|t3|direct object
+Aeneid 1.1|t1|lexical|virum|vir|t3|direct object
+Aeneid 1.1|t2|enclitic|que|que|t0|coordinating word
+Aeneid 1.1|t2|enclitic|que|que|t1|coordinating word
+Aeneid 1.1|t3|lexical|cano|cano|root|unit verb
+Aeneid 1.1|t4|punctuation|.|||
 ```
 
-A fourth block, `#!lm`, is optional and shaped differently -- no header line, not pipe-delimited, three `KEY=value` lines per sentence (`MODEL=`/`CONTEXT=`/`REASONING=`) recording what model produced that sentence's analysis, a `CONTEXT1.ID1-CONTEXT2.ID2` identifier for what it analyzed, and its own reasoning (collapsed to one line):
+`#!tokens` has one row per *relation* (`TokenAnalysis.relations`), not per token: a token's rows must be adjacent and identical except for `related`/`relationship`; their order is unspecified. A token with no relations (punctuation) has one row with both empty. `read_analyses()` merges each run of same-id rows into one `TokenAnalysis` and raises if a token's rows are not adjacent or disagree.
 
-```
-#!lm
-MODEL=litellm_proxy/anthropic/Claude Opus 5
-CONTEXT=Aeneid 1.1.t0-Aeneid 1.1.t4
-REASONING=The main verb is "cano" ("I sing"), independent and transitive active...
-```
+`TokenAnalysis.verbalunitid` is not stored; `read_analyses()` rebuilds it from `#!verbal_units`.
 
-It's written only when `serialize_analyses()`/`write_analyses()` are called with `reasoning=...`; `read_analyses()` accepts a file with none at all, returning an empty list for it. The label itself was originally written `#!LM`; `read_analyses()` still accepts that exact spelling as a synonym, so every file saved before the rename still reads back unchanged -- `write_analyses()`/`serialize_analyses()` only ever emit the lowercase `#!lm` now, matching `#!sentences`/`#!verbal_units`/`#!tokens`.
+Implied tokens (`IMPLIED_TOKENTYPES`: 'implied sum', 'implied verb', 'implied substantive') have empty text and must lie between their sentence's first and last token rows. `serialize_analyses()` moves an implied token that sits outside every sentence's span (e.g. after a sentence's last token) to just before that sentence's last token, so a round trip can change the position (never the content) of an implied token. Implied tokens use their sentence's first token's citation as context and are excluded from the reconstructed `Sentence.tokens`.
 
-Key points: `None` fields serialize as an empty string (`""`) and parse back as `None`; the literal string `"root"` (an independent verb's own `relatedtoken1`) is a real value, never confused with empty. Sentence boundaries aren't stored redundantly on every row -- `#!sentences`' `first_token`/`last_token` ids are looked up by *position* in `#!tokens`' own row order, so a sentence's tokens must form a contiguous, matching-order run in `tokengraph` (checked, and warned about, not silently trusted). Implied/elided tokens round-trip in `#!tokens` like any other row but are excluded from a sentence's reconstructed `tokens` list in both directions, since they were never part of the original per-sentence segmentation.
+The optional `#!lm` block (no header, three `MODEL=`/`CONTEXT=`/`REASONING=` lines per sentence) is unchanged; the legacy label `#!LM` is still accepted on read.
 
-`read_analyses(path)` returns `(tokengraph, verbalunits, sentences, lm_infos)`, in that order. `read_analyses()` is strict, not degrade-visibly: a missing block, a mismatched header, a wrong column count, a dangling id reference, or a `#!sentences`/`#!tokens` disagreement all raise `ValueError` immediately, naming the problem.
+Files in the pre-1.0 format (a `semantic_type` column in `#!verbal_units`, or the 10-column `#!tokens` header with `verbalunit` and `related1`...`relationship2`) are rejected with a `ValueError` saying the format is no longer supported.
 
-`split_analysis_by_sentence(tokengraph, verbalunits, sentences)` is the usual next step after reading a file back: it slices the flat `tokengraph`/`verbalunits` into one `(sentence_tokengraph, sentence_verbalunits)` pair per sentence, for anything that wants to review or render one sentence at a time (e.g. `marimo/latin_syntaxer_review.py`, `marimo/latin_syntaxer_graph_metrics.py`).
+`read_analyses(path)` returns `(tokengraph, verbalunits, sentences, lm_infos)`, in that order, and is strict: a missing block, mismatched header, wrong column count, invalid label/type value, dangling id reference, or `#!sentences`/`#!tokens` disagreement raises `ValueError`.
 
-`tests/test_serialization.py` (58 tests) covers round-tripping every field including `None`/`"root"`, the optional `#!lm` block (including its legacy `#!LM` spelling still being accepted on read), multiple concatenated blocks, every documented `ValueError` case, and `split_analysis_by_sentence()`'s own slicing including its one documented edge case (a trailing implied token past a sentence's last real token falls just outside the slice).
+`split_analysis_by_sentence(tokengraph, verbalunits, sentences)` slices the flat lists into one `(sentence_tokengraph, sentence_verbalunits)` pair per sentence; implied tokens placed after a sentence's last real token (before the next sentence) are included in that sentence's slice.
+
+`tests/test_serialization.py` covers round-tripping (including multi-relation tokens and implied tokens), the optional `#!lm` block, concatenated blocks, rejection of the old format, and every documented `ValueError` case.
 
 ## 2. Tokenizations without analysis (`segmentation_serialization.py`)
 

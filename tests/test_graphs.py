@@ -14,7 +14,7 @@ import pytest
 
 from arsgrammatica import token_label
 from arsgrammatica.graphs import graph_metrics, tokengraph_to_networkx
-from arsgrammatica.models import TokenAnalysis
+from arsgrammatica.models import TokenAnalysis, rel
 from conftest import run_gold_example
 from fixtures.gold_examples import GOLD_EXAMPLES
 
@@ -57,14 +57,9 @@ def test_edges_and_warnings_match_relatedtoken_fields_directly(example):
     for tok in tokengraph:
         if tok.id not in node_ids:
             continue
-        for related_field, label_field in (
-            ("relatedtoken1", "relationship1"),
-            ("relatedtoken2", "relationship2"),
-        ):
-            related_id = getattr(tok, related_field)
-            relationship = getattr(tok, label_field)
-            if related_id is None or relationship is None:
-                continue
+        for _relation in tok.relations:
+            related_id = _relation.related
+            relationship = _relation.relationship
             if related_id == "root":
                 continue
             if related_id not in node_ids:
@@ -85,7 +80,7 @@ def test_edges_and_warnings_match_relatedtoken_fields_directly(example):
 def test_root_sentinel_produces_no_edge_and_no_warning():
     tokengraph = [
         TokenAnalysis(id="t0", token="venit", tokentype="lexical",
-                      verbalunitid="t0", relatedtoken1="root", relationship1="unit verb"),
+                      verbalunitid="t0", relations=[rel("root", "unit verb")]),
     ]
     G, warnings = tokengraph_to_networkx(tokengraph)
     assert G.number_of_edges() == 0
@@ -95,8 +90,7 @@ def test_root_sentinel_produces_no_edge_and_no_warning():
 def test_edge_to_punctuation_or_missing_target_is_skipped_with_a_warning():
     tokengraph = [
         TokenAnalysis(id="t0", token="foo", tokentype="lexical",
-                      relatedtoken1="t1", relationship1="direct object",
-                      relatedtoken2="t99", relationship2="dative"),
+                      relations=[rel("t1", "direct object"), rel("t99", "dative")]),
         TokenAnalysis(id="t1", token=".", tokentype="punctuation"),
     ]
     G, warnings = tokengraph_to_networkx(tokengraph)
@@ -109,9 +103,9 @@ def test_edge_to_punctuation_or_missing_target_is_skipped_with_a_warning():
 def test_implied_token_gets_its_placeholder_label():
     tokengraph = [
         TokenAnalysis(id="t0", token="Rara", tokentype="lexical",
-                      relatedtoken1="t0_implied", relationship1="predicate"),
+                      relations=[rel("t0_implied", "predicate")]),
         TokenAnalysis(id="t0_implied", token=None, tokentype="implied sum",
-                      verbalunitid="t0_implied", relatedtoken1="root", relationship1="unit verb"),
+                      verbalunitid="t0_implied", relations=[rel("root", "unit verb")]),
     ]
     G, _warnings = tokengraph_to_networkx(tokengraph)
     assert G.nodes["t0_implied"]["label"] == "elided sum"
@@ -129,11 +123,11 @@ def test_metrics_on_a_simple_chain_are_a_pure_tree():
     it), longest_chain 2 (two edges from leaf to root)."""
     tokengraph = [
         TokenAnalysis(id="t0", token="bona", tokentype="lexical",
-                      relatedtoken1="t1", relationship1="adjectival"),
+                      relations=[rel("t1", "adjectival")]),
         TokenAnalysis(id="t1", token="puella", tokentype="lexical",
-                      relatedtoken1="t2", relationship1="subject"),
+                      relations=[rel("t2", "subject")]),
         TokenAnalysis(id="t2", token="venit", tokentype="lexical",
-                      verbalunitid="t2", relatedtoken1="root", relationship1="unit verb"),
+                      verbalunitid="t2", relations=[rel("root", "unit verb")]),
     ]
     G, warnings = tokengraph_to_networkx(tokengraph)
     assert warnings == []
@@ -160,14 +154,13 @@ def test_metrics_on_a_coordinating_conjunction_show_nonzero_cyclomatic_number():
     tree of 4 nodes)."""
     tokengraph = [
         TokenAnalysis(id="t0", token="Arma", tokentype="lexical",
-                      relatedtoken1="t3", relationship1="direct object"),
+                      relations=[rel("t3", "direct object")]),
         TokenAnalysis(id="t1", token="virum", tokentype="lexical",
-                      relatedtoken1="t3", relationship1="direct object"),
+                      relations=[rel("t3", "direct object")]),
         TokenAnalysis(id="t2", token="que", tokentype="enclitic",
-                      relatedtoken1="t0", relationship1="coordinating conjunction",
-                      relatedtoken2="t1", relationship2="coordinating conjunction"),
+                      relations=[rel("t0", "coordinating word"), rel("t1", "coordinating word")]),
         TokenAnalysis(id="t3", token="cano", tokentype="lexical",
-                      verbalunitid="t3", relatedtoken1="root", relationship1="unit verb"),
+                      verbalunitid="t3", relations=[rel("root", "unit verb")]),
     ]
     G, warnings = tokengraph_to_networkx(tokengraph)
     assert warnings == []
@@ -184,7 +177,7 @@ def test_metrics_on_a_coordinating_conjunction_show_nonzero_cyclomatic_number():
     assert metrics.max_dependents == 2  # 'cano' is pointed at by both 'Arma' and 'virum'
     assert metrics.relationship_counts == {
         "direct object": 2,
-        "coordinating conjunction": 2,
+        "coordinating word": 2,
     }
 
 
@@ -222,9 +215,9 @@ def test_metrics_on_a_malformed_cycle_report_it_rather_than_raising():
     codebase's warnings-not-exceptions convention for malformed input."""
     tokengraph = [
         TokenAnalysis(id="t0", token="a", tokentype="lexical",
-                      relatedtoken1="t1", relationship1="subject"),
+                      relations=[rel("t1", "subject")]),
         TokenAnalysis(id="t1", token="b", tokentype="lexical",
-                      relatedtoken1="t0", relationship1="direct object"),
+                      relations=[rel("t0", "direct object")]),
     ]
     G, warnings = tokengraph_to_networkx(tokengraph)
     assert warnings == []

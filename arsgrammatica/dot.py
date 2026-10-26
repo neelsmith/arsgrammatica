@@ -43,7 +43,7 @@ verbal_units.compute_subordination_depths() (the clause-level notion
 behind rendering.tokengraph_to_depth_html()'s own indented-HTML `depth`
 slider): compute_graph_depths(), a plain graph distance -- the number of
 edges from a token back to the nearest root/independent verbal anchor,
-following the exact same relatedtoken1/relatedtoken2 edges this module
+following the exact same relations edges this module
 draws as `->` lines. A clause's ordinary dependents (subject, object,
 dative, adjectival modifiers, ...) are each their own hop from their
 governing verb, so `depth=0` shows ONLY root verbal-unit anchors -- not
@@ -65,7 +65,7 @@ cutoffs. See tokengraph_to_dot()'s own docstring for the full rationale.
 tokengraph_to_dot() also takes `show_root` (default True), an unrelated,
 non-depth toggle mirroring tokengraph_to_mermaid()'s own parameter of the
 same name exactly: whether every independent verb's own 'root' relation
-(relatedtoken1 == 'root', per syntax_model.md) is drawn as a real edge
+(a 'unit verb' relation to 'root') is drawn as a real edge
 into a single dedicated 'root' node -- a plain, uncolored oval labelled
 "root" -- or dropped silently (`show_root=False`, this module's own
 behavior before this parameter existed). See tokengraph_to_dot()'s own
@@ -79,6 +79,7 @@ from .verbal_units import (
     _IMPLIED_TOKEN_COLOR,
     assign_verbal_units,
     assign_verbal_unit_colors,
+    chase_order,
     compute_aat_depths,
 )
 from .mermaid import token_label
@@ -152,7 +153,7 @@ def _node_attrs(tok: TokenAnalysis, color: Optional[Tuple[str, str, str]] = None
 def compute_graph_depths(tokengraph: List[TokenAnalysis]) -> Dict[str, int]:
     """Each non-punctuation token's *graph depth*: the number of edges
     separating it from the nearest root/independent verbal-unit anchor,
-    following the exact same relatedtoken1/relatedtoken2 edges
+    following the exact same relations edges
     tokengraph_to_dot() itself draws as `->` lines (dependent -> governor)
     -- the depth notion behind tokengraph_to_dot()'s own `depth` parameter.
     See this module's own docstring for how this differs from
@@ -160,33 +161,25 @@ def compute_graph_depths(tokengraph: List[TokenAnalysis]) -> Dict[str, int]:
     tokengraph_to_depth_html()'s clause-level notion) and
     verbal_units.compute_aat_depths() (`rank_by_depth`'s notion).
 
-    A root anchor (relatedtoken1 == 'root') is depth 0. Every other
-    token's depth is one more than its PARENT's -- relatedtoken1, falling
-    back to relatedtoken2 only when relatedtoken1 itself doesn't resolve
-    to a usable parent (None, or an id not in `tokengraph`) -- the SAME
-    "relatedtoken1, fall back to relatedtoken2" preference
-    verbal_units.compute_subordination_depths() already uses to chase a
-    verbal expression's own governor. This matters for a token that plays
-    two roles at once, most notably a relative pronoun: e.g. "qui"
-    pointing at its antecedent via relatedtoken1 ('relative pronoun') AND
-    at the dependent verb it's ALSO the subject of via relatedtoken2
+    A root anchor (a 'unit verb' relation to 'root') is depth 0. Every
+    other token's depth is one more than its PARENT's: the target of the
+    first of its relations, in verbal_units.chase_order(), that resolves to
+    a token in `tokengraph` -- the SAME order verbal_units.
+    compute_subordination_depths() uses to chase a verbal expression's own
+    governor. This matters for a token that plays two roles at once, most
+    notably a relative pronoun: e.g. "qui" relating to its antecedent
+    ('relative pronoun') AND to the dependent verb it's ALSO the subject of
     ('subject') -- that second edge points forward, toward a token that in
-    turn points back at the pronoun itself (its own 'unit verb' relation),
-    a genuine two-way link the data model allows. Taking the shallower of
-    BOTH edges (rather than preferring relatedtoken1) would let that
-    forward edge "cheat" the pronoun's own depth down to whatever the
-    dependent verb's -- itself only computable FROM the pronoun -- happens
-    to resolve to first, collapsing what should be a deeper chain. Only
-    ever falling back to relatedtoken2, never averaging or taking a
-    minimum over both, avoids that: relatedtoken1 alone already resolves
-    to the antecedent here, so relatedtoken2 is simply never consulted for
-    depth (it's still drawn as its own edge below, same as always -- this
-    only affects which relation DEPTH follows).
+    turn points back at the pronoun itself (its own 'unit verb' relation).
+    Following that forward edge would let the pronoun's depth "cheat" down
+    to whatever the dependent verb's -- itself only computable FROM the
+    pronoun -- happens to resolve to first. chase_order() puts the
+    'relative pronoun' relation first, so depth follows the antecedent
+    (every edge is still drawn below; this only affects which relation
+    DEPTH follows).
 
-    A token whose relatedtoken1 AND any fallback relatedtoken2 both fail
-    to resolve (neither set, or pointing at ids not in `tokengraph`), or
-    which is caught in a relation cycle even after preferring
-    relatedtoken1, defaults to depth 0 -- the same "can't determine,
+    A token none of whose relations resolve, or which is caught in a
+    relation cycle, defaults to depth 0 -- the same "can't determine,
     default to root level" fallback verbal_units.compute_subordination_
     depths() and rendering.tokengraph_to_depth_html() both use for their
     own unresolved cases, rather than raising.
@@ -196,6 +189,7 @@ def compute_graph_depths(tokengraph: List[TokenAnalysis]) -> Dict[str, int]:
     included here either).
     """
     by_id = {tok.id: tok for tok in tokengraph}
+    position = {tok.id: i for i, tok in enumerate(tokengraph)}
     depths: Dict[str, int] = {}
     in_progress: set = set()
 
@@ -203,7 +197,7 @@ def compute_graph_depths(tokengraph: List[TokenAnalysis]) -> Dict[str, int]:
         if tok_id in depths:
             return depths[tok_id]
         tok = by_id[tok_id]
-        if tok.relatedtoken1 == "root":
+        if "root" in tok.related_ids():
             depths[tok_id] = 0
             return 0
 
@@ -216,10 +210,10 @@ def compute_graph_depths(tokengraph: List[TokenAnalysis]) -> Dict[str, int]:
         in_progress.add(tok_id)
 
         parent_id = None
-        if tok.relatedtoken1 is not None and tok.relatedtoken1 != "root" and tok.relatedtoken1 in by_id:
-            parent_id = tok.relatedtoken1
-        elif tok.relatedtoken2 is not None and tok.relatedtoken2 in by_id:
-            parent_id = tok.relatedtoken2
+        for relation in chase_order(tok, position):
+            if relation.related in by_id:
+                parent_id = relation.related
+                break
 
         result = 1 + depth_of(parent_id) if parent_id is not None else 0
 
@@ -297,8 +291,8 @@ def tokengraph_to_dot(
 
     `depth`, if given, caps the diagram to nodes at or within that many
     edges of a root/independent verbal-unit anchor -- compute_graph_depths()
-    above, a plain GRAPH distance along the same relatedtoken1/
-    relatedtoken2 edges drawn as `->` lines below, NOT
+    above, a plain GRAPH distance along the same relation edges drawn as
+    `->` lines below, NOT
     verbal_units.compute_subordination_depths() (the CLAUSE-level notion
     behind tokengraph_to_depth_html()'s own indented-HTML `depth` slider --
     a whole clause's subject, object, and other ordinary dependents share
@@ -343,8 +337,8 @@ def tokengraph_to_dot(
     dangling edge left by either one is skipped with the same warning.
 
     `show_root` (default True) draws every independent verbal expression's
-    own 'root' relation (relatedtoken1 == 'root', relationship1 == 'unit
-    verb', per syntax_model.md) as a real edge into a single dedicated
+    own 'root' relation (a 'unit verb' relation to 'root') as a real edge
+    into a single dedicated
     'root' node, instead of dropping it -- a plain oval (`shape=oval`)
     labelled "root", deliberately given no `fillcolor`/`style=filled` (so
     it's never colored, regardless of `color_by_verbal_unit`) -- mirroring
@@ -432,7 +426,7 @@ def tokengraph_to_dot(
     # `shape=oval` with no `fillcolor`/`style=filled` -- a plain, uncolored
     # oval regardless of `color_by_verbal_unit`.
     has_root_edge = show_root and any(
-        tok.relatedtoken1 == "root" for tok in tokengraph if tok.id in node_ids
+        "root" in tok.related_ids() for tok in tokengraph if tok.id in node_ids
     )
     if has_root_edge:
         lines.append(f'    {_dot_id("root")} [label="root", shape=oval];')
@@ -441,17 +435,12 @@ def tokengraph_to_dot(
     for tok in tokengraph:
         if tok.id not in node_ids:
             continue
-        for related_field, label_field in (
-            ("relatedtoken1", "relationship1"),
-            ("relatedtoken2", "relationship2"),
-        ):
-            related_id = getattr(tok, related_field)
-            label = getattr(tok, label_field)
-            if related_id is None or label is None:
-                continue
+        for _relation in tok.relations:
+            related_id = _relation.related
+            label = _relation.relationship
             if related_id == "root":
                 # An independent verb's own unit-verb relation, per
-                # syntax_model.md -- never a warning-worthy gap either way.
+                # the scheme docs (quarto/concepts/) -- never a warning-worthy gap either way.
                 # When show_root is True (the default), draw the edge into
                 # the single dedicated 'root' node built above; when False,
                 # skip it silently, exactly as before this parameter

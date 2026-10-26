@@ -4,6 +4,26 @@ A running record of what Claude actually did in this repo, session by session, n
 
 ---
 
+## 2026-10-24
+
+**Branch:** `wip` (at `4f2cab0`, plus Neel's uncommitted edit to `quarto/concepts/tokens.qmd`)
+
+**Switched the code and tests from `syntax_model.md` to the quarto/concepts specification.** Neel chose three design points up front: a token's relations are a list, the reader accepts the new file format only, and the LM prompt stays a hand-written docstring. Full details are in `notes/model_switch_changes.md`; open issues are in `notes/model_switch_questions.md`.
+
+What changed:
+- **Data model:** a `Relation` list replaces `relatedtoken1/2`; `semantic_type` is removed; new labels and types; implied tokentypes renamed.
+- **Prompts:** the `SentenceAnalysis` prompt is rewritten, and the segmentation prompt's enclitic rule is updated.
+- **Serialization:** rewritten to the `analysisformat.qmd` format, one row per relation; old files are rejected.
+- **Consumers:** every consumer now uses the relation list, with `verbal_units.chase_order()`.
+- **AAT:** `aat_bridge.py` maps agent and target by inferred voice.
+- **Gold examples:** converted, 23 re-annotated, 6 added.
+
+Test suite: 2089 passed, 2 skipped. No live-LM run.
+
+Not touched: `quarto/`, `README.md`, `releases.md`, `docs/`, the version, `syntax_model.md`, and the old-format saved analyses in `data/` and `quarto/sample_data/`.
+
+---
+
 ## 2026-10-15
 
 **Branch:** `wip`

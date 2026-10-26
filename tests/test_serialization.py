@@ -20,7 +20,7 @@ raise.
 
 import pytest
 
-from arsgrammatica.models import Sentence, Token, TokenAnalysis, VerbalExpression
+from arsgrammatica.models import Sentence, Token, TokenAnalysis, VerbalExpression, rel
 from arsgrammatica.serialization import (
     LMInfo,
     read_analyses,
@@ -81,30 +81,29 @@ def _two_sentence_fixture():
 
     tokengraph = [
         TokenAnalysis(id="t0", token="Arma", tokentype="lexical", lemma="arma",
-                      relatedtoken1="t3", relationship1="direct object"),
+                      relations=[rel("t3", "direct object")]),
         TokenAnalysis(id="t1", token="virum", tokentype="lexical", lemma="vir",
-                      relatedtoken1="t3", relationship1="direct object"),
+                      relations=[rel("t3", "direct object")]),
         TokenAnalysis(id="t2", token="que", tokentype="enclitic",
-                      relatedtoken1="t0", relationship1="coordinating conjunction",
-                      relatedtoken2="t1", relationship2="coordinating conjunction"),
+                      relations=[rel("t0", "coordinating word"), rel("t1", "coordinating word")]),
         TokenAnalysis(id="t3", token="cano", tokentype="lexical", lemma="cano",
-                      verbalunitid="t3", relatedtoken1="root", relationship1="unit verb"),
+                      verbalunitid="t3", relations=[rel("root", "unit verb")]),
         TokenAnalysis(id="t4", token=".", tokentype="punctuation"),
         TokenAnalysis(id="t5", token="Hercules", tokentype="lexical", lemma="Hercules",
-                      relatedtoken1="t8", relationship1="subject"),
+                      relations=[rel("t8", "subject")]),
         TokenAnalysis(id="t6", token="cum", tokentype="lexical", lemma="cum",
-                      relatedtoken1="t8", relationship1="subordinating conjunction"),
+                      relations=[rel("t8", "subordinating word")]),
         TokenAnalysis(id="t7", token="perlustrasset", tokentype="lexical", lemma="perlustro",
-                      verbalunitid="t7", relatedtoken1="t6", relationship1="unit verb"),
+                      verbalunitid="t7", relations=[rel("t6", "unit verb")]),
         TokenAnalysis(id="t8", token="pergit", tokentype="lexical", lemma="pergo",
-                      verbalunitid="t8", relatedtoken1="root", relationship1="unit verb"),
+                      verbalunitid="t8", relations=[rel("root", "unit verb")]),
         TokenAnalysis(id="t9", token=".", tokentype="punctuation"),
     ]
 
     verbalunits = [
-        VerbalExpression(id="t3", syntactic_type="independent", semantic_type="transitive active"),
-        VerbalExpression(id="t7", syntactic_type="dependent", semantic_type="transitive active"),
-        VerbalExpression(id="t8", syntactic_type="independent", semantic_type="intransitive"),
+        VerbalExpression(id="t3", syntactic_type="independent"),
+        VerbalExpression(id="t7", syntactic_type="dependent"),
+        VerbalExpression(id="t8", syntactic_type="independent"),
     ]
     return sentences, verbalunits, tokengraph
 
@@ -147,15 +146,12 @@ def test_file_contents_match_the_documented_format(tmp_path):
     assert "#!verbal_units" in text
     assert "#!tokens" in text
     assert "context_begin|first_token|context_end|last_token" in text
-    assert "context|token|syntactic_type|semantic_type" in text
-    assert (
-        "context|id|tokentype|text|lemma|verbalunit|"
-        "related1|relationship1|related2|relationship2"
-    ) in text
+    assert "context|token|syntactic_type" in text
+    assert "context|id|tokentype|text|lemma|related|relationship" in text
     # The 'root' sentinel is written verbatim, not as an empty field.
-    assert "|t3|lexical|cano|cano|t3|root|unit verb||" in text
+    assert "|t3|lexical|cano|cano|root|unit verb" in text
     # A citation-free sentence's rows have an empty leading context column.
-    assert "|t5|lexical|Hercules|Hercules||t8|subject||" in text
+    assert "\n|t5|lexical|Hercules|Hercules|t8|subject\n" in text
 
 
 # ---------------------------------------------------------------------------
@@ -262,9 +258,9 @@ def test_empty_lists_round_trip_to_an_empty_but_valid_file(tmp_path):
 def test_warns_when_a_token_is_not_covered_by_any_sentence(tmp_path):
     tokengraph = [
         TokenAnalysis(id="t0", token="foo", tokentype="lexical", verbalunitid="t0",
-                      relatedtoken1="root", relationship1="unit verb"),
+                      relations=[rel("root", "unit verb")]),
     ]
-    verbalunits = [VerbalExpression(id="t0", syntactic_type="independent", semantic_type="intransitive")]
+    verbalunits = [VerbalExpression(id="t0", syntactic_type="independent")]
     path = tmp_path / "uncovered.txt"
 
     warnings = write_analyses([], verbalunits, tokengraph, str(path))
@@ -311,10 +307,7 @@ def test_raises_on_a_newline_in_a_field(tmp_path):
 # read_analyses() errors
 # ---------------------------------------------------------------------------
 
-_TOKENS_HEADER = (
-    "context|id|tokentype|text|lemma|verbalunit|"
-    "related1|relationship1|related2|relationship2"
-)
+_TOKENS_HEADER = "context|id|tokentype|text|lemma|related|relationship"
 
 
 def _write_raw(tmp_path, name, content):
@@ -324,7 +317,7 @@ def _write_raw(tmp_path, name, content):
 
 
 def test_missing_block_raises(tmp_path):
-    content = f"#!tokens\n{_TOKENS_HEADER}\nctx|t0|lexical|a||||||\n"
+    content = f"#!tokens\n{_TOKENS_HEADER}\nctx|t0|lexical|a|||\n"
     path = _write_raw(tmp_path, "missing.txt", content)
     with pytest.raises(ValueError, match="missing required block"):
         read_analyses(path)
@@ -338,16 +331,16 @@ def test_repeated_block_labels_are_merged_in_file_order(tmp_path):
     rather than raising or silently keeping only one instance."""
     content = (
         f"#!tokens\n{_TOKENS_HEADER}\n"
-        "Aeneid 1.1|t0|lexical|foo||t0|root|unit verb||\n"
-        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
-        "Aeneid 1.1|t0|independent|intransitive\n"
+        "Aeneid 1.1|t0|lexical|foo||root|unit verb\n"
+        "#!verbal_units\ncontext|token|syntactic_type\n"
+        "Aeneid 1.1|t0|independent\n"
         "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
         "Aeneid 1.1|t0|Aeneid 1.1|t0\n"
         # A second, self-contained trio of blocks -- same labels, repeated.
         f"#!tokens\n{_TOKENS_HEADER}\n"
-        "Aeneid 1.2|t1|lexical|bar||t1|root|unit verb||\n"
-        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
-        "Aeneid 1.2|t1|independent|intransitive\n"
+        "Aeneid 1.2|t1|lexical|bar||root|unit verb\n"
+        "#!verbal_units\ncontext|token|syntactic_type\n"
+        "Aeneid 1.2|t1|independent\n"
         "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
         "Aeneid 1.2|t1|Aeneid 1.2|t1\n"
     )
@@ -367,7 +360,7 @@ def test_block_label_without_its_own_header_raises(tmp_path):
     label is malformed, not a zero-row instance of the first block."""
     content = (
         "#!tokens\n"
-        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        "#!verbal_units\ncontext|token|syntactic_type\n"
         "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
     )
     path = _write_raw(tmp_path, "noheader.txt", content)
@@ -378,7 +371,7 @@ def test_block_label_without_its_own_header_raises(tmp_path):
 def test_wrong_header_raises(tmp_path):
     content = (
         "#!tokens\nwrong|header\n"
-        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        "#!verbal_units\ncontext|token|syntactic_type\n"
         "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
     )
     path = _write_raw(tmp_path, "badheader.txt", content)
@@ -389,11 +382,11 @@ def test_wrong_header_raises(tmp_path):
 def test_wrong_column_count_raises(tmp_path):
     content = (
         f"#!tokens\n{_TOKENS_HEADER}\nctx|t0|lexical|a\n"
-        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        "#!verbal_units\ncontext|token|syntactic_type\n"
         "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
     )
     path = _write_raw(tmp_path, "badcols.txt", content)
-    with pytest.raises(ValueError, match="expected 10"):
+    with pytest.raises(ValueError, match="expected 7"):
         read_analyses(path)
 
 
@@ -406,9 +399,9 @@ def test_data_before_any_block_label_raises(tmp_path):
 
 def test_verbal_units_referencing_unknown_token_id_raises(tmp_path):
     content = (
-        f"#!tokens\n{_TOKENS_HEADER}\nctx|t0|lexical|a||||||\n"
-        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
-        "ctx|t99|independent|intransitive\n"
+        f"#!tokens\n{_TOKENS_HEADER}\nctx|t0|lexical|a|||\n"
+        "#!verbal_units\ncontext|token|syntactic_type\n"
+        "ctx|t99|independent\n"
         "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
     )
     path = _write_raw(tmp_path, "unknownvu.txt", content)
@@ -418,8 +411,8 @@ def test_verbal_units_referencing_unknown_token_id_raises(tmp_path):
 
 def test_sentences_referencing_unknown_token_id_raises(tmp_path):
     content = (
-        f"#!tokens\n{_TOKENS_HEADER}\nctx|t0|lexical|a||||||\n"
-        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        f"#!tokens\n{_TOKENS_HEADER}\nctx|t0|lexical|a|||\n"
+        "#!verbal_units\ncontext|token|syntactic_type\n"
         "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
         "ctx|t0|ctx|t99\n"
     )
@@ -430,8 +423,8 @@ def test_sentences_referencing_unknown_token_id_raises(tmp_path):
 
 def test_sentence_context_mismatch_raises(tmp_path):
     content = (
-        f"#!tokens\n{_TOKENS_HEADER}\nAeneid 1.1|t0|lexical|a||||||\n"
-        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        f"#!tokens\n{_TOKENS_HEADER}\nAeneid 1.1|t0|lexical|a|||\n"
+        "#!verbal_units\ncontext|token|syntactic_type\n"
         "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
         "WRONG|t0|Aeneid 1.1|t0\n"
     )
@@ -443,9 +436,9 @@ def test_sentence_context_mismatch_raises(tmp_path):
 def test_sentence_first_after_last_raises(tmp_path):
     content = (
         f"#!tokens\n{_TOKENS_HEADER}\n"
-        "ctx|t0|lexical|a||||||\n"
-        "ctx|t1|lexical|b||||||\n"
-        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        "ctx|t0|lexical|a|||\n"
+        "ctx|t1|lexical|b|||\n"
+        "#!verbal_units\ncontext|token|syntactic_type\n"
         "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
         "ctx|t1|ctx|t0\n"
     )
@@ -457,22 +450,111 @@ def test_sentence_first_after_last_raises(tmp_path):
 def test_duplicate_token_id_raises(tmp_path):
     content = (
         f"#!tokens\n{_TOKENS_HEADER}\n"
-        "ctx|t0|lexical|a||||||\n"
-        "ctx|t0|lexical|b||||||\n"
-        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        "ctx|t0|lexical|a|||\n"
+        "ctx|t1|lexical|b|||\n"
+        "ctx|t0|lexical|a|||\n"
+        "#!verbal_units\ncontext|token|syntactic_type\n"
         "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
     )
     path = _write_raw(tmp_path, "dupid.txt", content)
-    with pytest.raises(ValueError, match="duplicate token id"):
+    with pytest.raises(ValueError, match="again after other tokens"):
         read_analyses(path)
+
+
+def test_repeated_rows_that_disagree_raise(tmp_path):
+    """Adjacent rows for one token id are that token's several relations;
+    they must agree in every column but related/relationship."""
+    content = (
+        f"#!tokens\n{_TOKENS_HEADER}\n"
+        "ctx|t0|lexical|a|a|t1|subject\n"
+        "ctx|t0|lexical|b|a|t1|predicate\n"
+        "ctx|t1|lexical|est|sum|root|unit verb\n"
+        "#!verbal_units\ncontext|token|syntactic_type\n"
+        "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
+    )
+    path = _write_raw(tmp_path, "disagree.txt", content)
+    with pytest.raises(ValueError, match="differs from the token's earlier row"):
+        read_analyses(path)
+
+
+def test_related_without_relationship_raises(tmp_path):
+    content = (
+        f"#!tokens\n{_TOKENS_HEADER}\n"
+        "ctx|t0|lexical|a|a|t1|\n"
+        "#!verbal_units\ncontext|token|syntactic_type\n"
+        "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
+    )
+    path = _write_raw(tmp_path, "halfrel.txt", content)
+    with pytest.raises(ValueError, match="only one of related/relationship"):
+        read_analyses(path)
+
+
+def test_unknown_relationship_label_raises(tmp_path):
+    content = (
+        f"#!tokens\n{_TOKENS_HEADER}\n"
+        "ctx|t0|lexical|a|a|t1|coordinating conjunction\n"
+        "#!verbal_units\ncontext|token|syntactic_type\n"
+        "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
+    )
+    path = _write_raw(tmp_path, "badlabel.txt", content)
+    with pytest.raises(ValueError, match="invalid relationship"):
+        read_analyses(path)
+
+
+@pytest.mark.parametrize(
+    "block, old_header",
+    [
+        ("#!verbal_units", "context|token|syntactic_type|semantic_type"),
+        (
+            "#!tokens",
+            "context|id|tokentype|text|lemma|verbalunit|"
+            "related1|relationship1|related2|relationship2",
+        ),
+    ],
+)
+def test_pre_1_0_format_is_rejected_with_a_clear_message(tmp_path, block, old_header):
+    content = f"{block}\n{old_header}\n"
+    path = _write_raw(tmp_path, "old.txt", content)
+    with pytest.raises(ValueError, match="no longer supported"):
+        read_analyses(path)
+
+
+def test_a_token_with_several_relations_is_written_as_adjacent_rows_and_merged_back(tmp_path):
+    sentences = [Sentence(tokens=[
+        Token(id="t0", text="arma", citation="A 1.1"),
+        Token(id="t1", text="virum", citation="A 1.1"),
+        Token(id="t2", text="que", citation="A 1.1"),
+        Token(id="t3", text="cano", citation="A 1.1"),
+    ])]
+    tokengraph = [
+        TokenAnalysis(id="t0", token="arma", tokentype="lexical", lemma="arma",
+                      relations=[rel("t3", "direct object")]),
+        TokenAnalysis(id="t1", token="virum", tokentype="lexical", lemma="vir",
+                      relations=[rel("t3", "direct object")]),
+        TokenAnalysis(id="t2", token="que", tokentype="enclitic", lemma="que",
+                      relations=[rel("t0", "coordinating word"), rel("t1", "coordinating word")]),
+        TokenAnalysis(id="t3", token="cano", tokentype="lexical", lemma="cano",
+                      verbalunitid="t3", relations=[rel("root", "unit verb")]),
+    ]
+    verbalunits = [VerbalExpression(id="t3", syntactic_type="independent")]
+    path = tmp_path / "multi.txt"
+    assert write_analyses(sentences, verbalunits, tokengraph, str(path)) == []
+    text = path.read_text()
+    assert (
+        "A 1.1|t2|enclitic|que|que|t0|coordinating word\n"
+        "A 1.1|t2|enclitic|que|que|t1|coordinating word\n"
+    ) in text
+    got_tokengraph, got_verbalunits, _s, _l = read_analyses(str(path))
+    assert got_tokengraph == tokengraph
+    assert got_verbalunits == verbalunits
 
 
 def test_blocks_may_appear_in_any_order(tmp_path):
     content = (
-        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
-        "Aeneid 1.1|t0|independent|intransitive\n"
+        "#!verbal_units\ncontext|token|syntactic_type\n"
+        "Aeneid 1.1|t0|independent\n"
         "#!tokens\n" + _TOKENS_HEADER + "\n"
-        "Aeneid 1.1|t0|lexical|foo||t0|root|unit verb||\n"
+        "Aeneid 1.1|t0|lexical|foo||root|unit verb\n"
         "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
         "Aeneid 1.1|t0|Aeneid 1.1|t0\n"
     )
@@ -487,10 +569,10 @@ def test_blocks_may_appear_in_any_order(tmp_path):
 def test_blank_lines_between_blocks_are_tolerated(tmp_path):
     content = (
         f"#!tokens\n{_TOKENS_HEADER}\n"
-        "Aeneid 1.1|t0|lexical|foo||t0|root|unit verb||\n"
+        "Aeneid 1.1|t0|lexical|foo||root|unit verb\n"
         "\n\n"
-        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
-        "Aeneid 1.1|t0|independent|intransitive\n"
+        "#!verbal_units\ncontext|token|syntactic_type\n"
+        "Aeneid 1.1|t0|independent\n"
         "\n"
         "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
         "Aeneid 1.1|t0|Aeneid 1.1|t0\n"
@@ -503,7 +585,7 @@ def test_blank_lines_between_blocks_are_tolerated(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# Implied/elided tokens (tokentype='implied sum'/'continued discourse'; see
+# Implied/elided tokens (tokentype='implied sum'/'implied verb'; see
 # models.py's TokenAnalysis and IMPLIED_TOKENTYPES)
 # ---------------------------------------------------------------------------
 #
@@ -524,12 +606,12 @@ def _sentence_with_implied_token_fixture():
     sentences = [Sentence(tokens=[Token(id="t0", text="Rara", citation="Livy 1.1")])]
     tokengraph = [
         TokenAnalysis(id="t0", token="Rara", tokentype="lexical",
-                      relatedtoken1="t0_implied", relationship1="predicate"),
+                      relations=[rel("t0_implied", "predicate")]),
         TokenAnalysis(id="t0_implied", token=None, tokentype="implied sum",
-                      verbalunitid="t0_implied", relatedtoken1="root", relationship1="unit verb"),
+                      verbalunitid="t0_implied", relations=[rel("root", "unit verb")]),
     ]
     verbalunits = [
-        VerbalExpression(id="t0_implied", syntactic_type="independent", semantic_type="linking verb"),
+        VerbalExpression(id="t0_implied", syntactic_type="independent"),
     ]
     return sentences, verbalunits, tokengraph
 
@@ -545,7 +627,10 @@ def test_implied_token_round_trips_with_none_text_not_empty_string(tmp_path):
     )
 
     got_tokengraph, got_verbalunits, got_sentences, _ = read_analyses(str(path))
-    assert got_tokengraph == tokengraph
+    # The trailing implied token is written inside its sentence's span (the
+    # format requires it), so only the order may differ.
+    assert sorted(got_tokengraph, key=lambda t: t.id) == sorted(tokengraph, key=lambda t: t.id)
+    assert [t.id for t in got_tokengraph] == ["t0_implied", "t0"]
     assert got_verbalunits == verbalunits
 
     implied = next(tok for tok in got_tokengraph if tok.id == "t0_implied")
@@ -567,8 +652,8 @@ def test_implied_token_is_excluded_from_its_sentences_reconstructed_tokens(tmp_p
 
 
 def test_implied_subject_token_round_trips_with_no_verbalunits_entry(tmp_path):
-    """'implied subject' (see models.py's TokenAnalysis/IMPLIED_TOKENTYPES)
-    round-trips the exact same way 'implied sum'/'continued discourse' do
+    """'implied substantive' (see models.py's TokenAnalysis/IMPLIED_TOKENTYPES)
+    round-trips the exact same way 'implied sum'/'implied verb' do
     -- empty text column reads back as None, excluded from its sentence's
     own reconstructed `tokens` -- but, unlike those two, it never anchors a
     `verbalunits` entry of its own: "Recordatus venit" has a circumstantial
@@ -582,17 +667,16 @@ def test_implied_subject_token_round_trips_with_no_verbalunits_entry(tmp_path):
         ])
     ]
     tokengraph = [
-        TokenAnalysis(id="t0_implied", token=None, tokentype="implied subject",
-                      relatedtoken1="t1", relationship1="subject"),
+        TokenAnalysis(id="t0_implied", token=None, tokentype="implied substantive",
+                      relations=[rel("t1", "subject")]),
         TokenAnalysis(id="t0", token="Recordatus", tokentype="lexical",
-                      verbalunitid="t0", relatedtoken1="t0_implied",
-                      relationship1="circumstantial participle"),
+                      verbalunitid="t0", relations=[rel("t0_implied", "circumstantial participle")]),
         TokenAnalysis(id="t1", token="venit", tokentype="lexical",
-                      verbalunitid="t1", relatedtoken1="root", relationship1="unit verb"),
+                      verbalunitid="t1", relations=[rel("root", "unit verb")]),
     ]
     verbalunits = [
-        VerbalExpression(id="t0", syntactic_type="dependent", semantic_type="intransitive"),
-        VerbalExpression(id="t1", syntactic_type="independent", semantic_type="intransitive"),
+        VerbalExpression(id="t0", syntactic_type="circumstantial participle"),
+        VerbalExpression(id="t1", syntactic_type="independent"),
     ]
     path = tmp_path / "implied_subject.txt"
 
@@ -600,7 +684,10 @@ def test_implied_subject_token_round_trips_with_no_verbalunits_entry(tmp_path):
     assert warnings == []
 
     got_tokengraph, got_verbalunits, got_sentences, _ = read_analyses(str(path))
-    assert got_tokengraph == tokengraph
+    # The leading implied token is written inside its sentence's span (the
+    # format requires it), so only the order may differ.
+    assert sorted(got_tokengraph, key=lambda t: t.id) == sorted(tokengraph, key=lambda t: t.id)
+    assert [t.id for t in got_tokengraph] == ["t0", "t0_implied", "t1"]
     assert got_verbalunits == verbalunits
     assert {vu.id for vu in got_verbalunits} == {"t0", "t1"}  # NOT t0_implied
 
@@ -664,14 +751,14 @@ def _sentence_with_medial_implied_token_fixture():
     sentences = [Sentence(tokens=[Token(id="t0", text="Puella"), Token(id="t1", text="pulchra")])]
     tokengraph = [
         TokenAnalysis(id="t0", token="Puella", tokentype="lexical",
-                      relatedtoken1="t0_implied", relationship1="subject"),
+                      relations=[rel("t0_implied", "subject")]),
         TokenAnalysis(id="t0_implied", token=None, tokentype="implied sum",
-                      verbalunitid="t0_implied", relatedtoken1="root", relationship1="unit verb"),
+                      verbalunitid="t0_implied", relations=[rel("root", "unit verb")]),
         TokenAnalysis(id="t1", token="pulchra", tokentype="lexical",
-                      relatedtoken1="t0_implied", relationship1="predicate"),
+                      relations=[rel("t0_implied", "predicate")]),
     ]
     verbalunits = [
-        VerbalExpression(id="t0_implied", syntactic_type="independent", semantic_type="linking verb"),
+        VerbalExpression(id="t0_implied", syntactic_type="independent"),
     ]
     return sentences, verbalunits, tokengraph
 
@@ -691,27 +778,17 @@ def test_split_includes_an_implied_token_nested_within_a_sentences_range():
     assert [vu.id for vu in sentence_verbalunits] == ["t0_implied"]
 
 
-def test_split_excludes_a_trailing_implied_token_past_the_sentences_last_real_token():
-    """A known, pre-existing limitation shared with read_analyses()'s own
-    sentence reconstruction: an implied token placed AFTER a sentence's
-    last real token (rather than nested between two real tokens) falls
-    outside the [first, last] real-token range this function -- like
-    read_analyses() -- uses to slice a sentence's own tokengraph.
-    _sentence_with_implied_token_fixture()'s single-real-token "Rara
-    [sunt]." case is exactly this: the implied token trails t0 with no
-    further real token of the same sentence to bound it from above, so it
-    isn't included here (matching read_analyses()'s own
-    test_implied_token_is_excluded_from_its_sentences_reconstructed_tokens,
-    which excludes it from the reconstructed Sentence for the same
-    positional reason)."""
+def test_split_includes_a_trailing_implied_token_past_the_sentences_last_real_token():
+    """An implied token placed AFTER a sentence's last real token (and
+    before the next sentence) still belongs to that sentence's slice."""
     sentences, verbalunits, tokengraph = _sentence_with_implied_token_fixture()
 
     slices = split_analysis_by_sentence(tokengraph, verbalunits, sentences)
 
     assert len(slices) == 1
     sentence_tokengraph, sentence_verbalunits = slices[0]
-    assert [tok.id for tok in sentence_tokengraph] == ["t0"]
-    assert sentence_verbalunits == []
+    assert [tok.id for tok in sentence_tokengraph] == ["t0", "t0_implied"]
+    assert [vu.id for vu in sentence_verbalunits] == ["t0_implied"]
 
 
 def test_split_rejects_a_sentence_with_no_tokens():
@@ -870,16 +947,16 @@ def test_repeated_lm_blocks_are_merged_in_file_order(tmp_path):
     sentence_a = Sentence(tokens=[Token(id="t0", text="foo", citation="Aeneid 1.1")])
     tokengraph_a = [
         TokenAnalysis(id="t0", token="foo", tokentype="lexical",
-                      verbalunitid="t0", relatedtoken1="root", relationship1="unit verb")
+                      verbalunitid="t0", relations=[rel("root", "unit verb")])
     ]
-    verbalunits_a = [VerbalExpression(id="t0", syntactic_type="independent", semantic_type="intransitive")]
+    verbalunits_a = [VerbalExpression(id="t0", syntactic_type="independent")]
 
     sentence_b = Sentence(tokens=[Token(id="t1", text="bar", citation="Aeneid 1.2")])
     tokengraph_b = [
         TokenAnalysis(id="t1", token="bar", tokentype="lexical",
-                      verbalunitid="t1", relatedtoken1="root", relationship1="unit verb")
+                      verbalunitid="t1", relations=[rel("root", "unit verb")])
     ]
-    verbalunits_b = [VerbalExpression(id="t1", syntactic_type="independent", semantic_type="intransitive")]
+    verbalunits_b = [VerbalExpression(id="t1", syntactic_type="independent")]
 
     content1, warnings1 = serialize_analyses(
         [sentence_a], verbalunits_a, tokengraph_a, model=_MODEL, reasoning=[_REASONING[0]]
@@ -902,8 +979,8 @@ def test_legacy_uppercase_lm_label_still_reads(tmp_path):
     themselves never emit it again (see the '#!LM' not in text assertion in
     test_lm_block_appears_before_the_other_three)."""
     content = (
-        f"#!tokens\n{_TOKENS_HEADER}\nAeneid 1.1|t0|lexical|foo||t0|root|unit verb||\n"
-        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        f"#!tokens\n{_TOKENS_HEADER}\nAeneid 1.1|t0|lexical|foo||root|unit verb\n"
+        "#!verbal_units\ncontext|token|syntactic_type\n"
         "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
         "Aeneid 1.1|t0|Aeneid 1.1|t0\n"
         "#!LM\nMODEL=foo\nCONTEXT=Aeneid 1.1.t0-Aeneid 1.1.t0\nREASONING=bar\n"
@@ -924,9 +1001,9 @@ def test_legacy_and_new_spelling_lm_blocks_are_merged_together(tmp_path):
     as two same-spelling blocks already do
     (test_repeated_lm_blocks_are_merged_in_file_order)."""
     content = (
-        f"#!tokens\n{_TOKENS_HEADER}\nAeneid 1.1|t0|lexical|foo||t0|root|unit verb||\n"
-        "Aeneid 1.2|t1|lexical|bar||t1|root|unit verb||\n"
-        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        f"#!tokens\n{_TOKENS_HEADER}\nAeneid 1.1|t0|lexical|foo||root|unit verb\n"
+        "Aeneid 1.2|t1|lexical|bar||root|unit verb\n"
+        "#!verbal_units\ncontext|token|syntactic_type\n"
         "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
         "Aeneid 1.1|t0|Aeneid 1.1|t0\n"
         "Aeneid 1.2|t1|Aeneid 1.2|t1\n"
@@ -942,8 +1019,8 @@ def test_legacy_and_new_spelling_lm_blocks_are_merged_together(tmp_path):
 
 def test_lm_block_line_count_not_a_multiple_of_three_raises(tmp_path):
     content = (
-        f"#!tokens\n{_TOKENS_HEADER}\nAeneid 1.1|t0|lexical|foo||t0|root|unit verb||\n"
-        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        f"#!tokens\n{_TOKENS_HEADER}\nAeneid 1.1|t0|lexical|foo||root|unit verb\n"
+        "#!verbal_units\ncontext|token|syntactic_type\n"
         "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
         "Aeneid 1.1|t0|Aeneid 1.1|t0\n"
         "#!lm\nMODEL=foo\nCONTEXT=bar\n"  # missing REASONING= line
@@ -963,8 +1040,8 @@ def test_lm_block_line_count_not_a_multiple_of_three_raises(tmp_path):
 )
 def test_lm_block_wrong_prefix_raises(tmp_path, lm_lines, expected_match):
     content = (
-        f"#!tokens\n{_TOKENS_HEADER}\nAeneid 1.1|t0|lexical|foo||t0|root|unit verb||\n"
-        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        f"#!tokens\n{_TOKENS_HEADER}\nAeneid 1.1|t0|lexical|foo||root|unit verb\n"
+        "#!verbal_units\ncontext|token|syntactic_type\n"
         "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
         "Aeneid 1.1|t0|Aeneid 1.1|t0\n"
         f"#!lm\n{lm_lines}\n"
@@ -977,8 +1054,8 @@ def test_lm_block_wrong_prefix_raises(tmp_path, lm_lines, expected_match):
 def test_lm_entry_count_mismatch_with_sentences_raises(tmp_path):
     """Two '#!lm' entries but only one reconstructed sentence."""
     content = (
-        f"#!tokens\n{_TOKENS_HEADER}\nAeneid 1.1|t0|lexical|foo||t0|root|unit verb||\n"
-        "#!verbal_units\ncontext|token|syntactic_type|semantic_type\n"
+        f"#!tokens\n{_TOKENS_HEADER}\nAeneid 1.1|t0|lexical|foo||root|unit verb\n"
+        "#!verbal_units\ncontext|token|syntactic_type\n"
         "#!sentences\ncontext_begin|first_token|context_end|last_token\n"
         "Aeneid 1.1|t0|Aeneid 1.1|t0\n"
         "#!lm\nMODEL=foo\nCONTEXT=bar\nREASONING=baz\n"

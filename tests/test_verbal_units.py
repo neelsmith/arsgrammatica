@@ -11,7 +11,7 @@ verbal_units.py's module docstring for the reasoning.
  
 import pytest
  
-from arsgrammatica.models import TokenAnalysis
+from arsgrammatica.models import TokenAnalysis, rel
 from arsgrammatica.verbal_units import (
     assign_verbal_units,
     compute_aat_depths,
@@ -53,7 +53,7 @@ def test_subordinating_conjunction_belongs_to_the_clause_it_introduces():
     speluncam" is grammatically part of the dependent clause it introduces
     ("cum gregem perlustrasset") -- even though cum's own relatedtoken1
     points at pergit (t5), the MAIN clause's verb, per the "subordinating
-    conjunction" relation (see syntax_model.md). It must not be pulled into
+    conjunction" relation (see the scheme docs (quarto/concepts/)). It must not be pulled into
     pergit's verbal unit."""
     tokengraph = _tokengraph("unit_verb_hercules_cum")
     assignment = assign_verbal_units(tokengraph)
@@ -77,7 +77,7 @@ def test_relative_pronoun_belongs_to_the_clause_it_introduces_not_its_antecedent
  
 def test_ablative_absolute_noun_belongs_to_its_circumstantial_participle():
     """In "Anco regnante Lucumo Romam commigravit", Anco is a true ablative
-    absolute (per syntax_model.md, "otherwise unconnected syntactically"):
+    absolute (per the scheme docs (quarto/concepts/), "otherwise unconnected syntactically"):
     syntactically absolute from commigravit's own clause, it takes its
     verbal unit instead from regnante, the circumstantial participle it
     grammatically agrees with -- so Anco and regnante end up in the SAME
@@ -87,7 +87,7 @@ def test_ablative_absolute_noun_belongs_to_its_circumstantial_participle():
     assert assignment["t0"] == "t1"  # Anco -> regnante (its circumstantial participle)
     assert assignment["t1"] == "t1"  # regnante -> itself
     assert assignment["t2"] == "t4"  # Lucumo (subject of commigravit)
-    assert assignment["t3"] is None  # Romam: bare accusative of place, not covered
+    assert assignment["t3"] == "t4"  # Romam: accusative of place -> commigravit
  
  
 def test_ablative_absolute_with_implied_participle_of_sum():
@@ -178,7 +178,7 @@ def test_circumstantial_participle_noun_keeps_its_own_clause_role():
 def test_implied_subject_resolves_like_any_ordinary_antecedent():
     """"Recordatus somniorum ait ad eos": t0_implied (tokentype 'implied
     subject') is NOT a verbal-unit anchor -- it has no verbalunitid, unlike
-    'implied sum'/'continued discourse' -- so it must resolve through the
+    'implied sum'/'implied verb' -- so it must resolve through the
     plain forward chase, via its own ordinary 'subject' relation into ait,
     exactly like a real subject noun would (see this module's own
     docstring's note on why no special-casing is needed for this case).
@@ -234,7 +234,7 @@ def test_series_coordinating_conjunctions_all_resolve_through_relatedtoken1():
 def test_complementary_infinitive_and_infinitive_as_noun_are_not_anchors():
     """A complementary infinitive (expugnare, completing vellet) and an
     infinitive used as an ordinary noun (dolere, the subject of est) are
-    both NEW relation shapes syntax_model.md added, but neither makes its
+    both NEW relation shapes the scheme docs (quarto/concepts/) added, but neither makes its
     token a verbal-unit anchor -- they resolve to whichever governing verb
     they point at, exactly like a direct object or adverb would, with zero
     changes needed to assign_verbal_units() itself."""
@@ -249,11 +249,11 @@ def test_complementary_infinitive_and_infinitive_as_noun_are_not_anchors():
     assert all(tok.verbalunitid is None for tok in tokengraph if tok.id == "t0")
 
 
-def test_gerund_and_gerundive_are_not_anchors():
-    """A gerund (disserendi) and a gerundive (faciendum) are both treated
-    as ordinary noun/adjective relations, not new verbal expressions --
-    each resolves to its governing verb's unit like any other dependent
-    token, with no verbalunitid of its own."""
+def test_gerund_is_not_an_anchor_but_gerundive_is():
+    """A gerund (disserendi) is a substantive: it resolves to its governing
+    verb's unit like any other dependent token. A gerundive (faciendum) is a
+    verbal expression of its own (quarto/concepts/verbalunits.qmd), so it
+    anchors its own unit."""
     tokengraph = _tokengraph("gerund_ars_bene_disserendi")
     assignment = assign_verbal_units(tokengraph)
     assert assignment["t2"] == "t4"  # disserendi (genitive on Ars) -> est's unit
@@ -261,8 +261,8 @@ def test_gerund_and_gerundive_are_not_anchors():
 
     tokengraph = _tokengraph("gerundive_metapontus_sacrum_faciendum")
     assignment = assign_verbal_units(tokengraph)
-    assert assignment["t7"] == "t1"  # faciendum (adjectival on sacrum) -> exiit's unit
-    assert all(tok.verbalunitid is None for tok in tokengraph if tok.id == "t7")
+    assert assignment["t7"] == "t7"  # faciendum ('gerundive' on sacrum) -> itself
+    assert assignment["t6"] == "t1"  # sacrum stays in exiit's unit
 
 
 def test_direct_quote_and_aside_form_their_own_units_not_the_framing_verbs():
@@ -282,20 +282,27 @@ def test_direct_quote_and_aside_form_their_own_units_not_the_framing_verbs():
     assert assignment["t3"] == "t3"  # dixerim (aside) -> itself
     assert assignment["t13"] == "t13"  # spero (framed verb) -> itself, not merged with the aside
     assert assignment["t2"] == "t3"  # pace stays with the aside
-    assert assignment["t7"] is None  # nos: left unrelated per syntax_model.md
+    assert assignment["t7"] == "t12"  # nos: subject of the indirect statement esse
  
  
 def test_unrelated_and_punctuation_tokens_get_none():
     tokengraph = _tokengraph("numeral_hiberna_aberant_xxv")
     assignment = assign_verbal_units(tokengraph)
     assert assignment["t7"] is None  # trailing "."
-    # "milia passuum XXV" is an accusative-of-extent phrase: milia now
-    # relates to aberant via 'accusative' (see syntax_model.md's "Noun
-    # relations" section), so it resolves to aberant's own verbal unit;
-    # passuum and XXV still have no relation in the scheme and stay None.
+    # "milia passuum XXV": milia relates to aberant via 'accusative', and
+    # passuum ('genitive') and XXV ('adjectival') relate to milia, so all
+    # three resolve to aberant's own verbal unit.
     assert assignment["t4"] == "t1"
-    assert assignment["t5"] is None
-    assert assignment["t6"] is None
+    assert assignment["t5"] == "t1"
+    assert assignment["t6"] == "t1"
+
+
+def test_a_token_with_no_relation_gets_none():
+    """In the verbless "Tu quoque, Brute, fili mi, et tu?" nothing anchors
+    a verbal unit, so every token gets None."""
+    tokengraph = _tokengraph("coordinating_conjunction_et_as_adverb_tu_brute")
+    assignment = assign_verbal_units(tokengraph)
+    assert set(assignment.values()) == {None}
  
  
 def test_cycle_in_relations_does_not_infinite_loop():
@@ -304,11 +311,11 @@ def test_cycle_in_relations_does_not_infinite_loop():
     tokengraph = [
         TokenAnalysis(
             id="t0", token="a", tokentype="lexical",
-            relatedtoken1="t1", relationship1="adverbial",
+            relations=[rel("t1", "adverbial")],
         ),
         TokenAnalysis(
             id="t1", token="b", tokentype="lexical",
-            relatedtoken1="t0", relationship1="adverbial",
+            relations=[rel("t0", "adverbial")],
         ),
     ]
     assignment = assign_verbal_units(tokengraph)
@@ -402,7 +409,7 @@ def test_circumstantial_participle_via_implied_subject_has_depth_one():
 
 
 def test_indirect_statement_has_depth_one():
-    """facturum's own relatedtoken1 -> dixit (the new relation this whole
+    """facturum's own -> dixit (the new relation this whole
     feature depended on adding) makes its depth directly resolvable, one
     level below the verb of saying that governs it. facturum, not fuisse,
     anchors the compound future-infinitive verbal expression, per the
@@ -429,9 +436,9 @@ def test_depth_two_nesting_through_a_dependent_clause():
 
 def test_dependent_verb_via_interrogative_word_has_depth_one():
     """quanta introduces an indirect question exactly like a subordinating
-    conjunction would -- syntax_model.md reuses that same relationship
-    label for it (relatedtoken1 -> audit, relationship1 'subordinating
-    conjunction'), so afficeretur (relatedtoken1 -> quanta, relationship1
+    conjunction would -- the scheme docs (quarto/concepts/) reuses that same relationship
+    label for it (-> audit, relationship1 'subordinating
+    conjunction'), so afficeretur (-> quanta, relationship1
     'unit verb') resolves its depth via the identical chase a plain
     subordinating conjunction gets, with no code changes needed."""
     tokengraph = _tokengraph("indirect_question_theseus_audit_quanta")
@@ -442,7 +449,7 @@ def test_dependent_verb_via_interrogative_word_has_depth_one():
 
 
 def test_circumstantial_participle_preferred_over_attributive_reaches_depth_two():
-    """Regression check for the syntax_model.md 'prefer circumstantial when
+    """Regression check for the the scheme docs (quarto/concepts/) 'prefer circumstantial when
     uncertain' rule (using its own worked example): tinctas now anchors its
     own circumstantial-participle verbal expression agreeing with sagittas,
     which is itself sciret's direct object -- sciret already sits one level
@@ -493,11 +500,11 @@ def test_cycle_in_relations_leaves_depth_unresolved_with_warning():
     tokengraph = [
         TokenAnalysis(
             id="t0", token="a", tokentype="lexical", verbalunitid="t0",
-            relatedtoken1="t1", relationship1="unit verb",
+            relations=[rel("t1", "unit verb")],
         ),
         TokenAnalysis(
             id="t1", token="b", tokentype="lexical", verbalunitid="t1",
-            relatedtoken1="t0", relationship1="unit verb",
+            relations=[rel("t0", "unit verb")],
         ),
     ]
     depths, warnings = compute_subordination_depths(tokengraph)
@@ -526,8 +533,8 @@ def test_root_verb_has_no_governing_expression():
 
 
 def test_dependent_verb_resolves_its_governing_expression():
-    """perlustrasset's relatedtoken1 -> cum (not itself an anchor) ->
-    cum's own relatedtoken1 -> pergit, the anchor one level up."""
+    """perlustrasset's -> cum (not itself an anchor) ->
+    cum's own -> pergit, the anchor one level up."""
     tokengraph = _tokengraph("unit_verb_hercules_cum")
     governing = find_governing_verbal_expression(tokengraph)
     assert governing["t3"] == "t5"  # perlustrasset governed by pergit
@@ -558,11 +565,11 @@ def test_mutual_cycle_resolves_each_anchor_to_the_other():
     tokengraph = [
         TokenAnalysis(
             id="t0", token="a", tokentype="lexical", verbalunitid="t0",
-            relatedtoken1="t1", relationship1="unit verb",
+            relations=[rel("t1", "unit verb")],
         ),
         TokenAnalysis(
             id="t1", token="b", tokentype="lexical", verbalunitid="t1",
-            relatedtoken1="t0", relationship1="unit verb",
+            relations=[rel("t0", "unit verb")],
         ),
     ]
     governing = find_governing_verbal_expression(tokengraph)
@@ -632,11 +639,11 @@ def test_cyclic_anchors_get_an_arbitrary_but_never_none_depth():
     tokengraph = [
         TokenAnalysis(
             id="t0", token="a", tokentype="lexical", verbalunitid="t0",
-            relatedtoken1="t1", relationship1="unit verb",
+            relations=[rel("t1", "unit verb")],
         ),
         TokenAnalysis(
             id="t1", token="b", tokentype="lexical", verbalunitid="t1",
-            relatedtoken1="t0", relationship1="unit verb",
+            relations=[rel("t0", "unit verb")],
         ),
     ]
     subordination_depths, warnings = compute_subordination_depths(tokengraph)
@@ -706,8 +713,7 @@ def test_flags_a_coordinated_verb_that_lost_its_own_anchor():
     for tok in tokengraph:
         if tok.id == "t20":
             tok.verbalunitid = None
-            tok.relatedtoken1 = None
-            tok.relationship1 = None
+            tok.relations = []
 
     warnings = find_unanchored_coordinated_verbs(tokengraph)
     assert len(warnings) == 1
@@ -727,16 +733,15 @@ def test_both_sides_anchored_but_neither_actually_verbs_is_not_flagged():
     tokengraph = [
         TokenAnalysis(
             id="t0", token="a", tokentype="lexical", verbalunitid="t0",
-            relatedtoken1="root", relationship1="unit verb",
+            relations=[rel("root", "unit verb")],
         ),
         TokenAnalysis(
             id="t1", token="et", tokentype="lexical",
-            relatedtoken1="t0", relationship1="coordinating conjunction",
-            relatedtoken2="t2", relationship2="coordinating conjunction",
+            relations=[rel("t0", "coordinating word"), rel("t2", "coordinating word")],
         ),
         TokenAnalysis(
             id="t2", token="b", tokentype="lexical", verbalunitid="t2",
-            relatedtoken1="root", relationship1="unit verb",
+            relations=[rel("root", "unit verb")],
         ),
     ]
     assert find_unanchored_coordinated_verbs(tokengraph) == []
@@ -759,29 +764,27 @@ def test_series_coordinated_verbs_do_not_false_positive():
     tokengraph = [
         TokenAnalysis(
             id="conj1", token="et", tokentype="lexical",
-            relatedtoken1="verb1", relationship1="coordinating conjunction",
+            relations=[rel("verb1", "coordinating word")],
         ),
         TokenAnalysis(
             id="verb1", token="venit", tokentype="lexical", verbalunitid="verb1",
-            relatedtoken1="root", relationship1="unit verb",
+            relations=[rel("root", "unit verb")],
         ),
         TokenAnalysis(
             id="conj2", token="et", tokentype="lexical",
-            relatedtoken1="verb1", relationship1="coordinating conjunction",
-            relatedtoken2="verb2", relationship2="coordinating conjunction",
+            relations=[rel("verb1", "coordinating word"), rel("verb2", "coordinating word")],
         ),
         TokenAnalysis(
             id="verb2", token="vidit", tokentype="lexical", verbalunitid="verb2",
-            relatedtoken1="root", relationship1="unit verb",
+            relations=[rel("root", "unit verb")],
         ),
         TokenAnalysis(
             id="conj3", token="et", tokentype="lexical",
-            relatedtoken1="verb2", relationship1="coordinating conjunction",
-            relatedtoken2="verb3", relationship2="coordinating conjunction",
+            relations=[rel("verb2", "coordinating word"), rel("verb3", "coordinating word")],
         ),
         TokenAnalysis(
             id="verb3", token="vicit", tokentype="lexical", verbalunitid="verb3",
-            relatedtoken1="root", relationship1="unit verb",
+            relations=[rel("root", "unit verb")],
         ),
     ]
     assert find_unanchored_coordinated_verbs(tokengraph) == []

@@ -1,8 +1,21 @@
 """arsgrammatica: a DSPy program analyzing the syntax of Latin passages
-according to the scheme documented in syntax_model.md.
+according to the scheme documented in the Quarto site's "Concepts" pages
+(quarto/concepts/tokens.qmd, verbalunits.qmd and syntactic-analysis.qmd).
 """
  
-from .models import Token, CitedText, Sentence, VerbalExpression, TokenAnalysis, RelationLabel
+from .models import (
+    Token,
+    CitedText,
+    Sentence,
+    VerbalExpression,
+    TokenAnalysis,
+    Relation,
+    RelationLabel,
+    SyntacticType,
+    TokenType,
+    IMPLIED_TOKENTYPES,
+    rel,
+)
 from .mermaid import tokengraph_to_mermaid, token_label, save_mermaid
 from .dot import tokengraph_to_dot, compute_graph_depths, max_graph_depth, save_dot
 from .graphs import GraphMetrics, tokengraph_to_networkx, graph_metrics
@@ -164,6 +177,11 @@ __all__ = [
     "VerbalExpression",
     "TokenAnalysis",
     "RelationLabel",
+    "Relation",
+    "SyntacticType",
+    "TokenType",
+    "IMPLIED_TOKENTYPES",
+    "rel",
     "tokengraph_to_mermaid",
     "token_label",
     "save_mermaid",

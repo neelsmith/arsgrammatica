@@ -82,7 +82,7 @@ def test_hercules_subordination_and_agent_target_mapping():
 
 
 def test_transitive_passive_agent_via_object_of_preposition_and_compound_value():
-    """'urbs a Romulo condita est.' The 'agent' relation label sits on the
+    """'urbs a Romulo condita est.' The 'agent-ablative' relation label sits on the
     preposition 'a' (t1), not the real agent noun 'Romulo' (t2) -- the
     AATNode built for this action's agent must be anchored on t2 (the
     object of the preposition), not t1. The action itself is a compound
@@ -277,3 +277,56 @@ def test_filtering_to_depth_zero_keeps_only_root_actions_and_their_own_dependent
     graph, warnings = aatgraph([sentence], [filtered_result])
     assert warnings == []
     assert {n.id for n in graph.nodes} == {"t5", "t0"}
+
+
+# ---------------------------------------------------------------------------
+# Agent/target by voice (quarto/concepts/syntactic-analysis.qmd, "A-A-T
+# relations"). The scheme no longer records semantic types, so aatgraph()
+# infers voice from the analysis itself.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "slug, agents, targets",
+    [
+        # agent-dative with a passive periphrastic: subject is the target.
+        ("agent_dative_caesari_omnia_agenda", {"t0"}, {"t1"}),
+        # passive periphrastic with no agent: subject is still the target.
+        ("passive_periphrastic_carthago_delenda_est", set(), {"t0"}),
+        # predicate use 4 (passive of a verb of making) is a target.
+        ("predicate_passive_cicero_consul_creatus", set(), {"t0", "t1"}),
+        # predicate use 3 relates to the object, not the verb: not a target.
+        ("predicate_of_object_ciceronem_consulem", set(), {"t0"}),
+        # predicate use 2 (role or state) is not a target.
+        ("dative_genitive_lucumo_superfuit", {"t0"}, set()),
+        # predicate of a linking verb (use 1) is a target.
+        ("semantic_type_linking_verb_etruria_vicina", {"t0"}, {"t2"}),
+    ],
+)
+def test_agent_and_target_follow_voice(slug, agents, targets):
+    sentence, result = _sentence_and_result(slug, citation="x")
+    graph, warnings = aatgraph([sentence], [result])
+    assert warnings == []
+    assert set(_by_role(graph, "agent")) == agents
+    assert set(_by_role(graph, "target")) == targets
+
+
+def test_deponent_lemma_is_treated_as_active():
+    """A compound form of a deponent verb (lemma ending in -or) is active:
+    its subject is the agent, even though it has an auxiliary."""
+    tokengraph = [
+        TokenAnalysis(id="t0", token="Caesar", tokentype="lexical", lemma="Caesar",
+                      relations=[{"related": "t1", "relationship": "subject"}]),
+        TokenAnalysis(id="t1", token="locutus", tokentype="lexical", lemma="loquor",
+                      verbalunitid="t1", relations=[{"related": "root", "relationship": "unit verb"}]),
+        TokenAnalysis(id="t2", token="est", tokentype="lexical", lemma="sum",
+                      relations=[{"related": "t1", "relationship": "auxiliary"}]),
+    ]
+    sentence = Sentence(tokens=[Token(id=t.id, text=t.token, citation="x") for t in tokengraph])
+    result = SimpleNamespace(
+        tokengraph=tokengraph,
+        verbalunits=[VerbalExpression(id="t1", syntactic_type="independent")],
+    )
+    graph, _warnings = aatgraph([sentence], [result])
+    assert set(_by_role(graph, "agent")) == {"t0"}
+    assert set(_by_role(graph, "target")) == set()

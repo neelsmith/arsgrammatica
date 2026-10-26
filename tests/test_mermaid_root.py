@@ -13,7 +13,7 @@ import re
 import pytest
 
 from arsgrammatica import tokengraph_to_mermaid
-from arsgrammatica.models import TokenAnalysis
+from arsgrammatica.models import TokenAnalysis, rel
 from conftest import run_gold_example
 from fixtures.gold_examples import GOLD_EXAMPLES
 
@@ -94,11 +94,11 @@ def test_root_omitted_when_no_independent_verb_is_present():
     tokengraph = [
         TokenAnalysis(
             id="t0", token="Hercules", tokentype="lexical",
-            relatedtoken1="t1", relationship1="subject",
+            relations=[rel("t1", "subject")],
         ),
         TokenAnalysis(
             id="t1", token="pergit", tokentype="lexical", verbalunitid="t1",
-            relatedtoken1="t2", relationship1="direct quote",
+            relations=[rel("t2", "direct quote")],
         ),
         TokenAnalysis(
             id="t2", token="venit", tokentype="lexical", verbalunitid="t2",

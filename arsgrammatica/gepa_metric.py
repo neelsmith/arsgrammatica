@@ -7,21 +7,14 @@ propose better instructions. That makes the feedback string here at least
 as important as the score itself: it should read like a teacher's marginal
 comments on a student's parse, naming the actual token, the actual
 relation, and the actual expected-vs-got values, in the same vocabulary
-syntax_model.md and SentenceAnalysis's docstring use.
+the Quarto "Concepts" pages and SentenceAnalysis's docstring use.
 
-Scoring is structural, not exact-dict-equality, in one deliberate way:
-relatedtoken1/relationship1 vs. relatedtoken2/relationship2 is documented
-as an overflow slot (see syntax_model.md and models.py's RelationLabel
-comment) for a token that needs to record two relations at once (e.g. a
-relative pronoun that is also a clause's subject). A predicted answer that
-puts the same two relations in the opposite slots from the gold answer is
-exactly as correct as the gold answer -- so relations are compared as an
-unordered set of (token id, relationship label, related token id) triples
-per tokengraph, not as a positional relatedtoken1/relatedtoken2 comparison.
+Relations are compared as an unordered set of (token id, relationship
+label, related token id) triples per tokengraph, since a token's relations
+are themselves unordered (see models.Relation).
 
 Everything else this metric checks (tokentype, lemma, verbalunitid, and
-verbal-expression syntactic_type/semantic_type) is a plain per-field
-comparison.
+each verbal expression's syntactic_type) is a plain per-field comparison.
 
 This module has no dependency on tests/fixtures/gold_examples.py or dspy's
 GEPA machinery itself -- optimize_gepa.py wires this metric, GOLD_EXAMPLES,
@@ -48,17 +41,13 @@ def _get(obj: Any, field: str) -> Any:
 
 def _relation_triples(tokengraph_by_id: dict) -> set:
     """Every (token id, relationship label, related token id) triple in a
-    tokengraph, collapsing the relatedtoken1/relationship1 vs.
-    relatedtoken2/relationship2 slots into one unordered set (see module
-    docstring for why)."""
+    tokengraph, as one unordered set (a token's relations are unordered --
+    see models.Relation)."""
     triples = set()
     for tid, tok in tokengraph_by_id.items():
-        for related_field, label_field in (
-            ("relatedtoken1", "relationship1"),
-            ("relatedtoken2", "relationship2"),
-        ):
-            related = _get(tok, related_field)
-            label = _get(tok, label_field)
+        for relation in _get(tok, "relations") or []:
+            related = _get(relation, "related")
+            label = _get(relation, "relationship")
             if related is not None and label is not None:
                 triples.add((tid, label, related))
     return triples
@@ -109,7 +98,7 @@ def syntax_metric(
     "just generally worse," which a single blended number can't distinguish.
 
     The 0.2/0.5/0.3 weighting (fields/relations/verbal-expressions) is a
-    judgment call, not something syntax_model.md specifies -- relations are
+    judgment call, not something the scheme docs (quarto/concepts/) specifies -- relations are
     weighted highest since they're the heart of the scheme, but this is an
     easy knob to retune once real GEPA runs are observed.
     """
@@ -193,10 +182,10 @@ def syntax_metric(
         gtext = _get(gold_tg.get(vid), "token") or vid
         if vid not in pred_vu:
             problems.append(f"verbal expression at {vid} ({gtext!r}) is missing from verbalunits entirely")
-            vu_total += 2
+            vu_total += 1
             continue
         pv = pred_vu[vid]
-        for field in ("syntactic_type", "semantic_type"):
+        for field in ("syntactic_type",):
             vu_total += 1
             if _get(gv, field) == _get(pv, field):
                 vu_correct += 1

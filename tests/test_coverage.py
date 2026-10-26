@@ -1,10 +1,10 @@
 """
 Meta-tests: check that every documented enum value in models.py -- relation
 labels, verbal-expression classifications, and token types -- has at least
-one gold example exercising it. syntax_model.md specifies all of these, not
+one gold example exercising it. The scheme docs (quarto/concepts/) specify all of these, not
 just relation labels, so "coverage" means all of them.
  
-These are expected to fail as syntax_model.md and models.py grow faster
+These are expected to fail as the scheme docs (quarto/concepts/) and models.py grow faster
 than fixtures/gold_examples.py -- that's the point. Each failure names
 exactly which value(s) still need an example.
 """
@@ -24,11 +24,11 @@ def _literal_values(model, field_name):
  
 def _relationship_labels_seen():
     return {
-        tok.get(field)
+        rel["relationship"]
         for example in GOLD_EXAMPLES
         for tok in example.canned_answer["tokengraph"]
-        for field in ("relationship1", "relationship2")
-    } - {None}
+        for rel in tok.get("relations", [])
+    }
  
  
 def _verbalunit_field_seen(field_name):
@@ -47,7 +47,7 @@ def _tokengraph_field_seen(field_name):
     } - {None}
  
  
-# Each entry is one thing syntax_model.md specifies a fixed set of values
+# Each entry is one thing the scheme docs (quarto/concepts/) specify a fixed set of values
 # for: (readable name, values actually seen in GOLD_EXAMPLES, values allowed
 # by the pydantic model). Add a row here whenever models.py gains a new
 # Literal-typed field -- nothing else about this file needs to change.
@@ -61,11 +61,6 @@ COVERAGE_DIMENSIONS = [
         "verbal expression syntactic_type",
         _verbalunit_field_seen("syntactic_type"),
         _literal_values(VerbalExpression, "syntactic_type"),
-    ),
-    (
-        "verbal expression semantic_type",
-        _verbalunit_field_seen("semantic_type"),
-        _literal_values(VerbalExpression, "semantic_type"),
     ),
     (
         "token tokentype",

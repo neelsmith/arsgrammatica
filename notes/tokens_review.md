@@ -24,7 +24,7 @@ Drafted 2026-10-15 on `wip`, against the working-tree version of `quarto/concept
 5. ✅  **Classification depends on context, not just "orthography and content" (line 23).**
    - *Agrippa* is a `praenomen` in *Agrippa Menenio* (line 37) but presumably `lexical` in *M. Agrippa* (line 30). Say so explicitly.
    - The abbreviated praenomina *M.*, *C.*, *D.* and *L.* collide with the Roman numerals 1000, 100, 500 and 50, and *V* and *I* also collide with words. Add a sentence on how these are resolved.
-6. **Which enclitics count (lines 62–79)?** Only *-que* and *-ne* are illustrated.
+6. ✅   **Which enclitics count (lines 62–79)?** Only *-que* and *-ne* are illustrated.
    - Is *-ve* an enclitic?
    - Is *-cum* in *mecum* / *tecum* / *quibuscum* an enclitic?
    - Are *neque*, *atque*, *itaque*, *denique* and *undique* single `lexical` tokens, like *quisque*? *neque* in particular comes up constantly.

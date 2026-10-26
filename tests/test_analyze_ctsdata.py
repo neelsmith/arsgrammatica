@@ -66,13 +66,13 @@ _ONE_SENTENCE_ANALYSIS = {
     # fixture is written in terms of them too.
     "reasoning": "cano is the main verb; arma and virumque are its objects.",
     "verbalunits": [
-        {"id": "1.1.t2", "syntactic_type": "independent", "semantic_type": "transitive active"},
+        {"id": "1.1.t2", "syntactic_type": "independent"},
     ],
     "tokengraph": [
         {"id": "1.1.t0", "token": "arma", "tokentype": "lexical",
-         "relatedtoken1": "1.1.t2", "relationship1": "direct object"},
+         "relations": [{"related": "1.1.t2", "relationship": "direct object"}]},
         {"id": "1.1.t1", "token": "virumque", "tokentype": "lexical",
-         "relatedtoken1": "1.1.t2", "relationship1": "direct object"},
+         "relations": [{"related": "1.1.t2", "relationship": "direct object"}]},
         {"id": "1.1.t2", "token": "cano", "tokentype": "lexical", "verbalunitid": "1.1.t2"},
         {"id": "1.1.t3", "token": ".", "tokentype": "punctuation"},
     ],
@@ -114,7 +114,7 @@ _VALE_ANALYSIS = {
     # t2/t3.
     "reasoning": "vale is an imperative verbal expression.",
     "verbalunits": [
-        {"id": "2.t0", "syntactic_type": "independent", "semantic_type": "intransitive"},
+        {"id": "2.t0", "syntactic_type": "independent"},
     ],
     "tokengraph": [
         {"id": "2.t0", "token": "vale", "tokentype": "lexical", "verbalunitid": "2.t0"},
@@ -179,7 +179,7 @@ def test_custom_delimiter_is_passed_through_to_read_ctsdata(tmp_path):
         {
             "reasoning": "vale is an imperative verbal expression.",
             "verbalunits": [
-                {"id": "1.t0", "syntactic_type": "independent", "semantic_type": "intransitive"},
+                {"id": "1.t0", "syntactic_type": "independent"},
             ],
             "tokengraph": [
                 {"id": "1.t0", "token": "vale", "tokentype": "lexical", "verbalunitid": "1.t0"},

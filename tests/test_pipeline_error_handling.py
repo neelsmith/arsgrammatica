@@ -45,7 +45,7 @@ _TWO_SENTENCE_SEG = {
 _VALE_ANALYSIS = {
     "reasoning": "vale is an imperative verbal expression.",
     "verbalunits": [
-        {"id": "t2", "syntactic_type": "independent", "semantic_type": "intransitive"},
+        {"id": "t2", "syntactic_type": "independent"},
     ],
     "tokengraph": [
         {"id": "t2", "token": "vale", "tokentype": "lexical", "verbalunitid": "t2"},

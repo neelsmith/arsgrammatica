@@ -33,7 +33,7 @@ def tokens_from_canned_answer(canned_answer):
     couldn't promise.
 
     Implied/elided tokengraph entries (tokentype in IMPLIED_TOKENTYPES --
-    'implied sum', 'continued discourse', or 'implied subject'; see
+    'implied sum', 'implied verb', or 'implied substantive'; see
     models.py's TokenAnalysis) are excluded: they were never part of the original,
     pre-analysis token list -- analyze() itself is what adds them to its
     OUTPUT tokengraph -- and Token.text is required, non-None, which an

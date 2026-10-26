@@ -4,22 +4,21 @@ latin_syntax_dspy.analyze_string) as a Mermaid flowchart.
  
 - Every non-punctuation token becomes a node, labelled with the token's
   surface text.
-- Every `relatedtoken1`/`relationship1` and `relatedtoken2`/`relationship2`
-  pair on a token becomes a labelled edge from that token to the related
-  token.
+- Every Relation in a token's `relations` becomes a labelled edge from
+  that token to the related token.
 - By default (`color_by_verbal_unit=True`), every token is also colored by
   the verbal unit it belongs to (see verbal_units.py's assign_verbal_units())
   -- so the clauses a sentence breaks into are visually distinguishable at a
   glance, not just inferable from following edges by hand. The one
   exception: an implied/elided token (models.py's IMPLIED_TOKENTYPES --
-  "implied sum", "continued discourse", "implied subject") always gets a
+  "implied sum", "implied verb", "implied substantive") always gets a
   dedicated "caution" amber (verbal_units._IMPLIED_TOKEN_COLOR) instead,
-  regardless of which unit it anchors or (for "implied subject", which
+  regardless of which unit it anchors or (for "implied substantive", which
   anchors none of its own -- see models.py's TokenAnalysis docstring)
   resolves into -- flagging "a real word is missing here" rather than
   blending in as an ordinary member of that unit's color. Its label is
-  "elided sum" or "continued discourse" (see `_IMPLIED_TOKEN_LABELS`
-  below), or else its own tokentype string verbatim ("implied subject"
+  "elided sum" or "implied verb" (see `_IMPLIED_TOKEN_LABELS`
+  below), or else its own tokentype string verbatim ("implied substantive"
   has no dedicated entry there), rather than its own surface text, since
   it has none (`token` is `None`). It's also drawn as a rounded-corner
   rectangle (Mermaid's `(...)` node shape) rather than the plain `[...]`
@@ -48,24 +47,21 @@ latin_syntax_dspy.analyze_string) as a Mermaid flowchart.
   depth (compute_subordination_depths()), which still powers
   rendering.py's depth-indented HTML view and is unaffected by this.
 
-(These are the fields syntax_model.md calls `relation1`/`relationship1` and
-`relation2`/`relationship2` -- in models.py the "relation" side is named
-`relatedtoken*` to make clear it holds a token id, not the relation label.)
  
 Punctuation tokens are dropped as nodes. Any edge that would point at a
 dropped or unrecognized token id is skipped rather than emitted as a broken
 reference, and reported back to the caller so silent gaps are visible --
 except the special sentinel target 'root' (an independent verb's own
-relatedtoken1, per syntax_model.md), which is never a warning-worthy gap
+'unit verb' relation, per quarto/concepts/syntactic-analysis.qmd), which is never a warning-worthy gap
 either way (see `show_root` below).
 
 By default (`show_root=True`), every independent verb's own 'root'
 relation IS drawn: a single dedicated 'root' node (a plain, uncolored
 oval, labelled "root" -- always safe to use as a literal node id, since
-syntax_model.md itself says 'root' "must not be used as identifier for
-any token") that every independent verbal expression's anchor points to,
-labelled with its own relationship1 ('unit verb', per syntax_model.md --
-the same label every other edge already uses). Pass `show_root=False` to
+the format specification itself says 'root' "may not be used as identifier
+for any other tokens") that every independent verbal expression's anchor
+points to, labelled with its relationship ('unit verb') like every other
+edge. Pass `show_root=False` to
 omit it instead: the 'root' relation is then skipped silently, exactly as
 this function behaved before this parameter existed.
 """
@@ -94,17 +90,13 @@ def _escape_label(text: str) -> str:
     return text
 
 
-# The Mermaid node label for an implied/elided token (keyed by its own
-# tokentype, since it has no surface text of its own to use instead) --
-# "implied sum" reads as "elided sum" here specifically because that's the
-# more immediately legible term for a reader scanning the diagram; "continued
-# discourse" already reads fine as-is. Any IMPLIED_TOKENTYPES value not
-# listed here (e.g. "implied subject") falls back to its own tokentype
-# string verbatim (see its use below), so this mapping is a display
-# nicety, not something any tokentype strictly depends on.
+# The Mermaid node label for an implied token (keyed by its tokentype,
+# since it has no surface text of its own): "implied sum" reads as "elided
+# sum" for a reader scanning the diagram. Any IMPLIED_TOKENTYPES value not
+# listed here ("implied verb", "implied substantive") is shown as its own
+# tokentype string verbatim.
 _IMPLIED_TOKEN_LABELS = {
     "implied sum": "elided sum",
-    "continued discourse": "continued discourse",
 }
  
  
@@ -119,9 +111,9 @@ def token_label(tok: TokenAnalysis) -> str:
     or -- for an implied/elided token (tokentype in IMPLIED_TOKENTYPES,
     which has no surface text of its own; `tok.token` is None) -- a
     placeholder from `_IMPLIED_TOKEN_LABELS` ("elided sum" for "implied
-    sum", "continued discourse" verbatim), falling back to the token's own
+    sum", "implied verb" verbatim), falling back to the token's own
     tokentype string verbatim for any IMPLIED_TOKENTYPES value not listed
-    there (e.g. "implied subject").
+    there (e.g. "implied substantive").
 
     This is the exact label `tokengraph_to_mermaid()` puts in each node's
     diagram box; it's pulled out as its own function so anything else that
@@ -223,8 +215,8 @@ def tokengraph_to_mermaid(
     either.
 
     `show_root` (default True) draws every independent verbal expression's
-    own 'root' relation (relatedtoken1 == 'root', relationship1 == 'unit
-    verb', per syntax_model.md) as a real edge into a single dedicated
+    own 'root' relation (a 'unit verb' relation to 'root') as a real edge
+    into a single dedicated
     'root' node, instead of dropping it -- a plain oval (Mermaid's stadium
     `([...])` shape) labelled "root", deliberately left uncolored/unfilled
     regardless of `color_by_verbal_unit` (it's never assigned to any
@@ -300,7 +292,7 @@ def tokengraph_to_mermaid(
     # Mermaid's own default, unfilled node styling regardless of
     # `color_by_verbal_unit`.
     has_root_edge = show_root and any(
-        tok.relatedtoken1 == "root" for tok in tokengraph if tok.id in node_ids
+        "root" in tok.related_ids() for tok in tokengraph if tok.id in node_ids
     )
     if has_root_edge:
         lines.append('    root(["root"])')
@@ -309,17 +301,12 @@ def tokengraph_to_mermaid(
     for tok in tokengraph:
         if tok.id not in node_ids:
             continue
-        for related_field, label_field in (
-            ("relatedtoken1", "relationship1"),
-            ("relatedtoken2", "relationship2"),
-        ):
-            related_id = getattr(tok, related_field)
-            label = getattr(tok, label_field)
-            if related_id is None or label is None:
-                continue
+        for _relation in tok.relations:
+            related_id = _relation.related
+            label = _relation.relationship
             if related_id == "root":
                 # An independent verb's own unit-verb relation, per
-                # syntax_model.md -- never a warning-worthy gap either way.
+                # the scheme docs (quarto/concepts/) -- never a warning-worthy gap either way.
                 # When show_root is True (the default), draw the edge into
                 # the single dedicated 'root' node built above; when False,
                 # skip it silently, exactly as before this parameter

@@ -2,7 +2,7 @@
 DSPy program that segments a sequence of citation-labeled Latin source
 units into sentences, and each sentence into tokens -- replacing
 tokenizer.py's deterministic, regex-based segmentation with an LLM-driven
-one, per syntax_model.md's "Tokenization" section (context-dependent
+one, per quarto/concepts/tokens.qmd (context-dependent
 enclitic splitting, abbreviation recognition), while also tracking which
 citation unit each token came from.
  
@@ -32,8 +32,8 @@ from .models import CitedText, Sentence
  
 class SegmentPassage(dspy.Signature):
     """Segment a sequence of citation-labeled Latin source units into
-    sentences, and each sentence into tokens, following syntax_model.md's
-    tokenization scheme.
+    sentences, and each sentence into tokens, following arsgrammatica's
+    tokenization scheme (quarto/concepts/tokens.qmd).
  
     `sources` is given in reading order; treat its units' text as one
     continuous passage for sentence-splitting purposes -- a sentence may
@@ -53,11 +53,16 @@ class SegmentPassage(dspy.Signature):
       including their period -- never split the letters from the period the
       way ordinary sentence-final punctuation is separated.
  
-    - Enclitic splitting (-que, -ve, -ne) must consider context, not just
-      the trailing letters. Only split off an enclitic when the remainder
-      is itself a real word AND context supports that reading. Ordinary
-      words that happen to end in "que"/"ve"/"ne" (e.g. "sine", "bene")
-      are never split -- their whole spelling is the word, full stop.
+    - Enclitic splitting must consider context, not just the trailing
+      letters. The most important enclitics are -que, -ve and -ne; less
+      often -dum (e.g. "vixdum") and the preposition -cum written as an
+      enclitic (e.g. "nobiscum", "mecum"). Only split off an enclitic when
+      the remainder is itself a real word AND context supports that
+      reading. Ordinary words that happen to end in "que"/"ve"/"ne" (e.g.
+      "sine", "bene") are never split -- their whole spelling is the word,
+      full stop. Words that incorporated a historic enclitic are single
+      tokens too: quisque and its compounds and forms (cuique, quemque,
+      ...), plerusque, neque, atque, itaque, denique, undique.
  
       For "-ne" specifically: only read it as the interrogative particle
       when the sentence is a yes/no question AND its token is that

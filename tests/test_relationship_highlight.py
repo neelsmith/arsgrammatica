@@ -11,7 +11,7 @@ import html as html_module
 
 import pytest
 
-from arsgrammatica.models import TokenAnalysis
+from arsgrammatica.models import TokenAnalysis, rel
 from arsgrammatica.rendering import (
     RelationshipEdge,
     _NEUTRAL_FILL,
@@ -42,18 +42,18 @@ def test_tokens_with_no_relations_have_no_relationship_types():
 
 def test_distinct_relationship_labels_sorted_alphabetically():
     tg = [
-        _tok("t0", "puer", "lexical", relatedtoken1="t1", relationship1="subject"),
-        _tok("t1", "videt", "lexical", relatedtoken1="root", relationship1="unit verb"),
-        _tok("t2", "puellam", "lexical", relatedtoken1="t1", relationship1="direct object"),
+        _tok("t0", "puer", "lexical", relations=[rel("t1", "subject")]),
+        _tok("t1", "videt", "lexical", relations=[rel("root", "unit verb")]),
+        _tok("t2", "puellam", "lexical", relations=[rel("t1", "direct object")]),
     ]
     assert tokengraph_relationship_types(tg) == ["direct object", "subject", "unit verb"]
 
 
 def test_duplicate_relationship_labels_collapse_to_one_entry():
     tg = [
-        _tok("t0", "puer", "lexical", relatedtoken1="t1", relationship1="subject"),
+        _tok("t0", "puer", "lexical", relations=[rel("t1", "subject")]),
         _tok("t1", "videt", "lexical"),
-        _tok("t2", "puella", "lexical", relatedtoken1="t1", relationship1="subject"),
+        _tok("t2", "puella", "lexical", relations=[rel("t1", "subject")]),
     ]
     assert tokengraph_relationship_types(tg) == ["subject"]
 
@@ -64,17 +64,16 @@ def test_relationship2_values_are_included_too():
     # must show up in the menu even though "arma"/"virum" each only use
     # relationship1.
     tg = [
-        _tok("t0", "arma", "lexical", relatedtoken1="t3", relationship1="direct object"),
-        _tok("t1", "virum", "lexical", relatedtoken1="t3", relationship1="direct object"),
+        _tok("t0", "arma", "lexical", relations=[rel("t3", "direct object")]),
+        _tok("t1", "virum", "lexical", relations=[rel("t3", "direct object")]),
         _tok(
             "t2", "que", "enclitic",
-            relatedtoken1="t0", relationship1="coordinating conjunction",
-            relatedtoken2="t1", relationship2="coordinating conjunction",
+            relations=[rel("t0", "coordinating word"), rel("t1", "coordinating word")],
         ),
-        _tok("t3", "cano", "lexical", relatedtoken1="root", relationship1="unit verb"),
+        _tok("t3", "cano", "lexical", relations=[rel("root", "unit verb")]),
     ]
     assert tokengraph_relationship_types(tg) == [
-        "coordinating conjunction",
+        "coordinating word",
         "direct object",
         "unit verb",
     ]
@@ -84,14 +83,13 @@ def test_relationship2_values_are_included_too():
 
 
 _ARMA_VIRUMQUE_CANO = [
-    _tok("t0", "arma", "lexical", relatedtoken1="t3", relationship1="direct object"),
-    _tok("t1", "virum", "lexical", relatedtoken1="t3", relationship1="direct object"),
+    _tok("t0", "arma", "lexical", relations=[rel("t3", "direct object")]),
+    _tok("t1", "virum", "lexical", relations=[rel("t3", "direct object")]),
     _tok(
         "t2", "que", "enclitic",
-        relatedtoken1="t0", relationship1="coordinating conjunction",
-        relatedtoken2="t1", relationship2="coordinating conjunction",
+        relations=[rel("t0", "coordinating word"), rel("t1", "coordinating word")],
     ),
-    _tok("t3", "cano", "lexical", relatedtoken1="root", relationship1="unit verb"),
+    _tok("t3", "cano", "lexical", relations=[rel("root", "unit verb")]),
     _tok("t4", ".", "punctuation"),
 ]
 
@@ -123,7 +121,7 @@ def test_relationship_edges_root_target_has_no_end_id_but_a_label():
 
 
 def test_relationship_edges_two_way_conjunction_produces_two_edges_from_same_start():
-    edges, warnings = relationship_edges(_ARMA_VIRUMQUE_CANO, relationship="coordinating conjunction")
+    edges, warnings = relationship_edges(_ARMA_VIRUMQUE_CANO, relationship="coordinating word")
     assert warnings == []
     assert len(edges) == 2
     assert all(e.start_id == "t2" for e in edges)
@@ -138,7 +136,7 @@ def test_relationship_edges_selecting_unattested_relationship_returns_nothing():
 
 def test_relationship_edges_unresolved_target_id_warns_and_has_no_end_id():
     tg = [
-        _tok("t0", "foo", "lexical", relatedtoken1="t99", relationship1="adverbial"),
+        _tok("t0", "foo", "lexical", relations=[rel("t99", "adverbial")]),
     ]
     edges, warnings = relationship_edges(tg)
     assert len(edges) == 1
@@ -157,7 +155,7 @@ def test_relationship_edges_implied_token_start_gets_a_placeholder_label():
     tg = [
         _tok(
             "t0", None, "implied sum",
-            relatedtoken1="t1", relationship1="auxiliary",
+            relations=[rel("t1", "auxiliary")],
             verbalunitid="t1",
         ),
         _tok("t1", "facti", "lexical"),
@@ -235,7 +233,7 @@ def test_relationship_html_title_only_shows_selected_relationship_edges():
 def test_relationship_html_multiple_edges_on_one_node_join_with_newline():
     # t2 ("que") is the start of BOTH coordinating-conjunction edges.
     html_out, _w = tokengraph_to_relationship_html(
-        _ARMA_VIRUMQUE_CANO, relationship="coordinating conjunction"
+        _ARMA_VIRUMQUE_CANO, relationship="coordinating word"
     )
     marker = 'id="tok-t2"'
     start = html_out.index(marker)
@@ -244,8 +242,8 @@ def test_relationship_html_multiple_edges_on_one_node_join_with_newline():
     title = html_module.unescape(html_out[title_start:title_end])
     lines = title.split("\n")
     assert len(lines) == 2
-    assert "que - coordinating conjunction - arma" in lines
-    assert "que - coordinating conjunction - virum" in lines
+    assert "que - coordinating word - arma" in lines
+    assert "que - coordinating word - virum" in lines
 
 
 def test_relationship_html_selecting_unattested_relationship_is_a_no_op():
@@ -260,7 +258,7 @@ def test_relationship_html_escapes_special_characters_in_tooltip_and_text():
     tg = [
         _tok(
             "t0", 'A&B"', "lexical",
-            relatedtoken1="t1", relationship1="apposition",
+            relations=[rel("t1", "apposition")],
         ),
         _tok("t1", "C<D", "lexical"),
     ]
@@ -327,11 +325,11 @@ def test_relationship_html_root_edge_has_no_box_but_still_gets_underline_and_tit
 # function with that value, no new UI involved.
 
 _TWO_CLAUSES_WITH_OBJECT = [
-    _tok("t0", "puer", "lexical", relatedtoken1="t1", relationship1="subject"),
+    _tok("t0", "puer", "lexical", relations=[rel("t1", "subject")]),
     _tok("t1", "videt", "lexical", verbalunitid="t1"),
-    _tok("t2", "puellam", "lexical", relatedtoken1="t1", relationship1="direct object"),
+    _tok("t2", "puellam", "lexical", relations=[rel("t1", "direct object")]),
     _tok("t3", ",", "punctuation"),
-    _tok("t4", "canis", "lexical", relatedtoken1="t5", relationship1="subject"),
+    _tok("t4", "canis", "lexical", relations=[rel("t5", "subject")]),
     _tok("t5", "latrat", "lexical", verbalunitid="t5"),
     _tok("t6", ".", "punctuation"),
 ]

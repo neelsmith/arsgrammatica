@@ -1,5 +1,6 @@
 """
-Deterministic plain-text serialization for a set of analyses: writes and
+Deterministic plain-text serialization for a set of analyses, implementing
+the format specified in quarto/reference/analysisformat.qmd. It writes and
 reads back the three flat lists analyze_sources()/analyze_string() (plus
 pipeline.py's combined_tokengraph()) naturally produce across however many
 sentences and citation sources were analyzed --
@@ -8,190 +9,99 @@ sentences and citation sources were analyzed --
     verbalunits: List[VerbalExpression]
     tokengraph:  List[TokenAnalysis]
 
--- to and from one plain-text file, using '|' as the column separator, so
-an analysis can be saved, diffed, hand-edited, or loaded back into exactly
-the same three Python types without needing a database or a pickle file.
+-- to and from one plain-text file, using '|' as the column separator.
 
 write_analyses() writes straight to a file; serialize_analyses() builds
-the exact same text and warnings but returns the string instead of
-writing it anywhere -- useful whenever the caller wants to embed this
-format in something else (a log, a prompt, another file's contents, an
-in-memory test fixture) rather than write a standalone file. The two
-share one implementation: write_analyses() is a thin wrapper that calls
-serialize_analyses() and writes its result to `path`.
+the exact same text and warnings but returns the string instead. The two
+share one implementation.
 
-File shape: three line-oriented, pipe-delimited blocks, each introduced by
-a label line (one of '#!sentences', '#!verbal_units', '#!tokens' alone on
-its own line) immediately followed by a fixed header line naming that
-block's columns, then one data line per record. Blocks may appear in any
-order (the label is what identifies a block, not its position), blank
-lines between blocks are ignored, and all three blocks are required.
-
-A fourth, OPTIONAL block, '#!lm', records what produced an analysis --
-see "The #!lm block" below for its shape and why it doesn't follow the
-label+header+pipe-rows pattern the other three do.
-
-Each of the three labels may also appear MORE THAN ONCE -- e.g. several
-'#!tokens' blocks, each with its own repeated header line, scattered
-anywhere in the file. read_analyses() concatenates every block sharing a
-label into that label's single combined row list, in file order, before
-doing anything else with it -- so a file built by literally concatenating
-several write_analyses()/serialize_analyses() outputs (each a complete,
-self-contained trio of blocks) reads back exactly as if all their
-sentences/verbalunits/tokengraph rows had been passed to a single
-write_analyses() call to begin with. write_analyses() itself still only
-ever emits one instance of each block; multiple instances are something
-read_analyses() accepts, not something this module produces.
+File shape: line-oriented, pipe-delimited blocks, each introduced by a
+label line ('#!sentences', '#!verbal_units', '#!tokens') immediately
+followed by a fixed header line naming that block's columns, then one data
+line per record. Blocks may appear in any order, blank lines between blocks
+are ignored, and all three blocks are required. Each label may appear more
+than once (e.g. from concatenating several files); read_analyses()
+concatenates every block sharing a label, in file order, before parsing.
 
     #!sentences
     context_begin|first_token|context_end|last_token
-    Aeneid 1.1|t0|Aeneid 1.1|t9
+    urn:cts:latinLit:phi0690.phi003.omar:1.1|t0|urn:cts:latinLit:phi0690.phi003.omar:1.1|t4
 
     #!verbal_units
-    context|token|syntactic_type|semantic_type
-    Aeneid 1.1|t5|independent|transitive active
+    context|token|syntactic_type
+    urn:cts:latinLit:phi0690.phi003.omar:1.1|t3|independent
 
     #!tokens
-    context|id|tokentype|text|lemma|verbalunit|related1|relationship1|related2|relationship2
-    Aeneid 1.1|t0|lexical|Arma|arma|||||
+    context|id|tokentype|text|lemma|related|relationship
+    urn:cts:latinLit:phi0690.phi003.omar:1.1|t0|lexical|arma|arma|t3|direct object
+    urn:cts:latinLit:phi0690.phi003.omar:1.1|t1|lexical|virum|vir|t3|direct object
+    urn:cts:latinLit:phi0690.phi003.omar:1.1|t2|enclitic|que|que|t0|coordinating word
+    urn:cts:latinLit:phi0690.phi003.omar:1.1|t2|enclitic|que|que|t1|coordinating word
+    urn:cts:latinLit:phi0690.phi003.omar:1.1|t3|lexical|cano|cano|root|unit verb
+    urn:cts:latinLit:phi0690.phi003.omar:1.1|t4|punctuation|.|||
 
-The #!lm block: unlike the three blocks above, '#!lm' has no header line
-and isn't pipe-delimited -- it records, once per sentence, which model
-produced that sentence's analysis, what it was given to analyze, and its
-own reasoning, each on its own 'KEY=value' line, three lines per sentence,
-in the same order as `sentences` itself:
+#!tokens: one row per RELATION, not per token. A token with several
+relations (TokenAnalysis.relations) has one row for each, all with the same
+context/id/tokentype/text/lemma; these rows must be adjacent, but their
+order among themselves is unspecified. A token with no relations
+(punctuation, normally) has exactly one row with empty related/relationship.
+read_analyses() merges each run of same-id rows back into one TokenAnalysis
+and raises ValueError if a token's rows are not adjacent or disagree in any
+column other than related/relationship.
+
+TokenAnalysis.verbalunitid is not stored in #!tokens; read_analyses()
+reconstructs it from #!verbal_units (each verbal expression's anchor token
+gets verbalunitid = its own id).
+
+Implied tokens (tokentype in IMPLIED_TOKENTYPES) have empty text. They
+have no position in the text, so the format only requires that they appear
+between their sentence's first and last token rows. serialize_analyses()
+guarantees this: an implied token that falls after its sentence's last real
+token in `tokengraph` (e.g. at the very end) is written just before that
+last token's rows instead. An implied token's context is the context of the
+sentence's first token. Implied tokens are excluded from the reconstructed
+Sentence.tokens (they were never part of segmentation's output).
+
+The optional '#!lm' block records, once per sentence, which model produced
+that sentence's analysis, the sentence as a range identifier, and the
+model's reasoning, each on its own 'KEY=value' line (no header line, not
+pipe-delimited):
 
     #!lm
     MODEL=litellm_proxy/anthropic/Claude Opus 5
     CONTEXT=Aeneid 1.1.t0-Aeneid 1.1.t4
-    REASONING=The main verb is "cano" ("I sing"), independent and transitive active...
+    REASONING=The main verb is "cano" ("I sing")...
 
-When present, '#!lm' is written as a single contiguous section, entirely
-before '#!sentences'/'#!verbal_units'/'#!tokens' (for a human reader
-skimming top-to-bottom -- the discursive record before the structural
-tables), holding all of one serialize_analyses()/write_analyses() call's
-per-sentence entries back to back: sentence 0's MODEL=/CONTEXT=/REASONING=
-trio, then sentence 1's, and so on, with no blank line or repeated label
-between entries. It's optional at both ends: serialize_analyses()/
-write_analyses() only emit it when called with `reasoning=...` (see their
-own docstrings), and read_analyses() accepts a file with none at all,
-handing back an empty list rather than requiring it -- every file written
-before this block existed still reads back exactly as before, with an
-empty fourth return value.
+serialize_analyses()/write_analyses() only emit it when called with
+`reasoning=...`; read_analyses() returns an empty list when it is absent.
+CONTEXT= is 'CONTEXT1.ID1-CONTEXT2.ID2' (the sentence's first and last
+token's citation and id); REASONING= has internal whitespace collapsed to
+single spaces. The legacy label spelling '#!LM' is still accepted on read.
 
-The label itself was originally written '#!LM'; read_analyses() still
-accepts that exact spelling as a synonym for '#!lm', so every file written
-before this rename also still reads back exactly as before -- but
-write_analyses()/serialize_analyses() only ever emit the lowercase '#!lm'
-now, matching '#!sentences'/'#!verbal_units'/'#!tokens'. A file that
-concatenates an old-spelling block with a new-spelling one (e.g. two
-different write_analyses() outputs pasted together) still merges into one
-combined entry list, the same as two same-spelling blocks already do.
+Field encoding: None serializes as an empty field and parses back as None.
+The reserved value 'root' is written and read verbatim. No field may
+contain '|' or a newline (there is no escaping); this is checked at write
+time.
 
-Like the other three, '#!lm' may itself be
-repeated (e.g. from concatenating two write_analyses() outputs); every
-instance's lines are concatenated in file order before being split back
-into per-sentence trios, the same merge-by-label convention the other
-three blocks use.
+Files in the format used before arsgrammatica's switch to the Quarto
+specification (a #!verbal_units block with a semantic_type column, or a
+10-column #!tokens block with related1/relationship1/related2/
+relationship2) are NOT readable: read_analyses() raises a ValueError saying
+so. Re-run the analysis to produce a file in the current format.
 
-MODEL= is a single value for the whole call, written on every sentence's
-own entry rather than once for the file, since '#!lm' entries are only
-ever grouped by sentence, not by call. CONTEXT= is a sentence-style
-identifier, not the sentence's surface text: 'CONTEXT1.ID1-CONTEXT2.ID2',
-where CONTEXT1/ID1 are the sentence's first token's own citation and id
-and CONTEXT2/ID2 are its last token's -- e.g. 'Aeneid 1.1.t0-Aeneid
-1.1.t4' -- the same first_token/last_token pair #!sentences itself
-records for that sentence, just spelled as one dash-joined string instead
-of two separate pipe-delimited columns; a token with no citation renders
-its half with an empty string before the '.' (e.g. '.t5-.t9'). REASONING=
-is that sentence's own reasoning text, with any internal newlines/
-repeated whitespace collapsed to single spaces before writing, since
-(like every other field in this format) a single '#!lm' line can't
-itself contain one. Unlike the pipe-delimited blocks' `_field()` check,
-a MODEL=/CONTEXT=/REASONING= line has nowhere to put a literal '|'
-either way, so '|' is not rejected here -- only a literal newline is
-(and REASONING='s own collapsing means one should never actually reach
-that check in practice).
-
-Why sentences/verbalunits/tokengraph aren't each self-contained: neither
-VerbalExpression nor TokenAnalysis carries its own citation (only the
-pre-analysis Token does -- see models.py's own note on why), and token ids
-are global across a whole multi-sentence, multi-citation passage rather
-than restarting per sentence. So `sentences` is what actually supplies
-"context" (Token.citation) for a given token id, plus each sentence's own
-boundaries; write_analyses() looks up every tokengraph/verbalunits row's
-context by matching its id against `sentences`' own tokens, rather than
-requiring TokenAnalysis/VerbalExpression to carry a redundant copy.
-
-Round-tripping sentence boundaries back out of the file relies on one
-invariant: the #!tokens block's row order is the same overall reading
-order `sentences` implies when its tokens are read sentence-by-sentence,
-token-by-token (exactly what combined_tokengraph() already assumes when
-concatenating multiple sentences' tokengraphs -- see pipeline.py). Given
-that, a sentence's tokens are recovered by finding its first_token/
-last_token ids' *positions* in that row order and slicing between them,
-rather than by parsing or sorting id strings -- ids are treated as opaque,
-matching how models.py itself only guarantees they're "stable" and
-"globally unique", not that they follow any particular numbering scheme.
-write_analyses() checks this invariant itself and returns a warning (not
-an error -- the file is still written) for any sentence whose own token
-ids don't form a contiguous, matching-order run in the given tokengraph;
-a file written with such a warning may not round-trip its sentence
-boundaries correctly through read_analyses().
-
-Field encoding: None serializes as an empty field (two adjacent '|'s, or
-an empty field at the start/end of a line) and parses back as None --
-this is the normal case for many fields (e.g. Token.citation is None for
-any citation-free caller, and most tokens have no lemma/verbalunitid/
-relatedtoken*/relationship* at all, per syntax_model.md's "Incomplete
-status"). The literal sentinel string 'root' (an independent verb's own
-relatedtoken1, per syntax_model.md) is written and read back verbatim,
-like any other non-None string value -- it is never confused with an
-empty/None field. Every field value is validated at write time to
-contain neither '|' nor a newline (this format has no escaping mechanism
-for either); Latin surface text/lemmas are not expected to ever contain
-either character, so this is a defensive check, not an expected case.
-
-Implied/elided tokens (tokentype in IMPLIED_TOKENTYPES -- 'implied sum',
-'continued discourse', or 'implied subject'; see models.py's TokenAnalysis)
-round-trip like any other #!tokens row -- their `text` column is empty,
-same as any other None field, and reads back as None (not ''), same as
-every other optional column. But they're excluded from a sentence's own
-reconstructed `tokens` list in both directions: write_analyses() ignores
-them when checking a sentence's tokens form a contiguous run in
-`tokengraph`, and read_analyses() skips them when rebuilding each
-Sentence's `tokens` -- since an implied token was never part of the
-original per-sentence token list segmentation produced, only something
-the analysis stage added afterward.
-
-read_analyses() is deliberately strict, not "degrade visibly" like
-tokengraph_to_mermaid()'s or compute_subordination_depths()'s warnings-
-returning functions: a missing block, a header line that doesn't match
-exactly, a wrong column count, a token id referenced by #!sentences or
-#!verbal_units but absent from #!tokens, or a #!sentences/#!verbal_units
-row whose own context column disagrees with what #!tokens recorded for
-that same id, all raise ValueError immediately rather than silently
-reconstructing something partial or wrong. '#!lm' shares this strictness
-where it applies -- a line count that isn't a multiple of 3, a line
-missing its expected MODEL=/CONTEXT=/REASONING= prefix, or a number of
-entries that doesn't match the number of reconstructed sentences, all
-raise -- but being entirely optional is itself not an error: zero '#!lm'
-blocks in the file is valid and reads back as an empty list, not a
-missing-block error like the other three would give (see "The #!lm
-block" above). read_analyses() does not, however, cross-check a '#!lm'
-entry's own CONTEXT= against the tokens/citations #!tokens and
-#!sentences already establish -- it's read back verbatim, trusted as a
-human/log-facing record rather than validated structural data. The whole
-point of this format
-is a faithful round trip; a malformed file should fail loudly and
-specifically (naming the line and the problem) rather than hand back
-subtly incorrect objects.
+read_analyses() is deliberately strict: a missing block, a header that
+doesn't match exactly, a wrong column count, a token id referenced by
+#!sentences or #!verbal_units but absent from #!tokens, an invalid
+tokentype/relationship/syntactic_type value, or a context mismatch all
+raise ValueError immediately, naming the line and problem.
 """
 
 import re
 from typing import Dict, List, NamedTuple, Optional, Tuple
 
-from .models import IMPLIED_TOKENTYPES, Sentence, Token, TokenAnalysis, VerbalExpression
+from pydantic import ValidationError
+
+from .models import IMPLIED_TOKENTYPES, Relation, Sentence, Token, TokenAnalysis, VerbalExpression
 
 SENTENCES_LABEL = "#!sentences"
 VERBAL_UNITS_LABEL = "#!verbal_units"
@@ -205,11 +115,17 @@ LM_LABEL = "#!lm"
 _LM_LABEL_LEGACY = "#!LM"
 
 SENTENCES_HEADER = "context_begin|first_token|context_end|last_token"
-VERBAL_UNITS_HEADER = "context|token|syntactic_type|semantic_type"
-TOKENS_HEADER = (
+VERBAL_UNITS_HEADER = "context|token|syntactic_type"
+TOKENS_HEADER = "context|id|tokentype|text|lemma|related|relationship"
+
+# Headers of the format retired with the scheme docs (quarto/concepts/). read_analyses() does
+# not read these; it recognizes them only to give a clear error message.
+_OLD_VERBAL_UNITS_HEADER = "context|token|syntactic_type|semantic_type"
+_OLD_TOKENS_HEADER = (
     "context|id|tokentype|text|lemma|verbalunit|"
     "related1|relationship1|related2|relationship2"
 )
+_OLD_HEADERS = {_OLD_VERBAL_UNITS_HEADER, _OLD_TOKENS_HEADER}
 
 _EXPECTED_HEADERS = {
     SENTENCES_LABEL: SENTENCES_HEADER,
@@ -386,26 +302,25 @@ def serialize_analyses(
         for tok in sentence.tokens:
             id_to_citation[tok.id] = tok.citation
 
-    # Implied tokens (tokentype in IMPLIED_TOKENTYPES) never appear in any sentence's
-    # own `tokens` list by design (see the module docstring's note above)
-    # -- so having no recorded citation is expected and correct for them,
-    # not the kind of anomaly the "not found among the given sentences'
-    # tokens" warning below exists to flag.
-    implied_ids = {tok.id for tok in tokengraph if tok.tokentype in IMPLIED_TOKENTYPES}
+    for s_idx, sentence in enumerate(sentences):
+        if not sentence.tokens:
+            raise ValueError(
+                f"sentence at index {s_idx} has no tokens -- cannot derive "
+                "first_token/last_token for an empty sentence"
+            )
 
-    tg_index = {tok.id: i for i, tok in enumerate(tokengraph)}
+    ordered, implied_context, implied_warnings = _place_implied_tokens(sentences, tokengraph)
+    warnings.extend(implied_warnings)
+    id_to_citation.update(implied_context)
+    implied_ids = {tok.id for tok in ordered if tok.tokentype in IMPLIED_TOKENTYPES}
+
+    tg_index = {tok.id: i for i, tok in enumerate(ordered)}
 
     lines: List[str] = []
 
     if reasoning is not None:
         lines.append(LM_LABEL)
         for s_idx, sentence in enumerate(sentences):
-            if not sentence.tokens:
-                raise ValueError(
-                    f"sentence at index {s_idx} has no tokens -- cannot "
-                    "derive the '#!lm' block's CONTEXT= for an empty "
-                    "sentence"
-                )
             where = f"'#!lm' entry for sentence {s_idx}"
             context_value = _sentence_context_identifier(sentence)
             reasoning_value = reasoning[s_idx]
@@ -420,11 +335,6 @@ def serialize_analyses(
     lines.append(SENTENCES_LABEL)
     lines.append(SENTENCES_HEADER)
     for s_idx, sentence in enumerate(sentences):
-        if not sentence.tokens:
-            raise ValueError(
-                f"sentence at index {s_idx} has no tokens -- cannot derive "
-                "first_token/last_token for an empty sentence"
-            )
         first_tok = sentence.tokens[0]
         last_tok = sentence.tokens[-1]
 
@@ -439,13 +349,9 @@ def serialize_analyses(
             )
         else:
             expected_ids = [t.id for t in sentence.tokens]
-            # Implied tokens (tokentype in IMPLIED_TOKENTYPES) were never part of the
-            # original per-sentence `tokens` list -- they're synthesized by
-            # analysis itself -- so exclude them here before comparing, or
-            # every sentence containing one would spuriously warn.
             actual_ids = [
                 tok.id
-                for tok in tokengraph[first_pos : last_pos + 1]
+                for tok in ordered[first_pos : last_pos + 1]
                 if tok.tokentype not in IMPLIED_TOKENTYPES
             ]
             if actual_ids != expected_ids:
@@ -484,7 +390,6 @@ def serialize_analyses(
                     _field(id_to_citation.get(vu.id), where=where),
                     _field(vu.id, where=where),
                     _field(vu.syntactic_type, where=where),
-                    _field(vu.semantic_type, where=where),
                 ]
             )
         )
@@ -492,31 +397,103 @@ def serialize_analyses(
     lines.append("")
     lines.append(TOKENS_LABEL)
     lines.append(TOKENS_HEADER)
-    for tok in tokengraph:
+    for tok in ordered:
         if tok.id not in id_to_citation and tok.id not in implied_ids:
             warnings.append(
                 f"token {tok.id!r} not found among the given sentences' "
                 "tokens -- writing an empty context for it"
             )
         where = f"#!tokens row for {tok.id}"
-        lines.append(
-            "|".join(
-                [
-                    _field(id_to_citation.get(tok.id), where=where),
-                    _field(tok.id, where=where),
-                    _field(tok.tokentype, where=where),
-                    _field(tok.token, where=where),
-                    _field(tok.lemma, where=where),
-                    _field(tok.verbalunitid, where=where),
-                    _field(tok.relatedtoken1, where=where),
-                    _field(tok.relationship1, where=where),
-                    _field(tok.relatedtoken2, where=where),
-                    _field(tok.relationship2, where=where),
-                ]
+        prefix = [
+            _field(id_to_citation.get(tok.id), where=where),
+            _field(tok.id, where=where),
+            _field(tok.tokentype, where=where),
+            _field(tok.token, where=where),
+            _field(tok.lemma, where=where),
+        ]
+        relation_pairs = [(r.related, r.relationship) for r in tok.relations] or [(None, None)]
+        for related, relationship in relation_pairs:
+            lines.append(
+                "|".join(
+                    prefix
+                    + [_field(related, where=where), _field(relationship, where=where)]
+                )
             )
-        )
 
     return "\n".join(lines) + "\n", warnings
+
+
+def _place_implied_tokens(
+    sentences: List[Sentence], tokengraph: List[TokenAnalysis]
+) -> Tuple[List[TokenAnalysis], Dict[str, Optional[str]], List[str]]:
+    """Return `(ordered, implied_context, warnings)`: `tokengraph` with every
+    implied token guaranteed to lie between its sentence's first and last
+    real token (quarto/reference/analysisformat.qmd), plus each implied
+    token's context (its sentence's first token's citation).
+
+    An implied token already inside a sentence's span stays where it is.
+    One lying between two sentences' spans (most often: after a sentence's
+    last token, e.g. at the very end of `tokengraph`) belongs to the
+    PRECEDING sentence and is moved to just before that sentence's last
+    real token; one before every sentence's span belongs to the first
+    sentence and is moved to just after its first token. An implied token
+    that can't be placed (no sentences, or boundary tokens missing from
+    `tokengraph`) is left in place, with a warning."""
+    warnings: List[str] = []
+    position = {tok.id: i for i, tok in enumerate(tokengraph)}
+    spans = []
+    for sentence in sentences:
+        first = position.get(sentence.tokens[0].id)
+        last = position.get(sentence.tokens[-1].id)
+        if first is not None and last is not None:
+            spans.append((first, last, sentence.tokens[0].citation))
+
+    implied_context: Dict[str, Optional[str]] = {}
+    move_before_last: Dict[int, List[TokenAnalysis]] = {}
+    move_after_first: Dict[int, List[TokenAnalysis]] = {}
+    moved = set()
+    for i, tok in enumerate(tokengraph):
+        if tok.tokentype not in IMPLIED_TOKENTYPES:
+            continue
+        owner = None
+        for s_idx, (first, last, citation) in enumerate(spans):
+            if first <= i <= last:
+                owner = s_idx
+                break
+        if owner is not None:
+            implied_context[tok.id] = spans[owner][2]
+            continue
+        preceding = [s_idx for s_idx, (first, last, _) in enumerate(spans) if last < i]
+        if preceding:
+            owner = max(preceding, key=lambda k: spans[k][1])
+            move_before_last.setdefault(owner, []).append(tok)
+        elif spans:
+            owner = min(range(len(spans)), key=lambda k: spans[k][0])
+            move_after_first.setdefault(owner, []).append(tok)
+        else:
+            warnings.append(
+                f"implied token {tok.id!r} could not be assigned to any "
+                "sentence -- writing it in place with an empty context"
+            )
+            continue
+        implied_context[tok.id] = spans[owner][2]
+        moved.add(id(tok))
+
+    if not moved:
+        return list(tokengraph), implied_context, warnings
+
+    first_of = {spans[k][0]: k for k in move_after_first}
+    last_of = {spans[k][1]: k for k in move_before_last}
+    ordered: List[TokenAnalysis] = []
+    for i, tok in enumerate(tokengraph):
+        if id(tok) in moved:
+            continue
+        if i in last_of:
+            ordered.extend(move_before_last[last_of[i]])
+        ordered.append(tok)
+        if i in first_of:
+            ordered.extend(move_after_first[first_of[i]])
+    return ordered, implied_context, warnings
 
 
 def write_analyses(
@@ -635,6 +612,14 @@ def read_analyses(
 
         if awaiting_header:
             expected = _EXPECTED_HEADERS[current_label]
+            if line in _OLD_HEADERS:
+                raise ValueError(
+                    f"line {line_no}: block {current_label!r} uses the "
+                    "pre-1.0 analysis format (with semantic_type, or "
+                    "related1/relationship1/related2/relationship2), which "
+                    "is no longer supported -- re-run the analysis to write "
+                    f"it in the current format (header {expected!r})"
+                )
             if line != expected:
                 raise ValueError(
                     f"line {line_no}: expected header {expected!r} for "
@@ -659,46 +644,70 @@ def read_analyses(
     tokengraph: List[TokenAnalysis] = []
     id_to_citation: Dict[str, Optional[str]] = {}
     row_order: List[str] = []
+    # (context, tokentype, text, lemma) of the token currently being
+    # accumulated, to check that a token's repeated rows agree.
+    current_fixed: Optional[Tuple[str, str, str, str]] = None
 
     for line_no, line in blocks[TOKENS_LABEL]:
         parts = line.split("|")
-        if len(parts) != 10:
+        if len(parts) != 7:
             raise ValueError(
                 f"line {line_no}: #!tokens row has {len(parts)} columns, "
-                f"expected 10: {line!r}"
+                f"expected 7: {line!r}"
             )
-        (
-            context,
-            tok_id,
-            tokentype,
-            text,
-            lemma,
-            verbalunit,
-            related1,
-            relationship1,
-            related2,
-            relationship2,
-        ) = parts
+        context, tok_id, tokentype, text, lemma, related, relationship = parts
         if tok_id == "":
             raise ValueError(f"line {line_no}: #!tokens row has an empty id")
-        if tok_id in id_to_citation:
-            raise ValueError(f"line {line_no}: duplicate token id {tok_id!r} in #!tokens")
-
-        tokengraph.append(
-            TokenAnalysis(
-                id=tok_id,
-                token=_parse_optional(text),
-                tokentype=tokentype,
-                lemma=_parse_optional(lemma),
-                verbalunitid=_parse_optional(verbalunit),
-                relatedtoken1=_parse_optional(related1),
-                relationship1=_parse_optional(relationship1),
-                relatedtoken2=_parse_optional(related2),
-                relationship2=_parse_optional(relationship2),
+        if (related == "") != (relationship == ""):
+            raise ValueError(
+                f"line {line_no}: #!tokens row for {tok_id!r} has only one of "
+                "related/relationship -- both must be given, or both empty"
             )
-        )
-        id_to_citation[tok_id] = _parse_optional(context)
-        row_order.append(tok_id)
+
+        fixed = (context, tokentype, text, lemma)
+        if tokengraph and tokengraph[-1].id == tok_id:
+            # A further relation of the token on the previous row.
+            if fixed != current_fixed:
+                raise ValueError(
+                    f"line {line_no}: repeated #!tokens row for {tok_id!r} "
+                    "differs from the token's earlier row in a column other "
+                    "than related/relationship"
+                )
+            tok = tokengraph[-1]
+            if related == "" or not tok.relations:
+                raise ValueError(
+                    f"line {line_no}: repeated #!tokens row for {tok_id!r} "
+                    "must give a relation, and so must every other row for "
+                    "that token"
+                )
+        else:
+            if tok_id in id_to_citation:
+                raise ValueError(
+                    f"line {line_no}: token id {tok_id!r} appears in #!tokens "
+                    "again after other tokens -- a token's rows must be adjacent"
+                )
+            try:
+                tok = TokenAnalysis(
+                    id=tok_id,
+                    token=_parse_optional(text),
+                    tokentype=tokentype,
+                    lemma=_parse_optional(lemma),
+                )
+            except ValidationError as exc:
+                raise ValueError(f"line {line_no}: invalid #!tokens row {line!r}: {exc}") from exc
+            tokengraph.append(tok)
+            id_to_citation[tok_id] = _parse_optional(context)
+            row_order.append(tok_id)
+            current_fixed = fixed
+
+        if related != "":
+            try:
+                tok.relations.append(Relation(related=related, relationship=relationship))
+            except ValidationError as exc:
+                raise ValueError(
+                    f"line {line_no}: invalid relationship {relationship!r} "
+                    f"in #!tokens row for {tok_id!r}"
+                ) from exc
 
     id_position = {tid: i for i, tid in enumerate(row_order)}
 
@@ -706,12 +715,12 @@ def read_analyses(
     verbalunits: List[VerbalExpression] = []
     for line_no, line in blocks[VERBAL_UNITS_LABEL]:
         parts = line.split("|")
-        if len(parts) != 4:
+        if len(parts) != 3:
             raise ValueError(
                 f"line {line_no}: #!verbal_units row has {len(parts)} "
-                f"columns, expected 4: {line!r}"
+                f"columns, expected 3: {line!r}"
             )
-        context, vu_id, syntactic_type, semantic_type = parts
+        context, vu_id, syntactic_type = parts
         if vu_id == "":
             raise ValueError(f"line {line_no}: #!verbal_units row has an empty token id")
         if vu_id not in id_to_citation:
@@ -728,14 +737,15 @@ def read_analyses(
                 f"the #!tokens block's recorded context {expected_context!r} "
                 "for the same id"
             )
-
-        verbalunits.append(
-            VerbalExpression(
-                id=vu_id,
-                syntactic_type=syntactic_type,
-                semantic_type=semantic_type,
-            )
-        )
+        try:
+            verbalunits.append(VerbalExpression(id=vu_id, syntactic_type=syntactic_type))
+        except ValidationError as exc:
+            raise ValueError(
+                f"line {line_no}: invalid syntactic_type {syntactic_type!r} "
+                f"in #!verbal_units row for {vu_id!r}"
+            ) from exc
+        # TokenAnalysis.verbalunitid isn't stored in #!tokens: rebuild it.
+        tokengraph[id_position[vu_id]].verbalunitid = vu_id
 
     # --- #!sentences ---
     sentences: List[Sentence] = []
@@ -887,16 +897,10 @@ def split_analysis_by_sentence(
     analysis. `sentence_verbalunits` is every VerbalExpression whose id
     falls within that same slice.
 
-    One consequence of using [first, last] *real* token positions as the
-    slice boundary, shared with read_analyses()'s own sentence
-    reconstruction: an implied token placed AFTER a sentence's last real
-    token (rather than nested between two real tokens) falls just outside
-    that slice, since there's no further real token of the same sentence
-    to bound it from above -- e.g. a one-real-token sentence like "Rara
-    [sunt]." (see tests/test_serialization.py's
-    test_split_excludes_a_trailing_implied_token_past_the_sentences_last_real_token).
-    An implied token nested between two real tokens of the same sentence
-    is included as expected; only this specific trailing case isn't.
+    Implied tokens placed after a sentence's last real token (before the
+    next sentence's first token) are included in that sentence's slice, so
+    an analysis built in memory with an implied token at the end of its
+    sentence splits correctly too.
 
     Raises ValueError for a sentence with no tokens at all, or whose first
     or last token id isn't present in `tokengraph` -- both should be
@@ -923,6 +927,10 @@ def split_analysis_by_sentence(
 
         start = id_position[first_id]
         end = id_position[last_id]
+        # An implied token placed after the sentence's last real token
+        # (before the next sentence) still belongs to this sentence.
+        while end + 1 < len(tokengraph) and tokengraph[end + 1].tokentype in IMPLIED_TOKENTYPES:
+            end += 1
         sentence_tokengraph = tokengraph[start : end + 1]
         sentence_ids = {tok.id for tok in sentence_tokengraph}
         sentence_verbalunits = [vu for vu in verbalunits if vu.id in sentence_ids]

@@ -26,7 +26,7 @@ import re
 import pytest
 
 from arsgrammatica import tokengraph_to_dot
-from arsgrammatica.models import TokenAnalysis
+from arsgrammatica.models import TokenAnalysis, rel
 from arsgrammatica.verbal_units import compute_aat_depths, compute_subordination_depths, max_aat_depth
 from conftest import run_gold_example
 from fixtures.gold_examples import GOLD_EXAMPLES
@@ -122,7 +122,7 @@ def test_implied_token_gets_its_own_dedicated_color_and_label():
 
 
 def test_implied_subject_token_gets_dedicated_color_and_fallback_label():
-    """'implied subject' gets the same dedicated amber treatment as
+    """'implied substantive' gets the same dedicated amber treatment as
     'implied sum' above, even though it never anchors a verbal unit of its
     own -- the coloring is about the token's own KIND, not which clause
     it's in. It has no entry in mermaid.py's _IMPLIED_TOKEN_LABELS, so its
@@ -134,13 +134,13 @@ def test_implied_subject_token_gets_dedicated_color_and_fallback_label():
     diagram, warnings = tokengraph_to_dot(result.tokengraph)
     assert not warnings
 
-    implied_ids = [tok.id for tok in result.tokengraph if tok.tokentype == "implied subject"]
+    implied_ids = [tok.id for tok in result.tokengraph if tok.tokentype == "implied substantive"]
     assert implied_ids == ["t0_implied"]
 
     m = re.search(r'^\s*"t0_implied" \[(.*)\];$', diagram, re.MULTILINE)
     assert m
     attrs = m.group(1)
-    assert 'label="implied subject"' in attrs
+    assert 'label="implied substantive"' in attrs
     assert 'fillcolor="#ffc107"' in attrs
 
     # Recordatus (t0) itself keeps an ordinary (non-amber) color.
@@ -163,10 +163,14 @@ def test_aside_example_gets_three_distinct_colors():
     # Three verbal units plus (possibly) the dedicated implied-token amber.
     assert len(fillcolors) >= 3
 
-    # nos (t7) has no verbal unit -- must not be colored at all.
-    m = re.search(r'^\s*"t7" \[(.*)\];$', diagram, re.MULTILINE)
-    assert m
-    assert "fillcolor" not in m.group(1)
+    # nos (t7), the subject of the indirect statement, shares esse's (t12)
+    # color.
+    nos = re.search(r'^\s*"t7" \[(.*)\];$', diagram, re.MULTILINE)
+    esse = re.search(r'^\s*"t12" \[(.*)\];$', diagram, re.MULTILINE)
+    assert nos and esse
+    assert re.search(r'fillcolor="(#\w+)"', nos.group(1)).group(1) == re.search(
+        r'fillcolor="(#\w+)"', esse.group(1)
+    ).group(1)
 
 
 # ---------------------------------------------------------------------------
@@ -197,7 +201,7 @@ def test_two_independent_verbs_get_ranked_together():
 def test_multiple_depth_groups_each_get_their_own_rank_statement():
     """"Ille moriens, cum sciret sagittas hydrae Lernaeae felle tinctas,
     sanguinem suum exceptum Deianirae dedit et id philtrum esse dixit":
-    dedit/dixit are both depth 0; moriens/sciret/esse are all depth 1;
+    dedit/dixit are both depth 0; moriens/sciret/exceptum/esse are all depth 1;
     tinctas is depth 2, alone, so it gets no rank=same statement of its
     own (nothing to align it with)."""
     example = _example("coordinating_conjunction_dedit_et_dixit_esse")
@@ -205,7 +209,7 @@ def test_multiple_depth_groups_each_get_their_own_rank_statement():
     diagram, warnings = tokengraph_to_dot(result.tokengraph)
     assert not warnings
     lines = diagram.splitlines()
-    assert '    {rank=same; "t1"; "t4"; "t19";}' in lines  # moriens, sciret, esse -- depth 1
+    assert '    {rank=same; "t1"; "t4"; "t13"; "t19";}' in lines  # moriens, sciret, exceptum, esse -- depth 1
     assert '    {rank=same; "t15"; "t20";}' in lines  # dedit, dixit -- depth 0
     rank_lines = [line for line in lines if "rank=same" in line]
     assert len(rank_lines) == 2
@@ -240,11 +244,11 @@ def test_cyclic_anchors_still_get_ranked_with_no_warning():
     tokengraph = [
         TokenAnalysis(
             id="t0", token="a", tokentype="lexical", verbalunitid="t0",
-            relatedtoken1="t1", relationship1="unit verb",
+            relations=[rel("t1", "unit verb")],
         ),
         TokenAnalysis(
             id="t1", token="b", tokentype="lexical", verbalunitid="t1",
-            relatedtoken1="t0", relationship1="unit verb",
+            relations=[rel("t0", "unit verb")],
         ),
     ]
     depths, direct_warnings = compute_subordination_depths(tokengraph)
@@ -268,7 +272,7 @@ def test_cyclic_anchors_still_get_ranked_with_no_warning():
 # rendering.tokengraph_to_depth_html()'s own indented-HTML `depth`
 # parameter): compute_graph_depths() -- a plain graph distance, in edges,
 # from a token back to the nearest root anchor, following the same
-# relatedtoken1/relatedtoken2 edges drawn as `->` lines. A whole clause's
+# relations edges drawn as `->` lines. A whole clause's
 # subject, object, and other ordinary dependents are each their own hop
 # of graph depth (unlike subordination depth, which gives them all the
 # SAME depth as their governing verb) -- so depth=0 shows ONLY root
@@ -293,13 +297,9 @@ def test_depth_zero_shows_only_root_anchors():
     assert re.search(r'^    "t5" \[', diagram, re.MULTILINE)  # pergit, the root anchor
     for other_id in ("t0", "t1", "t2", "t3", "t6", "t8"):
         assert f"{other_id} [" not in diagram, other_id
-    # t7 "proximam" has no coded relation at all in this fixture (an
-    # "Incomplete status" token, per assign_verbal_units()'s own
-    # docstring) -- compute_graph_depths() defaults an unrelated token to
-    # depth 0, the same root-level fallback compute_subordination_depths()
-    # and tokengraph_to_depth_html() both use for their own unresolved
-    # cases, so it appears even at depth=0.
-    assert re.search(r'^    "t7" \[', diagram, re.MULTILINE)
+    # t7 "proximam" relates to speluncam ('adjectival'), three edges from
+    # pergit, so it is not shown either.
+    assert '"t7" [' not in diagram
 
 
 def test_depth_one_adds_direct_dependents_of_the_root():
@@ -311,9 +311,9 @@ def test_depth_one_adds_direct_dependents_of_the_root():
     tokens, result = run_gold_example(example)
     diagram, warnings = tokengraph_to_dot(result.tokengraph, depth=1)
     assert warnings == []
-    for kept_id in ("t0", "t1", "t5", "t6", "t7"):
+    for kept_id in ("t0", "t1", "t5", "t6"):
         assert re.search(rf'^    "{kept_id}" \[', diagram, re.MULTILINE), kept_id
-    for dropped_id in ("t2", "t3", "t8"):
+    for dropped_id in ("t2", "t3", "t7", "t8"):
         assert f"{dropped_id} [" not in diagram, dropped_id
 
 
@@ -358,9 +358,8 @@ def test_depth_and_ranking_compose():
 
 
 def test_depth_relative_pronoun_double_duty_deepens_correctly():
-    """A relative pronoun that is BOTH an anaphoric pointer (relatedtoken1
-    -> its antecedent) and its own dependent clause's subject
-    (relatedtoken2 -> that clause's verb, which in turn points BACK at the
+    """A relative pronoun that is BOTH an anaphoric pointer (-> its antecedent) and its own dependent clause's subject
+    (-> that clause's verb, which in turn points BACK at the
     pronoun via its own 'unit verb' relation) must not let that
     forward/backward pair short-circuit its depth: relatedtoken1 alone
     already resolves to the antecedent, so depth follows THAT chain,
@@ -373,24 +372,23 @@ def test_depth_relative_pronoun_double_duty_deepens_correctly():
     tokengraph = [
         TokenAnalysis(
             id="t16", token="aedificavit", tokentype="lexical", verbalunitid="t16",
-            relatedtoken1="root", relationship1="unit verb",
+            relations=[rel("root", "unit verb")],
         ),
         TokenAnalysis(
             id="t19", token="Domino", tokentype="lexical",
-            relatedtoken1="t16", relationship1="dative",
+            relations=[rel("t16", "dative")],
         ),
         TokenAnalysis(
             id="t21", token="qui", tokentype="lexical",
-            relatedtoken1="t19", relationship1="relative pronoun",
-            relatedtoken2="t22", relationship2="subject",
+            relations=[rel("t19", "relative pronoun"), rel("t22", "subject")],
         ),
         TokenAnalysis(
             id="t22", token="apparuerat", tokentype="lexical", verbalunitid="t22",
-            relatedtoken1="t21", relationship1="unit verb",
+            relations=[rel("t21", "unit verb")],
         ),
         TokenAnalysis(
             id="t23", token="ei", tokentype="lexical",
-            relatedtoken1="t22", relationship1="dative",
+            relations=[rel("t22", "dative")],
         ),
     ]
     from arsgrammatica.dot import compute_graph_depths
@@ -413,20 +411,19 @@ def test_depth_dangling_edge_from_kept_node_is_skipped_with_a_warning():
     tokengraph = [
         TokenAnalysis(
             id="t16", token="aedificavit", tokentype="lexical", verbalunitid="t16",
-            relatedtoken1="root", relationship1="unit verb",
+            relations=[rel("root", "unit verb")],
         ),
         TokenAnalysis(
             id="t19", token="Domino", tokentype="lexical",
-            relatedtoken1="t16", relationship1="dative",
+            relations=[rel("t16", "dative")],
         ),
         TokenAnalysis(
             id="t21", token="qui", tokentype="lexical",
-            relatedtoken1="t19", relationship1="relative pronoun",
-            relatedtoken2="t22", relationship2="subject",
+            relations=[rel("t19", "relative pronoun"), rel("t22", "subject")],
         ),
         TokenAnalysis(
             id="t22", token="apparuerat", tokentype="lexical", verbalunitid="t22",
-            relatedtoken1="t21", relationship1="unit verb",
+            relations=[rel("t21", "unit verb")],
         ),
     ]
     diagram, warnings = tokengraph_to_dot(tokengraph, depth=2, color_by_verbal_unit=False)
@@ -573,20 +570,19 @@ def test_aat_depth_dangling_edge_from_kept_node_is_skipped_with_a_warning():
     tokengraph = [
         TokenAnalysis(
             id="t5", token="cano", tokentype="lexical", verbalunitid="t5",
-            relatedtoken1="root", relationship1="unit verb",
+            relations=[rel("root", "unit verb")],
         ),
         TokenAnalysis(
             id="t0", token="arma", tokentype="lexical",
-            relatedtoken1="t5", relationship1="direct object",
+            relations=[rel("t5", "direct object")],
         ),
         TokenAnalysis(
             id="t1", token="que", tokentype="enclitic",
-            relatedtoken1="t0", relationship1="coordinating conjunction",
-            relatedtoken2="t2", relationship2="coordinating conjunction",
+            relations=[rel("t0", "coordinating word"), rel("t2", "coordinating word")],
         ),
         TokenAnalysis(
             id="t2", token="virum", tokentype="lexical", verbalunitid="t2",
-            relatedtoken1="t5", relationship1="direct object",
+            relations=[rel("t5", "direct object")],
         ),
     ]
     diagram, warnings = tokengraph_to_dot(tokengraph, aat_depth=0, color_by_verbal_unit=False)
@@ -595,7 +591,7 @@ def test_aat_depth_dangling_edge_from_kept_node_is_skipped_with_a_warning():
     assert "t2 [" not in diagram  # virum: its OWN unit, depth 1, excluded
     assert "-> t2" not in diagram  # the dangling edge itself must not appear
     assert any(
-        "t1 -[coordinating conjunction]-> t2" in w
+        "t1 -[coordinating word]-> t2" in w
         and "excluded by the depth or aat_depth cutoff" in w
         for w in warnings
     )
@@ -719,11 +715,11 @@ def test_root_omitted_when_no_independent_verb_is_present():
     tokengraph = [
         TokenAnalysis(
             id="t0", token="Hercules", tokentype="lexical",
-            relatedtoken1="t1", relationship1="subject",
+            relations=[rel("t1", "subject")],
         ),
         TokenAnalysis(
             id="t1", token="pergit", tokentype="lexical", verbalunitid="t1",
-            relatedtoken1="t2", relationship1="direct quote",
+            relations=[rel("t2", "direct quote")],
         ),
         TokenAnalysis(
             id="t2", token="venit", tokentype="lexical", verbalunitid="t2",

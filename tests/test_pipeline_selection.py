@@ -52,13 +52,13 @@ _SEG_EX1_ONLY = {
 _ANALYSIS_EX1 = {
     "reasoning": "cano is the main verb; arma and virumque are its objects.",
     "verbalunits": [
-        {"id": "t2", "syntactic_type": "independent", "semantic_type": "transitive active"},
+        {"id": "t2", "syntactic_type": "independent"},
     ],
     "tokengraph": [
         {"id": "t0", "token": "arma", "tokentype": "lexical",
-         "relatedtoken1": "t2", "relationship1": "direct object"},
+         "relations": [{"related": "t2", "relationship": "direct object"}]},
         {"id": "t1", "token": "virumque", "tokentype": "lexical",
-         "relatedtoken1": "t2", "relationship1": "direct object"},
+         "relations": [{"related": "t2", "relationship": "direct object"}]},
         {"id": "t2", "token": "cano", "tokentype": "lexical", "verbalunitid": "t2"},
         {"id": "t3", "token": ".", "tokentype": "punctuation"},
     ],
@@ -86,7 +86,7 @@ _SEG_EX1_AND_EX3 = {
 _ANALYSIS_EX3 = {
     "reasoning": "vale is an imperative verbal expression.",
     "verbalunits": [
-        {"id": "t4", "syntactic_type": "independent", "semantic_type": "intransitive"},
+        {"id": "t4", "syntactic_type": "independent"},
     ],
     "tokengraph": [
         {"id": "t4", "token": "vale", "tokentype": "lexical", "verbalunitid": "t4"},

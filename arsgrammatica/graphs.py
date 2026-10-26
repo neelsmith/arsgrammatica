@@ -10,13 +10,12 @@ display.
 tokengraph_to_networkx() mirrors tokengraph_to_mermaid() exactly: the same
 nodes (non-punctuation tokens, labelled via mermaid.token_label() -- see
 that function's own docstring for the implied/elided-token fallback), the
-same edges (one per relatedtoken1/relationship1 and relatedtoken2/
-relationship2 pair, skipping the 'root' sentinel silently and any
-punctuation/missing target with a warning), just built as an
-`networkx.MultiDiGraph` instead of Mermaid flowchart source. A
-MultiDiGraph (not a plain DiGraph) is used because relatedtoken1 and
-relatedtoken2 could in principle both target the same related token with
-two different relationship labels -- a plain DiGraph would silently keep
+same edges (one per Relation in each token's `relations`, skipping the
+'root' sentinel silently and any punctuation/missing target with a
+warning), just built as an `networkx.MultiDiGraph` instead of Mermaid
+flowchart source. A MultiDiGraph (not a plain DiGraph) is used because two
+of a token's relations could in principle target the same related token
+with different relationship labels -- a plain DiGraph would silently keep
 only the second edge in that case.
 
 Edge orientation matters for every metric below: an edge always points
@@ -29,14 +28,14 @@ own has in-degree 0. graph_metrics()'s "dependents"/"leaf" language is
 built entirely around this in-degree-as-branching convention.
 
 Most tokengraphs are very nearly out-trees rooted at whichever token(s)
-have relatedtoken1 == 'root' (that sentinel is never a real node, so a
-root token simply has no outgoing edge at all) -- the same rooted
-structure verbal_units.compute_subordination_depths() already assumes.
-The handful of constructions that make it more than a tree -- a
-coordinating conjunction's relatedtoken1 AND relatedtoken2 both pointing
-at the pair it joins, an apposition's second noun pointing back at the
-first, and similar overflow uses of relatedtoken2 -- are exactly what
-graph_metrics()'s cyclomatic_number counts.
+have a 'unit verb' relation to 'root' (that sentinel is never a real
+node, so a root token simply has no outgoing edge at all) -- the same
+rooted structure verbal_units.compute_subordination_depths() already
+assumes. The constructions that make it more than a tree -- a coordinating
+word relating to both items it joins, a relative pronoun relating both to
+its antecedent and to its function in its own clause, and any other token
+with several relations -- are exactly what graph_metrics()'s
+cyclomatic_number counts.
 """
 
 from typing import Dict, List, NamedTuple, Optional, Tuple
@@ -60,11 +59,10 @@ def tokengraph_to_networkx(tokengraph: List[TokenAnalysis]) -> Tuple[nx.MultiDiG
     token's own tokentype string, e.g. for a label-aware isomorphism check
     later that shouldn't have to look anything up in the original
     tokengraph again). Every edge carries one attribute, `relationship`
-    (the relatedtoken1/relatedtoken2 pair's own relationship1/
-    relationship2 label).
+    (the Relation's own relationship label).
 
     Returns `(graph, warnings)`; `warnings` mirrors
-    tokengraph_to_mermaid()'s own list -- a relatedtoken*/relationship*
+    tokengraph_to_mermaid()'s own list -- a relations
     pair pointing at a punctuation token or an id absent from `tokengraph`
     is skipped and reported here, exactly as it is (and isn't drawn)
     there; the 'root' sentinel is skipped silently, the same non-issue it
@@ -82,17 +80,12 @@ def tokengraph_to_networkx(tokengraph: List[TokenAnalysis]) -> Tuple[nx.MultiDiG
     for tok in tokengraph:
         if tok.id not in node_ids:
             continue
-        for related_field, label_field in (
-            ("relatedtoken1", "relationship1"),
-            ("relatedtoken2", "relationship2"),
-        ):
-            related_id = getattr(tok, related_field)
-            relationship = getattr(tok, label_field)
-            if related_id is None or relationship is None:
-                continue
+        for _relation in tok.relations:
+            related_id = _relation.related
+            relationship = _relation.relationship
             if related_id == "root":
                 # An independent verb's own unit-verb relation, per
-                # syntax_model.md -- intentionally not a real node, so not
+                # the scheme docs (quarto/concepts/) -- intentionally not a real node, so not
                 # a warning-worthy gap. Just add no edge for it.
                 continue
             if related_id not in node_ids:

@@ -1,5 +1,5 @@
 """
-DSPy program that analyzes the syntax of a Latin passage according to the scheme documented in syntax_model.md: a table of verbal expressions, plus a token-level dependency graph.
+DSPy program that analyzes the syntax of a Latin passage according to the scheme documented in the Quarto "Concepts" pages (quarto/concepts/tokens.qmd, verbalunits.qmd, syntactic-analysis.qmd): a list of verbal expressions, plus a graph of syntactic relations among tokens.
  
 This module covers only the analysis stage:
   1. SentenceAnalysis -- a dspy.Signature that takes a passage plus its pre-segmented token list and produces `verbalunits` and `tokengraph`, using the ids handed to it.
@@ -30,490 +30,248 @@ from .models import IMPLIED_TOKENTYPES, Token, VerbalExpression, TokenAnalysis
 # ---------------------------------------------------------------------------
  
 class SentenceAnalysis(dspy.Signature):
-    """Analyze the syntax of a passage of Latin according to a two-part scheme:
- 
-    (1) a list of verbal expressions. Three constructions count as a verbal
-        expression: finite verbs, infinitives, and participles.
- 
-        - A finite verb (including compound perfect/pluperfect passive forms
-          of participle + a form of 'sum') is always a verbal expression.
-          Classify its syntactic type as 'independent' (main/principal),
-          'dependent' (subordinate, introduced by a subordinating word),
-          'direct quote' (occurring in directly quoted speech framed by
-          another verb, e.g. "est" in `"Tuum est," inquit, "Servi regnum."`),
-          or 'aside' (a verbal expression that interrupts the surrounding
-          syntax, e.g. "dixerim" in "pace dixerim deum" interrupting "eos...
-          spero").
-        - An infinitive is a verbal expression only when part of an indirect
-          statement; its syntactic type is always 'indirect statement'. In a
-          compound future-infinitive form (participle + a form of 'sum',
-          e.g. "facturum...fuisse"), the participle/infinitive itself
-          anchors the verbal expression, same as a compound passive.
-        - A participle is a verbal expression only when it has a *predicate*
-          sense (e.g. an ablative-absolute-like "Anco regnante Lucumo...",
-          'while Ancus was reigning') rather than a purely *attributive*
-          sense (modifying a noun like an ordinary adjective, e.g.
-          "consentiens laus", 'universal praise' -- NOT a verbal expression
-          at all). Use 'dependent' as its syntactic type. When it's
-          genuinely uncertain whether a given participle is attributive or
-          predicate/circumstantial, PREFER the circumstantial reading --
-          treat it as its own verbal expression rather than folding it into
-          an attributive relation. Example: in "ille moriens, cum sciret
-          sagittas hydrae Lernaeae felle tinctas quantam uim haberent
-          ueneni, sanguinem suum exceptum Deianirae dedit", both "moriens"
-          (agreeing with "ille") and "tinctas" (agreeing with "sagittas")
-          are treated as circumstantial participles, each anchoring its own
-          verbal expression, rather than as ordinary attributive
-          adjectives.
- 
-        Classify each verbal expression's semantic type too (transitive
-        active/transitive passive/intransitive/linking verb).
- 
-    (2) a token-by-token dependency graph. For each token, record up to two
-        relations to other tokens (by id), using only these relation labels:
- 
-        - unit verb (independent): every INDEPENDENT verb has relatedtoken1
-          = the special sentinel string 'root' -- never an actual token id;
-          no real token may be assigned the id 'root' -- and relationship1 =
-          'unit verb'.
-        - unit verb (dependent) / subordinating conjunction / relative
-          pronoun: the verb of a DEPENDENT clause has relatedtoken1 -> the
-          id of its subordinating conjunction or relative pronoun,
-          relationship1 = 'unit verb'. That conjunction or pronoun in turn
-          has relatedtoken1 -> the id of the verb of the clause it is
-          subordinate to, with relationship1 = 'subordinating conjunction'
-          for a conjunction, or relatedtoken1 -> its antecedent's id with
-          relationship1 = 'relative pronoun' for a relative pronoun.
-          Indirect questions are treated as a kind of dependent clause: the
-          interrogative word introducing one (e.g. "quanta" in "Theseus
-          audit quanta calamitate ciuitas afficeretur") is treated the same
-          way as a subordinating conjunction -- it has relatedtoken1 -> the
-          id of the verb it introduces (here "audit"), relationship1 =
-          'subordinating conjunction' (no separate label for this case) --
-          while the dependent verb itself ("afficeretur") has relatedtoken1
-          -> the interrogative word's id ("quanta"), relationship1 = 'unit
-          verb', exactly like any other dependent clause.
-        - indirect statement (governing verb): an infinitive anchoring an
-          indirect-statement verbal expression ALSO has relatedtoken1 ->
-          the id of the verb that governs the indirect statement (the verb
-          of saying/thinking/perceiving it depends on), relationship1 =
-          'indirect statement' -- matching its own syntactic type, the same
-          convention 'direct quote' and 'aside' verbal expressions use
-          below. There's no separate subordinating-word token to point at
-          first (a Latin accusative-and-infinitive construction has no
-          equivalent of English 'that'), so the infinitive points directly
-          at its governing verb, rather than via a conjunction/pronoun
-          intermediary the way a dependent finite verb's 'unit verb'
-          relation does. In a compound future-infinitive form (participle +
-          a form of 'sum'), this relation belongs on the participle/
-          infinitive itself, since IT anchors the verbal expression (see
-          'auxiliary' below) -- the form of 'sum' takes no relation of its
-          own into the governing verb.
-        - complementary infinitive: an infinitive that completes the sense
-          of a governing verb like 'volo', 'incipio', 'audeo', 'licet', or
-          'decet' (rather than reporting indirect speech) has relatedtoken1
-          -> the id of that governing verb, relationship1 = 'complementary
-          infinitive'. Unlike an indirect-statement infinitive, this does
-          NOT make the infinitive its own verbal expression -- it gets no
-          `verbalunits` entry of its own; the governing verb is still the
-          only verbal expression here. Example: in "Amphion...cum templum
-          Apollinis expugnare vellet...", "expugnare" completes "vellet"
-          (relatedtoken1 -> "vellet", relationship1 = 'complementary
-          infinitive'); "templum" is still "expugnare"'s own direct object,
-          exactly as if "expugnare" were a finite verb.
-        - infinitive used as a noun: an infinitive can also function as an
-          ordinary noun -- most often a verb's subject or object -- rather
-          than anchoring an indirect statement or completing another verb.
-          Treat it exactly like any other noun in that role: relatedtoken1
-          -> the verb it's the subject/object of, relationship1 = 'subject'
-          or 'direct object' as appropriate (no dedicated label, and again
-          no `verbalunits` entry of its own). Example: in "dolere malum
-          est", "dolere" has relatedtoken1 -> "est", relationship1 =
-          'subject'. Like any verbal form, an infinitive used this way can
-          still take its own object or adverb, related to it the same way
-          they'd relate to a finite verb.
-        - gerunds and gerundives: a gerundive is simply an adjective --
-          treat it exactly like one (relatedtoken1 -> the noun it agrees
-          with, relationship1 = 'adjectival'; see 'adjectival' below).
-          Example: in "...ad sacrum faciendum", "faciendum" (the gerundive)
-          has relatedtoken1 -> "sacrum", relationship1 = 'adjectival'. A
-          gerund is a noun -- the oblique-case form a verb takes where an
-          infinitive would be needed in the nominative -- so relate it like
-          any other noun (most often 'genitive'); it can still take its own
-          object or adverb, related to it the same way they'd relate to a
-          finite verb or infinitive. Example: in "ars bene disserendi",
-          "disserendi" (the gerund) has relatedtoken1 -> "ars",
-          relationship1 = 'genitive', and "bene" (the adverb modifying it)
-          has relatedtoken1 -> "disserendi", relationship1 = 'adverbial'.
-          Neither a gerund nor a gerundive is a verbal expression in its
-          own right -- no dedicated label, no `verbalunits` entry.
-        - coordinating conjunction: when a coordinating conjunction (e.g.
-          'et', '-que') joins a pair of adjectives, nouns, or prepositional
-          phrases, it has relatedtoken1 -> the id of the first joined
-          token, relatedtoken2 -> the id of the second, with BOTH
-          relationship1 and relationship2 = 'coordinating conjunction' (not
-          an overflow slot here -- this is the one relation that genuinely
-          uses relatedtoken1 and relatedtoken2 for two ends of the same
-          relation at once). When it joins two verbal expressions instead,
-          relatedtoken1/relatedtoken2 are the ids of the two verbs (or, for
-          an infinitive/participle-anchored verbal expression, the id that
-          anchors it) rather than of nearby nouns -- go by which verbal
-          expression the conjunction functionally introduces, NOT by which
-          token it happens to be adjacent to or (for an enclitic like
-          '-que') physically attached to; those can differ (e.g. an
-          enclitic conjunction attached to the second clause's direct
-          object still relates the two VERBS, not the object). If the
-          conjunction opens an entirely new sentence with no explicit verb
-          to its left to pair with, set only relatedtoken1/relationship1 (->
-          the verb it introduces); do not invent a link to an implied
-          preceding clause. 'et' specifically can also function as a plain
-          adverb ('even', 'also') rather than a conjunction -- when it
-          does, treat it like any other adverb: relatedtoken1 -> the verb
-          or (if there is none, e.g. a verbless exclamation) the nearest
-          token it emphasizes, relationship1 = 'adverbial', not
-          'coordinating conjunction'. IMPORTANT: when the conjunction joins
-          two independent verbs, BOTH still get their own `verbalunits`
-          entry and their own relatedtoken1 = 'root'/relationship1 = 'unit
-          verb' -- this doesn't change just because one of them (usually
-          the second) also governs further subordinate structure of its
-          own (a dependent clause, an indirect statement, etc). A verb
-          that governs an indirect statement or introduces a further
-          clause is NOT thereby demoted to a mere "framing verb" for what
-          follows -- it is still, independently, one of the two
-          coordinated root verbs, and needs its own entry exactly like the
-          first one. Example: in "...dedit et id philtrum esse dixit.",
-          dedit and dixit are both independent verbs coordinated by et;
-          dixit ALSO governs the indirect statement anchored at esse
-          ('id philtrum esse'), but that does not exempt dixit itself from
-          getting relatedtoken1 = 'root', relationship1 = 'unit verb', and
-          its own entry in `verbalunits` -- exactly as if it stood alone.
-        - coordinating conjunction, repeated as a series: a conjunction
-          like 'et' or 'aut' can also be repeated to coordinate a series
-          of three or more items (polysyndeton, e.g. 'et...et...et'), not
-          just used once between a pair. Two shapes occur, and they're
-          annotated differently:
-            - "A et B et C" (a conjunction only BETWEEN items, none before
-              the first): annotate each connector exactly like the simple
-              pairwise case above -- relatedtoken1 -> the item immediately
-              BEFORE it, relatedtoken2 -> the item immediately AFTER it,
-              both relationship1/relationship2 = 'coordinating
-              conjunction'. The first connector (between A and B) has
-              relatedtoken1 -> A, relatedtoken2 -> B; the second (between
-              B and C) has relatedtoken1 -> B, relatedtoken2 -> C; and so
-              on for a longer series. Every connector always relates
-              directly to the two real items on either side of it --
-              NEVER to another connector.
-            - "et A et B et C" (an introductory connector before the
-              FIRST item too, one connector per item): the introductory
-              connector (before A) has ONLY relatedtoken1 -> A,
-              relationship1 = 'coordinating conjunction' -- there is no
-              preceding item for it to pair with, so relatedtoken2 is left
-              unset, same as the sentence-initial one-sided case above.
-              Every connector AFTER the introductory one is annotated
-              exactly like the "A et B et C" case: relatedtoken1 -> the
-              PRECEDING item, relatedtoken2 -> the FOLLOWING item, both
-              relationship labels 'coordinating conjunction'. So the
-              second connector (before B) has relatedtoken1 -> A,
-              relatedtoken2 -> B; the third (before C) has relatedtoken1
-              -> B, relatedtoken2 -> C.
-          Either way, every connector in a series relates directly to the
-          two real coordinated items flanking it (or, for an introductory
-          connector, the one item following it) -- never to a neighboring
-          connector. Each connected item ALSO keeps its own ordinary
-          relation to the rest of the sentence (subject, ablative, direct
-          object, or whatever fits), completely independent of this
-          chain -- the coordinating-conjunction relation only links a
-          connector to its flanking item(s); it never substitutes for
-          that item's own relation to whatever governs it. Example: in
-          "Tarquinius et assiduitate et varietate et magnificentia omnes
-          antecessit" ("et A et B et C" shape -- an et before every one of
-          the three ablatives, including the first), the first et
-          (introductory) has ONLY relatedtoken1 -> assiduitate; the
-          second et has relatedtoken1 -> assiduitate, relatedtoken2 ->
-          varietate; the third et has relatedtoken1 -> varietate,
-          relatedtoken2 -> magnificentia. assiduitate, varietate, and
-          magnificentia each ALSO have their own relatedtoken1 ->
-          antecessit, relationship1 = 'ablative', same as any other
-          ablative -- unaffected by which connector introduces them.
-        - direct quote / aside: a verbal expression of syntactic type
-          'direct quote' or 'aside' has relatedtoken1 -> the id of the verb
-          of the clause it interrupts or is framed by, relationship1 =
-          'direct quote' or 'aside' respectively (matching its syntactic
-          type).
-        - circumstantial participle / ablative absolute: a participial
-          verbal expression's own relatedtoken1 -> the id of the noun or
-          pronoun it agrees with, relationship1 = 'circumstantial
-          participle'. That noun in turn: if it also fits a normal role in
-          the surrounding clause (e.g. it's already the main verb's direct
-          object), it takes THAT normal relation instead (nothing extra to
-          add). If it's an ablative with no other syntactic connection to
-          the sentence (a true ablative absolute), it instead has
-          relatedtoken1 -> the id of the main verb, relationship1 =
-          'ablative absolute'. Sometimes there is no noun or pronoun at
-          all for the participle to agree with -- most often when it
-          agrees with a governing verb's own unexpressed subject. Do NOT
-          leave the participle's relatedtoken1 pointing at the verb
-          directly in that case (that would misrepresent the participle as
-          relating straight to the verb, the way an ablative-absolute noun
-          does): instead add a new tokentype='implied subject' token (see
-          (3) below) standing in for the missing noun, give IT the normal
-          'subject' relation into the verb, and have the participle relate
-          to THIS new token via 'circumstantial participle' exactly as it
-          would to a real one.
-        - auxiliary: in a compound perfect/pluperfect passive, or compound
-          future-infinitive, verb form (participle + a form of 'sum'), the
-          participle or infinitive itself anchors the verbal expression and
-          is the target of every relation into it (subject, direct object,
-          agent, etc); the accompanying form of 'sum' instead has
-          relatedtoken1 -> the id of that participle/infinitive,
-          relationship1 = 'auxiliary'. The same pattern applies to an
-          impersonal passive of an intransitive verb (e.g. "ventum erat",
-          'there had been a coming'): the form of 'sum' still relates to
-          the participle as its auxiliary, even with no subject.
-        - agent: the preposition 'a'/'ab' introducing the agent of a passive
-          verb has relatedtoken1 -> the passive verb's id (the id of the
-          participle, for a compound form -- NOT the accompanying form of
-          'sum'), relationship1 = 'agent'. The noun/pronoun governed by that
-          'a'/'ab' has relatedtoken1 -> the id of 'a'/'ab', relationship1 =
-          'object of preposition'.
-        - subject / direct object / predicate: a noun or pronoun serving as
-          subject or direct object has relatedtoken1 -> the id of the verb
-          (the id of the participle or infinitive, NOT the accompanying
-          form of 'sum', for a compound passive or future-infinitive form),
-          relationship1 = 'subject' or 'direct object'. This applies to the
-          accusative subject of an infinitive in indirect statement too. A
-          noun or pronoun serving as the predicate complement of a LINKING
-          verb uses relationship1 = 'predicate' instead, same relatedtoken1
-          target. If the token is a relative pronoun already using
-          relatedtoken1/relationship1 for its antecedent link, put this
-          relation in relatedtoken2/relationship2 instead.
-        - adjectival: an adjective (or an attributive participle) modifying
-          a noun has relatedtoken1 -> the noun's id, relationship1 =
-          'adjectival'. An adjective used as a substantive (standing in for
-          a noun) is treated as a noun/pronoun instead, not as adjectival.
-        - genitive / dative / ablative / accusative: a noun in the
-          genitive, dative, ablative, or accusative case that depends on a
-          verb or another noun -- and isn't already covered by a more
-          specific relation above (subject, direct object, object of
-          preposition, ablative absolute, etc) -- has relatedtoken1 -> the
-          id of the verb or noun it depends on, relationship1 = the
-          matching case name ('genitive', 'dative', 'ablative', or
-          'accusative'). These are purely syntactic (case-function) labels,
-          not semantic ones -- don't distinguish e.g. possessive vs.
-          partitive genitive. 'accusative' specifically covers an
-          accusative relation that ISN'T a direct object: a bare
-          accusative of place to which (e.g. "Romam" in "Romam venit",
-          relatedtoken1 -> "venit", even though "venit" is intransitive)
-          or an accusative of extent that modifies another NOUN rather
-          than a verb (e.g. "milia" in "duo milia passuum iter fecerunt",
-          relatedtoken1 -> "iter", the noun it qualifies, not "fecerunt").
-          The idiomatic construction 'opus est' + an ablative is a special
-          case worth noting for 'ablative': the ablative token relates to
-          "opus" itself, not to "est" -- e.g. in "Collatinus negat verbis
-          opus esse", "verbis" has relatedtoken1 -> "opus", relationship1 =
-          'ablative'.
-        - vocative: a noun in the vocative case (direct address) has
-          relatedtoken1 -> the id of the verb of the clause it's addressed
-          within, relationship1 = 'vocative'. Unlike 'genitive'/'dative'/
-          'ablative'/'accusative' above, a vocative relates to a verb
-          only, never to another noun. Example: in "Non est ita, domine,
-          sed servi tui venerunt ut emerent cibos.", "domine" has
-          relatedtoken1 -> "est", relationship1 = 'vocative'.
-        - apposition: when one noun stands in apposition to another, the
-          appositive has relatedtoken1 -> the id of the first (the noun it
-          restates or further identifies), relationship1 = 'apposition'. A
-          genitive depending on either noun still gets its own ordinary
-          'genitive' relation, pointing at whichever noun it actually
-          depends on -- apposition doesn't change that. Example: in
-          "Neptunus et Aegeus Pandionis filius...cum Aethra Pitthei
-          filia...", "filius" is in apposition to "Aegeus" (relatedtoken1
-          -> "Aegeus", relationship1 = 'apposition'), and "Pandionis" (the
-          genitive depending on "filius") has relatedtoken1 -> "filius",
-          relationship1 = 'genitive' -- and likewise "filia" is in
-          apposition to "Aethra", with "Pitthei" as a genitive depending on
-          "filia".
-        - praenomen: a token of tokentype 'praenomen' (an abbreviated Roman
-          first name, e.g. "M." or "Sex.") has relatedtoken1 -> the id of
-          the LEXICAL token spelling out the individual's own name that it
-          abbreviates/precedes, relationship1 = 'praenomen'. Example: in
-          "Sex. Tarquinius inscio Collatino...venit", "Sex." has
-          relatedtoken1 -> "Tarquinius", relationship1 = 'praenomen'. If
-          there is no such lexical name token to relate to -- e.g. the
-          genitive filiation formula "L. f." ("Lucii filius", 'son of
-          Lucius'), where "L." precedes only the abbreviation "f." rather
-          than a lexical name -- leave it unrelated, same as any other
-          token with no relation of these kinds.
-        - prepositional phrases: the preposition has relatedtoken1 -> the id
-          of the verb (adverbial) or noun (attributive) it modifies,
-          relationship1 = 'adverbial' or 'attributive'. The noun/pronoun it
-          governs has relatedtoken1 -> the id of the preposition,
-          relationship1 = 'object of preposition' (or relatedtoken2/
-          relationship2 if relatedtoken1 is already used for a
-          relative-pronoun link).
-        - adverbial (bare adverb): an adverb modifying a verb has
-          relatedtoken1 -> the verb's id, relationship1 = 'adverbial' --
-          the same relationship1 value as a preposition modifying a verb,
-          just with no object-of-preposition token on the other end.
+    """Analyze the syntax of a passage of Latin according to the
+    arsgrammatica scheme, producing (1) a list of verbal expressions and (2)
+    a graph of syntactic relations among the tokens.
 
-        Only assign relations described above. Leave relatedtoken/
-        relationship fields unset for tokens with no relation of these
-        kinds -- not every token will have one (e.g. a bare accusative of
-        place isn't covered). Use only the token ids given in
-        the input `tokens` list, the sentinel 'root', or a NEW id you
-        create for an implied token (see below), in your output; never
-        invent an id for anything else.
+    (1) VERBAL EXPRESSIONS. Every syntactic feature is organized around
+        explicit or implicit verbal ideas. Four constructions are verbal
+        expressions:
+        - every finite verb. A compound form of the perfect passive system
+          (participle + a form of 'sum') is ONE verbal expression, anchored
+          on the participle; the form of 'sum' is its auxiliary.
+        - an infinitive that is the verb of an indirect statement. A
+          complementary infinitive, or an infinitive used as a noun, is NOT
+          a verbal expression. A compound infinitive (e.g. future
+          "facturum ... fuisse") is anchored on the participle.
+        - a participle with a circumstantial sense (e.g. "Anco regnante",
+          'while Ancus was reigning'), but NOT a purely attributive
+          participle (e.g. "consentiens laus", 'universal praise', which is
+          simply 'adjectival'). When it is unclear whether a participle is
+          attributive or circumstantial, PREFER the circumstantial reading.
+        - every gerundive (e.g. "ad pacem faciendam"). A gerundive + 'sum'
+          (passive periphrastic, e.g. "Carthago delenda est") is a compound
+          form anchored on the gerundive. The GERUND (e.g. "ars dicendi") is
+          a noun, NOT a verbal expression.
 
-    (3) implied/elided tokens. `arsgrammatica` recognizes three DIFFERENT
-        situations where something exists grammatically but has no surface
-        realization in the passage at all -- rather than skip these, add a
-        NEW entry to `tokengraph` with: a brand-new id, not used by any
-        entry in `tokens` or elsewhere in your own output (see the naming
-        rule below); the matching tokentype below; and no `token` value
-        (leave it unset/None) -- these go together, and 'implied sum',
-        'continued discourse', and 'implied subject' are the ONLY three
-        tokentype values whose id isn't one of `tokens`' own ids and whose
-        `token` is empty. `continued discourse` always stands in for a
-        missing VERBAL expression and so always needs a matching new entry
-        in `verbalunits`, exactly like any other verbal expression.
-        `implied sum` stands in for a missing verbal expression in TWO of
-        its three sub-cases (and needs a `verbalunits` entry there too),
-        but NOT in its third -- the compound-passive-with-omitted-auxiliary
-        sub-case, where a real, already-present participle anchors the
-        verbal expression instead and the implied token merely relates to
-        it as 'auxiliary' (see below for which is which). `implied subject`
-        stands in for a missing NOUN or pronoun instead, and never gets a
-        `verbalunits` entry of its own.
+        Give each verbal expression the id of its anchor token and one
+        syntactic type:
+        - 'independent': a main verb, syntactically complete by itself.
+        - 'dependent': a verb introduced by a subordinating word (a
+          subordinating conjunction, or a word introducing an indirect
+          question) or by a relative pronoun.
+        - 'direct quote': the top-level verb of directly quoted speech (the
+          verb that would be 'independent' if the quotation stood alone).
+          Clauses subordinate to it inside the quotation are typed normally
+          (e.g. 'dependent').
+        - 'aside': a verb whose clause interrupts the syntax of the
+          surrounding sentence (e.g. "dixerim" in "equidem -- pace dixerim
+          deum -- eos ... esse spero").
+        - 'parataxis': a subjunctive verb governed WITHOUT any subordinating
+          word by a verb of necessity, wishing, preference or command (e.g.
+          oportet, necesse est, volo, peto, precor, imperative fac): "videam"
+          in "Precor eam videam", "scribas" in "Tu velim ad me scribas".
+        - 'indirect statement': an infinitive of indirect speech.
+        - 'circumstantial participle': a circumstantial participle.
+        - 'gerundive': an attributive gerundive (one NOT in a compound with
+          'sum'). A gerundive + 'sum' takes the type of its context instead
+          ('independent', 'dependent', 'indirect statement', ...).
 
-        - tokentype 'implied sum': an elided present of 'sum' ('to be').
-          Three sub-cases, all using this same tokentype:
-            - a bare predicate construction (subject + predicate noun/
-              adjective, no verb at all): the implied token anchors a
-              verbal expression classified 'independent' (or 'dependent',
-              if the elided-'sum' clause is itself subordinate) and
-              'linking verb'; the subject and predicate each relate to it
-              exactly as they would to any linking verb ('subject' /
-              'predicate'). Example: "omnia praeclara rara" ('all splendid
-              things [are] rare') has an implied token anchoring an
-              'independent'/'linking verb' expression, with "omnia" (its
-              own 'praeclara' adjectival) as 'subject' and "rara" as
-              'predicate'.
-            - a compound perfect/pluperfect passive (or impersonal
-              passive) with its auxiliary omitted (e.g. "consules facti"
-              for "consules facti sunt"): UNLIKE the other two sub-cases,
-              the implied token here does NOT anchor the verbal
-              expression -- the participle itself ("facti") is already a
-              real, present token, so IT anchors the verbal expression
-              (its own `verbalunits` entry, relatedtoken1/relationship1 =
-              'root'/'unit verb' if independent, exactly as if it were an
-              ordinary one-word verb) and every relation that would
-              normally target the written-out auxiliary (subject, direct
-              object, predicate, agent, adverbs, etc.) targets the
-              participle instead. The implied token stands in only for the
-              omitted form of 'sum' itself: it gets relatedtoken1 -> the
-              participle's id, relationship1 = 'auxiliary' (exactly as a
-              written-out auxiliary would relate to the participle -- see
-              'auxiliary' above), and it does NOT get its own `verbalunits`
-              entry, since the participle already supplies the verbal
-              expression.
-            - the present participle of 'sum' does not exist in Latin at
-              all, so an ablative-absolute-style predicate construction
-              built on it (e.g. "Agrippa Menenio P. Postumio consulibus",
-              '[when] Agrippa Menenius [and] Publius Postumius [were]
-              consuls') is ALWAYS implied, never optional. Classify the
-              implied token's verbal expression 'dependent' (this
-              codebase's circumstantial-participle convention -- see
-              VerbalExpression's own docstring) and 'linking verb'; relate
-              it to its noun via 'circumstantial participle' exactly like
-              any other circumstantial participle.
-        - tokentype 'continued discourse': continuation of indirect
-          discourse -- a long run of indirect statements can share one
-          governing verb of speaking/thinking stated once, then omitted
-          across several further coordinate statements. Add ONE implied
-          token (tokentype 'continued discourse') for that omitted
-          governing verb (syntactic type 'independent' unless the whole
-          passage is itself subordinate, semantic type 'transitive active'
-          unless context says otherwise), and give EACH of the governed
-          infinitives its normal 'indirect statement' relation into it,
-          exactly as if the verb had been repeated for each one.
-        - tokentype 'implied subject': a participle's own antecedent (the
-          noun/pronoun it agrees with, related via 'circumstantial
-          participle' -- see that relation's own note above) can itself go
-          unexpressed, most often when the participle agrees with a
-          governing verb's own unexpressed subject. Rather than leaving
-          the participle with no antecedent to point at (or, worse,
-          pointing it straight at the verb, which would misrepresent it as
-          an ablative absolute), add ONE implied token (tokentype 'implied
-          subject') to stand in for the missing noun/pronoun. This implied
-          token is NOT a verbal expression itself -- it gets no
-          `verbalunits` entry -- it simply takes a normal 'subject'
-          relation into the governing verb (relatedtoken1 -> the verb's
-          id, relationship1 = 'subject'), exactly as if that subject had
-          been written out as a real word. The participle then relates to
-          THIS new token via 'circumstantial participle', exactly as it
-          would to a real antecedent. Example: in "Recordatusque
-          somniorum ait ad eos: Exploratores estis.", the participle
-          "Recordatus" agrees with the unexpressed subject of "ait" -- add
-          an implied token (tokentype 'implied subject') with relatedtoken1
-          -> "ait"'s id, relationship1 = 'subject'; "Recordatus" then has
-          relatedtoken1 -> that new implied token's id, relationship1 =
-          'circumstantial participle' (and, since "Recordatus" is itself a
-          predicate-sense participle, it ALSO anchors its own
-          `verbalunits` entry, syntactic_type 'dependent', semantic_type
-          matching its own transitivity -- unaffected by its antecedent
-          being implied rather than real).
+    (2) THE SYNTAX GRAPH. Give every token a list of `relations`; each
+        relation has `related` (the id of a token, of an implied token, or
+        the reserved value 'root') and `relationship` (one of the labels
+        below). Every non-punctuation token gets at least one relation;
+        punctuation gets none. A token may have SEVERAL relations (e.g. a
+        relative pronoun; a coordinating word joining two items) -- list one
+        relation per edge. The order of a token's relations does not matter.
 
-        Naming an implied token's id (all three tokentypes): append
-        '_implied' to the id of the LAST real token in `tokens` that
-        precedes where the elided word would have stood (or, if the elided
-        word would come before every real token in the sentence, the FIRST
-        real token's id instead). If more than one implied token is ever
-        needed at the same position, append '2', '3', ... after '_implied'
-        to keep them unique (e.g. 't5_implied', 't5_implied2'). Place the
-        new `tokengraph` entry at the list position where the elided word
-        would have appeared, among the tokens of its own clause -- this
-        keeps it grouped with the rest of its verbal expression (or, for
-        'implied subject', the clause of the verb it's the subject of) for
-        anything that reads `tokengraph` in order.
+        Constructions of verbal expressions:
+        - 'unit verb': the anchor of an independent verbal expression ->
+          'root' (never use 'root' as a token id). The anchor of a dependent
+          clause -> its subordinating word or relative pronoun.
+        - 'auxiliary': the form of 'sum' in a compound form (perfect passive
+          system, compound infinitive, gerundive + 'sum') -> the participle
+          / infinitive / gerundive, which is the target of every other
+          relation into the verbal expression (subject, agent, ...). E.g.
+          "urbs condita est": est -> condita 'auxiliary'; condita -> 'root'.
+          Also for impersonal passives ("ventum erat").
+        - 'direct quote': the top-level verb of a direct quotation -> the
+          verb introducing the quotation (e.g. dedico -> inquit).
+        - 'aside': the verb of an interrupting clause -> the verb of the
+          interrupted clause.
+        - 'parataxis': a paratactic subjunctive -> its governing verb.
+        - 'indirect statement': the indirect-statement infinitive -> the
+          governing verb of saying/thinking/perceiving (e.g. esse -> dixit).
+          Its accusative subject is its 'subject'.
+        - 'circumstantial participle': the participle -> the substantive it
+          agrees with (e.g. adveniens -> vir).
+        - 'gerundive': an attributive gerundive -> the substantive it agrees
+          with (e.g. faciendam -> pacem; faciendum -> pontem in "pontem
+          faciendum curavit").
 
-    Flagging ambiguity: when a specific call above is genuinely ambiguous
-    -- the passage plausibly supports more than one defensible reading, not
-    just an ordinary judgment call you're confident in -- say so explicitly
-    in your reasoning, rather than silently picking one reading and moving
-    on. Name the specific token(s) or construction involved, the
-    alternative reading you considered, and briefly why you chose the one
-    you did. The clearest example above is an ambiguous participle's
-    attributive-vs-circumstantial reading: the rule to PREFER the
-    circumstantial reading when genuinely uncertain still applies
-    unchanged, but note in your reasoning that you made that call and why,
-    the same way you would for any other close judgment (e.g. which of two
-    candidate governing verbs an ambiguous dependent clause attaches to,
-    or whether a participle is predicate or purely attributive in the
-    first place). This does not change any tie-breaking rule given above --
-    it only adds a requirement to surface that a close call was made at
-    all, so a human reviewing this analysis later knows exactly where to
-    look rather than having to independently re-derive every judgment call
-    to find the uncertain ones. Do not flag routine analysis you're
-    confident in just to pad your reasoning with hedges -- this is for
-    genuine, specific ambiguity only.
+        Other constructions with verbs:
+        - 'complementary infinitive': an infinitive completing a verb like
+          volo, possum, incipio, audeo -> that verb. It can still take its
+          own objects and adverbs.
+
+        A-A-T (Agent-Action-Target) relations:
+        - 'subject': the grammatical subject -> its verbal expression.
+        - 'direct object': the direct object -> its verb.
+        - 'agent-ablative': the preposition a/ab expressing agency with a
+          passive verb -> the verb (its noun is 'object of preposition' ->
+          a/ab). E.g. "urbs a Romulo condita est": a -> condita.
+        - 'agent-dative': a dative of agent -> the verb. Used regularly with a
+          gerundive + 'sum' (explicit or implied: "Caesari omnia erant
+          agenda": Caesari -> agenda), and sometimes with a compound perfect
+          passive ("res praeterita nobis est": nobis -> praeterita). A dative
+          with an attributive gerundive is plain 'dative'.
+        - 'predicate', in four uses:
+          1. the predicate of a linking verb -> the verb ("Lucumo ... filius
+             erat": filius -> erat);
+          2. a substantive giving the role or state in which the subject acts
+             -> the verb ("Lucumo superfuit ... heres": heres -> superfuit);
+          3. after verbs of naming, making, thinking, judging, showing
+             (appello, voco, creo, facio, habeo, iudico, puto, aestimo, se
+             praebere, reddo), a substantive describing the direct object ->
+             THE DIRECT OBJECT ("Ciceronem consulem creaverunt": consulem ->
+             Ciceronem);
+          4. the passive of use 3 -> the passive verb ("Cicero consul creatus
+             est": consul -> creatus).
+
+        Case constructions (purely syntactic: do NOT distinguish semantic
+        subtypes such as possessive vs. partitive genitive):
+        - 'genitive', 'dative', 'accusative', 'ablative': a substantive in
+          that case depending on a verb or another substantive, when no more
+          specific relation applies -> that verb or substantive. 'accusative'
+          is for accusatives that are NOT direct objects (e.g. "Romam venit":
+          Romam -> venit; "duo milia passuum iter": milia -> iter). In "opus
+          est" + ablative, the ablative -> opus.
+        - 'vocative': a vocative -> the verb of its clause.
+
+        Substantives from verbal roots: an infinitive used as a noun, or a
+        gerund, takes the same relations as any substantive ("dolere malum
+        est": dolere -> est 'subject'; "ars dicendi": dicendi -> ars
+        'genitive'), and can still take its own objects and adverbs.
+
+        Adverbial and adjectival expressions:
+        - 'adverbial': an adverb, or a preposition heading an adverbial
+          phrase, -> the token it qualifies, whether verbal, substantive or
+          adjectival.
+        - 'adjectival': an adjective (or attributive participle, or numeral
+          such as XXV) -> the substantive it describes; also a preposition
+          heading a phrase that describes a substantive ("nuntius victoriae
+          ad Cannas": ad -> victoriae). An adjective used as a substantive
+          takes substantive relations instead.
+        - 'object of preposition': the substantive governed by a preposition
+          -> the preposition, whatever its case.
+
+        Special substantive relations:
+        - 'ablative absolute': in an ablative absolute, the ablative
+          substantive -> the governing verb (its participle is a
+          'circumstantial participle' -> the substantive).
+        - 'apposition': an appositive -> the substantive it stands in
+          apposition to (the first substantive is constructed normally).
+        - 'praenomen': a praenomen used with a nomen or cognomen -> that
+          name (e.g. "Sp. Nautius": Sp. -> Nautius). A praenomen standing
+          alone is treated like any other substantive (e.g. "M. Agrippa L.
+          f. cos.": L. -> f. 'genitive'; f. and cos. -> Agrippa
+          'apposition').
+
+        Coordinating and subordinating words:
+        - 'coordinating word': a connective (e.g. autem, igitur, sed, nam,
+          ceterum) joining a verbal expression to a preceding SENTENCE ->
+          that verb (one relation only). A coordinating word (et, aut,
+          -que, ...) joining a pair of items -> EACH of the two items (two
+          relations). When it joins verbal expressions, relate it to the
+          two verbs, even when it is attached to some other word (e.g.
+          "Hermionenque ... adduxit": que -> noluit and que -> adduxit). In
+          a series "A et B et C", each connector -> the item before and the
+          item after it. In "et A et B et C", the first connector -> A only;
+          the rest -> the items on either side. Each joined item keeps its
+          own normal relation as well. When et means 'even, also', it is
+          'adverbial'.
+        - 'subordinating word': a subordinating conjunction (ut, cum, ne,
+          quoniam, quod, si, ...) or a word introducing an indirect question
+          -> the verb of the governing clause; the dependent verb -> the
+          subordinating word as 'unit verb'. Distinguish interrogatives
+          introducing indirect questions from relative pronouns.
+        - 'relative pronoun': a relative pronoun -> its antecedent, PLUS a
+          second relation giving its function in its own clause (e.g.
+          'subject', 'direct object', 'object of preposition'); the verb of
+          the relative clause -> the relative pronoun as 'unit verb'.
+
+    (3) IMPLIED TOKENS. When something exists grammatically but has no
+        written form, add a NEW entry to `tokengraph` with a new id, no
+        `token` text, and one of three tokentypes:
+        - 'implied sum': an elided form of 'sum'.
+          - In a bare predicate construction ("omnia praeclara rara") it
+            anchors its own verbal expression (here 'independent'), and the
+            subject and predicate relate to it.
+          - There is no present participle of 'sum', so an ablative absolute
+            with a predicate noun ("Agrippa Menenio P. Postumio consulibus")
+            implies one: it anchors a 'circumstantial participle' verbal
+            expression and relates to the names it agrees with as
+            'circumstantial participle'.
+          - When it is the missing auxiliary of a compound form ("consules
+            facti" for "facti sunt") it does NOT anchor a verbal expression:
+            the participle does, and the implied token -> the participle as
+            'auxiliary'.
+        - 'implied verb': an understood repeated verb, which anchors its own
+          verbal expression with the type the written verb would have. E.g.
+          a verb shared by parallel clauses ("ut famam ... exspectatio,
+          exspectationem ... adventus admiratioque superaret": superaret
+          belongs to the first clause; an implied verb, 'dependent' -> ut,
+          serves the second), or a governing verb of speaking omitted
+          throughout a passage of indirect discourse (the infinitives ->
+          the implied verb as 'indirect statement'; the implied verb is
+          'independent' -> 'root').
+        - 'implied substantive': an unexpressed antecedent that a relative
+          pronoun or participle depends on. It is not a verbal expression.
+          E.g. "quem dii amant adolescens moritur": an implied substantive
+          -> moritur 'subject', and quem -> it 'relative pronoun'. Add one
+          ONLY when another token needs it to relate to: an omitted subject
+          is normal in Latin and needs no implied token otherwise. A
+          participle used substantively ("sapienti sat est") needs none.
+        Every implied token gets its own relations exactly like a written
+        word (e.g. an implied 'sum' anchoring an independent clause ->
+        'root' as 'unit verb').
+        Naming: append '_implied' to the id of the last real token before
+        the place where the implied word would stand (or to the first token's
+        id, if it would stand first); for more than one at the same place,
+        append '2', '3', ... ('t5_implied', 't5_implied2'). Place the entry
+        among the tokens of its own clause.
+
+    TOKEN TYPES. Keep the tokentype given by segmentation where possible:
+    'praenomen' (a Roman first name, abbreviated with its period or not,
+    e.g. "M.", or "Agrippa" in "Agrippa Menenio"), 'abbreviation' (any
+    other abbreviation with its period, e.g. "f.", "cos."), 'punctuation',
+    'enclitic' (que, ve, ne, -cum in nobiscum, ...), 'numeral' (written
+    with numerals, e.g. "XXV"; "decem" is 'lexical'), 'lexical' (any other
+    word), plus the three implied types above.
+
+    FLAGGING AMBIGUITY: when the passage genuinely supports more than one
+    defensible reading of a specific construction, say so in your
+    reasoning: name the token(s), the alternative you considered, and why
+    you chose as you did. Do not pad your reasoning with hedges about
+    routine analysis you are confident in.
     """
- 
+
     passage: str = dspy.InputField(desc="The Latin passage to analyze, exactly as written.")
     tokens: List[Token] = dspy.InputField(
-        desc="Pre-segmented tokens of the passage, in order, with fixed ids. Reference these ids in your output; do not create new ones."
+        desc="Pre-segmented tokens of the passage, in order, with fixed ids. Reference these ids in your output; only implied tokens get new ids."
     )
     verbalunits: List[VerbalExpression] = dspy.OutputField(
-        desc="One entry per verbal expression (finite verb; infinitive used in indirect speech; or predicate-sense participle) in the passage."
+        desc="One entry per verbal expression (explicit or implied) in the passage."
     )
     tokengraph: List[TokenAnalysis] = dspy.OutputField(
         desc=(
             "One entry per token in `tokens`, in the same order, with its "
-            "type and any relations -- PLUS one additional entry for each "
-            "implied/elided token you add (see this signature's docstring), "
-            "positioned where that token's clause falls in reading order."
+            "type and its list of relations -- PLUS one entry for each "
+            "implied token you add, placed among the tokens of its own clause."
         )
     )
- 
- 
+
+
 analyze = dspy.ChainOfThought(SentenceAnalysis)
  
  
@@ -522,38 +280,30 @@ analyze = dspy.ChainOfThought(SentenceAnalysis)
 # ---------------------------------------------------------------------------
  
 def validate(tokens: List[Token], result) -> List[str]:
-    """Check that every id the LM produced actually exists among `tokens`
-    -- OR is a legitimately new implied token (tokentype in
-    IMPLIED_TOKENTYPES -- 'implied sum', 'continued discourse', or
-    'implied subject'; see SentenceAnalysis's docstring) -- and that implied
-    tokens themselves are well-formed. Returns a list of human-readable
-    problem descriptions (empty if clean).
+    """Check an analysis for referential integrity. Returns a list of
+    human-readable problem descriptions (empty if clean).
 
-    'root' is a special sentinel value for an independent verb's own
-    relatedtoken1 (see SentenceAnalysis's docstring) -- it is never treated as
-    an unknown id, but syntax_model.md also requires that no actual token
-    ever be assigned the id 'root', so that's checked here too.
+    Checks:
 
-    Implied tokens get their own, narrower checks: a tokengraph entry
-    claiming an IMPLIED_TOKENTYPES value must use a genuinely NEW id (not
-    one already in `tokens`) and must leave `token` unset (None) -- getting
-    either wrong is exactly the kind of malformed output this function
-    exists to catch, not a legitimate implied token. A non-implied entry,
-    conversely, must use one of `tokens`' own ids and must NOT have
-    `token=None` -- only an IMPLIED_TOKENTYPES tokentype may omit real
-    surface text. This check is purely structural either way (new id,
-    empty text) -- it does NOT also require an 'implied sum'/'continued
-    discourse' token to have a matching `verbalunits` entry, or an
-    'implied subject' token to lack one; that distinction is documented
-    behavior (see SentenceAnalysis's docstring), not something this function
-    enforces."""
+    - every tokengraph entry is either one of `tokens` (by id) or a
+      well-formed implied token (tokentype in IMPLIED_TOKENTYPES, a NEW id
+      not in `tokens`, and no surface text); conversely only an implied
+      token may omit its text;
+    - every relation points at a known node: a token id, an implied
+      token's id, or the reserved value 'root';
+    - 'root' is only used as the target of a 'unit verb' relation, and is
+      never itself a token id;
+    - every verbal expression is anchored on a known token.
+
+    This is purely structural: it never judges whether the analysis is
+    linguistically correct."""
     valid_ids = {t.id for t in tokens}
     problems = []
 
     if "root" in valid_ids:
         problems.append(
-            "token id 'root' is reserved as the sentinel relatedtoken1 "
-            "value for independent verbs and must not be assigned to an "
+            "token id 'root' is reserved as the target of an independent "
+            "verb's 'unit verb' relation and must not be assigned to an "
             "actual token"
         )
 
@@ -584,34 +334,40 @@ def validate(tokens: List[Token], result) -> List[str]:
                     f"tokentype={tok.tokentype!r} -- only {allowed} may "
                     "omit surface text"
                 )
-        for field in ("relatedtoken1", "relatedtoken2"):
-            val = getattr(tok, field)
-            if val is not None and val != "root" and val not in known_ids:
-                problems.append(f"token {tok.id!r} {field}={val!r} is not a known token id")
+        for relation in tok.relations:
+            target = relation.related
+            if target == "root":
+                if relation.relationship != "unit verb":
+                    problems.append(
+                        f"token {tok.id!r} relates to 'root' as "
+                        f"{relation.relationship!r} -- 'root' may only be the "
+                        "target of a 'unit verb' relation"
+                    )
+            elif target not in known_ids:
+                problems.append(
+                    f"token {tok.id!r} relation {relation.relationship!r} -> "
+                    f"{target!r} is not a known token id"
+                )
 
     for vu in result.verbalunits:
         if vu.id not in known_ids:
             problems.append(f"verbal expression id {vu.id!r} is not a known token id")
 
     return problems
- 
- 
+
+
 def print_analysis(tokens: List[Token], result):
     print("Tokens:")
     for t in tokens:
         print(f"  {t.id:>4}  {t.text}")
- 
+
     print("\nVerbal expressions:")
     for vu in result.verbalunits:
-        print(f"  id={vu.id}  syntactic_type={vu.syntactic_type}  semantic_type={vu.semantic_type}")
- 
+        print(f"  id={vu.id}  syntactic_type={vu.syntactic_type}")
+
     print("\nToken graph:")
     for tok in result.tokengraph:
-        rels = []
-        if tok.relationship1:
-            rels.append(f"{tok.relationship1} -> {tok.relatedtoken1}")
-        if tok.relationship2:
-            rels.append(f"{tok.relationship2} -> {tok.relatedtoken2}")
+        rels = [f"{r.relationship} -> {r.related}" for r in tok.relations]
         rel_str = "; ".join(rels) if rels else "-"
         vu_str = f" [verbal unit {tok.verbalunitid}]" if tok.verbalunitid else ""
         token_str = tok.token if tok.token is not None else f"({tok.tokentype})"

@@ -242,7 +242,7 @@ def render_sentence_metrics(
     ]
     if warnings:
         # Same "skipped edge" warnings tokengraph_to_mermaid() can report
-        # for this sentence (a relatedtoken*/relationship* pointing at a
+        # for this sentence (a relation pointing at a
         # punctuation token or a missing id) -- worth surfacing here too,
         # since a skipped edge means the graph below is missing a relation
         # the analysis actually recorded.

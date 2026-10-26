@@ -62,6 +62,11 @@ from typing import Dict, List, Optional, Tuple
  
 from .mermaid import token_label
 from .models import IMPLIED_TOKENTYPES, TokenAnalysis
+
+# Token types whose spans are colored by verbal unit. Abbreviations are
+# included because the current scheme gives them ordinary substantive
+# relations (e.g. 'f.' and 'cos.' in apposition to a name).
+_COLORED_TOKENTYPES = ("lexical", "praenomen", "numeral", "abbreviation")
 from .verbal_units import (
     assign_verbal_units,
     assign_verbal_unit_colors,
@@ -157,8 +162,8 @@ def tokengraph_to_html(
     `tokengraph_to_text()` produces -- identical spacing rules, and the same
     punctuation/enclitic/quote-pair handling -- except every **lexical**
     token, every **praenomen** token, every **numeral** token, and every
-    **coordinating conjunction** (any token with relationship1 or
-    relationship2 == "coordinating conjunction", lexical or not), has its
+    **abbreviation** token, and every token with a "coordinating word"
+    relation (lexical or not), has its
     text wrapped in a `<span style="...">` colored by the verbal unit it
     belongs to. Colors
     come from `verbal_units.assign_verbal_units()` /
@@ -203,9 +208,8 @@ def tokengraph_to_html(
     enclitic), so it's already wrapped.
 
     The praenomen carve-out is the same idea for a different reason:
-    syntax_model.md's "Praenomina" section gives every `tokentype`=
-    "praenomen" token (e.g. "Sex.") its own real relation -- relatedtoken1
-    -> the lexical name it precedes, relationship1 = "praenomen" -- so
+    the scheme docs' "Praenomina" section gives every `tokentype`=
+    "praenomen" token (e.g. "Sex.") its own real relation -- -> the lexical name it precedes, relationship "praenomen" -- so
     `assign_verbal_units()` resolves it to that name's own verbal unit
     exactly like any other token in the clause (e.g. "Sex." lands in the
     same unit as "Tarquinius", which is "venit"'s). Unlike the
@@ -218,7 +222,7 @@ def tokengraph_to_html(
     assignment and so renders unwrapped anyway, same as an unrelated
     lexical token would).
 
-    The numeral carve-out is for the same reason again: syntax_model.md's
+    The numeral carve-out is for the same reason again: the scheme docs'
     tokenization section restricts `tokentype`="numeral" to a number
     written NUMERICALLY (Roman or Arabic) -- a number spelled out as an
     ordinary word (e.g. "decem") is "lexical" instead -- but a numeral is
@@ -247,7 +251,7 @@ def tokengraph_to_html(
     rather than assumed).
 
     An **implied/elided token** (models.py's IMPLIED_TOKENTYPES: "implied
-    sum", "continued discourse", "implied subject") is omitted entirely -- same as
+    sum", "implied verb", "implied substantive") is omitted entirely -- same as
     tokengraph_to_text() -- rather than rendered with any span: it has no
     surface text (`tok.token` is always `None`), and unlike
     `tokengraph_to_mermaid()`'s diagram (which DOES show these, as their
@@ -350,11 +354,8 @@ def _tokens_to_html(
         cls = _classify(tok, quote_counts)
         rendered = html.escape(tok.token)
 
-        is_coordinating_conjunction = (
-            tok.relationship1 == "coordinating conjunction"
-            or tok.relationship2 == "coordinating conjunction"
-        )
-        if tok.tokentype in ("lexical", "praenomen", "numeral") or is_coordinating_conjunction:
+        is_coordinating_conjunction = tok.has_relationship("coordinating word")
+        if tok.tokentype in _COLORED_TOKENTYPES or is_coordinating_conjunction:
             unit_id = assignment.get(tok.id)
             color = colors.get(unit_id) if unit_id is not None else None
             if color is not None:
@@ -431,7 +432,7 @@ def tokengraph_to_depth_html(
     word it's orthographically glued to, e.g. in "Hermionenque", and
     starting a new block there would split one Latin word across two
     <div>s). A token with no verbal-unit assignment at all (None --
-    typically punctuation, or a token syntax_model.md doesn't document a
+    typically punctuation, or a token the scheme docs (quarto/concepts/) doesn't document a
     relation for) likewise never starts a new block; it folds into
     whichever block is currently open, so a stray comma or postpositive
     particle doesn't fragment the layout. Leading tokens before the first
@@ -532,7 +533,7 @@ def tokengraph_to_depth_html(
 #
 # "Start" and "end" follow the exact same directionality
 # tokengraph_to_mermaid()'s own arrows already use (see that module's edge
-# loop): the token whose OWN relatedtoken1/relationship1 (or .../2) names
+# loop): the token whose OWN Relation names
 # the edge is the start/source; the id it names is the end/target. This
 # matches "the token graph is directed from subordinate to governing nodes"
 # (quarto/guides/mermaid.qmd) -- e.g. for `unit verb`, the dependent verb is
@@ -543,15 +544,15 @@ def tokengraph_to_depth_html(
 @dataclass(frozen=True)
 class RelationshipEdge:
     """One edge of a specific relationship type in a tokengraph:
-    `start_id`/`start_label` (the token whose own relationship1/
-    relationship2 field named this edge) related to `end_id`/`end_label`
+    `start_id`/`start_label` (the token whose own Relation named this
+    edge) related to `end_id`/`end_label`
     (the id and display label of the token it names) via `relationship`.
 
     `end_id` is `None` in exactly two cases, both of which still get a
     real `end_label` to display in a tooltip even though there's no token
     to box: the virtual "root" node every independent verb's own `unit
     verb` edge points to (mermaid.py's/dot.py's same "root" convention --
-    `end_label` is the literal string "root"), and a `relatedtoken1`/`2`
+    `end_label` is the literal string "root"), and a `Relation.related`
     value that doesn't resolve to any id actually in this tokengraph (a
     broken/incomplete analysis -- `end_label` falls back to the raw,
     unresolved id string, and this case is also reported as a warning by
@@ -570,19 +571,16 @@ class RelationshipEdge:
 
 def tokengraph_relationship_types(tokengraph: List[TokenAnalysis]) -> List[str]:
     """Every distinct relationship label actually attested in `tokengraph`
-    -- drawn from both `relationship1` and `relationship2` across every
-    token, deduplicated, and sorted alphabetically. Meant to populate a
+    -- drawn from every relation of every token, deduplicated, and sorted
+    alphabetically. Meant to populate a
     menu of relationships worth highlighting (see
     tokengraph_to_relationship_html()) with only the ones a given passage
     actually uses, rather than every label `RelationLabel` (models.py)
     allows in principle -- a short sentence might attest only three or
-    four of the scheme's ~26 relation labels."""
+    four of the scheme's 28 relation labels."""
     values = set()
     for tok in tokengraph:
-        if tok.relationship1 is not None:
-            values.add(tok.relationship1)
-        if tok.relationship2 is not None:
-            values.add(tok.relationship2)
+        values.update(tok.relationships())
     return sorted(values)
 
 
@@ -591,9 +589,7 @@ def relationship_edges(
     relationship: Optional[str] = None,
 ) -> Tuple[List[RelationshipEdge], List[str]]:
     """Every edge in `tokengraph`, as `RelationshipEdge`s -- one per
-    non-empty (relatedtoken, relationship) pair, walking relatedtoken1/
-    relationship1 and relatedtoken2/relationship2 for every token in turn
-    (the same iteration tokengraph_to_mermaid() uses for its own arrows,
+    Relation of every token, in turn (the same iteration tokengraph_to_mermaid() uses for its own arrows,
     so the direction of every edge here agrees with that diagram). Pass
     `relationship` to keep only edges whose own `relationship` field
     equals it (case-sensitive, exact match against one of `RelationLabel`'s
@@ -602,7 +598,7 @@ def relationship_edges(
 
     Returns `(edges, warnings)`. A warning is recorded (and that edge's
     `end_id` left `None`, `end_label` set to the raw unresolved id) for a
-    `relatedtoken1`/`2` value that is neither "root" nor an id actually
+    `Relation.related` value that is neither "root" nor an id actually
     present in `tokengraph` -- mirrors tokengraph_to_mermaid()'s own
     "skipped edge ... target is ... not in tokengraph" warning for the
     identical situation."""
@@ -611,14 +607,9 @@ def relationship_edges(
     warnings: List[str] = []
 
     for tok in tokengraph:
-        for related_field, label_field in (
-            ("relatedtoken1", "relationship1"),
-            ("relatedtoken2", "relationship2"),
-        ):
-            related_id = getattr(tok, related_field)
-            label = getattr(tok, label_field)
-            if related_id is None or label is None:
-                continue
+        for relation in tok.relations:
+            related_id = relation.related
+            label = relation.relationship
             if relationship is not None and label != relationship:
                 continue
 
@@ -732,7 +723,7 @@ def tokengraph_to_relationship_html(
       per the original request ("no other edges on that node that don't
       have that relationship value"). A token that is the start of one
       such edge AND the end of another (e.g. either half of a
-      `coordinating conjunction` pair, or a token appearing at both ends of
+      `coordinating word` pair, or a token appearing at both ends of
       two edges of the same relationship type when it happens to occur
       twice) gets both classes and every matching line in its tooltip.
 
@@ -816,12 +807,9 @@ def tokengraph_to_relationship_html(
         cls = _classify(tok, quote_counts)
         rendered = html.escape(tok.token)
 
-        is_coordinating_conjunction = (
-            tok.relationship1 == "coordinating conjunction"
-            or tok.relationship2 == "coordinating conjunction"
-        )
+        is_coordinating_conjunction = tok.has_relationship("coordinating word")
         color = None
-        if tok.tokentype in ("lexical", "praenomen", "numeral") or is_coordinating_conjunction:
+        if tok.tokentype in _COLORED_TOKENTYPES or is_coordinating_conjunction:
             unit_id = assignment.get(tok.id)
             color = colors.get(unit_id) if unit_id is not None else None
 

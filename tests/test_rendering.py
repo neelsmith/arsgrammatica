@@ -19,7 +19,7 @@ import re
 import pytest
  
 from arsgrammatica.mermaid import tokengraph_to_mermaid
-from arsgrammatica.models import IMPLIED_TOKENTYPES, TokenAnalysis
+from arsgrammatica.models import IMPLIED_TOKENTYPES, TokenAnalysis, rel
 from arsgrammatica.rendering import (
     tokengraph_to_text,
     tokengraph_to_html,
@@ -149,7 +149,7 @@ def test_praenomen_and_numeral_get_normal_spacing():
 
 
 def test_abbreviation_gets_normal_spacing():
-    """"abbreviation" (distinct from "praenomen" -- see syntax_model.md's
+    """"abbreviation" (distinct from "praenomen" -- see the scheme docs'
     tokenization section, e.g. "f." for filius, "cos." for consul) gets the
     same normal spacing as any other non-enclitic, non-punctuation token."""
     tg = [
@@ -209,8 +209,8 @@ def test_no_verbal_units_leaves_plain_spacing_and_no_spans():
  
 def test_single_verbal_unit_wraps_its_lexical_tokens():
     tg = [
-        _tok("t0", "arma", "lexical", relatedtoken1="t2", relationship1="direct object"),
-        _tok("t1", "virum", "lexical", relatedtoken1="t2", relationship1="direct object"),
+        _tok("t0", "arma", "lexical", relations=[rel("t2", "direct object")]),
+        _tok("t1", "virum", "lexical", relations=[rel("t2", "direct object")]),
         _tok("t2", "cano", "lexical", verbalunitid="t2"),
         _tok("t3", ".", "punctuation"),
     ]
@@ -228,10 +228,10 @@ def test_multiple_verbal_units_get_distinct_first_appearance_colors():
     "t4"), so "t1" gets palette slot 0 and "t4" gets slot 1, matching
     tokengraph_to_mermaid()'s own ordering rule exactly."""
     tg = [
-        _tok("t0", "puer", "lexical", relatedtoken1="t1", relationship1="subject"),
+        _tok("t0", "puer", "lexical", relations=[rel("t1", "subject")]),
         _tok("t1", "videt", "lexical", verbalunitid="t1"),
         _tok("t2", ",", "punctuation"),
-        _tok("t3", "puella", "lexical", relatedtoken1="t4", relationship1="subject"),
+        _tok("t3", "puella", "lexical", relations=[rel("t4", "subject")]),
         _tok("t4", "venit", "lexical", verbalunitid="t4"),
         _tok("t5", ".", "punctuation"),
     ]
@@ -245,12 +245,14 @@ def test_multiple_verbal_units_get_distinct_first_appearance_colors():
     assert tokengraph_to_html(tg)[0] == expected
  
  
-def test_only_lexical_praenomen_and_numeral_tokens_get_wrapped_even_when_others_are_assigned():
-    """Punctuation, enclitics, and abbreviations can all be assigned a
-    verbal unit by assign_verbal_units() (it assigns every token id), but
-    none of these particular ones is a coordinating conjunction (their own
-    relationship1 is "subject" or "adverbial") -- so only tokentype ==
-    "lexical", "praenomen", or "numeral" gets a <span> here. This praenomen
+def test_only_lexical_praenomen_numeral_and_abbreviation_tokens_get_wrapped_even_when_others_are_assigned():
+    """Punctuation and enclitics can be assigned a verbal unit by
+    assign_verbal_units() (it assigns every token id), but none of these
+    particular ones is a coordinating word (their own relation is "subject"
+    or "adverbial") -- so only tokentype == "lexical", "praenomen",
+    "numeral", or "abbreviation" gets a <span> here. (Abbreviations are
+    wrapped because the current scheme gives them ordinary substantive
+    relations, e.g. "f." and "cos." in apposition to a name.) This praenomen
     token ("M.") and this numeral token ("V") are each given
     relationship1="subject"/"adverbial" -- NOT praenomen's usual
     "praenomen" relation -- specifically to isolate that
@@ -261,34 +263,32 @@ def test_only_lexical_praenomen_and_numeral_tokens_get_wrapped_even_when_others_
     test_praenomen_token_gets_wrapped_too/test_numeral_token_gets_wrapped_too
     below for the normal case)."""
     tg = [
-        _tok("t0", "M.", "praenomen", relatedtoken1="t2", relationship1="subject"),
-        _tok("t1", "que", "enclitic", relatedtoken1="t2", relationship1="subject"),
+        _tok("t0", "M.", "praenomen", relations=[rel("t2", "subject")]),
+        _tok("t1", "que", "enclitic", relations=[rel("t2", "subject")]),
         _tok("t2", "venit", "lexical", verbalunitid="t2"),
-        _tok("t3", "V", "numeral", relatedtoken1="t2", relationship1="adverbial"),
-        _tok("t4", "f.", "abbreviation", relatedtoken1="t2", relationship1="adverbial"),
-        _tok("t5", ".", "punctuation", relatedtoken1="t2", relationship1="adverbial"),
+        _tok("t3", "V", "numeral", relations=[rel("t2", "adverbial")]),
+        _tok("t4", "f.", "abbreviation", relations=[rel("t2", "adverbial")]),
+        _tok("t5", ".", "punctuation", relations=[rel("t2", "adverbial")]),
     ]
     html_out = tokengraph_to_html(tg)[0]
     matches = _SPAN_RE.findall(html_out)
-    assert len(matches) == 3
-    assert matches[0][2] == "M."
-    assert matches[1][2] == "venit"
-    assert matches[2][2] == "V"
-    # same verbal unit -> same fill color, for all three wrapped tokens
-    assert matches[0][0] == matches[1][0] == matches[2][0]
+    assert len(matches) == 4
+    assert [m[2] for m in matches] == ["M.", "venit", "V", "f."]
+    # same verbal unit -> same fill color, for all four wrapped tokens
+    assert len({m[0] for m in matches}) == 1
 
 
 def test_praenomen_token_gets_wrapped_too():
     """The fix this test guards: "M." in "M. Agrippa..." is tokentype
-    "praenomen", not "lexical", but syntax_model.md's "Praenomina" section
-    gives it a real relation (relatedtoken1 -> the lexical name it
+    "praenomen", not "lexical", but the scheme docs' "Praenomina" section
+    gives it a real relation (-> the lexical name it
     precedes, relationship1 = "praenomen") that assign_verbal_units()
     resolves like any other -- so it must get the SAME colored span as the
     rest of its verbal unit, not be left plain like other non-lexical,
     non-praenomen, non-numeral tokentypes (abbreviations, punctuation)."""
     tg = [
-        _tok("t0", "M.", "praenomen", relatedtoken1="t1", relationship1="praenomen"),
-        _tok("t1", "Agrippa", "lexical", relatedtoken1="t2", relationship1="subject"),
+        _tok("t0", "M.", "praenomen", relations=[rel("t1", "praenomen")]),
+        _tok("t1", "Agrippa", "lexical", relations=[rel("t2", "subject")]),
         _tok("t2", "venit", "lexical", verbalunitid="t2"),
         _tok("t3", ".", "punctuation"),
     ]
@@ -302,17 +302,17 @@ def test_praenomen_token_gets_wrapped_too():
 def test_numeral_token_gets_wrapped_too():
     """The fix this test guards (the reported bug): "XII" in "Fratres
     Joseph XII venerunt." is tokentype "numeral", not "lexical", but
-    syntax_model.md's numeral-vs-lexical clarification makes clear a
+    the scheme docs' numeral-vs-lexical clarification makes clear a
     numeral is otherwise an ordinary participant in the clause, able to
-    carry a real relation (here relatedtoken1 -> "Fratres", relationship1
+    carry a real relation (here -> "Fratres", relationship1
     = "adjectival") that assign_verbal_units() resolves like any other --
     so it must get the SAME colored span as the rest of its verbal unit,
     matching what tokengraph_to_mermaid() already did before this fix (see
     also test_html_colors_match_mermaid_colors_for_every_gold_example)."""
     tg = [
-        _tok("t0", "Fratres", "lexical", relatedtoken1="t3", relationship1="subject"),
-        _tok("t1", "Joseph", "lexical", relatedtoken1="t0", relationship1="genitive"),
-        _tok("t2", "XII", "numeral", relatedtoken1="t0", relationship1="adjectival"),
+        _tok("t0", "Fratres", "lexical", relations=[rel("t3", "subject")]),
+        _tok("t1", "Joseph", "lexical", relations=[rel("t0", "genitive")]),
+        _tok("t2", "XII", "numeral", relations=[rel("t0", "adjectival")]),
         _tok("t3", "venerunt", "lexical", verbalunitid="t3"),
         _tok("t4", ".", "punctuation"),
     ]
@@ -332,12 +332,11 @@ def test_enclitic_coordinating_conjunction_gets_wrapped_too():
     coordinates -- so it should get the SAME colored span as that unit's
     other tokens, not be left plain like other non-lexical tokentypes."""
     tg = [
-        _tok("t0", "arma", "lexical", relatedtoken1="t3", relationship1="direct object"),
-        _tok("t1", "virum", "lexical", relatedtoken1="t3", relationship1="direct object"),
+        _tok("t0", "arma", "lexical", relations=[rel("t3", "direct object")]),
+        _tok("t1", "virum", "lexical", relations=[rel("t3", "direct object")]),
         _tok(
             "t2", "que", "enclitic",
-            relatedtoken1="t0", relationship1="coordinating conjunction",
-            relatedtoken2="t1", relationship2="coordinating conjunction",
+            relations=[rel("t0", "coordinating word"), rel("t1", "coordinating word")],
         ),
         _tok("t3", "cano", "lexical", verbalunitid="t3"),
         _tok("t4", ".", "punctuation"),
@@ -352,27 +351,25 @@ def test_enclitic_coordinating_conjunction_gets_wrapped_too():
 def test_series_coordinating_conjunctions_all_get_wrapped():
     """A repeated ("et...et...et") series connector still gets the SAME
     treatment as the ordinary pairwise case: _tokens_to_html()'s wrapping
-    check only looks at relationship1/relationship2 == "coordinating
+    check only looks at relationships == "coordinating
     conjunction" (see rendering.py), which every connector in a series
     still sets, whether or not it has a relatedtoken2 at all. This uses the
     "et A et B et C" shape: the first et is introductory (relatedtoken1
     only, no relatedtoken2), while the second and third et's each pair
-    their flanking items via relatedtoken1/relatedtoken2, same as an
+    their flanking items via relations, same as an
     ordinary two-item pairwise conjunction. All three "et"s here should get
     the same colored span as the ablatives they introduce and the verb
     they all ultimately resolve to."""
     tg = [
         _tok("t0", "et", "lexical",
-             relatedtoken1="t1", relationship1="coordinating conjunction"),
-        _tok("t1", "assiduitate", "lexical", relatedtoken1="t6", relationship1="ablative"),
+             relations=[rel("t1", "coordinating word")]),
+        _tok("t1", "assiduitate", "lexical", relations=[rel("t6", "ablative")]),
         _tok("t2", "et", "lexical",
-             relatedtoken1="t1", relationship1="coordinating conjunction",
-             relatedtoken2="t3", relationship2="coordinating conjunction"),
-        _tok("t3", "varietate", "lexical", relatedtoken1="t6", relationship1="ablative"),
+             relations=[rel("t1", "coordinating word"), rel("t3", "coordinating word")]),
+        _tok("t3", "varietate", "lexical", relations=[rel("t6", "ablative")]),
         _tok("t4", "et", "lexical",
-             relatedtoken1="t3", relationship1="coordinating conjunction",
-             relatedtoken2="t5", relationship2="coordinating conjunction"),
-        _tok("t5", "magnificentia", "lexical", relatedtoken1="t6", relationship1="ablative"),
+             relations=[rel("t3", "coordinating word"), rel("t5", "coordinating word")]),
+        _tok("t5", "magnificentia", "lexical", relations=[rel("t6", "ablative")]),
         _tok("t6", "antecessit", "lexical", verbalunitid="t6"),
         _tok("t7", ".", "punctuation"),
     ]
@@ -395,12 +392,12 @@ def test_implied_tokens_are_omitted_from_html_entirely():
     placeholder text into reconstructed HTML prose would misrepresent what
     the passage actually says."""
     tg = [
-        _tok("t0", "Omnia", "lexical", relatedtoken1="t0_implied", relationship1="subject"),
+        _tok("t0", "Omnia", "lexical", relations=[rel("t0_implied", "subject")]),
         _tok(
             "t0_implied", None, "implied sum",
-            verbalunitid="t0_implied", relatedtoken1="root", relationship1="unit verb",
+            verbalunitid="t0_implied", relations=[rel("root", "unit verb")],
         ),
-        _tok("t1", "rara", "lexical", relatedtoken1="t0_implied", relationship1="predicate"),
+        _tok("t1", "rara", "lexical", relations=[rel("t0_implied", "predicate")]),
         _tok("t2", ".", "punctuation"),
     ]
     fill, _stroke, text_color = _VERBAL_UNIT_PALETTE[0]
@@ -411,8 +408,8 @@ def test_implied_tokens_are_omitted_from_html_entirely():
 
 
 def test_implied_subject_token_is_also_omitted_from_html():
-    """'implied subject' (see models.py's TokenAnalysis/IMPLIED_TOKENTYPES)
-    gets exactly the same omission as 'implied sum'/'continued discourse'
+    """'implied substantive' (see models.py's TokenAnalysis/IMPLIED_TOKENTYPES)
+    gets exactly the same omission as 'implied sum'/'implied verb'
     above -- it has no surface text either -- even though, unlike those
     two, it never anchors a verbal unit of its own. Recordatus (the
     participle) still gets wrapped normally, in its OWN verbal unit's
@@ -429,12 +426,12 @@ def test_implied_subject_token_is_also_omitted_from_html():
     the reverse of what reading order alone would suggest."""
     tg = [
         _tok(
-            "t0_implied", None, "implied subject",
-            relatedtoken1="t1", relationship1="subject",
+            "t0_implied", None, "implied substantive",
+            relations=[rel("t1", "subject")],
         ),
         _tok("t0", "Recordatus", "lexical", verbalunitid="t0",
-             relatedtoken1="t0_implied", relationship1="circumstantial participle"),
-        _tok("t1", "venit", "lexical", verbalunitid="t1", relatedtoken1="root", relationship1="unit verb"),
+             relations=[rel("t0_implied", "circumstantial participle")]),
+        _tok("t1", "venit", "lexical", verbalunitid="t1", relations=[rel("root", "unit verb")]),
     ]
     html_out = tokengraph_to_html(tg)[0]
     fill1, _stroke1, text1 = _VERBAL_UNIT_PALETTE[1]  # Recordatus's own unit
@@ -474,7 +471,7 @@ def test_quote_pair_tokens_still_join_correctly_around_spans():
     tg = [
         _tok("t0", '"', "punctuation"),
         _tok("t1", "Tuum", "lexical", verbalunitid="t1"),
-        _tok("t2", "est", "lexical", relatedtoken1="t1", relationship1="predicate"),
+        _tok("t2", "est", "lexical", relations=[rel("t1", "predicate")]),
         _tok("t3", '"', "punctuation"),
         _tok("t4", "inquit", "lexical"),
         _tok("t5", ".", "punctuation"),
@@ -522,9 +519,8 @@ def test_html_colors_match_mermaid_colors_for_every_gold_example(example):
         fill_of_class[class_of_id[tok.id]]
         for tok in tokengraph
         if (
-            tok.tokentype in ("lexical", "praenomen", "numeral")
-            or tok.relationship1 == "coordinating conjunction"
-            or tok.relationship2 == "coordinating conjunction"
+            tok.tokentype in ("lexical", "praenomen", "numeral", "abbreviation")
+            or tok.has_relationship("coordinating word")
         )
         and tok.id in class_of_id
     ]
@@ -795,8 +791,8 @@ def test_depth_html_colors_match_tokengraph_to_html_for_the_same_passage():
 def test_depth_html_leading_unassigned_token_opens_a_placeholder_depth_zero_block():
     tg = [
         _tok("t0", "unrelated", "lexical"),
-        _tok("t1", "puer", "lexical", relatedtoken1="t2", relationship1="subject"),
-        _tok("t2", "venit", "lexical", verbalunitid="t2", relatedtoken1="root", relationship1="unit verb"),
+        _tok("t1", "puer", "lexical", relations=[rel("t2", "subject")]),
+        _tok("t2", "venit", "lexical", verbalunitid="t2", relations=[rel("root", "unit verb")]),
     ]
     html_out, warnings = tokengraph_to_depth_html(tg)
     assert warnings == []
@@ -809,8 +805,8 @@ def test_depth_html_leading_unassigned_token_opens_a_placeholder_depth_zero_bloc
 
 def test_depth_html_trailing_unassigned_token_folds_into_open_block():
     tg = [
-        _tok("t0", "puer", "lexical", relatedtoken1="t1", relationship1="subject"),
-        _tok("t1", "venit", "lexical", verbalunitid="t1", relatedtoken1="root", relationship1="unit verb"),
+        _tok("t0", "puer", "lexical", relations=[rel("t1", "subject")]),
+        _tok("t1", "venit", "lexical", verbalunitid="t1", relations=[rel("root", "unit verb")]),
         _tok("t2", "heus", "lexical"),
     ]
     html_out, warnings = tokengraph_to_depth_html(tg)

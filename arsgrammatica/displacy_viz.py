@@ -48,12 +48,12 @@ dependency structure reads more clearly as just its words, with the commas
 and periods left to the caption/plain text instead.
 
 A token with no surface realization at all (models.py's IMPLIED_TOKENTYPES
--- "implied sum", "continued discourse", "implied subject") has no
+-- "implied sum", "implied verb", "implied substantive") has no
 inherent position in the sentence's own reading order the way a real word
 does, unlike mermaid.py's node-and-edge graph, which can place one
 anywhere. But when some OTHER, surviving token's own relation actually
-names it as a target (relatedtoken1/2 pointing at it -- a real participle
-agreeing with an implied subject, an infinitive's "indirect statement"
+names it as a target (a relation pointing at it -- a real participle
+agreeing with an implied substantive, an infinitive's "indirect statement"
 pointing at an implied governing verb, and so on), that's the missing half
 of a real relation, not just noise to drop -- so this module includes it
 after all, positioned immediately after that OTHER token in the word
@@ -64,7 +64,7 @@ understood governing verb -- it can still only occupy one slot; this
 module places it after the LAST such token, in reading order, deterministic
 but not a claim about which position reads most naturally in every case.)
 Once included this way, the implied token behaves exactly like any other
-word: its own relatedtoken1/2 relations (e.g. an elided "sunt" pointing at
+word: its own relations (e.g. an elided "sunt" pointing at
 the participle it supports, or an implied verb's own "root" edge) are drawn
 too, provided their targets resolve normally.
 
@@ -87,8 +87,8 @@ overwhelming majority of most sentences, so labelling every single one
 "abbreviation" are the genuinely informative minority worth calling out.
 A "lexical" word's own tag is the empty string (rendered as no tag line at
 all in `tokengraph_to_displacy_svg()`). A linked implied/elided token's own
-tag is its tokentype too ("implied sum", "continued discourse", "implied
-subject"), same rule, since none of those is "lexical" either -- its word
+tag is its tokentype too ("implied sum", "implied verb", "implied
+substantive"), same rule, since none of those is "lexical" either -- its word
 TEXT, though, can't be `tok.token` (implied tokens have none -- `tok.token
 is None`), so it uses mermaid.py's own `token_label()` instead, the exact
 same placeholder ("elided sum" for "implied sum", the tokentype string
@@ -96,8 +96,8 @@ verbatim otherwise) mermaid.py's own diagram already shows for the same
 token, so a reader sees the same label whichever diagram they're looking
 at.
 
-**The 'root' sentinel.** An independent verb's own `relatedtoken1 ==
-'root'` (syntax_model.md's 'unit verb' relation) has no real word to point
+**The 'root' sentinel.** An independent verb's own 'unit verb' relation
+to 'root' has no real word to point
 at either -- same fix as mermaid.py's own `show_root`, but adapted to a
 linear word sequence rather than a free-floating node: `show_root=True`
 (the default) appends one synthetic pseudo-word, displayed as "ROOT", to
@@ -150,7 +150,7 @@ def tokengraph_to_displacy_data(
     order, if more than one names the same target) -- see this module's own
     docstring for the full rule. Each word's own "tag" is its tokentype
     string verbatim ("enclitic", "numeral", "praenomen", "abbreviation",
-    "implied sum", "continued discourse", or "implied subject" --
+    "implied sum", "implied verb", or "implied substantive" --
     "punctuation" can't appear here at all, since punctuation never gets a
     word; see above), EXCEPT "lexical" -- the ordinary case, and by far the
     most common tokentype in most sentences -- which gets an empty tag
@@ -172,12 +172,12 @@ def tokengraph_to_displacy_data(
     mermaid.py's own show_root convention of only adding its dedicated node
     when there's an edge to draw into it.
 
-    **Arcs.** One arc per resolved relatedtoken1/relationship1 or
-    relatedtoken2/relationship2 pair (both checked, same as mermaid.py):
+    **Arcs.** One arc per resolved Relation in each token's `relations`
+    (same as mermaid.py):
     `start`/`end` are the LOWER/HIGHER of the two words' own indices into
     the returned "words" list (displaCy's own `start < end` requirement),
     and `dir` says which end the arrow points at -- "left" if the token
-    this relation points AT (`relatedtoken1`/`2`, i.e. the more
+    this relation points AT (`Relation.related`, i.e. the more
     syntactically prominent side of the pair -- the governing verb, the
     antecedent, the noun a genitive depends on, and so on) ends up at the
     lower (`start`) index, "right" if it ends up at the higher (`end`)
@@ -268,7 +268,7 @@ def tokengraph_to_displacy_data(
     # Which implied/elided tokens get included, and where. `anchor_id[i]`
     # is the id of the token an included implied token `i` goes right
     # after -- the LAST token, in tokengraph order, whose own
-    # relatedtoken1/2 names `i` as a target (see this module's own
+    # relations names `i` as a target (see this module's own
     # docstring: only one slot exists per implied token, so ties favor the
     # most recent linker). This is a fixed-point computation, not a single
     # pass, so a linked implied token can itself anchor a FURTHER implied
@@ -284,9 +284,8 @@ def tokengraph_to_displacy_data(
         for tok in tokengraph:
             if tok.id not in base_id_set and tok.id not in anchor_id:
                 continue  # tok itself isn't (yet) known to survive
-            for related_field in ("relatedtoken1", "relatedtoken2"):
-                related_id = getattr(tok, related_field)
-                if related_id is None or related_id == "root":
+            for related_id in tok.related_ids():
+                if related_id == "root":
                     continue
                 if related_id in implied_by_id:
                     if related_id not in anchor_id:
@@ -327,7 +326,7 @@ def tokengraph_to_displacy_data(
     raw_arcs: List[Tuple[int, int, str, str]] = []  # (start, end, label, dir)
 
     has_root_edge = show_root and any(
-        tok.relatedtoken1 == "root" and tok.id in index_by_id for tok in tokengraph
+        "root" in tok.related_ids() and tok.id in index_by_id for tok in tokengraph
     )
     root_index: Optional[int] = None
     if has_root_edge:
@@ -348,14 +347,9 @@ def tokengraph_to_displacy_data(
             # this loop as an ordinary source and gets its own outgoing
             # relations drawn exactly like any other token's.
             continue
-        for related_field, label_field in (
-            ("relatedtoken1", "relationship1"),
-            ("relatedtoken2", "relationship2"),
-        ):
-            related_id = getattr(tok, related_field)
-            label = getattr(tok, label_field)
-            if related_id is None or label is None:
-                continue
+        for _relation in tok.relations:
+            related_id = _relation.related
+            label = _relation.relationship
 
             if related_id == "root":
                 if root_index is not None:

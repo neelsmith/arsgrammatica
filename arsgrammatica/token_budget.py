@@ -126,7 +126,7 @@ CALIBRATION_FILE = Path(__file__).with_name("token_budget_calibration.json")
 # over 1200 completion tokens once you account for a verbose, multi-line
 # `reasoning` field plus one whitespace-heavy, pretty-printed `TokenAnalysis`
 # JSON object per token (each carrying several long field names --
-# `relatedtoken1`/`relationship1`/`tokentype`/etc. -- not a compact
+# `relations`/`relationship`/`tokentype`/etc. -- not a compact
 # encoding) -- both the fixed reasoning/verbalunits overhead and the
 # per-token cost were running well past the old 500/60 fit. The old values
 # weren't wrong so much as tuned for a more compact response than this

@@ -1,19 +1,32 @@
 """
-Pydantic models describing the two structures from syntax_model.md:
- 
-1. A list of VerbalExpression entries (the "table of verbal expressions").
-2. A list of TokenAnalysis entries (the "token-level table of dependencies").
- 
+Pydantic models for arsgrammatica's analytical scheme. The authoritative
+specification is the three "Concepts" pages of the Quarto documentation
+(these replace the retired the scheme docs (quarto/concepts/)):
+
+- quarto/concepts/tokens.qmd -- token categories and implied tokens
+  (Token, TokenAnalysis.tokentype, IMPLIED_TOKENTYPES);
+- quarto/concepts/verbalunits.qmd -- verbal expressions and their syntactic
+  types (VerbalExpression, SyntacticType);
+- quarto/concepts/syntactic-analysis.qmd -- the graph of syntactic
+  relations (TokenAnalysis.relations, Relation, RelationLabel).
+
+An analysis of a sentence is two structures:
+
+1. a list of VerbalExpression entries (the verbal expressions that anchor
+   the analysis), and
+2. a list of TokenAnalysis entries (one per token, real or implied), each
+   with zero or more Relation edges to other nodes of the syntax graph.
+
 These need to be real pydantic BaseModel subclasses (not plain classes with
 bare `=` assignments) for DSPy to generate and validate structured output
 against them when used inside `List[...]` input/output fields.
 """
- 
-from typing import List, Literal, Optional
- 
+
+from typing import Iterable, List, Literal, Optional
+
 from pydantic import BaseModel, Field
- 
- 
+
+
 class CitedText(BaseModel):
     """One citable unit of source text -- e.g. one line of poetry, one
     section of prose -- paired with its citation label. A sequence of
@@ -60,325 +73,274 @@ class Sentence(BaseModel):
     tokens: List[Token] = Field(
         description="This sentence's tokens, in reading order, using the passage's global token ids."
     )
- 
- 
-class VerbalExpression(BaseModel):
-    """One entry in the table of verbal expressions (syntax_model.md, 'Table
-    of verbal expressions'). Three constructions count as a verbal
-    expression: finite verbs, infinitives (when part of indirect speech),
-    and participles (when they have a *predicate* sense -- e.g. an
-    ablative-absolute-like "Anco regnante...", 'while Ancus was reigning'
-    -- rather than a purely *attributive* sense, like an ordinary adjective,
-    e.g. "consentiens laus", 'universal praise': that case is NOT a verbal
-    expression at all).
- 
-    Each construction has its own set of allowed `syntactic_type` values:
-    a finite verb is 'independent', 'dependent', 'direct quote' (occurring
-    in directly quoted speech, e.g. "est" in `"Tuum est," inquit,`), or
-    'aside' (a verbal expression that interrupts the surrounding syntax,
-    e.g. "dixerim" in "pace dixerim deum"); an infinitive anchoring an
-    indirect statement is always 'indirect statement'. syntax_model.md
-    doesn't specify a dedicated syntactic_type value for participles --
-    this codebase's convention is to use 'dependent' for a predicate
-    participle's verbal expression, since a circumstantial participle /
-    ablative absolute functions like a subordinate clause; flag it if you
-    intended something else."""
- 
-    id: str = Field(
-        description=(
-            "The token id (from the input `tokens` list) of the finite verb, "
-            "infinitive, or predicate-sense participle that anchors this "
-            "verbal expression. For a compound perfect/pluperfect passive or "
-            "future-infinitive form (participle + a form of *sum*), use the id "
-            "of the participle or infinitive itself, NOT the auxiliary form of "
-            "*sum* (which instead relates to it via the 'auxiliary' relation). "
-            "For an implied/elided verbal expression (see "
-            "TokenAnalysis's 'implied sum'/'continued discourse' tokentypes, "
-            "IMPLIED_TOKENTYPES), use the new implied token's id instead. "
-            "(A third IMPLIED_TOKENTYPES value, 'implied subject', is NOT "
-            "a verbal expression and never gets an entry here -- see "
-            "TokenAnalysis's own docstring.)"
-        )
-    )
-    syntactic_type: Literal[
-        "independent", "dependent", "direct quote", "aside", "indirect statement"
-    ] = Field(
-        description=(
-            "For a finite verb: 'independent' (main/principal), 'dependent' "
-            "(subordinate/secondary), 'direct quote' (occurring in directly "
-            "quoted speech), or 'aside' (interrupts the surrounding syntax). "
-            "For an infinitive anchoring an indirect statement: 'indirect "
-            "statement'. For a predicate-sense participle: 'dependent' (this "
-            "codebase's convention; syntax_model.md doesn't specify)."
-        )
-    )
-    semantic_type: Literal[
-        "transitive active", "transitive passive", "intransitive", "linking verb"
-    ] = Field(description="The verb's semantic/voice type.")
- 
- 
-# The relation labels documented in syntax_model.md ("Token-level table of
-# dependencies"). Keep relationship1 and relationship2 restricted to the
-# same set of labels. relation2/relationship2 is usually an overflow slot,
-# used only when relation1/relationship1 is already occupied by something
-# else (e.g. a relative pronoun that is also a clause's subject) --
-# "coordinating conjunction" is the one exception: a coordinating
-# conjunction genuinely uses BOTH relation1 and relation2 at once, one for
-# each half of the pair it joins, with relationship1 AND relationship2 both
-# set to "coordinating conjunction" (see that value's own note below).
-#
-# "auxiliary", "predicate", "adjectival", "genitive", "dative", and
-# "ablative" were added when syntax_model.md grew its noun-relations
-# section and the participle/auxiliary rules for compound verb forms.
-# "direct quote" and "aside" link a direct-quote or aside verbal
-# expression back to the verb of the clause it interrupts; "indirect
-# statement" does the same for an indirect-statement infinitive, linking
-# it back to the verb that governs it (the verb of saying/thinking/
-# perceiving it depends on) -- all three reuse their verbal expression's
-# own syntactic_type value as the relationship label, the same convention.
-# "circumstantial
-# participle" and "ablative absolute" were added for participial verbal
-# expressions: the participle points to the noun/pronoun it agrees with
-# via "circumstantial participle"; if that noun doesn't otherwise fit into
-# the surrounding clause (a true ablative absolute), the noun points back
-# out to the main verb via "ablative absolute" instead of taking a normal
-# noun relation. That noun/pronoun can itself be unexpressed -- most often
-# when the participle agrees with a governing verb's own unexpressed
-# subject -- in which case a new tokentype="implied subject" token (see
-# TokenAnalysis's own docstring and IMPLIED_TOKENTYPES) stands in for it,
-# taking a normal "subject" relation into that verb exactly as a real
-# subject noun would; the participle then relates to THIS token via
-# "circumstantial participle", unchanged. "apposition" links a noun in apposition back to the first
-# noun it stands in apposition to (relatedtoken1 -> that first noun's id,
-# relationship1 = "apposition") -- a genitive depending on either noun
-# still gets its own separate "genitive" relation, pointing at whichever
-# noun it actually depends on. "subordinating conjunction" is also reused,
-# unchanged, for the interrogative word introducing an indirect question
-# (treated as a kind of dependent clause) -- see the "verb of a dependent
-# clause" note in latin_syntax_dspy.py's docstring; no new label was needed
-# for that case. "coordinating conjunction" joins a pair of nouns,
-# adjectives, prepositional phrases, or verbal expressions: the conjunction
-# has BOTH relation1 -> the first joined token's id and relation2 -> the
-# second's, both labelled "coordinating conjunction" -- except when the
-# conjunction opens a new sentence with no explicit token to its left to
-# pair with, in which case only relation1/relationship1 is set (see
-# latin_syntax_dspy.py's docstring for the full set of cases, including the
-# word-order caveat and the "et" adverb-vs-conjunction ambiguity). A
-# repeated connector (e.g. "et...et...et") coordinating a series of three
-# or more items reuses this same label, relating directly to the real
-# coordinated items on either side of it, never to a neighboring
-# connector: a connector strictly BETWEEN two items ("A et B et C") takes
-# relation1 -> the preceding item, relation2 -> the following item, same
-# shape as the ordinary two-item pairwise case; an INTRODUCTORY connector
-# before the very first item ("et A et B et C") has no preceding item to
-# pair with, so it takes only relation1 -> that first item, leaving
-# relation2 unset, and every connector after it goes back to the ordinary
-# preceding-item/following-item shape (see latin_syntax_dspy.py's docstring for the
-# worked example).
-# "complementary infinitive" is the only other new label: an infinitive
-# that completes the sense of a governing verb like "volo"/"incipio"/
-# "audeo"/"licet"/"decet" (e.g. "expugnare" completing "vellet") has
-# relatedtoken1 -> that governing verb's id, relationship1 =
-# "complementary infinitive" -- but is NOT itself a separate verbal
-# expression (no `verbalunits` entry of its own), unlike an
-# indirect-statement infinitive. Two other infinitive/gerund/gerundive
-# uses need NO new label at all: an infinitive used as an ordinary noun
-# (e.g. as a verb's subject or object) just takes the normal "subject"/
-# "direct object"/etc. relation, like any other noun; a gerund (the oblique-
-# case noun form of a verb) likewise takes whatever ordinary noun relation
-# fits (most often "genitive"), and can itself govern an object or take an
-# adverb the same way a finite verb or infinitive can; and a gerundive is
-# simply treated as an ordinary adjective, agreeing with its noun via
-# "adjectival". None of these three make their token a verbal-expression
-# anchor either.
-# "vocative" is the newest label: a noun in the vocative case relates to
-# a VERB only (never to another noun, unlike "genitive"/"dative"/
-# "ablative"/"accusative" above) -- relatedtoken1 -> the verb's id,
-# relationship1 = "vocative". Example: in "Non est ita, domine, sed servi
-# tui venerunt ut emerent cibos.", "domine" has relatedtoken1 -> "est",
-# relationship1 = "vocative".
-# "accusative" and "praenomen" are the two newest labels before that. "accusative"
-# covers an accusative relation that ISN'T a direct object -- e.g. a bare
-# accusative of place to which ("Romam" in "Romam venit", relatedtoken1 ->
-# the verb "venit") or an accusative of extent modifying another noun
-# rather than a verb (e.g. "milia" in "duo milia passuum iter fecerunt",
-# relatedtoken1 -> "iter", the noun it qualifies) -- either a verb or
-# another noun can be the target, same as "genitive"/"dative"/"ablative"
-# below. "praenomen" links a `tokentype='praenomen'` token (an abbreviated
-# Roman first name, e.g. "M." or "Sex.") to the lexical token spelling out
-# the individual's own name it abbreviates/precedes: relatedtoken1 -> that
-# lexical token's id, relationship1 = "praenomen". (A praenomen with no
-# such name token to its own right -- e.g. the genitive filiation formula
-# "L. f." for "Lucii filius", where "L." precedes only the abbreviation
-# "f." rather than a lexical name -- has no target under this rule and is
-# left unrelated, same as before.)
-RelationLabel = Literal[
-    "unit verb",
-    "subordinating conjunction",
-    "relative pronoun",
-    "subject",
-    "direct object",
-    "predicate",
-    "agent",
-    "auxiliary",
-    "object of preposition",
-    "adverbial",
-    "attributive",
-    "adjectival",
-    "genitive",
-    "dative",
-    "ablative",
-    "accusative",
-    "vocative",
+
+
+# Syntactic types of verbal expressions (quarto/concepts/verbalunits.qmd;
+# allowed values listed in quarto/reference/vuvalues.qmd):
+#   finite verbs, and gerundives in a passive periphrastic (gerundive + sum):
+#       independent, dependent, direct quote, aside, parataxis
+#   infinitives: indirect statement
+#   participles not in attributive construction: circumstantial participle
+#   other (attributive) gerundives: gerundive
+SyntacticType = Literal[
+    "independent",
+    "dependent",
     "direct quote",
     "aside",
+    "parataxis",
     "indirect statement",
     "circumstantial participle",
-    "ablative absolute",
-    "coordinating conjunction",
-    "apposition",
-    "complementary infinitive",
-    "praenomen",
+    "gerundive",
 ]
- 
- 
-class TokenAnalysis(BaseModel):
-    """One entry per token in the dependency graph (syntax_model.md,
-    'Token-level table of dependencies'). Per syntax_model.md's 'Incomplete
-    status' section, not every token will have a relation -- leave the
-    relatedtoken*/relationship* fields unset when none of the documented
-    relations apply.
 
-    Most entries correspond 1:1 to an entry in the input `tokens` list. The
-    exceptions are the three IMPLIED_TOKENTYPES values below, which fall
-    into two DIFFERENT groups. syntax_model.md's 'understood or implied
-    verbal expressions' section documents two situations where a VERBAL
-    EXPRESSION exists grammatically but has no surface realization at all
-    in the passage, and this codebase distinguishes them with two distinct
-    tokentype values rather than one generic 'implied':
 
-    - 'implied sum': an elided form of *sum* -- syntax_model.md's three
-      elided-sum sub-cases (a bare predicate construction, a compound
-      perfect passive/future infinitive missing its auxiliary, or the
-      always-implied present participle of *sum*, which doesn't exist in
-      Latin at all) all use this one value.
-    - 'continued discourse': a governing verb of indirect discourse left
-      unrepeated across several continuation clauses.
+# Every relation label documented in quarto/concepts/syntactic-analysis.qmd,
+# grouped as on that page.
+RelationLabel = Literal[
+    # Constructions of verbal expressions
+    "unit verb",
+    "auxiliary",
+    "direct quote",
+    "aside",
+    "parataxis",
+    "indirect statement",
+    "circumstantial participle",
+    "gerundive",
+    # Other constructions with verbs
+    "complementary infinitive",
+    # A-A-T relations
+    "subject",
+    "agent-ablative",
+    "agent-dative",
+    "direct object",
+    "predicate",
+    # Case constructions with substantives
+    "genitive",
+    "dative",
+    "accusative",
+    "ablative",
+    "vocative",
+    # Adverbial and adjectival expressions
+    "adverbial",
+    "adjectival",
+    "object of preposition",
+    # Special substantive relations
+    "ablative absolute",
+    "apposition",
+    "praenomen",
+    # Coordinating and subordinating words
+    "coordinating word",
+    "subordinating word",
+    "relative pronoun",
+]
 
-    'continued discourse' always anchors its own entry in `verbalunits`,
-    same as any other verbal expression -- and so do two of 'implied
-    sum's own three sub-cases (the bare predicate construction, and the
-    always-implied present participle of *sum*). The THIRD 'implied sum'
-    sub-case -- a compound perfect passive/future infinitive with its
-    auxiliary omitted (e.g. 'facti' for 'facti sunt') -- is the one
-    exception: there, a real, already-present participle/infinitive
-    anchors the verbal expression instead (per VerbalExpression.id's own
-    docstring), and the implied token merely relates to IT via
-    'auxiliary', exactly as a written-out auxiliary would; it gets no
-    `verbalunits` entry of its own in that sub-case. The third
-    IMPLIED_TOKENTYPES value is a DIFFERENT kind of gap entirely -- not a
-    missing verb, but a missing NOUN or pronoun:
 
-    - 'implied subject': a participle's own antecedent (the noun/pronoun
-      it agrees with via 'circumstantial participle') can itself be
-      unexpressed, most often when the participle agrees with a governing
-      verb's own unexpressed subject. This token never anchors a
-      `verbalunits` entry -- it isn't a verbal expression at all -- and
-      instead takes a normal 'subject' relation into the verb whose
-      subject it stands in for, exactly as if that subject had been
-      written out; the participle then relates to THIS token via
-      'circumstantial participle', same as it would to any real noun. See
-      latin_syntax_dspy.SentenceAnalysis's docstring for the worked example.
+# Token categories (quarto/concepts/tokens.qmd; allowed values listed in
+# quarto/reference/tokentypes.qmd). The first six are real tokens; the last
+# three are implied tokens with no surface text (see IMPLIED_TOKENTYPES).
+TokenType = Literal[
+    "praenomen",
+    "abbreviation",
+    "punctuation",
+    "enclitic",
+    "numeral",
+    "lexical",
+    "implied sum",
+    "implied verb",
+    "implied substantive",
+]
 
-    For any of the three, add a NEW entry here -- with a NEW id, not
-    present in `tokens` -- rather than skipping the construction entirely;
-    see latin_syntax_dspy.SentenceAnalysis's docstring for the full rules and
-    the id-naming convention."""
+
+class VerbalExpression(BaseModel):
+    """One verbal expression (quarto/concepts/verbalunits.qmd). Four
+    constructions count as verbal expressions:
+
+    - every finite verb (including the compound forms of the perfect
+      passive system, participle + a form of *sum*, anchored on the
+      participle);
+    - an infinitive that is the verb of an indirect statement (NOT a
+      complementary infinitive, and NOT an infinitive used as a
+      substantive);
+    - a participle with a circumstantial (not purely attributive) sense;
+    - every gerundive (but NOT the gerund, which is a substantive).
+
+    Implied verbal expressions (an implied form of *sum*, or an understood
+    repeated verb) are verbal expressions too, anchored on their implied
+    token (see TokenAnalysis and IMPLIED_TOKENTYPES).
+
+    A verbal expression is classified only by its syntactic type; the
+    semantic types of the earlier scheme ('transitive active' etc.) were
+    retired along with the scheme docs (quarto/concepts/)."""
 
     id: str = Field(
         description=(
-            "For an ordinary entry, must match the id of the corresponding "
-            "entry in the input `tokens` list. For an implied token "
-            "(tokentype in IMPLIED_TOKENTYPES -- 'implied sum', "
-            "'continued discourse', or 'implied subject'), a NEW id not "
-            "used by any entry in `tokens` or elsewhere in this "
-            "tokengraph -- see SentenceAnalysis's docstring for the naming "
-            "convention."
+            "Id of the token that anchors this verbal expression: the finite "
+            "verb, the indirect-statement infinitive, the circumstantial "
+            "participle, or the gerundive. For a compound form with a form of "
+            "*sum* (perfect passive system, future infinitive, or gerundive + "
+            "*sum*), use the participle's, infinitive's or gerundive's id, "
+            "NOT the form of *sum* (which relates to it as 'auxiliary'). For "
+            "an implied verbal expression, use the implied token's id."
+        )
+    )
+    syntactic_type: SyntacticType = Field(
+        description=(
+            "'independent' (main verb), 'dependent' (introduced by a "
+            "subordinating word or relative pronoun), 'direct quote' (the "
+            "top-level verb of directly quoted speech), 'aside' (interrupts "
+            "the surrounding syntax), 'parataxis' (a subjunctive governed, "
+            "without any subordinating word, by a verb of necessity, wishing, "
+            "preference or command), 'indirect statement' (an infinitive in "
+            "indirect speech), 'circumstantial participle', or 'gerundive' "
+            "(an attributive gerundive). A gerundive + *sum* (passive "
+            "periphrastic) instead takes the type of its context, like any "
+            "finite or infinitive form."
+        )
+    )
+
+
+class Relation(BaseModel):
+    """One edge of the syntax graph, from the TokenAnalysis that owns it to
+    another node: a real token, an implied token, or the reserved value
+    'root' (quarto/concepts/syntactic-analysis.qmd).
+
+    A token may have any number of relations. The order of a token's
+    relations carries no meaning (the serialization format,
+    quarto/reference/analysisformat.qmd, leaves it unspecified), so code
+    must select a relation by its label, never by its position."""
+
+    related: str = Field(
+        description=(
+            "Id of the related node: a token id from the input `tokens`, the "
+            "id of an implied token, or the reserved value 'root' (used only "
+            "as the target of an independent verb's 'unit verb' relation; "
+            "'root' may never be used as a token id)."
+        )
+    )
+    relationship: RelationLabel = Field(description="The kind of relation (one of the documented relation labels).")
+
+
+class TokenAnalysis(BaseModel):
+    """One node of the syntax graph (quarto/concepts/syntactic-analysis.qmd).
+
+    Most entries correspond 1:1 to an entry in the input `tokens` list. The
+    exceptions are implied tokens (quarto/concepts/tokens.qmd, "Implied
+    tokens"), which have no surface text and use a NEW id. There are three
+    kinds, one per IMPLIED_TOKENTYPES value:
+
+    - 'implied sum': an elided form of *sum*. It anchors its own verbal
+      expression (e.g. "omnia praeclara rara", or the always-implied
+      participle of *sum* in "Agrippa Menenio P. Postumio consulibus"),
+      EXCEPT when it is the missing auxiliary of a compound form (e.g.
+      "consules facti" for "facti sunt"): then the real participle anchors
+      the verbal expression and the implied token only relates to it as
+      'auxiliary'.
+    - 'implied verb': an understood repeated verb -- e.g. a verb shared by
+      parallel clauses, or a governing verb of speaking left unrepeated over
+      a long passage of indirect discourse. Always anchors its own verbal
+      expression.
+    - 'implied substantive': an unexpressed antecedent that a relative
+      pronoun or a participle depends on. Never a verbal expression.
+
+    Every non-punctuation token should have at least one relation; a token
+    may have several (e.g. a relative pronoun relates both to its antecedent
+    and to its function in its own clause; a coordinating word relates to
+    each of the items it joins)."""
+
+    id: str = Field(
+        description=(
+            "For a real token, the id of the corresponding entry in the input "
+            "`tokens` list. For an implied token, a NEW id not used by any "
+            "other token (see SentenceAnalysis's docstring for the naming "
+            "convention)."
         )
     )
     token: Optional[str] = Field(
         default=None,
         description=(
             "The token's surface text; should match the `text` of the input "
-            "token with this id. Leave as None ONLY for an implied token "
-            "(tokentype 'implied sum', 'continued discourse', or 'implied "
-            "subject') -- one with no surface realization in the passage at "
-            "all; every other tokentype must have real text."
+            "token with this id. Leave unset (None) ONLY for an implied token "
+            "('implied sum', 'implied verb' or 'implied substantive')."
         ),
     )
-    tokentype: Literal[
-        "lexical", "enclitic", "punctuation", "numeral", "praenomen", "abbreviation",
-        "implied sum", "continued discourse", "implied subject",
-    ] = Field(
+    tokentype: TokenType = Field(
         description=(
-            "'numeral' is a number written NUMERICALLY -- Roman (e.g. "
-            "'XXV') or Arabic -- rather than spelled out as a word; a "
-            "number spelled out as an ordinary word (e.g. 'decem' for "
-            "'ten') is 'lexical' instead, even though it's semantically a "
-            "number -- e.g. in 'fratres Joseph decem', all three tokens "
-            "are 'lexical', not 'numeral'. "
-            "'praenomen' is specifically an abbreviated Roman first name "
-            "(e.g. 'M.' for Marcus), including its period; 'abbreviation' is "
-            "any other abbreviation, including its period (e.g. 'f.' for "
-            "filius, 'cos.' for consul) -- syntax_model.md's tokenization "
-            "section documents these as two distinct token types, not one. "
-            "'implied sum', 'continued discourse', and 'implied subject' "
-            "each mark a token with NO surface realization at all (see "
-            "this model's own docstring for the distinction) -- the only "
-            "three tokentypes whose `token` field is None and whose `id` "
-            "is not one of the input `tokens`' own ids. 'continued discourse' "
-            "always anchors its own verbal expression (an entry in "
-            "`verbalunits`), and so does 'implied sum' in two of its three "
-            "sub-cases -- EXCEPT the omitted-auxiliary sub-case (e.g. 'facti' "
-            "for 'facti sunt'), where the real, already-present participle "
-            "anchors instead and this implied token only relates to it via "
-            "'auxiliary' (see this model's own docstring). 'implied subject' "
-            "never anchors a verbal expression -- it stands in for an "
-            "unexpressed NOUN or pronoun, not a verb."
+            "'praenomen': a Roman first name, abbreviated (with its period, "
+            "e.g. 'M.') or not, used with a nomen or cognomen; 'abbreviation': "
+            "any other abbreviation, with its period (e.g. 'f.', 'cos.'); "
+            "'punctuation'; 'enclitic' (e.g. 'que', 've', 'ne' written "
+            "attached to the preceding word); 'numeral': a number written "
+            "with numerals (e.g. 'XXV'), not spelled out as a word; "
+            "'lexical': any other word. 'implied sum', 'implied verb' and "
+            "'implied substantive' mark implied tokens with no surface text."
         )
     )
- 
-    lemma: Optional[str] = Field(default=None, description="Dictionary headword, for lexical tokens. Omit for punctuation.")
+    lemma: Optional[str] = Field(
+        default=None,
+        description=(
+            "Dictionary headword. Omit for punctuation. For an implied "
+            "token, the lemma of the implied word if known (e.g. 'sum')."
+        ),
+    )
     verbalunitid: Optional[str] = Field(
         default=None,
         description="If this token anchors a verbal expression in `verbalunits`, repeat its own id here; otherwise omit.",
     )
- 
-    relatedtoken1: Optional[str] = Field(
-        default=None,
+    relations: List[Relation] = Field(
+        default_factory=list,
         description=(
-            "Token id this token relates to (primary relation). For an "
-            "INDEPENDENT verb's own 'unit verb' relation, use the special "
-            "sentinel string 'root' instead of a token id -- 'root' is "
-            "reserved and must never be assigned as an actual token's id."
+            "Every relation from this token to another node of the syntax "
+            "graph, in no particular order. Empty only for punctuation (or a "
+            "token the analysis could not relate)."
         ),
     )
-    relationship1: Optional[RelationLabel] = Field(default=None, description="The primary relation type, if any.")
- 
-    relatedtoken2: Optional[str] = Field(default=None, description="Token id this token relates to (secondary relation, used when relation1 is already occupied).")
-    relationship2: Optional[RelationLabel] = Field(default=None, description="The secondary relation type, if any.")
+
+    def related_ids(self, relationship: Optional[str] = None) -> List[str]:
+        """Ids this token relates to, optionally only via `relationship`."""
+        return [
+            rel.related for rel in self.relations
+            if relationship is None or rel.relationship == relationship
+        ]
+
+    def relationships(self) -> List[str]:
+        """This token's relation labels, in stored order."""
+        return [rel.relationship for rel in self.relations]
+
+    def has_relationship(self, *labels: str) -> bool:
+        """True if any of this token's relations uses one of `labels`."""
+        return any(rel.relationship in labels for rel in self.relations)
+
+    def first_related(self, *labels: str) -> Optional[str]:
+        """The target of this token's first relation using one of `labels`
+        (any label if none given), or None."""
+        for rel in self.relations:
+            if not labels or rel.relationship in labels:
+                return rel.related
+        return None
+
+    def add_relation(self, related: str, relationship: str) -> None:
+        """Append a relation (convenience for building graphs by hand)."""
+        self.relations.append(Relation(related=related, relationship=relationship))
 
 
-# The three tokentype values (see TokenAnalysis's own docstring) that mark
-# a token with no surface realization at all -- an elided form of *sum*,
-# an unrepeated governing verb of indirect discourse, or an unexpressed
-# noun/pronoun (an implied antecedent a participle agrees with). Every
-# other module that needs to ask "is this an implied token" (validate(),
-# rendering.py, serialization.py, conftest.py's tokens_from_canned_answer())
-# checks membership in this set rather than hardcoding any of these
-# strings itself, so adding a further implied-token category later only
-# needs a change here -- exactly what happened when 'implied subject' was
-# added: every one of those consumers only cares "does this token have no
-# surface text", not "does it anchor a verbal expression", so none of them
-# needed a code change, only this set membership.
-IMPLIED_TOKENTYPES = frozenset({"implied sum", "continued discourse", "implied subject"})
+def rel(related: str, relationship: str) -> Relation:
+    """Shorthand constructor: rel('t3', 'subject')."""
+    return Relation(related=related, relationship=relationship)
+
+
+def iter_edges(tokengraph: Iterable[TokenAnalysis]):
+    """Yield every (token, relation) pair of a tokengraph, in order."""
+    for tok in tokengraph:
+        for relation in tok.relations:
+            yield tok, relation
+
+
+# The three tokentype values marking an implied token, one with no surface
+# realization in the passage (quarto/concepts/tokens.qmd, "Implied
+# tokens"). Every module that needs to ask "is this an implied token"
+# checks membership in this set rather than hardcoding the strings.
+IMPLIED_TOKENTYPES = frozenset({"implied sum", "implied verb", "implied substantive"})
+
+# The subset of IMPLIED_TOKENTYPES that can anchor a verbal expression.
+# ('implied sum' does so except when it is an omitted auxiliary.)
+IMPLIED_VERBAL_TOKENTYPES = frozenset({"implied sum", "implied verb"})

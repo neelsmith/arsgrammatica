@@ -72,10 +72,16 @@ The string *ratione* represents the enclitic token *ne* (a question word) follow
 
 The string *ratione* is a single lexical token (noun in the ablative singular): there is no enclitic.
 
+The most important enclitics are *que*, *ve* and *ne*. A less frequent group  includes *dum* (e.g., *vixdum*). The preposition *cum*  can appear as an enclitic (e.g., *nobiscum*).
 
-Tokenization must also recognize the small number of frequently occurring words that have incorporated an original historic enclitic into a single lexical item such as *quisque* (and its compounds), or *plerusque*. 
+
+
+
+Tokenization must also recognize the small number of frequently occurring words that have incorporated an original historic enclitic into a single lexical item such as *quisque* (and its compounds), *plerusque*, *neque*, *atque*, *itaque*, *denique* and *undique*. 
 
 **Examples**: forms such as *quisque*, *cuique* and *quemque* must each be treated as a single lexical token.
+
+
 
 ### `numeral`
 

@@ -1,6 +1,6 @@
 """
 Bridge from arsgrammatica's own Latin syntax analysis (models.py's
-VerbalExpression/TokenAnalysis scheme, syntax_model.md) to the
+VerbalExpression/TokenAnalysis scheme, quarto/concepts/) to the
 Agent-Action-Target (AAT) model implemented by the separate `aat` package
 (https://github.com/neelsmith/aat, docs at
 https://neelsmith.github.io/aat/aat.html).
@@ -10,7 +10,7 @@ from English text (aat.english) -- there, the LM is asked to emit
 agent/action/target nodes itself. arsgrammatica's own Latin pipeline
 predates and doesn't use that model at all: it produces a much richer,
 Latin-specific relational graph (models.py's TokenAnalysis/
-VerbalExpression, syntax_model.md's full case/relation inventory) with no
+VerbalExpression, with its full case/relation inventory) with no
 notion of "agent"/"target" built in. `aatgraph()`, below, is the
 converter: given an already-completed arsgrammatica analysis, it derives
 an AATGraph from it, applying (to Latin) the same role rules aat.english's
@@ -18,7 +18,8 @@ own DSPy signature documents for English (see
 AgentActionTarget.__doc__ in the installed `aat` package):
 
   - every verbal expression (VerbalExpression -- a finite verb, an
-    indirect-statement infinitive, or a predicate-sense participle) is an
+    indirect-statement infinitive, a circumstantial participle, or a
+    gerundive) is an
     *action*. A compound verbal expression (participle + a form of *sum*)
     becomes one action node, anchored at arsgrammatica's own compound-form
     id (per VerbalExpression.id's docstring, the participle or infinitive
@@ -33,37 +34,41 @@ AgentActionTarget.__doc__ in the installed `aat` package):
     *subordinated* to its governing verbal expression (`related_node` set
     to that governing action's own id), via
     `verbal_units.find_governing_verbal_expression()`.
-  - the *agent* of a transitive-active, intransitive, or linking verb is
-    its "subject"-related token; the agent of a transitive-passive verb is
-    its ablative-of-agent phrase -- syntax_model.md's "agent" relation
-    label sits on the preposition ("a"/"ab"), not the noun, so the actual
-    agent node is the noun the preposition's own "object of preposition"
-    relation points at (see this module's docstring below and
-    gold_examples.py's urbs_a_romulo_condita_answer fixture for the
-    worked case).
-  - the *target* of a transitive-active verb is its "direct object"-
-    related token; the target of a transitive-passive verb is its
-    "subject"-related token (the surface subject of a passive verb is
-    always its underlying direct object); the target of a linking verb is
-    its "predicate"-related token (its predicate nominative/adjective) --
-    this last rule isn't stated in the user's own instructions, but
-    matches aat.english's own documented convention ("target: ... the
-    predicate of a linking verb") and "Latin will work much like the
-    English examples" was the explicit brief, so it's included here; flag
-    it if a predicate complement should instead get no AAT role at all.
+  - agent and target follow the A-A-T section of
+    quarto/concepts/syntactic-analysis.qmd, which states them by VOICE:
+    - active and deponent verbs: the 'subject' is the agent; a 'direct
+      object' is the target; the 'predicate' of a linking verb (use 1 on
+      that page) is the target. A 'predicate' of role or state (use 2) or
+      a predicate of the direct object (use 3, which relates to the object,
+      not the verb) is not a target.
+    - passive (non-deponent) verbs, including a gerundive + *sum*: the
+      'subject' is the target; 'agent-ablative' or 'agent-dative' gives the
+      agent; a 'predicate' (use 4, e.g. "Cicero consul creatus est") is a
+      target too. For 'agent-ablative', the relation sits on the
+      preposition ("a"/"ab"), so the agent node is the noun its 'object of
+      preposition' relation points at.
+    The scheme no longer records voice (semantic types were retired), so
+    `_voice()` infers it from the analysis: a verbal expression with an
+    'agent-ablative'/'agent-dative' dependent, or a gerundive anchor, is
+    passive; one whose lemma ends in "-or" (the dictionary form of a
+    deponent verb) is active; a compound form with an 'auxiliary', or a
+    form ending in -tur/-ntur, is otherwise passive; everything else is
+    active. A verbal expression is a linking verb if its lemma is *sum*
+    (or *fio*) or it is an implied *sum*. These are heuristics: see
+    notes/model_switch_questions.md.
   - an agent/target candidate whose own token is an implied/elided token
-    (models.py's IMPLIED_TOKENTYPES -- most often an "implied subject"
+    (models.py's IMPLIED_TOKENTYPES -- an "implied substantive"
     standing in for a participle's unexpressed antecedent) is skipped
     entirely, rather than given an AATNode with a placeholder value --
     matching aat.english's own "either may be absent if the passage
     doesn't express one" convention. An implied ACTION anchor (an
-    "implied sum" or "continued discourse" verbal expression, which --
+    "implied sum" or "implied verb" verbal expression, which --
     unlike an implied agent/target -- arsgrammatica does still list in
     `verbalunits`) is NOT skipped: it still becomes its own action node
     (aat.english's model has no equivalent gap to model, since English
     text never elides its own verb the way Latin does), using
     `mermaid.token_label()`'s own placeholder text ("elided sum",
-    "continued discourse", ...) as `value`, so the node's `value` is never
+    "implied verb", ...) as `value`, so the node's `value` is never
     empty (aat.core.validate.validate() requires this).
 
 `AATGraph`/`AATNode` require every node to carry a `context` (aat's
@@ -95,8 +100,11 @@ from .mermaid import token_label
 from .models import IMPLIED_TOKENTYPES, Sentence, TokenAnalysis
 from .verbal_units import find_governing_verbal_expression
 
-_AGENT_RELATIONS = {"subject", "agent"}
-_TARGET_RELATIONS = {"direct object", "subject", "predicate"}
+import re
+
+_LINKING_LEMMAS = {"sum", "fio"}
+_PASSIVE_ENDING = re.compile(r"(tur|ntur)$")
+_GERUNDIVE_ENDING = re.compile(r"nd(us|a|um|i|ae|o|am|os|as|is|orum|arum)$")
 
 
 def _sentence_context(sentence: Sentence, warnings: List[str], index: int) -> str:
@@ -122,38 +130,56 @@ def _object_of_preposition(
     preposition_id: str, tokengraph: List[TokenAnalysis]
 ) -> Optional[TokenAnalysis]:
     """The token that relates to `preposition_id` via 'object of
-    preposition' -- syntax_model.md's convention for a passive verb's
-    ablative-of-agent phrase (see this module's docstring): the "agent"
-    relation label sits on the preposition itself, so the real agent noun
-    is one hop further out, via this relation."""
+    preposition' -- for an 'agent-ablative' relation, which sits on the
+    preposition a/ab, this is the actual agent noun."""
     for tok in tokengraph:
-        for related_field, label_field in (
-            ("relatedtoken1", "relationship1"),
-            ("relatedtoken2", "relationship2"),
-        ):
-            if (
-                getattr(tok, label_field) == "object of preposition"
-                and getattr(tok, related_field) == preposition_id
-            ):
-                return tok
+        if preposition_id in tok.related_ids("object of preposition"):
+            return tok
     return None
 
 
-def _role_for_relation(label: Optional[str], semantic_type: Optional[str]) -> Optional[str]:
-    """AAT role ('agent'/'target') a token relating to a verbal
-    expression's anchor via `label` should take, given that verb's own
-    `semantic_type` -- or None if this relation label/semantic-type
-    combination doesn't correspond to any AAT role at all (e.g. "direct
-    object" on an intransitive verb, which shouldn't occur but isn't this
-    function's job to police)."""
+def _dependents(anchor_id: str, tokengraph: List[TokenAnalysis]):
+    """Every (token, relationship) pair relating directly to `anchor_id`."""
+    return [
+        (tok, relation.relationship)
+        for tok in tokengraph
+        for relation in tok.relations
+        if relation.related == anchor_id
+    ]
+
+
+def _voice(anchor: TokenAnalysis, syntactic_type: str, dependents) -> str:
+    """'active' or 'passive' for the verbal expression anchored on `anchor`,
+    inferred from the analysis (see this module's docstring)."""
+    labels = {label for _tok, label in dependents}
+    if "agent-ablative" in labels or "agent-dative" in labels:
+        return "passive"
+    text = (anchor.token or "").lower()
+    if syntactic_type == "gerundive" or _GERUNDIVE_ENDING.search(text):
+        return "passive"
+    lemma = (anchor.lemma or "").lower()
+    if lemma.endswith("or"):
+        return "active"  # deponent
+    if "auxiliary" in labels or _PASSIVE_ENDING.search(text):
+        return "passive"
+    return "active"
+
+
+def _is_linking(anchor: TokenAnalysis) -> bool:
+    return anchor.tokentype == "implied sum" or (anchor.lemma or "").lower() in _LINKING_LEMMAS
+
+
+def _role_for_relation(label: str, voice: str, linking: bool) -> Optional[str]:
+    """AAT role ('agent'/'target') for a token relating to a verbal
+    expression's anchor via `label`, or None."""
     if label == "subject":
-        return "target" if semantic_type == "transitive passive" else "agent"
+        return "target" if voice == "passive" else "agent"
     if label == "direct object":
-        return "target" if semantic_type == "transitive active" else None
-    if label == "agent":
-        return "agent" if semantic_type == "transitive passive" else None
+        return "target" if voice == "active" else None
+    if label in ("agent-ablative", "agent-dative"):
+        return "agent"
     if label == "predicate":
-        return "target" if semantic_type == "linking verb" else None
+        return "target" if (linking or voice == "passive") else None
     return None
 
 
@@ -163,15 +189,8 @@ def _component_ids(anchor_id: str, tokengraph: List[TokenAnalysis]) -> List[str]
     "condita"; see this module's docstring)."""
     ids = [anchor_id]
     for tok in tokengraph:
-        for related_field, label_field in (
-            ("relatedtoken1", "relationship1"),
-            ("relatedtoken2", "relationship2"),
-        ):
-            if (
-                getattr(tok, label_field) == "auxiliary"
-                and getattr(tok, related_field) == anchor_id
-            ):
-                ids.append(tok.id)
+        if anchor_id in tok.related_ids("auxiliary"):
+            ids.append(tok.id)
     return ids
 
 
@@ -240,48 +259,42 @@ def aatgraph(sentences: List[Sentence], results: list) -> Tuple[AATGraph, List[s
                 )
             )
 
-            semantic_type = vu.semantic_type
+            dependents = _dependents(anchor_id, tokengraph)
+            voice = _voice(by_id[anchor_id], vu.syntactic_type, dependents)
+            linking = _is_linking(by_id[anchor_id])
             seen_role_token_ids: set = set()
-            for tok in tokengraph:
-                for related_field, label_field in (
-                    ("relatedtoken1", "relationship1"),
-                    ("relatedtoken2", "relationship2"),
-                ):
-                    label = getattr(tok, label_field)
-                    target_id = getattr(tok, related_field)
-                    if target_id != anchor_id:
-                        continue
-                    role = _role_for_relation(label, semantic_type)
-                    if role is None:
-                        continue
+            for tok, label in dependents:
+                role = _role_for_relation(label, voice, linking)
+                if role is None:
+                    continue
 
-                    if label == "agent":
-                        role_tok = _object_of_preposition(tok.id, tokengraph)
-                        if role_tok is None:
-                            warnings.append(
-                                f"sentence {index + 1}: {tok.id!r} relates to "
-                                f"{anchor_id!r} as 'agent' but has no 'object "
-                                "of preposition' dependent -- skipping its "
-                                "agent node"
-                            )
-                            continue
-                    else:
-                        role_tok = tok
-
-                    if role_tok.tokentype in IMPLIED_TOKENTYPES:
-                        continue
-                    if role_tok.id in seen_role_token_ids:
-                        continue
-                    seen_role_token_ids.add(role_tok.id)
-
-                    nodes.append(
-                        AATNode(
-                            context=context,
-                            id=role_tok.id,
-                            value=token_label(role_tok),
-                            role=role,
-                            related_node=anchor_id,
+                if label == "agent-ablative":
+                    role_tok = _object_of_preposition(tok.id, tokengraph)
+                    if role_tok is None:
+                        warnings.append(
+                            f"sentence {index + 1}: {tok.id!r} relates to "
+                            f"{anchor_id!r} as 'agent-ablative' but has no "
+                            "'object of preposition' dependent -- skipping "
+                            "its agent node"
                         )
+                        continue
+                else:
+                    role_tok = tok
+
+                if role_tok.tokentype in IMPLIED_TOKENTYPES:
+                    continue
+                if role_tok.id in seen_role_token_ids:
+                    continue
+                seen_role_token_ids.add(role_tok.id)
+
+                nodes.append(
+                    AATNode(
+                        context=context,
+                        id=role_tok.id,
+                        value=token_label(role_tok),
+                        role=role,
+                        related_node=anchor_id,
                     )
+                )
 
     return AATGraph(nodes=nodes), warnings

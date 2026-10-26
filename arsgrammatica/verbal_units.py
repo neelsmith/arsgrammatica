@@ -4,18 +4,18 @@ imply, so every token can be labelled "this token belongs to verbal unit
 X" (or to none) -- e.g. for coloring a Mermaid diagram by clause (see
 mermaid.py), or for any future visualization that wants the same grouping.
  
-The key idea: a verbal unit's anchor token (the finite verb, infinitive, or
-predicate-sense participle that owns an entry in `verbalunits` -- see
+The key idea: a verbal unit's anchor token (the finite verb, infinitive,
+circumstantial participle, or gerundive that owns an entry in `verbalunits` -- see
 models.py's VerbalExpression) already marks itself in the tokengraph via
 `verbalunitid` (set to its own id). Every OTHER token can be assigned to
-whichever anchor its own relatedtoken1/relatedtoken2 chain eventually
+whichever anchor its own relations chain eventually
 leads to -- with one wrinkle, handled specially below.
  
-The wrinkle: "subordinating conjunction" and "relative pronoun" are
+The wrinkle: "subordinating word" and "relative pronoun" are
 themselves cross-clause pointers. A subordinating conjunction's own
-relatedtoken1 points at the OUTER clause's verb (the one it modifies,
+'subordinating word' relation points at the OUTER clause's verb (the one it modifies,
 e.g. "cum" -> "pergit" in "Hercules cum gregem perlustrasset, pergit..."),
-and a relative pronoun's own relatedtoken1 points at its antecedent, which
+and a relative pronoun's own 'relative pronoun' relation points at its antecedent, which
 can likewise sit in an outer/different clause (e.g. "quibus" -> "Latini").
 Followed naively, both would pull the conjunction/pronoun itself into the
 OUTER clause it modifies or refers back to -- backwards from how a reader
@@ -23,22 +23,22 @@ would group the sentence: "cum" reads as part of the dependent clause it
 introduces ("cum gregem perlustrasset"), not part of the main clause
 ("pergit ad proximam speluncam") it happens to modify.
  
-The fix: syntax_model.md's own "unit verb (dependent)" rule already
+The fix: the scheme docs' own "unit verb (dependent)" rule already
 records the *reverse* link explicitly -- every dependent verb's own
-relatedtoken1 points AT its subordinating conjunction or relative pronoun,
-with relationship1 = "unit verb" (see latin_syntax_dspy.py's docstring).
+'unit verb' relation points AT its subordinating word or relative pronoun,
+with relationship "unit verb" (see latin_syntax_dspy.py's docstring).
 That reverse link is the authoritative "this token introduces clause V"
 signal, so it's checked first, for every token: if some verb V has a
 "unit verb" relation pointing at this token, this token belongs to V's
 verbal unit, full stop -- its own outgoing relations (the antecedent link,
 the outer-clause-modifies link) are not used to override that. Only when
 no such reverse link exists does a token fall back to following its own
-relatedtoken1/relatedtoken2 chain forward.
+relations chain forward.
 
 A second, analogous wrinkle: a noun or pronoun in a true "ablative
-absolute" relation to a verb (syntax_model.md's "verbal units with
+absolute" relation to a verb (the scheme docs' "verbal units with
 participles") is syntactically absolute -- it does not function inside
-that verb's own clause, even though its own relatedtoken1 points straight
+that verb's own clause, even though its own relation points straight
 at that verb. Grammatically it belongs instead to the circumstantial
 participle it agrees with, which always relates back to that same noun
 via "circumstantial participle" (possibly an implied participle of *sum*,
@@ -57,14 +57,14 @@ own outgoing relation actually is "ablative absolute"; a noun a
 circumstantial participle agrees with that otherwise fits normally into
 the surrounding clause (e.g. "eum" as direct object in "eum advenientem
 ... accepere") keeps that normal relation and is NOT redirected --
-syntax_model.md's own distinction between the two cases is exactly this
+the scheme docs' own distinction between the two cases is exactly this
 outgoing-relation label.
 
 A third case needs NO wrinkle at all, despite looking similar at first
-glance: a participle's own antecedent can be an "implied subject" token
+glance: a participle's own antecedent can be an "implied substantive" token
 (models.py's IMPLIED_TOKENTYPES) rather than a real noun, when the
 participle agrees with a governing verb's own unexpressed subject (e.g.
-"Recordatus" and the implied subject of "ait" in "Recordatusque somniorum
+"Recordatus" and the implied substantive standing for the subject of "ait" in "Recordatusque somniorum
 ait..."). That implied token is not itself a verbal-unit anchor
 (`verbalunitid` is unset), and its own outgoing relation is an ordinary
 "subject" -> the verb, not "ablative absolute" -- so it resolves through
@@ -76,11 +76,41 @@ this to work correctly.
  
 from typing import Dict, List, Optional, Tuple
  
-from .models import TokenAnalysis
+from .models import Relation, TokenAnalysis
  
 _UNIT_VERB = "unit verb"
 _CIRCUMSTANTIAL_PARTICIPLE = "circumstantial participle"
 _ABLATIVE_ABSOLUTE = "ablative absolute"
+_RELATIVE_PRONOUN = "relative pronoun"
+_COORDINATING_WORD = "coordinating word"
+
+
+def chase_order(tok: TokenAnalysis, position: Dict[str, int]) -> List[Relation]:
+    """`tok`'s relations to real or implied tokens (never 'root'), in the
+    order a forward chase through the graph should try them.
+
+    A token's relations are unordered (see models.Relation), so the order
+    is derived from their labels and targets: a 'relative pronoun' relation
+    (to the antecedent, in the governing clause) comes before any other
+    relation (e.g. the pronoun's function in its own clause, which would
+    lead back into the relative clause itself); otherwise relations are
+    tried in the document order of their targets (`position`: token id ->
+    index in the tokengraph), so e.g. a coordinating word joining two verbs
+    resolves to the first of them."""
+    candidates = [r for r in tok.relations if r.related != "root"]
+    return sorted(
+        candidates,
+        key=lambda r: (
+            0 if r.relationship == _RELATIVE_PRONOUN else 1,
+            position.get(r.related, len(position)),
+        ),
+    )
+
+
+def is_root_verb(tok: TokenAnalysis) -> bool:
+    """True if `tok` has a 'unit verb' relation to 'root' (an independent
+    verbal expression)."""
+    return any(r.related == "root" and r.relationship == _UNIT_VERB for r in tok.relations)
 
 # Categorical palette for coloring verbal units: 8 (fill, stroke, text)
 # triples, in a fixed order chosen so adjacent slots stay distinguishable
@@ -126,7 +156,7 @@ _VERBAL_UNIT_PALETTE = [
 ]
 
 # A dedicated "caution" color for implied/elided tokens (models.py's
-# IMPLIED_TOKENTYPES: "implied sum", "continued discourse", "implied
+# IMPLIED_TOKENTYPES: "implied sum", "implied verb", "implied
 # subject") -- a strong,
 # saturated amber, deliberately NOT drawn from _VERBAL_UNIT_PALETTE above
 # (whose pastel tints it would otherwise be confusable with, especially the
@@ -153,13 +183,13 @@ def assign_verbal_units(tokengraph: List[TokenAnalysis]) -> Dict[str, Optional[s
     `verbalunitid`). Every other token is assigned to the verbal unit its
     relations resolve to, per this module's docstring; a token with no
     resolvable relation (e.g. a bare accusative of place, an enclitic, an
-    emphatic pronoun left unrelated per syntax_model.md's "Incomplete
+    emphatic pronoun left unrelated per the scheme docs' "Incomplete
     status") gets None.
 
     A true ablative-absolute noun (its own outgoing relation is "ablative
     absolute", not some normal clause role) is redirected to the verbal
     unit of the circumstantial participle it agrees with, rather than to
-    the verb its own relatedtoken1 points at -- see this module's
+    the verb its own relation points at -- see this module's
     docstring for the full "paucis interiectis diebus ... inscio
     Collatino ... venit" example. Anything that in turn chains through
     that noun (an adjective, an appositive) follows it into the
@@ -169,7 +199,7 @@ def assign_verbal_units(tokengraph: List[TokenAnalysis]) -> Dict[str, Optional[s
     by_id = {tok.id: tok for tok in tokengraph}
 
     # Reverse index: for every token that some OTHER token points at via a
-    # "unit verb" relation, record who points at it. Per syntax_model.md,
+    # "unit verb" relation, record who points at it. Per the scheme docs (quarto/concepts/),
     # a "unit verb" target is always either the literal sentinel 'root'
     # (from an independent verb -- never a real token) or a subordinating
     # conjunction/relative pronoun's id (from a dependent verb) -- so a hit
@@ -184,14 +214,12 @@ def assign_verbal_units(tokengraph: List[TokenAnalysis]) -> Dict[str, Optional[s
     # outgoing relation isn't "ablative absolute") is left alone and keeps
     # resolving normally, so this index is consulted but not always used.
     circumstantial_participle_for: Dict[str, str] = {}
+    position = {tok.id: i for i, tok in enumerate(tokengraph)}
     for tok in tokengraph:
-        for related_field, label_field in (
-            ("relatedtoken1", "relationship1"),
-            ("relatedtoken2", "relationship2"),
-        ):
-            related = getattr(tok, related_field)
-            label = getattr(tok, label_field)
-            if related is None or related == "root":
+        for relation in tok.relations:
+            related = relation.related
+            label = relation.relationship
+            if related == "root":
                 continue
             if label == _UNIT_VERB:
                 introduces_clause_for[related] = tok.id
@@ -226,19 +254,13 @@ def assign_verbal_units(tokengraph: List[TokenAnalysis]) -> Dict[str, Optional[s
 
         if result is None:
             participle_id = circumstantial_participle_for.get(tid)
-            is_ablative_absolute = (
-                tok.relationship1 == _ABLATIVE_ABSOLUTE
-                or tok.relationship2 == _ABLATIVE_ABSOLUTE
-            )
+            is_ablative_absolute = tok.has_relationship(_ABLATIVE_ABSOLUTE)
             if participle_id is not None and is_ablative_absolute:
                 result = resolve(participle_id)
 
         if result is None:
-            for related_field in ("relatedtoken1", "relatedtoken2"):
-                related = getattr(tok, related_field)
-                if related is None or related == "root":
-                    continue
-                result = resolve(related)
+            for relation in chase_order(tok, position):
+                result = resolve(relation.related)
                 if result is not None:
                     break
  
@@ -317,13 +339,13 @@ def find_governing_verbal_expression(
     """For every verbal expression anchor in `tokengraph` (any token with
     `verbalunitid` set to its own id -- the same convention
     `assign_verbal_units()` relies on), find the *governing* verbal
-    expression it is subordinate to: the anchor id its own relatedtoken1
-    (falling back to relatedtoken2) chain eventually leads to, following
+    expression it is subordinate to: the anchor id its own relations
+    (tried in chase_order()) eventually lead to, following
     through as many intermediate non-anchor tokens as necessary.
 
     Returns `{anchor id: governing anchor id, or None}`. `None` covers
     BOTH of two different situations, deliberately not distinguished here:
-    an independent verb (relatedtoken1 == 'root', nothing to chase) and a
+    an independent verb (a 'unit verb' relation to 'root', nothing to chase) and a
     chase that dead-ends or cycles through non-anchor tokens before ever
     reaching another anchor (a malformed or genuinely disconnected verbal
     expression) -- either way, "no governing verbal expression" is the
@@ -337,7 +359,7 @@ def find_governing_verbal_expression(
     warnings, on top.
 
     One malformed-input case this function does NOT resolve to None:
-    two anchors whose own relatedtoken1/2 point directly at EACH OTHER
+    two anchors whose own relations point directly at EACH OTHER
     (rather than through intermediate tokens). The chase from either one
     hits the OTHER anchor immediately -- an anchor is a hit the moment
     it's reached, before its own further relations are ever followed --
@@ -363,9 +385,10 @@ def find_governing_verbal_expression(
     """
     by_id = {tok.id: tok for tok in tokengraph}
     anchor_ids = {tok.id for tok in tokengraph if tok.verbalunitid == tok.id}
+    position = {tok.id: i for i, tok in enumerate(tokengraph)}
 
     def chase(token_id: str, visited: set) -> Optional[str]:
-        """Follow relatedtoken1 (then relatedtoken2) forward from
+        """Follow relations (in chase_order()) forward from
         `token_id`, returning the first anchor id reached, or None if the
         chain dead-ends or cycles before reaching one. `token_id` itself
         counts as a hit if it's already an anchor (the direct-link cases:
@@ -378,22 +401,16 @@ def find_governing_verbal_expression(
         tok = by_id.get(token_id)
         if tok is None:
             return None
-        for field in ("relatedtoken1", "relatedtoken2"):
-            target = getattr(tok, field)
-            if target is None or target == "root":
-                continue
-            result = chase(target, visited)
+        for relation in chase_order(tok, position):
+            result = chase(relation.related, visited)
             if result is not None:
                 return result
         return None
 
     def parent_of(anchor_id: str) -> Optional[str]:
         tok = by_id[anchor_id]
-        for field in ("relatedtoken1", "relatedtoken2"):
-            target = getattr(tok, field)
-            if target is None or target == "root":
-                continue
-            result = chase(target, visited=set())
+        for relation in chase_order(tok, position):
+            result = chase(relation.related, visited=set())
             if result is not None and result != anchor_id:
                 return result
         return None
@@ -415,23 +432,22 @@ def compute_subordination_depths(
     token with `verbalunitid` set to its own id (the same convention
     `assign_verbal_units()` relies on). For each anchor, this function
     finds its *parent* anchor -- the verbal expression it's subordinate to
-    -- by following the anchor's own relatedtoken1 (falling back to
-    relatedtoken2), through as many intermediate non-anchor tokens as
+    -- by following the anchor's own relations (in chase_order()), through as many intermediate non-anchor tokens as
     necessary, until it lands on another anchor. This one chase handles
     every documented case uniformly, without needing to special-case by
     relationship label, because they all eventually resolve to another
     anchor via forward pointers already in the graph:
 
-    - unit verb (independent): relatedtoken1 == 'root' -> no parent, depth 0.
-    - unit verb (dependent): relatedtoken1 -> a subordinating conjunction or
-      relative pronoun (not itself an anchor) -> ITS relatedtoken1 -> the
+    - unit verb (independent): a 'unit verb' relation to 'root' -> no parent, depth 0.
+    - unit verb (dependent): -> a subordinating conjunction or
+      relative pronoun (not itself an anchor) -> ITS -> the
       superior verb (a conjunction) or an antecedent noun (a relative
       pronoun), the latter requiring one more hop through the noun's own
       relation to reach the verb it depends on.
-    - direct quote / aside / indirect statement: relatedtoken1 -> the verb
+    - direct quote / aside / indirect statement: -> the verb
       of the clause it interrupts, is framed by, or (for an indirect-
       statement infinitive) governs it, directly (no intermediate token).
-    - circumstantial participle: relatedtoken1 -> the noun/pronoun it
+    - circumstantial participle: -> the noun/pronoun it
       agrees with (not itself an anchor) -> that noun's own relation,
       either its normal role in the surrounding clause (one more hop to a
       verb) or, for a true ablative absolute, 'ablative absolute' pointing
@@ -441,7 +457,7 @@ def compute_subordination_depths(
     means the chase from that anchor never reached another anchor (a
     malformed or genuinely disconnected verbal expression -- e.g. an
     indirect-statement infinitive predating this convention, with no
-    relatedtoken1 of its own at all) or a cycle was detected; `warnings`
+    relation of its own at all) or a cycle was detected; `warnings`
     names which anchor(s) and why, mirroring `tokengraph_to_mermaid()`'s
     warnings-list convention rather than raising.
     """
@@ -450,7 +466,7 @@ def compute_subordination_depths(
 
     warnings: List[str] = []
 
-    # The chase itself -- following relatedtoken1/relatedtoken2 forward
+    # The chase itself -- following relations forward
     # until another anchor is reached -- now lives in
     # find_governing_verbal_expression(), shared with aat_bridge.py's
     # aatgraph(). Computed once, up front, for every anchor; this is a
@@ -467,7 +483,7 @@ def compute_subordination_depths(
         if anchor_id in depths:
             return depths[anchor_id]
         tok = by_id[anchor_id]
-        if tok.relatedtoken1 == "root":
+        if is_root_verb(tok):
             depths[anchor_id] = 0
             return 0
 
@@ -527,7 +543,7 @@ def compute_aat_depths(tokengraph: List[TokenAnalysis]) -> Dict[str, int]:
     to say: every one of this codebase's own gold fixtures) the two
     functions agree exactly, hop for hop -- they're driven by the same
     underlying chase. They can only diverge on malformed input: an anchor
-    whose own chase never reaches another anchor at all (relatedtoken1 not
+    whose own chase never reaches another anchor at all (no relation to
     'root', but nothing resolvable) is `None`/excluded/warned-about from
     `compute_subordination_depths()`, but depth 0 here.
 
@@ -607,7 +623,7 @@ def max_aat_depth(
     already has a plain `int` -- that function never leaves one `None` --
     so there's no "unresolved" case to filter out here. Returns `None`
     only when `tokengraph` has no verbal expressions at all (an empty
-    passage, or one with none of the three constructions syntax_model.md
+    passage, or one with none of the four constructions the scheme docs (quarto/concepts/)
     counts as one); otherwise the max of every anchor's depth.
     """
     if depths is None:
@@ -712,8 +728,8 @@ def max_subordination_depth(
     needs those).
 
     Returns `None` if `tokengraph` has no verbal expressions at all (an
-    empty passage, or one with none of the three constructions
-    syntax_model.md counts as one), or if every anchor's own depth came
+    empty passage, or one with none of the four constructions
+    the scheme docs (quarto/concepts/) counts as one), or if every anchor's own depth came
     back unresolved (see `compute_subordination_depths()`'s own
     warnings for why an anchor might be unresolved -- a relation cycle, or
     a governing verbal expression that couldn't be found). Otherwise
@@ -751,8 +767,8 @@ def find_unanchored_coordinated_verbs(tokengraph: List[TokenAnalysis]) -> List[s
     still probably WRONG, by looking for an asymmetry a correct analysis
     should never produce.
 
-    The heuristic: find every "coordinating conjunction" token that uses
-    BOTH relatedtoken1 and relatedtoken2 (the two-conjunct pairing case --
+    The heuristic: find every token with exactly two 'coordinating word'
+    relations (the two-conjunct pairing case --
     see that relation's own note about the one-sided, sentence-initial
     exception, which this deliberately ignores since there's only one
     conjunct to check there). For each such pair, if EXACTLY ONE of the
@@ -768,12 +784,12 @@ def find_unanchored_coordinated_verbs(tokengraph: List[TokenAnalysis]) -> List[s
     (polysyndeton, e.g. 'et...et...et' -- see latin_syntax_dspy.py's
     docstring) fits this same pairwise shape naturally: a connector
     strictly between two items relates directly to its flanking items via
-    relatedtoken1/relatedtoken2, exactly like an ordinary two-item pair, so
+    relations, exactly like an ordinary two-item pair, so
     it's checked the same way. Only the introductory connector before the
     very first item ("et A et B et C") is different -- it sets
-    relatedtoken1 alone, with no relatedtoken2 -- and that shape is already
-    excluded by this function's own requirement (above) that both
-    relatedtoken1 and relatedtoken2 be present, so no special-case is
+    only one 'coordinating word' relation -- and that shape is already
+    excluded by this function's own requirement (above) of exactly two,
+    so no special-case is
     needed for it here.
 
     Returns a list of warning strings (empty if nothing looks suspicious),
@@ -792,18 +808,17 @@ def find_unanchored_coordinated_verbs(tokengraph: List[TokenAnalysis]) -> List[s
     warnings: List[str] = []
     seen_pairs = set()
 
+    position = {t.id: i for i, t in enumerate(tokengraph)}
     for tok in tokengraph:
-        if not (
-            tok.relatedtoken1 is not None
-            and tok.relatedtoken1 != "root"
-            and tok.relationship1 == "coordinating conjunction"
-            and tok.relatedtoken2 is not None
-            and tok.relatedtoken2 != "root"
-            and tok.relationship2 == "coordinating conjunction"
-        ):
+        joined = sorted(
+            {r.related for r in tok.relations
+             if r.relationship == _COORDINATING_WORD and r.related != "root"},
+            key=lambda tid: position.get(tid, len(position)),
+        )
+        if len(joined) != 2:
             continue
 
-        pair = (tok.relatedtoken1, tok.relatedtoken2)
+        pair = (joined[0], joined[1])
         if pair in seen_pairs:
             continue
         seen_pairs.add(pair)

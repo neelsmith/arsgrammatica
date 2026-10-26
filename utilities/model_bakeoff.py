@@ -379,7 +379,7 @@ CANDIDATES = [
 
 HELD_OUT_SLUGS = [
     "unit_verb_hercules_cum",                              # baseline: independent + one dependent clause
-    "relative_pronoun_latini_cum_quibus",                  # relative pronoun + relatedtoken2 overflow
+    "relative_pronoun_latini_cum_quibus",                  # relative pronoun with two relations
     "coordinating_conjunction_verbs_ille_hermionenque",    # paired verbs, word-order mismatch
     "indirect_statement_facturum_fuisse_dixit",            # indirect statement + auxiliary
     "circumstantial_participle_eum_advenientem",           # circumstantial participle

@@ -49,13 +49,12 @@ _PLACEHOLDER_REASONING = (
 
 
 def _verbalunit_to_dict(vu: VerbalExpression) -> dict:
-    """VerbalExpression has exactly 3 required fields, none optional -- so
+    """VerbalExpression has exactly 2 required fields, none optional -- so
     this is just an ordinary full dump, matching every existing
     canned_answer['verbalunits'] entry in gold_examples.py."""
     return {
         "id": vu.id,
         "syntactic_type": vu.syntactic_type,
-        "semantic_type": vu.semantic_type,
     }
 
 
@@ -64,24 +63,21 @@ def _tokenanalysis_to_dict(tok: TokenAnalysis) -> dict:
     canned_answer['tokengraph'] entries use: 'id'/'token'/'tokentype' are
     always present -- including 'token': None for an implied token
     (tokentype in IMPLIED_TOKENTYPES), which is a meaningful value, not an
-    absent one -- but every other optional field (lemma, verbalunitid,
-    relatedtoken1/2, relationship1/2) is OMITTED entirely when None,
+    absent one -- but every other optional field (lemma, verbalunitid) is
+    OMITTED entirely when None, and 'relations' is omitted when empty,
     matching how every hand-written entry in gold_examples.py already
     looks (e.g. a bare punctuation token is just {"id": ..., "token":
     ..., "tokentype": "punctuation"}, never lemma=None etc. spelled out).
     """
     entry = {"id": tok.id, "token": tok.token, "tokentype": tok.tokentype}
-    for field in (
-        "lemma",
-        "verbalunitid",
-        "relatedtoken1",
-        "relationship1",
-        "relatedtoken2",
-        "relationship2",
-    ):
+    for field in ("lemma", "verbalunitid"):
         value = getattr(tok, field)
         if value is not None:
             entry[field] = value
+    if tok.relations:
+        entry["relations"] = [
+            {"related": r.related, "relationship": r.relationship} for r in tok.relations
+        ]
     return entry
 
 

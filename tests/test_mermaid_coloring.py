@@ -110,13 +110,13 @@ def test_implied_token_gets_its_own_dedicated_class_and_label():
 
 
 def test_implied_subject_token_gets_dedicated_class_and_fallback_label():
-    """'implied subject' (see models.py's TokenAnalysis/IMPLIED_TOKENTYPES)
+    """'implied substantive' (see models.py's TokenAnalysis/IMPLIED_TOKENTYPES)
     gets the same dedicated `implied` amber class as 'implied sum' above,
     even though it never anchors a verbal unit of its own (unlike
     'implied sum') -- the coloring is about the token's own KIND, not
     about which clause it's in. It has no entry in mermaid.py's own
     _IMPLIED_TOKEN_LABELS, so its node label falls back to its tokentype
-    string verbatim, "implied subject" (see that mapping's own comment).
+    string verbatim, "implied substantive" (see that mapping's own comment).
     It also gets the rounded-corner rectangle shape, `id("label")`, same
     as any other implied token. Recordatus (the participle) keeps its own
     ordinary vuN class and plain `id["label"]` rectangle, unaffected by
@@ -128,7 +128,7 @@ def test_implied_subject_token_gets_dedicated_class_and_fallback_label():
     diagram, warnings = tokengraph_to_mermaid(result.tokengraph)
     assert not warnings
 
-    implied_ids = [tok.id for tok in result.tokengraph if tok.tokentype == "implied subject"]
+    implied_ids = [tok.id for tok in result.tokengraph if tok.tokentype == "implied substantive"]
     assert implied_ids == ["t0_implied"]
 
     assert 'classDef implied fill:#ffc107,stroke:#7a5200,color:#000000;' in diagram
@@ -138,7 +138,7 @@ def test_implied_subject_token_gets_dedicated_class_and_fallback_label():
     assert len(implied_class_lines) == 1
     assert set(implied_class_lines[0].split()[1].split(",")) == set(implied_ids)
 
-    assert 't0_implied("implied subject")' in diagram
+    assert 't0_implied("implied substantive")' in diagram
 
     # No vuN classDef should also claim the implied-subject token, but
     # Recordatus (its own real verbal-unit anchor) should still have one.
@@ -163,7 +163,11 @@ def test_aside_example_gets_three_distinct_colors():
     assert "classDef vu1" in diagram
     assert "classDef vu2" in diagram
     assert "classDef vu3" not in diagram
-    # nos (t7) has no verbal unit -- must not be assigned any class.
+    # nos (t7), the subject of the indirect statement, is in the same class
+    # as esse (t12).
+    classes = {}
     for line in diagram.splitlines():
         if line.strip().startswith("class "):
-            assert "t7" not in line.split()[1].split(",")
+            for tid in line.split()[1].split(","):
+                classes[tid] = line.split()[2]
+    assert classes["t7"] == classes["t12"]

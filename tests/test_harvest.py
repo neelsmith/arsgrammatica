@@ -9,7 +9,7 @@ import ast
 
 import pytest
 
-from arsgrammatica.models import Sentence, Token, TokenAnalysis, VerbalExpression
+from arsgrammatica.models import Sentence, Token, TokenAnalysis, VerbalExpression, rel
 from fixtures.gold_examples import GOLD_EXAMPLES, GoldExample
 from fixtures.harvest import (
     _PLACEHOLDER_REASONING,
@@ -117,7 +117,7 @@ def test_malformed_analysis_is_rejected_by_default():
     tokengraph = [
         TokenAnalysis(
             id="t0", token="Rara", tokentype="lexical",
-            relatedtoken1="t99", relationship1="predicate",
+            relations=[rel("t99", "predicate")],
         )
     ]
     with pytest.raises(ValueError, match="validate\\(\\) found problems"):
@@ -130,7 +130,7 @@ def test_malformed_analysis_is_rejected_by_default():
         slug="x", tags=[], sentences=sentences, verbalunits=[], tokengraph=tokengraph,
         skip_validation=True,
     )
-    assert got.canned_answer["tokengraph"][0]["relatedtoken1"] == "t99"
+    assert got.canned_answer["tokengraph"][0]["relations"][0]["related"] == "t99"
 
 
 def test_implied_token_is_omitted_from_validate_input_but_still_round_trips():
@@ -163,7 +163,7 @@ def test_format_gold_example_source_is_valid_python():
     sentences, verbalunits, tokengraph = _real_objects_for("unit_verb_hercules_cum")
     example = gold_example_from_analysis(
         slug="unit_verb_hercules_cum",
-        tags=["unit verb", "subordinating conjunction"],
+        tags=["unit verb", "subordinating word"],
         sentences=sentences,
         verbalunits=verbalunits,
         tokengraph=tokengraph,

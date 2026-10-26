@@ -19,7 +19,7 @@ from arsgrammatica import (
     tokengraph_to_displacy_data,
     tokengraph_to_displacy_svg,
 )
-from arsgrammatica.models import TokenAnalysis
+from arsgrammatica.models import TokenAnalysis, rel
 from arsgrammatica.verbal_units import (
     assign_verbal_units,
     compute_aat_depths,
@@ -161,11 +161,11 @@ def test_root_word_omitted_when_no_independent_verb_present():
     tokengraph = [
         TokenAnalysis(
             id="t0", token="Hercules", tokentype="lexical",
-            relatedtoken1="t1", relationship1="subject",
+            relations=[rel("t1", "subject")],
         ),
         TokenAnalysis(
             id="t1", token="pergit", tokentype="lexical", verbalunitid="t1",
-            relatedtoken1="t2", relationship1="direct quote",
+            relations=[rel("t2", "direct quote")],
         ),
         TokenAnalysis(
             id="t2", token="venit", tokentype="lexical", verbalunitid="t2",
@@ -208,9 +208,9 @@ def test_multiple_independent_verbs_share_one_root_word():
         # nothing else's relation ever names it as a target, so it stays
         # excluded, same as before this existed.
         ("implied_sum_consules_facti", "t7_implied", None, False),
-        # t8_implied (the always-implied participle of sum) likewise only
-        # relates outward (to t8) -- nothing targets it.
-        ("implied_participle_of_sum_consulibus", "t8_implied", None, False),
+        # t8_implied (the always-implied participle of sum) is targeted by
+        # consulibus (t8), its predicate.
+        ("implied_participle_of_sum_consulibus", "t8_implied", "t8", True),
         # t0_implied is targeted only by t0 (Recordatus).
         ("implied_subject_recordatus_somniorum_ait", "t0_implied", "t0", True),
     ],
@@ -285,7 +285,7 @@ def test_linked_implied_token_is_included_right_after_its_source():
     tokengraph = [
         TokenAnalysis(
             id="t0", token="dictum", tokentype="lexical",
-            relatedtoken1="implied0", relationship1="auxiliary",
+            relations=[rel("implied0", "auxiliary")],
         ),
         TokenAnalysis(
             id="implied0", token=None, tokentype="implied sum",
@@ -307,7 +307,7 @@ def test_unlinked_implied_token_is_excluded_with_no_warning():
     tokengraph = [
         TokenAnalysis(
             id="implied0", token=None, tokentype="implied sum",
-            relatedtoken1="t0", relationship1="auxiliary",
+            relations=[rel("t0", "auxiliary")],
         ),
         TokenAnalysis(id="t0", token="factum", tokentype="lexical"),
     ]
@@ -326,15 +326,15 @@ def test_implied_token_linked_by_multiple_sources_goes_after_the_last_one():
     tokengraph = [
         TokenAnalysis(
             id="t0", token="primum", tokentype="lexical",
-            relatedtoken1="implied0", relationship1="indirect statement",
+            relations=[rel("implied0", "indirect statement")],
         ),
         TokenAnalysis(
             id="t1", token="secundum", tokentype="lexical",
-            relatedtoken1="implied0", relationship1="indirect statement",
+            relations=[rel("implied0", "indirect statement")],
         ),
         TokenAnalysis(
-            id="implied0", token=None, tokentype="continued discourse",
-            relatedtoken1="root", relationship1="unit verb",
+            id="implied0", token=None, tokentype="implied verb",
+            relations=[rel("root", "unit verb")],
         ),
     ]
     data, word_token_ids, warnings = tokengraph_to_displacy_data(tokengraph)
@@ -353,15 +353,15 @@ def test_implied_token_can_itself_anchor_a_further_implied_token():
     tokengraph = [
         TokenAnalysis(
             id="t0", token="foo", tokentype="lexical",
-            relatedtoken1="implied1", relationship1="circumstantial participle",
+            relations=[rel("implied1", "circumstantial participle")],
         ),
         TokenAnalysis(
-            id="implied1", token=None, tokentype="implied subject",
-            relatedtoken1="implied2", relationship1="subject",
+            id="implied1", token=None, tokentype="implied substantive",
+            relations=[rel("implied2", "subject")],
         ),
         TokenAnalysis(
             id="implied2", token=None, tokentype="implied sum",
-            relatedtoken1="root", relationship1="unit verb",
+            relations=[rel("root", "unit verb")],
         ),
     ]
     data, word_token_ids, warnings = tokengraph_to_displacy_data(tokengraph)
@@ -373,7 +373,7 @@ def test_relation_to_missing_id_is_skipped_with_a_warning():
     tokengraph = [
         TokenAnalysis(
             id="t0", token="foo", tokentype="lexical",
-            relatedtoken1="t99", relationship1="subject",
+            relations=[rel("t99", "subject")],
         ),
     ]
     data, word_token_ids, warnings = tokengraph_to_displacy_data(tokengraph)
@@ -390,7 +390,7 @@ def test_relation_into_punctuation_is_skipped_with_a_warning():
     tokengraph = [
         TokenAnalysis(
             id="t0", token="foo", tokentype="lexical",
-            relatedtoken1="t1", relationship1="subject",
+            relations=[rel("t1", "subject")],
         ),
         TokenAnalysis(id="t1", token=",", tokentype="punctuation"),
     ]
@@ -405,7 +405,7 @@ def test_self_relation_is_skipped_with_a_warning():
     tokengraph = [
         TokenAnalysis(
             id="t0", token="foo", tokentype="lexical",
-            relatedtoken1="t0", relationship1="subject",
+            relations=[rel("t0", "subject")],
         ),
     ]
     data, word_token_ids, warnings = tokengraph_to_displacy_data(tokengraph)
@@ -582,20 +582,19 @@ def test_aat_depth_dangling_arc_from_kept_word_is_skipped_with_a_warning():
     tokengraph = [
         TokenAnalysis(
             id="t5", token="cano", tokentype="lexical", verbalunitid="t5",
-            relatedtoken1="root", relationship1="unit verb",
+            relations=[rel("root", "unit verb")],
         ),
         TokenAnalysis(
             id="t0", token="arma", tokentype="lexical",
-            relatedtoken1="t5", relationship1="direct object",
+            relations=[rel("t5", "direct object")],
         ),
         TokenAnalysis(
             id="t1", token="que", tokentype="enclitic",
-            relatedtoken1="t0", relationship1="coordinating conjunction",
-            relatedtoken2="t2", relationship2="coordinating conjunction",
+            relations=[rel("t0", "coordinating word"), rel("t2", "coordinating word")],
         ),
         TokenAnalysis(
             id="t2", token="virum", tokentype="lexical", verbalunitid="t2",
-            relatedtoken1="t5", relationship1="direct quote",
+            relations=[rel("t5", "direct quote")],
         ),
     ]
     data, word_token_ids, warnings = tokengraph_to_displacy_data(tokengraph, aat_depth=0)
